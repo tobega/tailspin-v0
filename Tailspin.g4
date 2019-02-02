@@ -7,7 +7,7 @@ statement: definition
 
 definition: Def IDENTIFIER ':' source;
 
-source: dereference
+source: Dereference
   | STRING;
 
 sink: Stdout;
@@ -16,7 +16,7 @@ Stdout: 'stdout';
 
 Def: 'def' [ \r\t\n];
 
-dereference: '$' IDENTIFIER;
+Dereference: '$' IDENTIFIER;
 
 STRING: '\'' STRING_CHAR* '\'';
 

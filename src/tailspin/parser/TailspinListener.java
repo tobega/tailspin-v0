@@ -57,14 +57,4 @@ public interface TailspinListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSink(TailspinParser.SinkContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link TailspinParser#dereference}.
-	 * @param ctx the parse tree
-	 */
-	void enterDereference(TailspinParser.DereferenceContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link TailspinParser#dereference}.
-	 * @param ctx the parse tree
-	 */
-	void exitDereference(TailspinParser.DereferenceContext ctx);
 }

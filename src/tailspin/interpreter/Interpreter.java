@@ -38,6 +38,10 @@ class Interpreter extends TailspinBaseListener {
         case TailspinParser.IDENTIFIER:
           pendingIdentifier = node.getSymbol().getText();
           break;
+        case TailspinParser.Dereference:
+          String identifier = node.getSymbol().getText().substring(1);
+          currentValue = definitions.get(identifier);
+          break;
       }
     } catch (IOException e) {
       // Ignore
@@ -47,12 +51,6 @@ class Interpreter extends TailspinBaseListener {
   @Override
   public void exitStatement(TailspinParser.StatementContext ctx) {
     currentValue = null;
-  }
-
-  @Override
-  public void exitDereference(TailspinParser.DereferenceContext ctx) {
-    currentValue = definitions.get(pendingIdentifier);
-    pendingIdentifier = null;
   }
 
   @Override
