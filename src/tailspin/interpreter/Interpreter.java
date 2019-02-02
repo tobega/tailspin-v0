@@ -6,11 +6,12 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import tailspin.parser.TailspinBaseListener;
 import tailspin.parser.TailspinParser;
+import tailspin.parser.TailspinParserBaseListener;
 
-class Interpreter extends TailspinBaseListener {
+class Interpreter extends TailspinParserBaseListener {
   private final InputStream input;
   private final OutputStream output;
 
@@ -28,9 +29,15 @@ class Interpreter extends TailspinBaseListener {
   public void visitTerminal(TerminalNode node) {
     try {
       switch (node.getSymbol().getType()) {
-        case TailspinParser.STRING:
+        case TailspinParser.STRING_TEXT:
           String string = node.getSymbol().getText();
-          currentValue = string.substring(1, string.length() - 1).replace("''", "'");
+          currentValue = string.replace("''", "'");
+          break;
+        case TailspinParser.StringInterpolate:
+          {
+            String identifier = node.getSymbol().getText().substring(1);
+            currentValue = definitions.get(identifier);
+          }
           break;
         case TailspinParser.Stdout:
           output.write(currentValue.toString().getBytes(StandardCharsets.UTF_8));
@@ -57,5 +64,10 @@ class Interpreter extends TailspinBaseListener {
   public void exitDefinition(TailspinParser.DefinitionContext ctx) {
     definitions.put(pendingIdentifier, currentValue);
     pendingIdentifier = null;
+  }
+
+  @Override
+  public void exitEveryRule(ParserRuleContext ctx) {
+    super.exitEveryRule(ctx);
   }
 }

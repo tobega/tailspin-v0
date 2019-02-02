@@ -106,4 +106,17 @@ public class HelloWorld {
 
     assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  public void testHelloWorld_simpleInterpolate() throws Exception {
+    String program = "def helloWorld: 'Hello World!'\n"
+        + "'$helloWorld' -> stdout";
+    Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
+  }
 }

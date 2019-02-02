@@ -1,4 +1,4 @@
-// Generated from Tailspin.g4 by ANTLR 4.7.2
+// Generated from TailspinParser.g4 by ANTLR 4.7.2
 package tailspin.parser;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -6,7 +6,7 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  * This interface defines a complete listener for a parse tree produced by
  * {@link TailspinParser}.
  */
-public interface TailspinListener extends ParseTreeListener {
+public interface TailspinParserListener extends ParseTreeListener {
 	/**
 	 * Enter a parse tree produced by {@link TailspinParser#program}.
 	 * @param ctx the parse tree
@@ -47,6 +47,26 @@ public interface TailspinListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSource(TailspinParser.SourceContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TailspinParser#stringLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringLiteral(TailspinParser.StringLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TailspinParser#stringLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringLiteral(TailspinParser.StringLiteralContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TailspinParser#stringContent}.
+	 * @param ctx the parse tree
+	 */
+	void enterStringContent(TailspinParser.StringContentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TailspinParser#stringContent}.
+	 * @param ctx the parse tree
+	 */
+	void exitStringContent(TailspinParser.StringContentContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TailspinParser#sink}.
 	 * @param ctx the parse tree
