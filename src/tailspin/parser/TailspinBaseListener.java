@@ -16,13 +16,13 @@ public class TailspinBaseListener implements TailspinListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterProg(TailspinParser.ProgContext ctx) { }
+	@Override public void enterProgram(TailspinParser.ProgramContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitProg(TailspinParser.ProgContext ctx) { }
+	@Override public void exitProgram(TailspinParser.ProgramContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -35,6 +35,54 @@ public class TailspinBaseListener implements TailspinListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStatement(TailspinParser.StatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDefinition(TailspinParser.DefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDefinition(TailspinParser.DefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSource(TailspinParser.SourceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSource(TailspinParser.SourceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSink(TailspinParser.SinkContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSink(TailspinParser.SinkContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDereference(TailspinParser.DereferenceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDereference(TailspinParser.DereferenceContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

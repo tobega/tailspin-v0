@@ -1,15 +1,30 @@
 grammar Tailspin;
 
-prog: statement ('\n' statement)* EOF;
+program: statement ('\n' statement)* EOF;
 
-statement: STRING TO STDOUT;
+statement: definition
+  | source '->' sink;
+
+definition: 'def' IDENTIFIER ':' source;
+
+source: dereference
+  | STRING;
+
+sink: Stdout;
+
+Stdout: 'stdout';
+
+dereference: '$' IDENTIFIER;
 
 STRING: '\'' STRING_CHAR* '\'';
 
-fragment STRING_CHAR: '\\\'' | ~['];
+fragment STRING_CHAR: '\'\'' | ~['];
 
-TO: '->';
+IDENTIFIER: IDENTIFIER_START IDENTIFIER_PART*;
 
-STDOUT: 'stdout';
+fragment IDENTIFIER_START: [a-zA-Z];
+
+fragment IDENTIFIER_PART: IDENTIFIER_START
+  | [_0-9];
 
 WS : [ \r\t\n]+ -> skip ;

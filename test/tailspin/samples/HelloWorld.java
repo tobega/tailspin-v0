@@ -37,7 +37,7 @@ public class HelloWorld {
 
   @Test
   public void testWhatsUp() throws Exception {
-    String program = "'" + "What\\'s up" + "' -> stdout";
+    String program = "'" + "What''s up" + "' -> stdout";
     Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
@@ -45,6 +45,18 @@ public class HelloWorld {
     runner.run(input, output);
 
     assertEquals("What's up", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testWhatsUp_moreQuotes() throws Exception {
+    String program = "'" + "What''''s up" + "' -> stdout";
+    Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("What''s up", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -61,7 +73,8 @@ public class HelloWorld {
 
   @Test
   public void testHelloWorld_twoStatements() throws Exception {
-    String program = "'Hello' -> stdout\n'World'  -> stdout";
+    String program = "'Hello' -> stdout\n"
+        + "'World'  -> stdout";
     Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
@@ -78,5 +91,19 @@ public class HelloWorld {
       Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
       fail();
     } catch (Exception expected) {}
+  }
+
+  @Test
+  public void testHelloWorld_variable() throws Exception {
+    String program = "def world: 'World!'\n"
+        + "'Hello '->stdout\n"
+        + "$world -> stdout";
+    Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
   }
 }
