@@ -5,7 +5,7 @@ program: statement ('\n' statement)* EOF;
 statement: definition
   | source '->' sink;
 
-definition: 'def' IDENTIFIER ':' source;
+definition: Def IDENTIFIER ':' source;
 
 source: dereference
   | STRING;
@@ -13,6 +13,8 @@ source: dereference
 sink: Stdout;
 
 Stdout: 'stdout';
+
+Def: 'def' [ \r\t\n];
 
 dereference: '$' IDENTIFIER;
 

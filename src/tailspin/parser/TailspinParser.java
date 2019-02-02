@@ -17,7 +17,7 @@ public class TailspinParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, Stdout=6, STRING=7, IDENTIFIER=8, 
+		T__0=1, T__1=2, T__2=3, T__3=4, Stdout=5, Def=6, STRING=7, IDENTIFIER=8, 
 		WS=9;
 	public static final int
 		RULE_program = 0, RULE_statement = 1, RULE_definition = 2, RULE_source = 3, 
@@ -31,13 +31,13 @@ public class TailspinParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'\n'", "'->'", "'def'", "':'", "'$'", "'stdout'"
+			null, "'\n'", "'->'", "':'", "'$'", "'stdout'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, null, null, null, null, null, "Stdout", "STRING", "IDENTIFIER", 
+			null, null, null, null, null, "Stdout", "Def", "STRING", "IDENTIFIER", 
 			"WS"
 		};
 	}
@@ -185,14 +185,14 @@ public class TailspinParser extends Parser {
 			setState(27);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case T__2:
+			case Def:
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(22);
 				definition();
 				}
 				break;
-			case T__4:
+			case T__3:
 			case STRING:
 				enterOuterAlt(_localctx, 2);
 				{
@@ -220,6 +220,7 @@ public class TailspinParser extends Parser {
 	}
 
 	public static class DefinitionContext extends ParserRuleContext {
+		public TerminalNode Def() { return getToken(TailspinParser.Def, 0); }
 		public TerminalNode IDENTIFIER() { return getToken(TailspinParser.IDENTIFIER, 0); }
 		public SourceContext source() {
 			return getRuleContext(SourceContext.class,0);
@@ -245,11 +246,11 @@ public class TailspinParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(29);
-			match(T__2);
+			match(Def);
 			setState(30);
 			match(IDENTIFIER);
 			setState(31);
-			match(T__3);
+			match(T__2);
 			setState(32);
 			source();
 			}
@@ -291,7 +292,7 @@ public class TailspinParser extends Parser {
 			setState(36);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
-			case T__4:
+			case T__3:
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(34);
@@ -380,7 +381,7 @@ public class TailspinParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(40);
-			match(T__4);
+			match(T__3);
 			setState(41);
 			match(IDENTIFIER);
 			}
@@ -405,9 +406,9 @@ public class TailspinParser extends Parser {
 		"\5\4\3\2\17\20\7\3\2\2\20\22\5\4\3\2\21\17\3\2\2\2\22\25\3\2\2\2\23\21"+
 		"\3\2\2\2\23\24\3\2\2\2\24\26\3\2\2\2\25\23\3\2\2\2\26\27\7\2\2\3\27\3"+
 		"\3\2\2\2\30\36\5\6\4\2\31\32\5\b\5\2\32\33\7\4\2\2\33\34\5\n\6\2\34\36"+
-		"\3\2\2\2\35\30\3\2\2\2\35\31\3\2\2\2\36\5\3\2\2\2\37 \7\5\2\2 !\7\n\2"+
-		"\2!\"\7\6\2\2\"#\5\b\5\2#\7\3\2\2\2$\'\5\f\7\2%\'\7\t\2\2&$\3\2\2\2&%"+
-		"\3\2\2\2\'\t\3\2\2\2()\7\b\2\2)\13\3\2\2\2*+\7\7\2\2+,\7\n\2\2,\r\3\2"+
+		"\3\2\2\2\35\30\3\2\2\2\35\31\3\2\2\2\36\5\3\2\2\2\37 \7\b\2\2 !\7\n\2"+
+		"\2!\"\7\5\2\2\"#\5\b\5\2#\7\3\2\2\2$\'\5\f\7\2%\'\7\t\2\2&$\3\2\2\2&%"+
+		"\3\2\2\2\'\t\3\2\2\2()\7\7\2\2)\13\3\2\2\2*+\7\6\2\2+,\7\n\2\2,\r\3\2"+
 		"\2\2\5\23\35&";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
