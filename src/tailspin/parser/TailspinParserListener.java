@@ -48,6 +48,16 @@ public interface TailspinParserListener extends ParseTreeListener {
 	 */
 	void exitSource(TailspinParser.SourceContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link TailspinParser#templates}.
+	 * @param ctx the parse tree
+	 */
+	void enterTemplates(TailspinParser.TemplatesContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TailspinParser#templates}.
+	 * @param ctx the parse tree
+	 */
+	void exitTemplates(TailspinParser.TemplatesContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link TailspinParser#stringLiteral}.
 	 * @param ctx the parse tree
 	 */

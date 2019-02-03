@@ -11,7 +11,10 @@ statement: definition
 definition: Def IDENTIFIER Colon source;
 
 source: Dereference
-  | stringLiteral;
+  | stringLiteral
+  | source To templates;
+
+templates: stringLiteral;
 
 stringLiteral: START_STRING stringContent* END_STRING;
 
