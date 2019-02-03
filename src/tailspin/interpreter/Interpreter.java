@@ -29,17 +29,17 @@ class Interpreter extends TailspinParserBaseListener {
   public void visitTerminal(TerminalNode node) {
     try {
       switch (node.getSymbol().getType()) {
-        case TailspinParser.STRING_TEXT:
+        case TailspinParser.STRING_TEXT: // stringLiteral
           String string = node.getSymbol().getText();
-          currentValue = string.replace("''", "'");
+          currentValue += string.replace("''", "'").replace("$$", "$");
           break;
-        case TailspinParser.StringInterpolate:
+        case TailspinParser.StringInterpolate: // stringLiteral
           {
-            String identifier = node.getSymbol().getText().substring(1);
-            currentValue = definitions.get(identifier);
+            String identifier = node.getSymbol().getText().replaceAll("[$;]", "");
+            currentValue += definitions.get(identifier).toString();
           }
           break;
-        case TailspinParser.Stdout:
+        case TailspinParser.Stdout: // sink
           output.write(currentValue.toString().getBytes(StandardCharsets.UTF_8));
           break;
         case TailspinParser.IDENTIFIER:
@@ -53,6 +53,11 @@ class Interpreter extends TailspinParserBaseListener {
     } catch (IOException e) {
       // Ignore
     }
+  }
+
+  @Override
+  public void enterStringLiteral(TailspinParser.StringLiteralContext ctx) {
+    currentValue = "";
   }
 
   @Override

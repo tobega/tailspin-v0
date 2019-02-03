@@ -4,13 +4,15 @@ Stdout: 'stdout';
 
 Def: 'def' [ \r\t\n];
 
-Dereference: '$' IDENTIFIER;
+Dereference: '$' IDENTIFIER ';'?;
 
 To: '->';
 
 Eol: '\n';
 
 Colon: ':';
+
+EndIdentifier: ';';
 
 START_STRING: '\'' -> pushMode(IN_STRING);
 
@@ -29,6 +31,6 @@ StringInterpolate: Dereference;
 
 STRING_TEXT: STRING_CHAR+;
 
-fragment STRING_CHAR: '\'\'' | ~['];
+fragment STRING_CHAR: '\'\'' | '$$' | ~['$];
 
 END_STRING: '\'' -> popMode;
