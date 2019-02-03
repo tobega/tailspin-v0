@@ -24,6 +24,54 @@ public class HelloWorld {
   }
 
   @Test
+  public void testHelloWorld_newline() throws Exception {
+    String program = "'Hello World' -> stdout\n";
+    Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testHelloWorld_extraWhitespace() throws Exception {
+    String program = "'Hello World' -> stdout ";
+    Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testHelloWorld_newlineBefore() throws Exception {
+    String program = "\n'Hello World' -> stdout";
+    Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testHelloWorld_extraWhitespaceBefore() throws Exception {
+    String program = " 'Hello World' -> stdout ";
+    Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   public void testHelloWorld_multiLineStatement() throws Exception {
     String program = "'Hello World'\n  -> stdout";
     Tailspin runner = Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

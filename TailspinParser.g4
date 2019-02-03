@@ -2,7 +2,8 @@ parser grammar TailspinParser;
 
 options { tokenVocab = TailspinLexer; }
 
-program: statement (Eol statement)* EOF;
+// I don't know why I need the Eol? bits, shouldn't it go on skip whitespace?
+program: Eol? statement (Eol statement)* Eol? EOF;
 
 statement: definition
   | source To sink;
