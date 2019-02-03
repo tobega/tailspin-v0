@@ -12,6 +12,7 @@ definition: Def IDENTIFIER Colon source;
 
 source: Dereference
   | stringLiteral
+  | DecimalLiteral
   | source To templates;
 
 templates: stringLiteral;

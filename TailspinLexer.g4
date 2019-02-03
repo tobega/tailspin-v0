@@ -14,6 +14,10 @@ Colon: ':';
 
 EndIdentifier: ';';
 
+DecimalLiteral: '0' | '-'? [1-9] Digits?;
+
+fragment Digits: [0-9]+;
+
 START_STRING: '\'' -> pushMode(IN_STRING);
 
 IDENTIFIER: IDENTIFIER_START IDENTIFIER_PART*;

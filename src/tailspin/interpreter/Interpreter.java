@@ -43,6 +43,9 @@ class Interpreter extends TailspinParserBaseListener {
                 case TailspinParser.Stdout: // sink
                     output.write(definitions.get("it").toString().getBytes(StandardCharsets.UTF_8));
                     break;
+                case TailspinParser.DecimalLiteral:
+                    currentValue = Integer.valueOf(node.getSymbol().getText());
+                    break;
                 case TailspinParser.IDENTIFIER:
                     pendingIdentifier = node.getSymbol().getText();
                     break;
