@@ -68,6 +68,16 @@ public interface TailspinParserListener extends ParseTreeListener {
 	 */
 	void exitRangeLiteral(TailspinParser.RangeLiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link TailspinParser#integerLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntegerLiteral(TailspinParser.IntegerLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TailspinParser#integerLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link TailspinParser#stringLiteral}.
 	 * @param ctx the parse tree
 	 */

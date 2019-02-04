@@ -6,7 +6,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -50,7 +49,8 @@ class Interpreter extends TailspinParserBaseListener {
         case TailspinParser.Stdout: // sink
           output.write(definitions.get("it").toString().getBytes(StandardCharsets.UTF_8));
           break;
-        case TailspinParser.DecimalLiteral:
+        case TailspinParser.Zero:
+        case TailspinParser.NonZeroInteger:
           currentValue = Integer.valueOf(node.getSymbol().getText());
           break;
         case TailspinParser.IDENTIFIER: // definition
@@ -107,29 +107,40 @@ class Interpreter extends TailspinParserBaseListener {
   @Override
   public void exitRangeLiteral(TailspinParser.RangeLiteralContext ctx) {
     RangeLiteralResolver resolver = (RangeLiteralResolver) terminalSink;
-    currentValue = IntStream.rangeClosed(resolver.start, resolver.end).boxed();
+    currentValue = resolver.getValue();
     terminalSink = null;
   }
 
   interface TerminalSink {
     void visitTerminal(TerminalNode node);
+    Object getValue();
   }
 
   static class RangeLiteralResolver implements TerminalSink {
     Integer start;
     Integer end;
+    Integer increment = 1;
 
     @Override
     public void visitTerminal(TerminalNode node) {
       switch (node.getSymbol().getType()) {
-        case TailspinParser.DecimalLiteral:
+        case TailspinParser.Zero:
+        case TailspinParser.NonZeroInteger:
           Integer value = Integer.valueOf(node.getSymbol().getText());
           if (start == null) {
             start = value;
-          } else {
+          } else if (end == null) {
             end = value;
+          } else {
+            increment = value;
           }
       }
+    }
+
+    @Override
+    public Object getValue() {
+      return Stream.iterate(start, i -> (increment > 0 && i <= end) || (increment < 0 && i >= end),
+          i -> i + increment);
     }
   }
 }

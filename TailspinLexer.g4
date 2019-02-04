@@ -16,7 +16,9 @@ EndIdentifier: ';';
 
 Range: '..';
 
-DecimalLiteral: '0' | '-'? [1-9] Digits?;
+Zero: '0';
+
+NonZeroInteger: '-'? [1-9] Digits?;
 
 fragment Digits: [0-9]+;
 

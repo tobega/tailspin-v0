@@ -12,12 +12,14 @@ definition: Def IDENTIFIER Colon source;
 
 source: Dereference
   | stringLiteral
-  | DecimalLiteral
+  | integerLiteral
   | rangeLiteral;
 
 templates: stringLiteral;
 
-rangeLiteral: DecimalLiteral Range DecimalLiteral;
+rangeLiteral: integerLiteral Range integerLiteral (Colon NonZeroInteger)?;
+
+integerLiteral: Zero | NonZeroInteger;
 
 stringLiteral: START_STRING stringContent* END_STRING;
 
