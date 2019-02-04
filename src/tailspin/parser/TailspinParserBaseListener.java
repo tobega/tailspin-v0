@@ -1,4 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.7.1
+// Generated from TailspinParser.g4 by ANTLR 4.7.2
 package tailspin.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -71,6 +71,18 @@ public class TailspinParserBaseListener implements TailspinParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTemplates(TailspinParser.TemplatesContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterRangeLiteral(TailspinParser.RangeLiteralContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRangeLiteral(TailspinParser.RangeLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -1,4 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.7.1
+// Generated from TailspinParser.g4 by ANTLR 4.7.2
 package tailspin.parser;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -57,6 +57,16 @@ public interface TailspinParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTemplates(TailspinParser.TemplatesContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TailspinParser#rangeLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterRangeLiteral(TailspinParser.RangeLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TailspinParser#rangeLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitRangeLiteral(TailspinParser.RangeLiteralContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link TailspinParser#stringLiteral}.
 	 * @param ctx the parse tree

@@ -13,12 +13,15 @@ definition: Def IDENTIFIER Colon source;
 source: Dereference
   | stringLiteral
   | DecimalLiteral
-  | source To templates;
+  | rangeLiteral;
 
 templates: stringLiteral;
+
+rangeLiteral: DecimalLiteral Range DecimalLiteral;
 
 stringLiteral: START_STRING stringContent* END_STRING;
 
 stringContent: StringInterpolate | STRING_TEXT;
 
-sink: Stdout;
+sink: Stdout
+  | templates To sink;

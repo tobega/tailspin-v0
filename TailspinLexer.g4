@@ -14,6 +14,8 @@ Colon: ':';
 
 EndIdentifier: ';';
 
+Range: '..';
+
 DecimalLiteral: '0' | '-'? [1-9] Digits?;
 
 fragment Digits: [0-9]+;
