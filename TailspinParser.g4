@@ -12,7 +12,7 @@ definition: Def IDENTIFIER Colon source;
 
 source: Dereference
   | stringLiteral
-  | integerLiteral
+  | arithmeticExpression
   | rangeLiteral;
 
 templates: stringLiteral;
@@ -27,3 +27,6 @@ stringContent: StringInterpolate | STRING_TEXT;
 
 sink: Stdout
   | templates To sink;
+
+arithmeticExpression: integerLiteral
+  | arithmeticExpression AdditiveOperator arithmeticExpression;

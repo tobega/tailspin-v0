@@ -16,6 +16,8 @@ EndIdentifier: ';';
 
 Range: '..';
 
+AdditiveOperator: '+' | '-';
+
 Zero: '0';
 
 NonZeroInteger: '-'? [1-9] Digits?;

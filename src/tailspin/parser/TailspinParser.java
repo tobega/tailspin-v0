@@ -18,31 +18,32 @@ public class TailspinParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		Stdout=1, Def=2, Dereference=3, To=4, Eol=5, Colon=6, EndIdentifier=7, 
-		Range=8, Zero=9, NonZeroInteger=10, START_STRING=11, IDENTIFIER=12, WS=13, 
-		StringInterpolate=14, STRING_TEXT=15, END_STRING=16;
+		Range=8, AdditiveOperator=9, Zero=10, NonZeroInteger=11, START_STRING=12, 
+		IDENTIFIER=13, WS=14, StringInterpolate=15, STRING_TEXT=16, END_STRING=17;
 	public static final int
 		RULE_program = 0, RULE_statement = 1, RULE_definition = 2, RULE_source = 3, 
 		RULE_templates = 4, RULE_rangeLiteral = 5, RULE_integerLiteral = 6, RULE_stringLiteral = 7, 
-		RULE_stringContent = 8, RULE_sink = 9;
+		RULE_stringContent = 8, RULE_sink = 9, RULE_arithmeticExpression = 10;
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"program", "statement", "definition", "source", "templates", "rangeLiteral", 
-			"integerLiteral", "stringLiteral", "stringContent", "sink"
+			"integerLiteral", "stringLiteral", "stringContent", "sink", "arithmeticExpression"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'stdout'", null, null, "'->'", "'\n'", "':'", "';'", "'..'", "'0'"
+			null, "'stdout'", null, null, "'->'", "'\n'", "':'", "';'", "'..'", null, 
+			"'0'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
 			null, "Stdout", "Def", "Dereference", "To", "Eol", "Colon", "EndIdentifier", 
-			"Range", "Zero", "NonZeroInteger", "START_STRING", "IDENTIFIER", "WS", 
-			"StringInterpolate", "STRING_TEXT", "END_STRING"
+			"Range", "AdditiveOperator", "Zero", "NonZeroInteger", "START_STRING", 
+			"IDENTIFIER", "WS", "StringInterpolate", "STRING_TEXT", "END_STRING"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -130,47 +131,47 @@ public class TailspinParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(21);
+			setState(23);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==Eol) {
 				{
-				setState(20);
+				setState(22);
 				match(Eol);
 				}
 			}
 
-			setState(23);
+			setState(25);
 			statement();
-			setState(28);
+			setState(30);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,1,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(24);
+					setState(26);
 					match(Eol);
-					setState(25);
+					setState(27);
 					statement();
 					}
 					} 
 				}
-				setState(30);
+				setState(32);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,1,_ctx);
 			}
-			setState(32);
+			setState(34);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==Eol) {
 				{
-				setState(31);
+				setState(33);
 				match(Eol);
 				}
 			}
 
-			setState(34);
+			setState(36);
 			match(EOF);
 			}
 		}
@@ -214,13 +215,13 @@ public class TailspinParser extends Parser {
 		StatementContext _localctx = new StatementContext(_ctx, getState());
 		enterRule(_localctx, 2, RULE_statement);
 		try {
-			setState(41);
+			setState(43);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case Def:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(36);
+				setState(38);
 				definition();
 				}
 				break;
@@ -230,11 +231,11 @@ public class TailspinParser extends Parser {
 			case START_STRING:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(37);
-				source();
-				setState(38);
-				match(To);
 				setState(39);
+				source();
+				setState(40);
+				match(To);
+				setState(41);
 				sink();
 				}
 				break;
@@ -280,13 +281,13 @@ public class TailspinParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(43);
-			match(Def);
-			setState(44);
-			match(IDENTIFIER);
 			setState(45);
-			match(Colon);
+			match(Def);
 			setState(46);
+			match(IDENTIFIER);
+			setState(47);
+			match(Colon);
+			setState(48);
 			source();
 			}
 		}
@@ -306,8 +307,8 @@ public class TailspinParser extends Parser {
 		public StringLiteralContext stringLiteral() {
 			return getRuleContext(StringLiteralContext.class,0);
 		}
-		public IntegerLiteralContext integerLiteral() {
-			return getRuleContext(IntegerLiteralContext.class,0);
+		public ArithmeticExpressionContext arithmeticExpression() {
+			return getRuleContext(ArithmeticExpressionContext.class,0);
 		}
 		public RangeLiteralContext rangeLiteral() {
 			return getRuleContext(RangeLiteralContext.class,0);
@@ -330,34 +331,34 @@ public class TailspinParser extends Parser {
 		SourceContext _localctx = new SourceContext(_ctx, getState());
 		enterRule(_localctx, 6, RULE_source);
 		try {
-			setState(52);
+			setState(54);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,4,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(48);
+				setState(50);
 				match(Dereference);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(49);
+				setState(51);
 				stringLiteral();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(50);
-				integerLiteral();
+				setState(52);
+				arithmeticExpression(0);
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(51);
+				setState(53);
 				rangeLiteral();
 				}
 				break;
@@ -398,7 +399,7 @@ public class TailspinParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(54);
+			setState(56);
 			stringLiteral();
 			}
 		}
@@ -444,20 +445,20 @@ public class TailspinParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(56);
-			integerLiteral();
-			setState(57);
-			match(Range);
 			setState(58);
 			integerLiteral();
-			setState(61);
+			setState(59);
+			match(Range);
+			setState(60);
+			integerLiteral();
+			setState(63);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			if (_la==Colon) {
 				{
-				setState(59);
+				setState(61);
 				match(Colon);
-				setState(60);
+				setState(62);
 				match(NonZeroInteger);
 				}
 			}
@@ -499,7 +500,7 @@ public class TailspinParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(63);
+			setState(65);
 			_la = _input.LA(1);
 			if ( !(_la==Zero || _la==NonZeroInteger) ) {
 			_errHandler.recoverInline(this);
@@ -552,23 +553,23 @@ public class TailspinParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(65);
+			setState(67);
 			match(START_STRING);
-			setState(69);
+			setState(71);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==StringInterpolate || _la==STRING_TEXT) {
 				{
 				{
-				setState(66);
+				setState(68);
 				stringContent();
 				}
 				}
-				setState(71);
+				setState(73);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(72);
+			setState(74);
 			match(END_STRING);
 			}
 		}
@@ -607,7 +608,7 @@ public class TailspinParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(74);
+			setState(76);
 			_la = _input.LA(1);
 			if ( !(_la==StringInterpolate || _la==STRING_TEXT) ) {
 			_errHandler.recoverInline(this);
@@ -657,24 +658,24 @@ public class TailspinParser extends Parser {
 		SinkContext _localctx = new SinkContext(_ctx, getState());
 		enterRule(_localctx, 18, RULE_sink);
 		try {
-			setState(81);
+			setState(83);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case Stdout:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(76);
+				setState(78);
 				match(Stdout);
 				}
 				break;
 			case START_STRING:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(77);
-				templates();
-				setState(78);
-				match(To);
 				setState(79);
+				templates();
+				setState(80);
+				match(To);
+				setState(81);
 				sink();
 				}
 				break;
@@ -693,29 +694,128 @@ public class TailspinParser extends Parser {
 		return _localctx;
 	}
 
+	public static class ArithmeticExpressionContext extends ParserRuleContext {
+		public IntegerLiteralContext integerLiteral() {
+			return getRuleContext(IntegerLiteralContext.class,0);
+		}
+		public List<ArithmeticExpressionContext> arithmeticExpression() {
+			return getRuleContexts(ArithmeticExpressionContext.class);
+		}
+		public ArithmeticExpressionContext arithmeticExpression(int i) {
+			return getRuleContext(ArithmeticExpressionContext.class,i);
+		}
+		public TerminalNode AdditiveOperator() { return getToken(TailspinParser.AdditiveOperator, 0); }
+		public ArithmeticExpressionContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_arithmeticExpression; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof TailspinParserListener ) ((TailspinParserListener)listener).enterArithmeticExpression(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof TailspinParserListener ) ((TailspinParserListener)listener).exitArithmeticExpression(this);
+		}
+	}
+
+	public final ArithmeticExpressionContext arithmeticExpression() throws RecognitionException {
+		return arithmeticExpression(0);
+	}
+
+	private ArithmeticExpressionContext arithmeticExpression(int _p) throws RecognitionException {
+		ParserRuleContext _parentctx = _ctx;
+		int _parentState = getState();
+		ArithmeticExpressionContext _localctx = new ArithmeticExpressionContext(_ctx, _parentState);
+		ArithmeticExpressionContext _prevctx = _localctx;
+		int _startState = 20;
+		enterRecursionRule(_localctx, 20, RULE_arithmeticExpression, _p);
+		try {
+			int _alt;
+			enterOuterAlt(_localctx, 1);
+			{
+			{
+			setState(86);
+			integerLiteral();
+			}
+			_ctx.stop = _input.LT(-1);
+			setState(93);
+			_errHandler.sync(this);
+			_alt = getInterpreter().adaptivePredict(_input,8,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					if ( _parseListeners!=null ) triggerExitRuleEvent();
+					_prevctx = _localctx;
+					{
+					{
+					_localctx = new ArithmeticExpressionContext(_parentctx, _parentState);
+					pushNewRecursionContext(_localctx, _startState, RULE_arithmeticExpression);
+					setState(88);
+					if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
+					setState(89);
+					match(AdditiveOperator);
+					setState(90);
+					arithmeticExpression(2);
+					}
+					} 
+				}
+				setState(95);
+				_errHandler.sync(this);
+				_alt = getInterpreter().adaptivePredict(_input,8,_ctx);
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			unrollRecursionContexts(_parentctx);
+		}
+		return _localctx;
+	}
+
+	public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
+		switch (ruleIndex) {
+		case 10:
+			return arithmeticExpression_sempred((ArithmeticExpressionContext)_localctx, predIndex);
+		}
+		return true;
+	}
+	private boolean arithmeticExpression_sempred(ArithmeticExpressionContext _localctx, int predIndex) {
+		switch (predIndex) {
+		case 0:
+			return precpred(_ctx, 1);
+		}
+		return true;
+	}
+
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\22V\4\2\t\2\4\3\t"+
-		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\3"+
-		"\2\5\2\30\n\2\3\2\3\2\3\2\7\2\35\n\2\f\2\16\2 \13\2\3\2\5\2#\n\2\3\2\3"+
-		"\2\3\3\3\3\3\3\3\3\3\3\5\3,\n\3\3\4\3\4\3\4\3\4\3\4\3\5\3\5\3\5\3\5\5"+
-		"\5\67\n\5\3\6\3\6\3\7\3\7\3\7\3\7\3\7\5\7@\n\7\3\b\3\b\3\t\3\t\7\tF\n"+
-		"\t\f\t\16\tI\13\t\3\t\3\t\3\n\3\n\3\13\3\13\3\13\3\13\3\13\5\13T\n\13"+
-		"\3\13\2\2\f\2\4\6\b\n\f\16\20\22\24\2\4\3\2\13\f\3\2\20\21\2U\2\27\3\2"+
-		"\2\2\4+\3\2\2\2\6-\3\2\2\2\b\66\3\2\2\2\n8\3\2\2\2\f:\3\2\2\2\16A\3\2"+
-		"\2\2\20C\3\2\2\2\22L\3\2\2\2\24S\3\2\2\2\26\30\7\7\2\2\27\26\3\2\2\2\27"+
-		"\30\3\2\2\2\30\31\3\2\2\2\31\36\5\4\3\2\32\33\7\7\2\2\33\35\5\4\3\2\34"+
-		"\32\3\2\2\2\35 \3\2\2\2\36\34\3\2\2\2\36\37\3\2\2\2\37\"\3\2\2\2 \36\3"+
-		"\2\2\2!#\7\7\2\2\"!\3\2\2\2\"#\3\2\2\2#$\3\2\2\2$%\7\2\2\3%\3\3\2\2\2"+
-		"&,\5\6\4\2\'(\5\b\5\2()\7\6\2\2)*\5\24\13\2*,\3\2\2\2+&\3\2\2\2+\'\3\2"+
-		"\2\2,\5\3\2\2\2-.\7\4\2\2./\7\16\2\2/\60\7\b\2\2\60\61\5\b\5\2\61\7\3"+
-		"\2\2\2\62\67\7\5\2\2\63\67\5\20\t\2\64\67\5\16\b\2\65\67\5\f\7\2\66\62"+
-		"\3\2\2\2\66\63\3\2\2\2\66\64\3\2\2\2\66\65\3\2\2\2\67\t\3\2\2\289\5\20"+
-		"\t\29\13\3\2\2\2:;\5\16\b\2;<\7\n\2\2<?\5\16\b\2=>\7\b\2\2>@\7\f\2\2?"+
-		"=\3\2\2\2?@\3\2\2\2@\r\3\2\2\2AB\t\2\2\2B\17\3\2\2\2CG\7\r\2\2DF\5\22"+
-		"\n\2ED\3\2\2\2FI\3\2\2\2GE\3\2\2\2GH\3\2\2\2HJ\3\2\2\2IG\3\2\2\2JK\7\22"+
-		"\2\2K\21\3\2\2\2LM\t\3\2\2M\23\3\2\2\2NT\7\3\2\2OP\5\n\6\2PQ\7\6\2\2Q"+
-		"R\5\24\13\2RT\3\2\2\2SN\3\2\2\2SO\3\2\2\2T\25\3\2\2\2\n\27\36\"+\66?G"+
-		"S";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\23c\4\2\t\2\4\3\t"+
+		"\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4"+
+		"\f\t\f\3\2\5\2\32\n\2\3\2\3\2\3\2\7\2\37\n\2\f\2\16\2\"\13\2\3\2\5\2%"+
+		"\n\2\3\2\3\2\3\3\3\3\3\3\3\3\3\3\5\3.\n\3\3\4\3\4\3\4\3\4\3\4\3\5\3\5"+
+		"\3\5\3\5\5\59\n\5\3\6\3\6\3\7\3\7\3\7\3\7\3\7\5\7B\n\7\3\b\3\b\3\t\3\t"+
+		"\7\tH\n\t\f\t\16\tK\13\t\3\t\3\t\3\n\3\n\3\13\3\13\3\13\3\13\3\13\5\13"+
+		"V\n\13\3\f\3\f\3\f\3\f\3\f\3\f\7\f^\n\f\f\f\16\fa\13\f\3\f\2\3\26\r\2"+
+		"\4\6\b\n\f\16\20\22\24\26\2\4\3\2\f\r\3\2\21\22\2b\2\31\3\2\2\2\4-\3\2"+
+		"\2\2\6/\3\2\2\2\b8\3\2\2\2\n:\3\2\2\2\f<\3\2\2\2\16C\3\2\2\2\20E\3\2\2"+
+		"\2\22N\3\2\2\2\24U\3\2\2\2\26W\3\2\2\2\30\32\7\7\2\2\31\30\3\2\2\2\31"+
+		"\32\3\2\2\2\32\33\3\2\2\2\33 \5\4\3\2\34\35\7\7\2\2\35\37\5\4\3\2\36\34"+
+		"\3\2\2\2\37\"\3\2\2\2 \36\3\2\2\2 !\3\2\2\2!$\3\2\2\2\" \3\2\2\2#%\7\7"+
+		"\2\2$#\3\2\2\2$%\3\2\2\2%&\3\2\2\2&\'\7\2\2\3\'\3\3\2\2\2(.\5\6\4\2)*"+
+		"\5\b\5\2*+\7\6\2\2+,\5\24\13\2,.\3\2\2\2-(\3\2\2\2-)\3\2\2\2.\5\3\2\2"+
+		"\2/\60\7\4\2\2\60\61\7\17\2\2\61\62\7\b\2\2\62\63\5\b\5\2\63\7\3\2\2\2"+
+		"\649\7\5\2\2\659\5\20\t\2\669\5\26\f\2\679\5\f\7\28\64\3\2\2\28\65\3\2"+
+		"\2\28\66\3\2\2\28\67\3\2\2\29\t\3\2\2\2:;\5\20\t\2;\13\3\2\2\2<=\5\16"+
+		"\b\2=>\7\n\2\2>A\5\16\b\2?@\7\b\2\2@B\7\r\2\2A?\3\2\2\2AB\3\2\2\2B\r\3"+
+		"\2\2\2CD\t\2\2\2D\17\3\2\2\2EI\7\16\2\2FH\5\22\n\2GF\3\2\2\2HK\3\2\2\2"+
+		"IG\3\2\2\2IJ\3\2\2\2JL\3\2\2\2KI\3\2\2\2LM\7\23\2\2M\21\3\2\2\2NO\t\3"+
+		"\2\2O\23\3\2\2\2PV\7\3\2\2QR\5\n\6\2RS\7\6\2\2ST\5\24\13\2TV\3\2\2\2U"+
+		"P\3\2\2\2UQ\3\2\2\2V\25\3\2\2\2WX\b\f\1\2XY\5\16\b\2Y_\3\2\2\2Z[\f\3\2"+
+		"\2[\\\7\13\2\2\\^\5\26\f\4]Z\3\2\2\2^a\3\2\2\2_]\3\2\2\2_`\3\2\2\2`\27"+
+		"\3\2\2\2a_\3\2\2\2\13\31 $-8AIU_";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

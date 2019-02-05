@@ -107,4 +107,14 @@ public interface TailspinParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSink(TailspinParser.SinkContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TailspinParser#arithmeticExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TailspinParser#arithmeticExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx);
 }

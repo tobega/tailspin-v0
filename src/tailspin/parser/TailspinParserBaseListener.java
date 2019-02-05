@@ -131,6 +131,18 @@ public class TailspinParserBaseListener implements TailspinParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSink(TailspinParser.SinkContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
