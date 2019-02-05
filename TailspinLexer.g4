@@ -4,7 +4,7 @@ Stdout: 'stdout';
 
 Def: 'def' [ \r\t\n];
 
-Dereference: '$' IDENTIFIER ';'?;
+Dereference: StartDereference IDENTIFIER EndIdentifier?;
 
 To: '->';
 
@@ -13,6 +13,12 @@ Eol: '\n';
 Colon: ':';
 
 EndIdentifier: ';';
+
+LeftParen: '(';
+
+RightParen: ')' -> popMode;
+
+StartDereference: '$';
 
 Range: '..';
 
@@ -37,7 +43,9 @@ WS : [ \r\t\n]+ -> skip ;
 
 mode IN_STRING;
 
-StringInterpolate: Dereference;
+StringEvaluate: StartDereference LeftParen -> pushMode(DEFAULT_MODE);
+
+StringDereference: Dereference;
 
 STRING_TEXT: STRING_CHAR+;
 

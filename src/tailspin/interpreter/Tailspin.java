@@ -57,26 +57,33 @@ public class Tailspin {
     private boolean error = false;
 
     @Override
-    public void syntaxError(Recognizer<?, ?> recognizer, Object o, int i, int i1, String s,
-        RecognitionException e) {
+    public void syntaxError(
+        Recognizer<?, ?> recognizer, Object o, int i, int i1, String s, RecognitionException e) {
       error = true;
     }
 
     @Override
-    public void reportAmbiguity(Parser parser, DFA dfa, int i, int i1, boolean b, BitSet bitSet,
+    public void reportAmbiguity(
+        Parser parser,
+        DFA dfa,
+        int i,
+        int i1,
+        boolean b,
+        BitSet bitSet,
         ATNConfigSet atnConfigSet) {
-      error = true;
+      System.out.println("Ambiguity " + parser.getRuleContext().toInfoString(parser));
     }
 
     @Override
-    public void reportAttemptingFullContext(Parser parser, DFA dfa, int i, int i1, BitSet bitSet,
-        ATNConfigSet atnConfigSet) {
-      error = true;
+    public void reportAttemptingFullContext(
+        Parser parser, DFA dfa, int i, int i1, BitSet bitSet, ATNConfigSet atnConfigSet) {
+      System.out.println("Attempting full context " + parser.getRuleContext().toInfoString(parser));
     }
 
     @Override
-    public void reportContextSensitivity(Parser parser, DFA dfa, int i, int i1, int i2,
-        ATNConfigSet atnConfigSet) {
+    public void reportContextSensitivity(
+        Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atnConfigSet) {
+      System.out.println("Context sensitivity " + parser.getRuleContext().toInfoString(parser));
       error = true;
     }
   }

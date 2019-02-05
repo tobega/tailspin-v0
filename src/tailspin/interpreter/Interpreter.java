@@ -24,7 +24,10 @@ class Interpreter extends TailspinParserBaseListener implements TerminalSink {
   private Map<String, Object> definitions = new HashMap<>();
 
   private Deque<TerminalSink> terminalSinkStack = new ArrayDeque<>();
-  { terminalSinkStack.addLast(this);}
+
+  {
+    terminalSinkStack.addLast(this);
+  }
 
   public Interpreter(InputStream input, OutputStream output) {
     this.input = input;
@@ -53,22 +56,12 @@ class Interpreter extends TailspinParserBaseListener implements TerminalSink {
   @Override
   public void visitTerminal(TerminalNode node) {
     terminalSinkStack.peekLast().acceptTerminal(node);
-    }
+  }
 
-    @Override
-    public void acceptTerminal(TerminalNode node) {
+  @Override
+  public void acceptTerminal(TerminalNode node) {
     try {
       switch (node.getSymbol().getType()) {
-        case TailspinParser.STRING_TEXT: // stringLiteral
-          String string = node.getSymbol().getText();
-          currentValue += string.replace("''", "'").replace("$$", "$");
-          break;
-        case TailspinParser.StringInterpolate: // stringLiteral
-          {
-            String identifier = node.getSymbol().getText().replaceAll("[$;]", "");
-            currentValue += definitions.get(identifier).toString();
-          }
-          break;
         case TailspinParser.Stdout: // sink
           output.write(definitions.get("it").toString().getBytes(StandardCharsets.UTF_8));
           break;
@@ -95,12 +88,13 @@ class Interpreter extends TailspinParserBaseListener implements TerminalSink {
       @SuppressWarnings("unchecked")
       Stream<Object> stream = (Stream<Object>) currentValue;
       currentValue = null;
-      stream.forEach((v) -> {
-        if (currentValue != null) {
-          ParseTreeWalker.DEFAULT.walk(this, ctx);
-        }
-        currentValue = v;
-      });
+      stream.forEach(
+          (v) -> {
+            if (currentValue != null) {
+              ParseTreeWalker.DEFAULT.walk(this, ctx);
+            }
+            currentValue = v;
+          });
     }
     definitions.put("it", currentValue);
     currentValue = null;
@@ -108,7 +102,12 @@ class Interpreter extends TailspinParserBaseListener implements TerminalSink {
 
   @Override
   public void enterStringLiteral(TailspinParser.StringLiteralContext ctx) {
-    currentValue = "";
+    pushTerminalSink(new StringContentResolver());
+  }
+
+  @Override
+  public void exitStringLiteral(TailspinParser.StringLiteralContext ctx) {
+    popTerminalSink();
   }
 
   @Override
@@ -142,7 +141,7 @@ class Interpreter extends TailspinParserBaseListener implements TerminalSink {
     popTerminalSink();
   }
 
-  static class RangeLiteralResolver implements TerminalSink {
+  private class RangeLiteralResolver implements TerminalSink {
     Integer start;
     Integer end;
     Integer increment = 1;
@@ -169,7 +168,9 @@ class Interpreter extends TailspinParserBaseListener implements TerminalSink {
 
     @Override
     public Object getValue() {
-      return Stream.iterate(start, i -> (increment > 0 && i <= end) || (increment < 0 && i >= end),
+      return Stream.iterate(
+          start,
+          i -> (increment > 0 && i <= end) || (increment < 0 && i >= end),
           i -> i + increment);
     }
 
@@ -192,8 +193,12 @@ class Interpreter extends TailspinParserBaseListener implements TerminalSink {
           Integer value = Integer.valueOf(node.getSymbol().getText());
           setValue(value);
           break;
-          case TailspinParser.AdditiveOperator:
-            operation = node.getSymbol().getText();
+        case TailspinParser.AdditiveOperator:
+          operation = node.getSymbol().getText();
+          break;
+        case TailspinParser.Dereference:
+          String identifier = node.getSymbol().getText().substring(1);
+          setValue((Integer) definitions.get(identifier));
       }
     }
 
@@ -225,6 +230,36 @@ class Interpreter extends TailspinParserBaseListener implements TerminalSink {
     @Override
     public void acceptNestedValue(Object value) {
       setValue((Integer) value);
+    }
+  }
+
+  private class StringContentResolver implements TerminalSink {
+    StringBuilder builder = new StringBuilder();
+
+    @Override
+    public void acceptTerminal(TerminalNode node) {
+      switch (node.getSymbol().getType()) {
+        case TailspinParser.STRING_TEXT: // stringLiteral
+          String string = node.getSymbol().getText();
+          builder.append(string.replace("''", "'").replace("$$", "$"));
+          break;
+        case TailspinParser.StringDereference: // stringLiteral
+          {
+            String identifier = node.getSymbol().getText().replaceAll("[$;]", "");
+            builder.append(definitions.get(identifier).toString());
+          }
+          break;
+      }
+    }
+
+    @Override
+    public Object getValue() {
+      return builder.toString();
+    }
+
+    @Override
+    public void acceptNestedValue(Object value) {
+      builder.append(value);
     }
   }
 }

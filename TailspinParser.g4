@@ -6,7 +6,7 @@ options { tokenVocab = TailspinLexer; }
 program: Eol? statement (Eol statement)* Eol? EOF;
 
 statement: definition
-  | source To sink;
+  | source Eol? To Eol? sink;
 
 definition: Def IDENTIFIER Colon source;
 
@@ -23,10 +23,13 @@ integerLiteral: Zero | NonZeroInteger;
 
 stringLiteral: START_STRING stringContent* END_STRING;
 
-stringContent: StringInterpolate | STRING_TEXT;
+stringContent: stringInterpolate | STRING_TEXT;
+
+stringInterpolate: StringDereference | StringEvaluate source RightParen;
 
 sink: Stdout
   | templates To sink;
 
 arithmeticExpression: integerLiteral
+  | Dereference
   | arithmeticExpression AdditiveOperator arithmeticExpression;
