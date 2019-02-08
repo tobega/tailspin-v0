@@ -5,7 +5,7 @@ a series of transforms so it should be easy to specify that flow. Transform step
 pattern-matching determining which template to apply. Output is generally specified as literals with interpolation of values.
 
 Example programs where I developed a tentative syntax are the [.tt files here](https://github.com/tobega/aoc2018) where the
-problemsare taken from https://adventofcode.com/2018 and the numbbers in the filename matches the day.
+problems are taken from https://adventofcode.com/2018 and the numbers in the filename match the day.
 These programs cannot yet be run, this project is creating an interpreter in java to verify that the syntax is sane and runnable.
 What can be run (except perhaps the latest one) are the programs in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
 Development is driven by code snippets in the [test/tailspin/samples folder](https://github.com/tobega/tailspin-v0/tree/master/test/tailspin/samples).
