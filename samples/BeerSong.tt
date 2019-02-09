@@ -1,7 +1,16 @@
+templates sayBottleCount
+  <1>
+    '1 bottle'
+  <0>
+    'no bottles'
+  <>
+    '$it bottles'
+end sayBottleCount
+
 99..1:-1 ->
-'$it bottles of beer on the wall
-$it bottles of beer
+'$sayBottleCount bottles of beer on the wall
+$sayBottleCount bottles of beer
 Take one down, pass it around
-$($it - 1) bottles of beer on the wall
+$($it - 1 -> sayBottleCount) bottles of beer on the wall
 
 ' -> stdout

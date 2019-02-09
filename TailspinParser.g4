@@ -15,7 +15,25 @@ source: Dereference
   | arithmeticExpression
   | rangeLiteral;
 
-templates: stringLiteral;
+templates: stringLiteral
+  | LeftParen templatesBody RightParen;
+
+templatesBody: block templateBlock*
+  | templateBlock+;
+
+templateBlock: matcher block;
+
+block: (valueChain|statement)+;
+
+valueChain: source
+  | source To transform;
+
+transform: templates
+  | templates To transform;
+
+matcher: StartMatcher condition? EndMatcher;
+
+condition: integerLiteral;
 
 rangeLiteral: integerLiteral Range integerLiteral (Colon NonZeroInteger)?;
 
