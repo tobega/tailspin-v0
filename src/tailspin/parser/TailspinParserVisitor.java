@@ -31,6 +31,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitValueChainToSink(TailspinParser.ValueChainToSinkContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code templatesDefinition}
+	 * labeled alternative in {@link TailspinParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTemplatesDefinition(TailspinParser.TemplatesDefinitionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#source}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -50,6 +57,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code callDefinedTemplates}
+	 * labeled alternative in {@link TailspinParser#templates}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCallDefinedTemplates(TailspinParser.CallDefinedTemplatesContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#templatesBody}.
 	 * @param ctx the parse tree

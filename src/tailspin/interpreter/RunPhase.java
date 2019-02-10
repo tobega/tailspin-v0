@@ -112,6 +112,25 @@ public class RunPhase extends TailspinParserBaseVisitor {
     }
 
     @Override
+    public Object visitTemplatesDefinition(TailspinParser.TemplatesDefinitionContext ctx) {
+        String name = ctx.IDENTIFIER(0).getText();
+        if (!name.equals(ctx.IDENTIFIER(1).getText())) {
+            throw new IllegalStateException("Mismatched end " + ctx.IDENTIFIER(1).getText()
+                + " for templates " + name);
+        }
+        Templates templates = visitTemplatesBody(ctx.templatesBody());
+        scope.defineValue(name, templates);
+        return null;
+    }
+
+    @Override
+    public Object visitCallDefinedTemplates(TailspinParser.CallDefinedTemplatesContext ctx) {
+        String name = ctx.IDENTIFIER().getText();
+        Templates templates = (Templates) scope.resolveValue(name);
+        return templates.run(scope);
+    }
+
+    @Override
     public Object visitTransform(TailspinParser.TransformContext ctx) {
         Object nextValue = visit(ctx.templates());
         if (ctx.transform() != null) {

@@ -22,6 +22,10 @@ StartMatcher: '<';
 
 EndMatcher: '>';
 
+StartTemplatesDefinition: 'templates';
+
+EndDefinition: 'end';
+
 StartDereference: '$';
 
 Range: '..';
