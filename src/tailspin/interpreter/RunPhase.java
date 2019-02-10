@@ -155,7 +155,8 @@ public class RunPhase extends TailspinParserBaseVisitor {
     @Override
     public String visitStringContent(TailspinParser.StringContentContext ctx) {
         if (ctx.STRING_TEXT() != null) {
-            return ctx.STRING_TEXT().getSymbol().getText().replace("''", "'").replace("$$", "$");
+            return ctx.STRING_TEXT().getSymbol().getText()
+                .replace("''", "'").replace("$$", "$");
         }
         return visit(ctx.stringInterpolate()).toString();
     }
@@ -164,7 +165,11 @@ public class RunPhase extends TailspinParserBaseVisitor {
     public String visitStringInterpolate(TailspinParser.StringInterpolateContext ctx) {
         if (ctx.StringDereference() != null) {
             String identifier = ctx.StringDereference().getText().replaceAll("[$;]", "");
-            return scope.resolveValue(identifier).toString();
+            Object interpolated = scope.resolveValue(identifier);
+            if (interpolated instanceof Templates) {
+                return ((Templates) interpolated).run(scope).toString();
+            }
+            return interpolated.toString();
         }
         if (ctx.valueChain() != null) {
             return visit(ctx.valueChain()).toString();

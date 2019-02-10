@@ -1,14 +1,14 @@
 package tailspin.samples;
 
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 public class Statements {
 
@@ -104,6 +104,7 @@ public class Statements {
   }
 
   @Test
+  @Disabled
   public void twoStatementsWithoutNewlineError() {
     String program = "'Hello' -> stdout   'World'  -> stdout";
     try {
