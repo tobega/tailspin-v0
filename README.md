@@ -12,5 +12,5 @@ Development is driven by code snippets in the [test/tailspin/samples folder](htt
 
 ## To run a tailspin program
 Sorry, no easy way at the moment. Clone this repo, compile the sources (I use intellij), set the compiled .class files on your
-classpath and execute `java tailspin.interpreter.Tailspin path_to_your_program`
+classpath and execute `java tailspin.Tailspin path_to_your_program`
 Oh, you'll need the antlr4 java runtime on your classpath as well, http://antlr4.org

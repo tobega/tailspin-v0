@@ -1,4 +1,12 @@
-package tailspin.interpreter;
+package tailspin;
+
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.atn.ATNConfigSet;
+import org.antlr.v4.runtime.dfa.DFA;
+import tailspin.interpreter.RunPhase;
+import tailspin.parser.TailspinLexer;
+import tailspin.parser.TailspinParser;
+import tailspin.parser.TailspinParser.ProgramContext;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,19 +15,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.BitSet;
-import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
-import org.antlr.v4.runtime.atn.ATNConfigSet;
-import org.antlr.v4.runtime.dfa.DFA;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
-import tailspin.parser.TailspinLexer;
-import tailspin.parser.TailspinParser;
-import tailspin.parser.TailspinParser.ProgramContext;
 
 public class Tailspin {
 
@@ -45,7 +40,7 @@ public class Tailspin {
 
   public void run(InputStream input, OutputStream output) {
     System.out.println(program.toStringTree());
-    ParseTreeWalker.DEFAULT.walk(new Interpreter(input, output), program);
+    new RunPhase(input, output).visit(program);
   }
 
   public static void main(String[] args) throws IOException {

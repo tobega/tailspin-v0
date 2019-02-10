@@ -6,7 +6,7 @@ Def: 'def' [ \r\t\n];
 
 Dereference: StartDereference IDENTIFIER EndIdentifier?;
 
-To: '->';
+To: Eol? '->' Eol?;
 
 Eol: '\n';
 

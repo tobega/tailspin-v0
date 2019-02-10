@@ -1,13 +1,14 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Test;
-import tailspin.interpreter.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Numbers {
   @Test

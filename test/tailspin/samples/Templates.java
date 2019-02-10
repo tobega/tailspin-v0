@@ -1,7 +1,7 @@
 package tailspin.samples;
 
 import org.junit.jupiter.api.Test;
-import tailspin.interpreter.Tailspin;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

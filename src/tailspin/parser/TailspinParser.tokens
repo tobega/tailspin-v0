@@ -22,7 +22,6 @@ StringDereference=21
 STRING_TEXT=22
 END_STRING=23
 'stdout'=1
-'->'=4
 '\n'=5
 ':'=6
 ';'=7

@@ -5,21 +5,23 @@ options { tokenVocab = TailspinLexer; }
 // I don't know why I need the Eol? bits, shouldn't it go on skip whitespace?
 program: Eol? statement (Eol statement)* Eol? EOF;
 
-statement: definition
-  | source Eol? To Eol? sink;
-
-definition: Def IDENTIFIER Colon source;
+statement: Def IDENTIFIER Colon source # definition
+  | valueChain Eol? To Eol? sink       # valueChainToSink
+;
 
 source: Dereference
   | stringLiteral
   | arithmeticExpression
-  | rangeLiteral;
+  | rangeLiteral
+;
 
-templates: stringLiteral
-  | LeftParen templatesBody RightParen;
+templates: stringLiteral                 # stringLiteralTemplates
+  | LeftParen templatesBody RightParen   # inlineTemplates
+;
 
-templatesBody: block templateBlock*
-  | templateBlock+;
+templatesBody: block templateBlock* # templatesWithPrecursor
+  | templateBlock+                  # templatesDirectMatch
+;
 
 templateBlock: matcher block;
 
@@ -43,10 +45,9 @@ stringLiteral: START_STRING stringContent* END_STRING;
 
 stringContent: stringInterpolate | STRING_TEXT;
 
-stringInterpolate: StringDereference | StringEvaluate source RightParen;
+stringInterpolate: StringDereference | StringEvaluate valueChain RightParen;
 
-sink: Stdout
-  | templates To sink;
+sink: Stdout;
 
 arithmeticExpression: integerLiteral
   | Dereference
