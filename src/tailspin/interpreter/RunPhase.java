@@ -1,27 +1,20 @@
 package tailspin.interpreter;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParserBaseVisitor;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 public class RunPhase extends TailspinParserBaseVisitor {
-    private final InputStream input;
-    private final OutputStream output;
+    private final Scope scope;
 
-    private final Map<String, Object> definitions = new HashMap<>();
-
-    public RunPhase(InputStream input, OutputStream output) {
-        this.input = input;
-        this.output = output;
+    public RunPhase(Scope scope) {
+        this.scope = scope;
     }
 
     @Override
@@ -35,7 +28,7 @@ public class RunPhase extends TailspinParserBaseVisitor {
         Object value = visit(ctx.valueChain());
         if (!(value instanceof Stream))  value = Stream.of(value);
         ((Stream<?>) value).forEach(v -> {
-            definitions.put("it", v);
+            scope.defineValue("it", v);
             visit(ctx.sink());
         });
         return null;
@@ -53,11 +46,11 @@ public class RunPhase extends TailspinParserBaseVisitor {
     private Object chain(ParserRuleContext ctx, Object source) {
         if (source instanceof Stream) {
             return ((Stream<?>) source).map(s -> {
-                definitions.put("it", s);
+                scope.defineValue("it", s);
                 return visit(ctx);
             });
         }
-        definitions.put("it", source);
+        scope.defineValue("it", source);
         return visit(ctx);
     }
 
@@ -69,7 +62,7 @@ public class RunPhase extends TailspinParserBaseVisitor {
         }
         if (ctx.Dereference() != null) {
             String identifier = ctx.Dereference().getText().substring(1);
-            return definitions.get(identifier);
+            return scope.resolveValue(identifier);
         }
         if (ctx.arithmeticExpression() != null) {
             return visit(ctx.arithmeticExpression());
@@ -84,7 +77,8 @@ public class RunPhase extends TailspinParserBaseVisitor {
     public Object visitSink(TailspinParser.SinkContext ctx) {
         if (ctx.Stdout() != null) {
             try {
-                output.write(definitions.get("it").toString().getBytes(StandardCharsets.UTF_8));
+                scope.getOutput().write(
+                    scope.resolveValue("it").toString().getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -98,10 +92,30 @@ public class RunPhase extends TailspinParserBaseVisitor {
     }
 
     @Override
+    public Object visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx) {
+        Templates templates = visitTemplatesBody(ctx.templatesBody());
+        return templates.run(scope);
+    }
+
+    @Override
+    public Templates visitTemplatesBody(TailspinParser.TemplatesBodyContext ctx) {
+        List<MatchTemplate> matchTemplates = new ArrayList<>();
+        for (TailspinParser.MatchTemplateContext mtc : ctx.matchTemplate()) {
+            matchTemplates.add(visitMatchTemplate(mtc));
+        }
+        return new Templates(matchTemplates);
+    }
+
+    @Override
+    public MatchTemplate visitMatchTemplate(TailspinParser.MatchTemplateContext ctx) {
+        return new MatchTemplate(ctx.matcher(), ctx.block());
+    }
+
+    @Override
     public Object visitTransform(TailspinParser.TransformContext ctx) {
         Object nextValue = visit(ctx.templates());
         if (ctx.transform() != null) {
-            definitions.put("it", nextValue);
+            scope.defineValue("it", nextValue);
             return visit(ctx.transform());
         }
         return nextValue;
@@ -110,7 +124,7 @@ public class RunPhase extends TailspinParserBaseVisitor {
     @Override
     public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
         String identifier = ctx.IDENTIFIER().getText();
-        definitions.put(identifier, visit(ctx.source()));
+        scope.defineValue(identifier, visit(ctx.source()));
         return null;
     }
 
@@ -131,7 +145,7 @@ public class RunPhase extends TailspinParserBaseVisitor {
     public String visitStringInterpolate(TailspinParser.StringInterpolateContext ctx) {
         if (ctx.StringDereference() != null) {
             String identifier = ctx.StringDereference().getText().replaceAll("[$;]", "");
-            return definitions.get(identifier).toString();
+            return scope.resolveValue(identifier).toString();
         }
         if (ctx.valueChain() != null) {
             return visit(ctx.valueChain()).toString();
@@ -163,7 +177,7 @@ public class RunPhase extends TailspinParserBaseVisitor {
         }
         if (ctx.Dereference() != null) {
             String identifier = ctx.Dereference().getText().replaceAll("[$;]", "");
-            return (Integer) definitions.get(identifier);
+            return (Integer) scope.resolveValue(identifier);
         }
         throw new UnsupportedOperationException();
     }
@@ -177,5 +191,22 @@ public class RunPhase extends TailspinParserBaseVisitor {
                 start,
                 i -> (increment > 0 && i <= end) || (increment < 0 && i >= end),
                 i -> i + increment);
+    }
+
+    @Override
+    public Boolean visitMatcher(TailspinParser.MatcherContext ctx) {
+        if (ctx.condition() == null) {
+            return true;
+        }
+        return visitCondition(ctx.condition());
+    }
+
+    @Override
+    public Boolean visitCondition(TailspinParser.ConditionContext ctx) {
+        if (ctx.integerLiteral() != null) {
+            Integer expected = visitIntegerLiteral(ctx.integerLiteral());
+            return expected.equals(scope.resolveValue("it"));
+        }
+        throw new UnsupportedOperationException();
     }
 }

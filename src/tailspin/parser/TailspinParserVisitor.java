@@ -1,4 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.7.1
+// Generated from TailspinParser.g4 by ANTLR 4.7.2
 package tailspin.parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -51,25 +51,17 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code templatesWithPrecursor}
-	 * labeled alternative in {@link TailspinParser#templatesBody}.
+	 * Visit a parse tree produced by {@link TailspinParser#templatesBody}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTemplatesWithPrecursor(TailspinParser.TemplatesWithPrecursorContext ctx);
+	T visitTemplatesBody(TailspinParser.TemplatesBodyContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code templatesDirectMatch}
-	 * labeled alternative in {@link TailspinParser#templatesBody}.
+	 * Visit a parse tree produced by {@link TailspinParser#matchTemplate}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTemplatesDirectMatch(TailspinParser.TemplatesDirectMatchContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TailspinParser#templateBlock}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTemplateBlock(TailspinParser.TemplateBlockContext ctx);
+	T visitMatchTemplate(TailspinParser.MatchTemplateContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#block}.
 	 * @param ctx the parse tree

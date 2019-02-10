@@ -1,4 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.7.1
+// Generated from TailspinParser.g4 by ANTLR 4.7.2
 package tailspin.parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -59,21 +59,14 @@ public class TailspinParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> im
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTemplatesWithPrecursor(TailspinParser.TemplatesWithPrecursorContext ctx) { return visitChildren(ctx); }
+	@Override public T visitTemplatesBody(TailspinParser.TemplatesBodyContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitTemplatesDirectMatch(TailspinParser.TemplatesDirectMatchContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitTemplateBlock(TailspinParser.TemplateBlockContext ctx) { return visitChildren(ctx); }
+	@Override public T visitMatchTemplate(TailspinParser.MatchTemplateContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

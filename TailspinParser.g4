@@ -6,7 +6,7 @@ options { tokenVocab = TailspinLexer; }
 program: Eol? statement (Eol statement)* Eol? EOF;
 
 statement: Def IDENTIFIER Colon source # definition
-  | valueChain Eol? To Eol? sink       # valueChainToSink
+  | valueChain To sink                 # valueChainToSink
 ;
 
 source: Dereference
@@ -19,11 +19,11 @@ templates: stringLiteral                 # stringLiteralTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
 ;
 
-templatesBody: block templateBlock* # templatesWithPrecursor
-  | templateBlock+                  # templatesDirectMatch
+templatesBody: block matchTemplate*
+  | matchTemplate+
 ;
 
-templateBlock: matcher block;
+matchTemplate: matcher block;
 
 block: (valueChain|statement)+;
 

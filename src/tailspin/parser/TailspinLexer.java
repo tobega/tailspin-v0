@@ -1,4 +1,4 @@
-// Generated from TailspinLexer.g4 by ANTLR 4.7.1
+// Generated from TailspinLexer.g4 by ANTLR 4.7.2
 package tailspin.parser;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class TailspinLexer extends Lexer {
-	static { RuntimeMetaData.checkVersion("4.7.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.7.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -32,25 +32,34 @@ public class TailspinLexer extends Lexer {
 		"DEFAULT_MODE", "IN_STRING"
 	};
 
-	public static final String[] ruleNames = {
-		"Stdout", "Def", "Dereference", "To", "Eol", "Colon", "EndIdentifier", 
-		"LeftParen", "RightParen", "StartMatcher", "EndMatcher", "StartDereference", 
-		"Range", "AdditiveOperator", "Zero", "NonZeroInteger", "Digits", "START_STRING", 
-		"IDENTIFIER", "IDENTIFIER_START", "IDENTIFIER_PART", "WS", "StringEvaluate", 
-		"StringDereference", "STRING_TEXT", "STRING_CHAR", "END_STRING"
-	};
+	private static String[] makeRuleNames() {
+		return new String[] {
+			"Stdout", "Def", "Dereference", "To", "Eol", "Colon", "EndIdentifier", 
+			"LeftParen", "RightParen", "StartMatcher", "EndMatcher", "StartDereference", 
+			"Range", "AdditiveOperator", "Zero", "NonZeroInteger", "Digits", "START_STRING", 
+			"IDENTIFIER", "IDENTIFIER_START", "IDENTIFIER_PART", "WS", "StringEvaluate", 
+			"StringDereference", "STRING_TEXT", "STRING_CHAR", "END_STRING"
+		};
+	}
+	public static final String[] ruleNames = makeRuleNames();
 
-	private static final String[] _LITERAL_NAMES = {
-		null, "'stdout'", null, null, null, "'\n'", "':'", "';'", "'('", "')'", 
-		"'<'", "'>'", "'$'", "'..'", null, "'0'"
-	};
-	private static final String[] _SYMBOLIC_NAMES = {
-		null, "Stdout", "Def", "Dereference", "To", "Eol", "Colon", "EndIdentifier", 
-		"LeftParen", "RightParen", "StartMatcher", "EndMatcher", "StartDereference", 
-		"Range", "AdditiveOperator", "Zero", "NonZeroInteger", "START_STRING", 
-		"IDENTIFIER", "WS", "StringEvaluate", "StringDereference", "STRING_TEXT", 
-		"END_STRING"
-	};
+	private static String[] makeLiteralNames() {
+		return new String[] {
+			null, "'stdout'", null, null, null, "'\n'", "':'", "';'", "'('", "')'", 
+			"'<'", "'>'", "'$'", "'..'", null, "'0'"
+		};
+	}
+	private static final String[] _LITERAL_NAMES = makeLiteralNames();
+	private static String[] makeSymbolicNames() {
+		return new String[] {
+			null, "Stdout", "Def", "Dereference", "To", "Eol", "Colon", "EndIdentifier", 
+			"LeftParen", "RightParen", "StartMatcher", "EndMatcher", "StartDereference", 
+			"Range", "AdditiveOperator", "Zero", "NonZeroInteger", "START_STRING", 
+			"IDENTIFIER", "WS", "StringEvaluate", "StringDereference", "STRING_TEXT", 
+			"END_STRING"
+		};
+	}
+	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
 	/**
