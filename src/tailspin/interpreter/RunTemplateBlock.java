@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.util.stream.Stream;
 import tailspin.parser.TailspinParser;
 
 class RunTemplateBlock extends RunMain {
@@ -28,14 +29,17 @@ class RunTemplateBlock extends RunMain {
   }
 
   @Override
-  public Object visitBlock(TailspinParser.BlockContext ctx) {
-    // TODO: this is rather iffy, what if many results?
-    Object lastResult = null;
+  public Stream<?> visitBlock(TailspinParser.BlockContext ctx) {
+    Stream<Object> results = Stream.empty();
     for (TailspinParser.BlockExpressionContext exp : ctx.blockExpression()) {
       Object result = visit(exp);
-      if (result != null) lastResult = result;
+      if (result != null) {
+        results =
+            Stream.concat(
+                results, result instanceof Stream ? (Stream<?>) result : Stream.of(result));
+      }
     }
-    return lastResult;
+    return results;
   }
 
   @Override

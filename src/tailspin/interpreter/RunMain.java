@@ -48,7 +48,7 @@ public class RunMain extends TailspinParserBaseVisitor {
             return ((Stream<?>) source).map(s -> {
                 scope.defineValue("it", s);
                 return visit(ctx);
-            });
+            }).flatMap(r -> r instanceof Stream ? (Stream<?>) r : Stream.of(r));
         }
         scope.defineValue("it", source);
         return visit(ctx);
@@ -167,7 +167,8 @@ public class RunMain extends TailspinParserBaseVisitor {
             String identifier = ctx.StringDereference().getText().replaceAll("[$;]", "");
             Object interpolated = scope.resolveValue(identifier);
             if (interpolated instanceof Templates) {
-                return ((Templates) interpolated).run(scope).toString();
+                return ((Templates) interpolated).run(scope)
+                    .map(Object::toString).collect(Collectors.joining());
             }
             return interpolated.toString();
         }
