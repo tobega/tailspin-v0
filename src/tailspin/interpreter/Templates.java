@@ -11,9 +11,13 @@ class Templates {
   }
 
   Object run(Scope parentScope) {
-    RunPhase runPhase = new RunPhase(new NestedScope(parentScope));
+    RunTemplateBlock runner = new RunTemplateBlock(this, new NestedScope(parentScope));
+    return matchTemplates(runner);
+  }
+
+  Object matchTemplates(RunTemplateBlock runner) {
     Optional<MatchTemplate> match = matchTemplates.stream()
-        .filter(m -> runPhase.visitMatcher(m.matcher)).findFirst();
-    return match.map(m -> runPhase.visitBlock(m.block)).orElse(null);
+        .filter(m -> runner.visitMatcher(m.matcher)).findFirst();
+    return match.map(m -> runner.visitBlock(m.block)).orElse(null);
   }
 }

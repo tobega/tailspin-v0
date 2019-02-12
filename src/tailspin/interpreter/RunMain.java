@@ -10,10 +10,10 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParserBaseVisitor;
 
-public class RunPhase extends TailspinParserBaseVisitor {
-    private final Scope scope;
+public class RunMain extends TailspinParserBaseVisitor {
+    final Scope scope;
 
-    public RunPhase(Scope scope) {
+    public RunMain(Scope scope) {
         this.scope = scope;
     }
 
@@ -215,22 +215,5 @@ public class RunPhase extends TailspinParserBaseVisitor {
                 start,
                 i -> (increment > 0 && i <= end) || (increment < 0 && i >= end),
                 i -> i + increment);
-    }
-
-    @Override
-    public Boolean visitMatcher(TailspinParser.MatcherContext ctx) {
-        if (ctx.condition() == null) {
-            return true;
-        }
-        return visitCondition(ctx.condition());
-    }
-
-    @Override
-    public Boolean visitCondition(TailspinParser.ConditionContext ctx) {
-        if (ctx.integerLiteral() != null) {
-            Integer expected = visitIntegerLiteral(ctx.integerLiteral());
-            return expected.equals(scope.resolveValue("it"));
-        }
-        throw new UnsupportedOperationException();
     }
 }

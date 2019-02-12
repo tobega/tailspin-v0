@@ -26,7 +26,12 @@ templatesBody: block matchTemplate*
 
 matchTemplate: matcher block;
 
-block: (valueChain|statement)+;
+block: (blockExpression)+;
+
+blockExpression: valueChain        # resultValue
+  | valueChain To TemplateMatch    # sendToTemplates
+  | statement                      # blockStatement
+;
 
 valueChain: source
   | source To transform;

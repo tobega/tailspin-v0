@@ -24,6 +24,8 @@ StartTemplatesDefinition: 'templates';
 
 EndDefinition: 'end';
 
+TemplateMatch: '#';
+
 StartDereference: '$';
 
 Range: '..';

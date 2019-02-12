@@ -4,7 +4,7 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import tailspin.interpreter.BasicScope;
-import tailspin.interpreter.RunPhase;
+import tailspin.interpreter.RunMain;
 import tailspin.parser.TailspinLexer;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ProgramContext;
@@ -41,7 +41,7 @@ public class Tailspin {
 
   public void run(InputStream input, OutputStream output) {
     System.out.println(program.toStringTree());
-    new RunPhase(new BasicScope(input, output)).visit(program);
+    new RunMain(new BasicScope(input, output)).visit(program);
   }
 
   public static void main(String[] args) throws IOException {

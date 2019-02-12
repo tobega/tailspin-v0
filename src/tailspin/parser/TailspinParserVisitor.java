@@ -83,6 +83,27 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBlock(TailspinParser.BlockContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code resultValue}
+	 * labeled alternative in {@link TailspinParser#blockExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitResultValue(TailspinParser.ResultValueContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code sendToTemplates}
+	 * labeled alternative in {@link TailspinParser#blockExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code blockStatement}
+	 * labeled alternative in {@link TailspinParser#blockExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBlockStatement(TailspinParser.BlockStatementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#valueChain}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
