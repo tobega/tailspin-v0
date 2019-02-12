@@ -19,6 +19,6 @@ class Templates {
   Stream<?> matchTemplates(RunTemplateBlock runner) {
     Optional<MatchTemplate> match = matchTemplates.stream()
         .filter(m -> runner.visitMatcher(m.matcher)).findFirst();
-    return match.map(m -> runner.visitBlock(m.block)).orElse(null);
+    return match.stream().flatMap(m -> runner.visitBlock(m.block));
   }
 }
