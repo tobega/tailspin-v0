@@ -28,6 +28,17 @@ class RunTemplateBlock extends RunMain {
   }
 
   @Override
+  public Object visitBlock(TailspinParser.BlockContext ctx) {
+    // TODO: this is rather iffy, what if many results?
+    Object lastResult = null;
+    for (TailspinParser.BlockExpressionContext exp : ctx.blockExpression()) {
+      Object result = visit(exp);
+      if (result != null) lastResult = result;
+    }
+    return lastResult;
+  }
+
+  @Override
   public Object visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx) {
     Object it = visitValueChain(ctx.valueChain());
     Scope matcherScope = new NestedScope(scope);
@@ -45,7 +56,7 @@ class RunTemplateBlock extends RunMain {
       Object it = visitValueChain(ctx.valueChain());
       Scope matcherScope = new NestedScope(RunTemplateBlock.this.scope);
       matcherScope.defineValue("it", it);
-      return templates.matchTemplates(new RunMatcherBlock(templates, matcherScope));
+      return templates.matchTemplates(RunTemplateBlock.this.new RunMatcherBlock(templates, matcherScope));
     }
   }
 }

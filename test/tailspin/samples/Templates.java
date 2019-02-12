@@ -35,4 +35,21 @@ class Templates {
 
         assertEquals("7", output.toString(StandardCharsets.UTF_8));
     }
+
+    @Test
+    void consecutiveChainsInMatchBlock() throws Exception {
+        String program = "templates spin\n<5> $it + 2 <> $it + 1 -> #\n $it -> stdout\nend spin\n"
+            + "1 -> spin -> stdout";
+        Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+        ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        runner.run(input, output);
+
+        // Calls to stdout in the templates happen before the next part of the chain is
+        // sent to stdout, even though the "return value" is output before the values to stdout
+        // Maybe a return value should "push through" to the end first? Or not?
+        assertEquals("43217", output.toString(StandardCharsets.UTF_8));
+    }
 }

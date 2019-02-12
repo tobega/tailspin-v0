@@ -4,12 +4,12 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NestedScope implements Scope {
+class NestedScope implements Scope {
   private final Scope parentScope;
 
   private final Map<String, Object> definitions = new HashMap<>();
 
-  public NestedScope(Scope parentScope) {
+  NestedScope(Scope parentScope) {
     this.parentScope = parentScope;
   }
 
@@ -29,6 +29,6 @@ public class NestedScope implements Scope {
 
   @Override
   public OutputStream getOutput() {
-    return null;
+    return parentScope.getOutput();
   }
 }
