@@ -16,9 +16,7 @@ LeftParen: '(' -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
 
 RightParen: ')' -> popMode;
 
-StartMatcher: '<';
-
-EndMatcher: '>';
+StartMatcher: '<' -> pushMode(MATCHER);
 
 StartTemplatesDefinition: 'templates';
 
@@ -60,3 +58,11 @@ STRING_TEXT: STRING_CHAR+;
 fragment STRING_CHAR: '\'\'' | '$$' | ~['$];
 
 END_STRING: '\'' -> popMode;
+
+mode MATCHER;
+
+EndMatcher: '>' -> popMode;
+
+MatchInteger: Zero | NonZeroInteger;
+
+RangeMatch: Range;

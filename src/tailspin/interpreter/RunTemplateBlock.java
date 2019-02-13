@@ -16,16 +16,29 @@ class RunTemplateBlock extends RunMain {
     if (ctx.condition() == null) {
       return true;
     }
-    return visitCondition(ctx.condition());
+    return (Boolean) visit(ctx.condition());
   }
 
   @Override
-  public Boolean visitCondition(TailspinParser.ConditionContext ctx) {
-    if (ctx.integerLiteral() != null) {
-      Integer expected = visitIntegerLiteral(ctx.integerLiteral());
-      return expected.equals(scope.resolveValue("it"));
+  public Boolean visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
+    Integer expected = Integer.valueOf(ctx.MatchInteger().getText());
+    return expected.equals(scope.resolveValue("it"));
+  }
+
+  @Override
+  public Boolean visitRangeMatch(TailspinParser.RangeMatchContext ctx) {
+    Object oIt = scope.resolveValue("it");
+    if (!(oIt instanceof Integer)) return false;
+    Integer it = (Integer) oIt;
+    if (ctx.lowerBound() != null) {
+      int lowerBound = Integer.valueOf(ctx.lowerBound().MatchInteger().getText());
+      if (it < lowerBound) return false;
     }
-    throw new UnsupportedOperationException();
+    if (ctx.upperBound() != null) {
+      int upperBound = Integer.valueOf(ctx.upperBound().MatchInteger().getText());
+      if (it > upperBound) return false;
+    }
+    return true;
   }
 
   @Override

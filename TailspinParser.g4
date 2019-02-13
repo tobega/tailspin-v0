@@ -41,7 +41,13 @@ transform: templates
 
 matcher: StartMatcher condition? EndMatcher;
 
-condition: integerLiteral;
+condition: MatchInteger                    # integerEquals
+  | lowerBound? RangeMatch upperBound? # rangeMatch
+;
+
+lowerBound: MatchInteger;
+
+upperBound: MatchInteger;
 
 rangeLiteral: integerLiteral Range integerLiteral (Colon NonZeroInteger)?;
 
