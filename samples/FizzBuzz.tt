@@ -1,0 +1,12 @@
+templates fizz
+  $it % 3 -> #
+  <0> 'Fizz'
+end fizz
+
+templates buzz
+  $it % 5 -> #
+  <0> 'Buzz'
+end buzz
+
+[ 1..100 -> '$fizz$buzz' ] -> [i](<''> $i <> $it)... -> '$it
+' -> stdout
