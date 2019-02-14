@@ -103,7 +103,7 @@ public class RunMain extends TailspinParserBaseVisitor {
         for (TailspinParser.MatchTemplateContext mtc : ctx.matchTemplate()) {
             matchTemplates.add(visitMatchTemplate(mtc));
         }
-        return new Templates(matchTemplates);
+        return new Templates(ctx.block(), matchTemplates);
     }
 
     @Override
