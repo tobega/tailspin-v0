@@ -36,4 +36,30 @@ class Arrays {
 
     assertEquals("[1, 2, 3]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void arrayOfRange() throws IOException {
+    String program = "[1..3] -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[1, 2, 3]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayOfString() throws IOException {
+    String program = "['one', 'two', 'three'] -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[one, two, three]", output.toString(StandardCharsets.UTF_8));
+  }
 }
