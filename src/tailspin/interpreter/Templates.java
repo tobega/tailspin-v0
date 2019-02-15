@@ -17,11 +17,11 @@ class Templates {
 
   Stream<?> run(Scope parentScope) {
     RunTemplateBlock runner = new RunTemplateBlock(this, new NestedScope(parentScope));
-    // This cannot be written as Optional.stream().flatMap because that will defer execution of
-    // visitBlock.
-    Stream<?> initialStream = Optional.ofNullable(block)
-        .map(runner::visitBlock).orElse(Stream.empty());
-    return Stream.concat(initialStream, matchTemplates(runner));
+    if (block != null) {
+      return runner.visitBlock(block);
+    } else {
+      return matchTemplates(runner);
+    }
   }
 
   Stream<?> matchTemplates(RunTemplateBlock runner) {
