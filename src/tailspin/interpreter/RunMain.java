@@ -70,6 +70,9 @@ public class RunMain extends TailspinParserBaseVisitor {
         if (ctx.rangeLiteral() != null) {
             return visit(ctx.rangeLiteral());
         }
+        if (ctx.arrayLiteral() != null) {
+            return visitArrayLiteral(ctx.arrayLiteral());
+        }
         throw new UnsupportedOperationException(ctx.toString());
     }
 
@@ -230,5 +233,16 @@ public class RunMain extends TailspinParserBaseVisitor {
                 start,
                 i -> (increment > 0 && i <= end) || (increment < 0 && i >= end),
                 i -> i + increment);
+    }
+
+    @Override
+    public List<?> visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx) {
+        return ctx.valueChain().stream().flatMap(vc -> {
+            Object result = visitValueChain(vc);
+            if (!(result instanceof Stream)) {
+                result = Stream.of(result);
+            }
+            return (Stream<?>) result;
+        }).collect(Collectors.toList());
     }
 }

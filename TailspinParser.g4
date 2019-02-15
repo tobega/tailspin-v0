@@ -13,7 +13,10 @@ source: Dereference
   | stringLiteral
   | arithmeticExpression
   | rangeLiteral
+  | arrayLiteral
 ;
+
+arrayLiteral: LeftBracket valueChain (Comma? valueChain)* RightBracket;
 
 templates: stringLiteral                 # stringLiteralTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates

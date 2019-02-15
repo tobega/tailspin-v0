@@ -10,11 +10,17 @@ To: '->';
 
 Colon: ':';
 
+Comma: ',';
+
 EndIdentifier: ';';
 
 LeftParen: '(' -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
 
 RightParen: ')' -> popMode;
+
+LeftBracket: '[';
+
+RightBracket: ']';
 
 StartMatcher: '<' -> pushMode(MATCHER);
 
