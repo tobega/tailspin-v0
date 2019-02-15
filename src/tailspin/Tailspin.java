@@ -40,7 +40,7 @@ public class Tailspin {
   }
 
   public void run(InputStream input, OutputStream output) {
-    System.out.println(program.toStringTree());
+    // System.out.println(program.toStringTree());
     new RunMain(new BasicScope(input, output)).visit(program);
   }
 

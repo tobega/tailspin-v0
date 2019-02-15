@@ -128,4 +128,17 @@ class Templates {
         // Here the return values do get generated in the "correct" order
         assertEquals("3", output.toString(StandardCharsets.UTF_8));
     }
+
+    @Test
+    void arrayTemplates() throws Exception {
+        String program = "[2..4] -> [i]($i * $it ',') -> stdout";
+        Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+        ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        runner.run(input, output);
+
+        assertEquals("2,6,12,", output.toString(StandardCharsets.UTF_8));
+    }
 }

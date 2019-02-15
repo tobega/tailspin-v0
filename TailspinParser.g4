@@ -21,6 +21,7 @@ arrayLiteral: LeftBracket valueChain (Comma? valueChain)* RightBracket;
 templates: stringLiteral                 # stringLiteralTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
   | IDENTIFIER                           # callDefinedTemplates
+  | LeftBracket IDENTIFIER RightBracket LeftParen templatesBody RightParen # arrayTemplates
 ;
 
 templatesBody: block matchTemplate*

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -104,7 +105,33 @@ public class RunMain extends TailspinParserBaseVisitor {
     @Override
     public Object visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx) {
         Templates templates = visitTemplatesBody(ctx.templatesBody());
-        return templates.run(scope);
+        return templates.run(new NestedScope(scope));
+    }
+
+    @Override
+    public Object visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx) {
+        String loopVariable = ctx.IDENTIFIER().getText();
+        Templates templates = visitTemplatesBody(ctx.templatesBody());
+        Object oIt = scope.resolveValue("it");
+        if (!(oIt instanceof Stream)) {
+            oIt = Stream.of(oIt);
+        }
+        return ((Stream<?>) oIt).flatMap(it -> runArrayTemplate(loopVariable, templates, it));
+    }
+
+    private Stream<?> runArrayTemplate(String loopVariable, Templates templates, Object oIt) {
+        if (!(oIt instanceof List)) {
+            throw new UnsupportedOperationException("Cannot apply array templates to " + oIt.getClass());
+        }
+        List<?> it = (List<?>) oIt;
+        Stream<?>[] result = new Stream[it.size()];
+        for (int i = 0; i < it.size(); i++) {
+            Scope itemScope = new NestedScope(scope);
+            itemScope.defineValue(loopVariable, i + 1);
+            itemScope.defineValue("it", it.get(i));
+            result[i] = templates.run(itemScope);
+        }
+        return Stream.of(result).flatMap(Function.identity());
     }
 
     @Override
@@ -137,7 +164,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     public Object visitCallDefinedTemplates(TailspinParser.CallDefinedTemplatesContext ctx) {
         String name = ctx.IDENTIFIER().getText();
         Templates templates = (Templates) scope.resolveValue(name);
-        return templates.run(scope);
+        return templates.run(new NestedScope(scope));
     }
 
     @Override
@@ -177,13 +204,17 @@ public class RunMain extends TailspinParserBaseVisitor {
             String identifier = ctx.StringDereference().getText().replaceAll("[$;]", "");
             Object interpolated = scope.resolveValue(identifier);
             if (interpolated instanceof Templates) {
-                return ((Templates) interpolated).run(scope)
+                return ((Templates) interpolated).run(new NestedScope(scope))
                     .map(Object::toString).collect(Collectors.joining());
             }
             return interpolated.toString();
         }
         if (ctx.valueChain() != null) {
-            return visit(ctx.valueChain()).toString();
+            Object value = visit(ctx.valueChain());
+            if (!(value instanceof Stream)) {
+                value = Stream.of(value);
+            }
+            return ((Stream<?>) value).map(Object::toString).collect(Collectors.joining());
         }
         throw new UnsupportedOperationException();
     }

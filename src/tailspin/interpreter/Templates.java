@@ -15,8 +15,8 @@ class Templates {
     this.matchTemplates = matchTemplates;
   }
 
-  Stream<?> run(Scope parentScope) {
-    RunTemplateBlock runner = new RunTemplateBlock(this, new NestedScope(parentScope));
+  Stream<?> run(Scope scope) {
+    RunTemplateBlock runner = new RunTemplateBlock(this, scope);
     if (block != null) {
       return runner.visitBlock(block);
     } else {
