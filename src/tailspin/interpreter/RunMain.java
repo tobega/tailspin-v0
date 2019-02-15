@@ -197,6 +197,20 @@ public class RunMain extends TailspinParserBaseVisitor {
                     return left - right;
             }
         }
+        if (ctx.MultiplicativeOperator() != null) {
+            Integer left = (Integer) visit(ctx.arithmeticExpression(0));
+            Integer right = Math.abs((Integer) visit(ctx.arithmeticExpression(1)));
+            String operation = ctx.MultiplicativeOperator().getText();
+            switch (operation) {
+                case "*":
+                    return left * right;
+                case "/":
+                    return left / right;
+                case "mod":
+                    int truncateRemainder = left % right;
+                    return truncateRemainder < 0 ? right + truncateRemainder : truncateRemainder;
+            }
+        }
         if (ctx.integerLiteral() != null) {
             return (Integer) visit(ctx.integerLiteral());
         }

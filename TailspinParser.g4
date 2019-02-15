@@ -63,4 +63,5 @@ sink: Stdout;
 
 arithmeticExpression: integerLiteral
   | Dereference
+  | arithmeticExpression MultiplicativeOperator arithmeticExpression
   | arithmeticExpression AdditiveOperator arithmeticExpression;

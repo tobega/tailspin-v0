@@ -30,6 +30,8 @@ Range: '..';
 
 AdditiveOperator: '+' | '-';
 
+MultiplicativeOperator: '*' | '/' | 'mod';
+
 Zero: '0';
 
 NonZeroInteger: '-'? [1-9] Digits?;
