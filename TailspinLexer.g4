@@ -12,6 +12,8 @@ Colon: ':';
 
 Comma: ',';
 
+Deconstructor: '...';
+
 EndIdentifier: ';';
 
 LeftParen: '(' -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode

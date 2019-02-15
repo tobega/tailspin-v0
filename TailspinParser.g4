@@ -37,7 +37,9 @@ blockExpression: valueChain        # resultValue
 ;
 
 valueChain: source
-  | source To transform;
+  | source To transform
+  | valueChain Deconstructor
+;
 
 transform: templates
   | templates To transform;

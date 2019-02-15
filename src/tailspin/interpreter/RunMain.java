@@ -36,6 +36,13 @@ public class RunMain extends TailspinParserBaseVisitor {
 
     @Override
     public Object visitValueChain(TailspinParser.ValueChainContext ctx) {
+        if (ctx.Deconstructor() != null) {
+            Object value = visitValueChain(ctx.valueChain());
+            if (value instanceof List) {
+                return ((List<?>) value).stream();
+            }
+            throw new UnsupportedOperationException("Cannot deconstruct " + value.getClass());
+        }
         Object source = visit(ctx.source());
         if (ctx.transform() != null) {
             return chain(ctx.transform(), source);
