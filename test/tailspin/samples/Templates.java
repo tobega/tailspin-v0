@@ -87,19 +87,6 @@ class Templates {
     }
 
     @Test
-    void rangeMatch() throws Exception {
-        String program = "1..6 -> (<..2> 'L' <3..4> 'M' <5..> 'H') -> stdout";
-        Tailspin runner =
-            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-        ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        runner.run(input, output);
-
-        assertEquals("LLMMHH", output.toString(StandardCharsets.UTF_8));
-    }
-
-    @Test
     void initialBlock() throws Exception {
         String program = "templates simple\n$it + 1\n $it\nend simple\n"
             + "1 -> simple -> stdout";

@@ -149,6 +149,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitRangeMatch(TailspinParser.RangeMatchContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code regexpMatch}
+	 * labeled alternative in {@link TailspinParser#condition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRegexpMatch(TailspinParser.RegexpMatchContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#lowerBound}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

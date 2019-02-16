@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import tailspin.parser.TailspinParser;
 
@@ -39,6 +40,18 @@ class RunTemplateBlock extends RunMain {
       if (it > upperBound) return false;
     }
     return true;
+  }
+
+  @Override
+  public Boolean visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
+    Object oIt = scope.resolveValue("it");
+    if (!(oIt instanceof String)) return false;
+    String it = (String) oIt;
+    String pattern = visitStringLiteral(ctx.stringLiteral());
+    // TODO: this coud be good to save in compiled form
+    Pattern compiled = Pattern
+        .compile("\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ);
+    return compiled.matcher(it).matches();
   }
 
   @Override

@@ -30,6 +30,7 @@ END_STRING=29
 EndMatcher=30
 MatchInteger=31
 RangeMatch=32
+START_REGEXP=33
 'stdout'=1
 '->'=4
 ':'=5

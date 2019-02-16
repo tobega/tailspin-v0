@@ -48,7 +48,8 @@ transform: templates
 matcher: StartMatcher condition? EndMatcher;
 
 condition: MatchInteger                    # integerEquals
-  | lowerBound? RangeMatch upperBound? # rangeMatch
+  | lowerBound? RangeMatch upperBound?     # rangeMatch
+  | stringLiteral                          # regexpMatch
 ;
 
 lowerBound: MatchInteger;
@@ -59,7 +60,7 @@ rangeLiteral: integerLiteral Range integerLiteral (Colon NonZeroInteger)?;
 
 integerLiteral: Zero | NonZeroInteger;
 
-stringLiteral: START_STRING stringContent* END_STRING;
+stringLiteral: (START_STRING|START_REGEXP) stringContent* END_STRING;
 
 stringContent: stringInterpolate | STRING_TEXT;
 

@@ -32,6 +32,7 @@ public class Tailspin {
     TailspinParser parser = new TailspinParser(tokenStream);
     MyANTLRErrorListener errorListener = new MyANTLRErrorListener();
     parser.addErrorListener(errorListener);
+    lexer.addErrorListener(errorListener);
     TailspinParser.ProgramContext prog = parser.program();
     if (errorListener.error) {
       throw new RuntimeException("Compilation error");

@@ -76,3 +76,5 @@ EndMatcher: '>' -> popMode;
 MatchInteger: Zero | NonZeroInteger;
 
 RangeMatch: Range;
+
+START_REGEXP: '\'' -> pushMode(IN_STRING);
