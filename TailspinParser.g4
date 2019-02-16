@@ -38,12 +38,13 @@ blockExpression: valueChain        # resultValue
 ;
 
 valueChain: source
-  | source To transform
-  | valueChain Deconstructor
+  | source transform
 ;
 
-transform: templates
-  | templates To transform;
+transform: To templates
+  | templates transform
+  | Deconstructor transform?
+;
 
 matcher: StartMatcher condition? EndMatcher;
 

@@ -75,4 +75,17 @@ class Arrays {
 
     assertEquals("onetwothree", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void deconstructToTransform() throws IOException {
+    String program = "[1, 4, 3]... -> (<4> 2) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
 }

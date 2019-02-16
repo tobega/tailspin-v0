@@ -37,13 +37,6 @@ public class RunMain extends TailspinParserBaseVisitor {
 
     @Override
     public Object visitValueChain(TailspinParser.ValueChainContext ctx) {
-        if (ctx.Deconstructor() != null) {
-            Object value = visitValueChain(ctx.valueChain());
-            if (value instanceof List) {
-                return ((List<?>) value).stream();
-            }
-            throw new UnsupportedOperationException("Cannot deconstruct " + value.getClass());
-        }
         Object source = visit(ctx.source());
         if (ctx.transform() != null) {
             return chain(ctx.transform(), source);
@@ -169,6 +162,17 @@ public class RunMain extends TailspinParserBaseVisitor {
 
     @Override
     public Object visitTransform(TailspinParser.TransformContext ctx) {
+        if (ctx.Deconstructor() != null) {
+            Object it = scope.resolveValue("it");
+            if (it instanceof List) {
+                Stream<?> deconstructed =  ((List<?>) it).stream();
+                if (ctx.transform() != null) {
+                    return chain(ctx.transform(), deconstructed);
+                }
+                return deconstructed;
+            }
+            throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
+        }
         Object nextValue = visit(ctx.templates());
         if (ctx.transform() != null) {
             scope.defineValue("it", nextValue);
