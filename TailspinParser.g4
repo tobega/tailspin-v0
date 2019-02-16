@@ -41,9 +41,8 @@ valueChain: source
   | source transform
 ;
 
-transform: To templates
+transform: To templates transform?
   | Deconstructor transform?
-  | templates transform
 ;
 
 matcher: StartMatcher condition? EndMatcher;
