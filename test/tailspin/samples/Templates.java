@@ -118,7 +118,7 @@ class Templates {
 
     @Test
     void arrayTemplates() throws Exception {
-        String program = "[2..4] -> [i]($i * $it ',') -> stdout";
+        String program = "[2..4] -> [i]($i * $it) -> stdout";
         Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -126,6 +126,6 @@ class Templates {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         runner.run(input, output);
 
-        assertEquals("2,6,12,", output.toString(StandardCharsets.UTF_8));
+        assertEquals("[2, 6, 12]", output.toString(StandardCharsets.UTF_8));
     }
 }

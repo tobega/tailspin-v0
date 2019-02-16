@@ -102,14 +102,15 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
 
     @Override
-    public Object visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx) {
+    public List<?> visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx) {
         String loopVariable = ctx.IDENTIFIER().getText();
         Templates templates = visitTemplatesBody(ctx.templatesBody());
         Object oIt = scope.resolveValue("it");
         if (!(oIt instanceof Stream)) {
             oIt = Stream.of(oIt);
         }
-        return ((Stream<?>) oIt).flatMap(it -> runArrayTemplate(loopVariable, templates, it));
+        return ((Stream<?>) oIt).flatMap(it -> runArrayTemplate(loopVariable, templates, it))
+            .collect(Collectors.toList());
     }
 
     private Stream<?> runArrayTemplate(String loopVariable, Templates templates, Object oIt) {

@@ -917,10 +917,10 @@ public class TailspinParser extends Parser {
 		public TemplatesContext templates() {
 			return getRuleContext(TemplatesContext.class,0);
 		}
+		public TerminalNode Deconstructor() { return getToken(TailspinParser.Deconstructor, 0); }
 		public TransformContext transform() {
 			return getRuleContext(TransformContext.class,0);
 		}
-		public TerminalNode Deconstructor() { return getToken(TailspinParser.Deconstructor, 0); }
 		public TransformContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -948,34 +948,34 @@ public class TailspinParser extends Parser {
 				templates();
 				}
 				break;
+			case Deconstructor:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(142);
+				match(Deconstructor);
+				setState(144);
+				_errHandler.sync(this);
+				switch ( getInterpreter().adaptivePredict(_input,12,_ctx) ) {
+				case 1:
+					{
+					setState(143);
+					transform();
+					}
+					break;
+				}
+				}
+				break;
 			case LeftParen:
 			case LeftBracket:
 			case START_STRING:
 			case IDENTIFIER:
 			case START_REGEXP:
-				enterOuterAlt(_localctx, 2);
-				{
-				setState(142);
-				templates();
-				setState(143);
-				transform();
-				}
-				break;
-			case Deconstructor:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(145);
-				match(Deconstructor);
+				setState(146);
+				templates();
 				setState(147);
-				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,12,_ctx) ) {
-				case 1:
-					{
-					setState(146);
-					transform();
-					}
-					break;
-				}
+				transform();
 				}
 				break;
 			default:
@@ -1681,7 +1681,7 @@ public class TailspinParser extends Parser {
 		"\3\6\3\6\3\6\3\6\3\6\5\6i\n\6\3\7\3\7\7\7m\n\7\f\7\16\7p\13\7\3\7\6\7"+
 		"s\n\7\r\7\16\7t\5\7w\n\7\3\b\3\b\3\b\3\t\6\t}\n\t\r\t\16\t~\3\n\3\n\3"+
 		"\n\3\n\3\n\3\n\5\n\u0087\n\n\3\13\3\13\3\13\3\13\5\13\u008d\n\13\3\f\3"+
-		"\f\3\f\3\f\3\f\3\f\3\f\5\f\u0096\n\f\5\f\u0098\n\f\3\r\3\r\5\r\u009c\n"+
+		"\f\3\f\3\f\5\f\u0093\n\f\3\f\3\f\3\f\5\f\u0098\n\f\3\r\3\r\5\r\u009c\n"+
 		"\r\3\r\3\r\3\16\3\16\5\16\u00a2\n\16\3\16\3\16\5\16\u00a6\n\16\3\16\5"+
 		"\16\u00a9\n\16\3\17\3\17\3\20\3\20\3\21\3\21\3\21\3\21\3\21\5\21\u00b4"+
 		"\n\21\3\22\3\22\3\23\3\23\7\23\u00ba\n\23\f\23\16\23\u00bd\13\23\3\23"+
@@ -1714,33 +1714,33 @@ public class TailspinParser extends Parser {
 		"\2\2\u0086\u0085\3\2\2\2\u0087\23\3\2\2\2\u0088\u008d\5\6\4\2\u0089\u008a"+
 		"\5\6\4\2\u008a\u008b\5\26\f\2\u008b\u008d\3\2\2\2\u008c\u0088\3\2\2\2"+
 		"\u008c\u0089\3\2\2\2\u008d\25\3\2\2\2\u008e\u008f\7\6\2\2\u008f\u0098"+
-		"\5\n\6\2\u0090\u0091\5\n\6\2\u0091\u0092\5\26\f\2\u0092\u0098\3\2\2\2"+
-		"\u0093\u0095\7\t\2\2\u0094\u0096\5\26\f\2\u0095\u0094\3\2\2\2\u0095\u0096"+
-		"\3\2\2\2\u0096\u0098\3\2\2\2\u0097\u008e\3\2\2\2\u0097\u0090\3\2\2\2\u0097"+
-		"\u0093\3\2\2\2\u0098\27\3\2\2\2\u0099\u009b\7\17\2\2\u009a\u009c\5\32"+
-		"\16\2\u009b\u009a\3\2\2\2\u009b\u009c\3\2\2\2\u009c\u009d\3\2\2\2\u009d"+
-		"\u009e\7 \2\2\u009e\31\3\2\2\2\u009f\u00a9\7!\2\2\u00a0\u00a2\5\34\17"+
-		"\2\u00a1\u00a0\3\2\2\2\u00a1\u00a2\3\2\2\2\u00a2\u00a3\3\2\2\2\u00a3\u00a5"+
-		"\7\"\2\2\u00a4\u00a6\5\36\20\2\u00a5\u00a4\3\2\2\2\u00a5\u00a6\3\2\2\2"+
-		"\u00a6\u00a9\3\2\2\2\u00a7\u00a9\5$\23\2\u00a8\u009f\3\2\2\2\u00a8\u00a1"+
-		"\3\2\2\2\u00a8\u00a7\3\2\2\2\u00a9\33\3\2\2\2\u00aa\u00ab\7!\2\2\u00ab"+
-		"\35\3\2\2\2\u00ac\u00ad\7!\2\2\u00ad\37\3\2\2\2\u00ae\u00af\5\"\22\2\u00af"+
-		"\u00b0\7\24\2\2\u00b0\u00b3\5\"\22\2\u00b1\u00b2\7\7\2\2\u00b2\u00b4\7"+
-		"\30\2\2\u00b3\u00b1\3\2\2\2\u00b3\u00b4\3\2\2\2\u00b4!\3\2\2\2\u00b5\u00b6"+
-		"\t\2\2\2\u00b6#\3\2\2\2\u00b7\u00bb\t\3\2\2\u00b8\u00ba\5&\24\2\u00b9"+
-		"\u00b8\3\2\2\2\u00ba\u00bd\3\2\2\2\u00bb\u00b9\3\2\2\2\u00bb\u00bc\3\2"+
-		"\2\2\u00bc\u00be\3\2\2\2\u00bd\u00bb\3\2\2\2\u00be\u00bf\7\37\2\2\u00bf"+
-		"%\3\2\2\2\u00c0\u00c3\5(\25\2\u00c1\u00c3\7\36\2\2\u00c2\u00c0\3\2\2\2"+
-		"\u00c2\u00c1\3\2\2\2\u00c3\'\3\2\2\2\u00c4\u00ca\7\35\2\2\u00c5\u00c6"+
-		"\7\34\2\2\u00c6\u00c7\5\24\13\2\u00c7\u00c8\7\f\2\2\u00c8\u00ca\3\2\2"+
-		"\2\u00c9\u00c4\3\2\2\2\u00c9\u00c5\3\2\2\2\u00ca)\3\2\2\2\u00cb\u00cc"+
-		"\7\3\2\2\u00cc+\3\2\2\2\u00cd\u00ce\b\27\1\2\u00ce\u00d1\5\"\22\2\u00cf"+
-		"\u00d1\7\5\2\2\u00d0\u00cd\3\2\2\2\u00d0\u00cf\3\2\2\2\u00d1\u00da\3\2"+
-		"\2\2\u00d2\u00d3\f\4\2\2\u00d3\u00d4\7\26\2\2\u00d4\u00d9\5,\27\5\u00d5"+
-		"\u00d6\f\3\2\2\u00d6\u00d7\7\25\2\2\u00d7\u00d9\5,\27\4\u00d8\u00d2\3"+
-		"\2\2\2\u00d8\u00d5\3\2\2\2\u00d9\u00dc\3\2\2\2\u00da\u00d8\3\2\2\2\u00da"+
+		"\5\n\6\2\u0090\u0092\7\t\2\2\u0091\u0093\5\26\f\2\u0092\u0091\3\2\2\2"+
+		"\u0092\u0093\3\2\2\2\u0093\u0098\3\2\2\2\u0094\u0095\5\n\6\2\u0095\u0096"+
+		"\5\26\f\2\u0096\u0098\3\2\2\2\u0097\u008e\3\2\2\2\u0097\u0090\3\2\2\2"+
+		"\u0097\u0094\3\2\2\2\u0098\27\3\2\2\2\u0099\u009b\7\17\2\2\u009a\u009c"+
+		"\5\32\16\2\u009b\u009a\3\2\2\2\u009b\u009c\3\2\2\2\u009c\u009d\3\2\2\2"+
+		"\u009d\u009e\7 \2\2\u009e\31\3\2\2\2\u009f\u00a9\7!\2\2\u00a0\u00a2\5"+
+		"\34\17\2\u00a1\u00a0\3\2\2\2\u00a1\u00a2\3\2\2\2\u00a2\u00a3\3\2\2\2\u00a3"+
+		"\u00a5\7\"\2\2\u00a4\u00a6\5\36\20\2\u00a5\u00a4\3\2\2\2\u00a5\u00a6\3"+
+		"\2\2\2\u00a6\u00a9\3\2\2\2\u00a7\u00a9\5$\23\2\u00a8\u009f\3\2\2\2\u00a8"+
+		"\u00a1\3\2\2\2\u00a8\u00a7\3\2\2\2\u00a9\33\3\2\2\2\u00aa\u00ab\7!\2\2"+
+		"\u00ab\35\3\2\2\2\u00ac\u00ad\7!\2\2\u00ad\37\3\2\2\2\u00ae\u00af\5\""+
+		"\22\2\u00af\u00b0\7\24\2\2\u00b0\u00b3\5\"\22\2\u00b1\u00b2\7\7\2\2\u00b2"+
+		"\u00b4\7\30\2\2\u00b3\u00b1\3\2\2\2\u00b3\u00b4\3\2\2\2\u00b4!\3\2\2\2"+
+		"\u00b5\u00b6\t\2\2\2\u00b6#\3\2\2\2\u00b7\u00bb\t\3\2\2\u00b8\u00ba\5"+
+		"&\24\2\u00b9\u00b8\3\2\2\2\u00ba\u00bd\3\2\2\2\u00bb\u00b9\3\2\2\2\u00bb"+
+		"\u00bc\3\2\2\2\u00bc\u00be\3\2\2\2\u00bd\u00bb\3\2\2\2\u00be\u00bf\7\37"+
+		"\2\2\u00bf%\3\2\2\2\u00c0\u00c3\5(\25\2\u00c1\u00c3\7\36\2\2\u00c2\u00c0"+
+		"\3\2\2\2\u00c2\u00c1\3\2\2\2\u00c3\'\3\2\2\2\u00c4\u00ca\7\35\2\2\u00c5"+
+		"\u00c6\7\34\2\2\u00c6\u00c7\5\24\13\2\u00c7\u00c8\7\f\2\2\u00c8\u00ca"+
+		"\3\2\2\2\u00c9\u00c4\3\2\2\2\u00c9\u00c5\3\2\2\2\u00ca)\3\2\2\2\u00cb"+
+		"\u00cc\7\3\2\2\u00cc+\3\2\2\2\u00cd\u00ce\b\27\1\2\u00ce\u00d1\5\"\22"+
+		"\2\u00cf\u00d1\7\5\2\2\u00d0\u00cd\3\2\2\2\u00d0\u00cf\3\2\2\2\u00d1\u00da"+
+		"\3\2\2\2\u00d2\u00d3\f\4\2\2\u00d3\u00d4\7\26\2\2\u00d4\u00d9\5,\27\5"+
+		"\u00d5\u00d6\f\3\2\2\u00d6\u00d7\7\25\2\2\u00d7\u00d9\5,\27\4\u00d8\u00d2"+
+		"\3\2\2\2\u00d8\u00d5\3\2\2\2\u00d9\u00dc\3\2\2\2\u00da\u00d8\3\2\2\2\u00da"+
 		"\u00db\3\2\2\2\u00db-\3\2\2\2\u00dc\u00da\3\2\2\2\33\62ELQVhntv~\u0086"+
-		"\u008c\u0095\u0097\u009b\u00a1\u00a5\u00a8\u00b3\u00bb\u00c2\u00c9\u00d0"+
+		"\u008c\u0092\u0097\u009b\u00a1\u00a5\u00a8\u00b3\u00bb\u00c2\u00c9\u00d0"+
 		"\u00d8\u00da";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
