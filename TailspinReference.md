@@ -5,10 +5,17 @@ This is the syntax as it is working so far, with some indications of future deve
 A typical tailspin statement starts with a [source](#sources) for a value,
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
 (a.k.a a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you just
-leave out the sink to emit the resulting value.
+leave out the sink to emit the resulting value. The current value, referred to as `$it`, at each
+stage is simply the value produced by the stage before. At the start of a top-level statement,
+`$it` is undefined.
 
 A transform is typically a [templates](#templates) object where the block to be executed is
 decided by a [matcher](#matchers) on the current value (referred to as `$it`).
+
+Whitespace works as a separator but is ignored.
+
+Language constructs are designed to be as like the value they match or produce as possible.
+Rather than using control flow keywords, you would in tailspin produce streams of values in a declarative way.
 
 ## Sources
 A source is the simplest _value chain_, simply producing a value.
@@ -78,10 +85,69 @@ A deconstructor is a transform that works on [arrays](#arrays) by flowing the el
 into a [stream](#streams), e.g. `[4,7,9]...` will create a stream of the values 4, 7 and 9.
 
 ### Templates
-A templates object takes the current value, referred to as `$it`, 
+A templates object consists of an optional _initial block_ and an optional sequence of [matchers](#matchers),
+each with a _block_.
 
-#### Matchers
+A block is simply a series of value chains that either dry up, with no value for the next stage;
+produce a value (or several) that gets emitted out of the template; sends a value to a sink; or,
+most important, __sends a value to the [matchers](#matchers)__
+
+The initial block is executed with the value passed into the template accessible as the
+current value, `$it`, at the beginning of each chain. If no initial block is provided, the current
+value is sent to the [matchers](#matchers).
+
+_Current limitations_: You cannot have an empty match block nor an empty templates object.
+
+_Possible future directions_: There may be some default behaviour applied if no matching matcher
+is found, perhaps to just deconstruct the object and sent its children to the matchers in turn.
+A special token may be introduced to specifically indicate that output is squashed,
+perhaps a [sink](#sinks) called `void`.
+
+#### Defined templates
+Templates can be defined with an identifier as a top-level statement or inside another templates object.
+The definition starts with `templates _identifier_` and ends with `end _identifier_`, where \_identifier\_
+is the name you wish to assign, e.g.
+```
+templates add1
+  $it + 1
+end add1
+```
+
+#### Inline templates
+Templates can be defined inline by just wrapping a templates body in parentheses, e.g.
+`$it -> (<0> 'zero')` will output `zero` if `$it` was `0`
+
+#### Array templates
+Array templates is a convenient way to process [array](#arrays) elements individually together with
+their index in the array. They are created by prefixing an [inline templates](#inline-templates)
+definition with an identifier for the index within brackets,
+e.g. `[4,5,6] -> [i]($it + $i)` will produce the value `[5,7,9]`.
+
+## Matchers
+A matcher is a condition enclosed by angle brackets. A sequence of matchers is evaluated from the
+start to the end, where the first matcher that matches the current value will have its block
+executed for that current value.
+* Empty condition always matches `<>`
+* Numeric condition, [arithmetic expression](#arithmetic-expression) matches if equal, e.g. `<5>` for "equals 5"
+* Range match has a lower bound and/or an upper bound separated by the range operator, e.g.
+  * `<2..5>` for "between 2 and 5 inclusive"
+  * `<..3>` for "less than or equal to 3"
+  * `<10..>` for "greater than or equal to 10" 
+* String match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
+For more info on how matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
+Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
 
 ## Streams
+Streams occur when several values are created as the _current value_. Streams are processed by
+repeating the remainder of the chain by setting __each__ of its values as the _current value_ in turn.
+Streams can be captured into an [array](#arrays) by surrounding them with an [array literal](#array-literal).
 
 ## Arrays
+Arrays are an ordered list of objects that can be turned into a [stream](#streams) by a [deconstructor](#deconstructor).
+The first element of an array has index `1`. The last element of an array can be accessed as index `-1`.
+
+_Current limitations_: You cannot really do anything except turn them into streams.
+Only one dimension is currently supported.
+
+_Future directions_: Very flexible declarative ways of selecting elements as array slices.
+Multidimensional arrays.
