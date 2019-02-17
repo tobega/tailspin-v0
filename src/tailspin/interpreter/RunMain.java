@@ -190,7 +190,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     @Override
     public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
         String identifier = ctx.Key().getText().replace(":", "");
-        scope.defineValue(identifier, visit(ctx.source()));
+        scope.defineValue(identifier, visit(ctx.valueChain()));
         return null;
     }
 

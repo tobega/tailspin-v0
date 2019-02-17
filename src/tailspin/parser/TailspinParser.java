@@ -217,8 +217,8 @@ public class TailspinParser extends Parser {
 	public static class DefinitionContext extends StatementContext {
 		public TerminalNode Def() { return getToken(TailspinParser.Def, 0); }
 		public TerminalNode Key() { return getToken(TailspinParser.Key, 0); }
-		public SourceContext source() {
-			return getRuleContext(SourceContext.class,0);
+		public ValueChainContext valueChain() {
+			return getRuleContext(ValueChainContext.class,0);
 		}
 		public DefinitionContext(StatementContext ctx) { copyFrom(ctx); }
 		@Override
@@ -244,7 +244,7 @@ public class TailspinParser extends Parser {
 				setState(58);
 				match(Key);
 				setState(59);
-				source();
+				valueChain();
 				}
 				break;
 			case Dereference:
@@ -1818,7 +1818,7 @@ public class TailspinParser extends Parser {
 		"\3\2\2\2*\u00d5\3\2\2\2,\u00dc\3\2\2\2.\u00de\3\2\2\2\60\u00e3\3\2\2\2"+
 		"\62\66\5\4\3\2\63\65\5\4\3\2\64\63\3\2\2\2\658\3\2\2\2\66\64\3\2\2\2\66"+
 		"\67\3\2\2\2\679\3\2\2\28\66\3\2\2\29:\7\2\2\3:\3\3\2\2\2;<\7\4\2\2<=\7"+
-		"\21\2\2=I\5\6\4\2>?\5\30\r\2?@\7\6\2\2@A\5.\30\2AI\3\2\2\2BC\7\23\2\2"+
+		"\21\2\2=I\5\30\r\2>?\5\30\r\2?@\7\6\2\2@A\5.\30\2AI\3\2\2\2BC\7\23\2\2"+
 		"CD\7\35\2\2DE\5\20\t\2EF\7\24\2\2FG\7\35\2\2GI\3\2\2\2H;\3\2\2\2H>\3\2"+
 		"\2\2HB\3\2\2\2I\5\3\2\2\2JQ\7\5\2\2KQ\5(\25\2LQ\5\60\31\2MQ\5$\23\2NQ"+
 		"\5\b\5\2OQ\5\n\6\2PJ\3\2\2\2PK\3\2\2\2PL\3\2\2\2PM\3\2\2\2PN\3\2\2\2P"+

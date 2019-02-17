@@ -167,4 +167,17 @@ class Statements {
       runner.run(input, output);
     } catch (Exception expected) {}
   }
+
+  @Test
+  void definedSymbolFromValueChain() throws Exception {
+    String program = "def helloWorld: 'World!' -> 'Hello $it' \n $helloWorld -> stdout\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
+  }
 }

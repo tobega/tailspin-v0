@@ -4,7 +4,7 @@ options { tokenVocab = TailspinLexer; }
 
 program: statement (statement)* EOF;
 
-statement: Def Key source                   # definition
+statement: Def Key valueChain                   # definition
   | valueChain To sink                                   # valueChainToSink
   | StartTemplatesDefinition IDENTIFIER templatesBody EndDefinition IDENTIFIER # templatesDefinition
 ;
