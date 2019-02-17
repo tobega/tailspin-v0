@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -73,6 +75,9 @@ public class RunMain extends TailspinParserBaseVisitor {
         }
         if (ctx.arrayLiteral() != null) {
             return visitArrayLiteral(ctx.arrayLiteral());
+        }
+        if (ctx.structureLiteral() != null) {
+            return visitStructureLiteral(ctx.structureLiteral());
         }
         throw new UnsupportedOperationException(ctx.toString());
     }
@@ -184,7 +189,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
     @Override
     public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
-        String identifier = ctx.IDENTIFIER().getText();
+        String identifier = ctx.Key().getText().replace(":", "");
         scope.defineValue(identifier, visit(ctx.source()));
         return null;
     }
@@ -287,5 +292,32 @@ public class RunMain extends TailspinParserBaseVisitor {
             }
             return (Stream<?>) result;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public Object visitStructureLiteral(TailspinParser.StructureLiteralContext ctx) {
+        Map<String, Object> structure = new TreeMap<>();
+        for (TailspinParser.KeyValueContext kvc : ctx.keyValue()) {
+            KeyValue keyValue = visitKeyValue(kvc);
+            structure.put(keyValue.key, keyValue.value);
+        }
+        return structure;
+    }
+
+    @Override
+    public KeyValue visitKeyValue(TailspinParser.KeyValueContext ctx) {
+        String key = ctx.Key().getText().replace(":", "");
+        Object value = visitValueChain(ctx.valueChain());
+        return new KeyValue(key, value);
+    }
+
+    private static class KeyValue {
+        final String key;
+        final Object value;
+
+        private KeyValue(String key, Object value) {
+            this.key = key;
+            this.value = value;
+        }
     }
 }

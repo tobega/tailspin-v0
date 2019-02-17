@@ -4,7 +4,7 @@ options { tokenVocab = TailspinLexer; }
 
 program: statement (statement)* EOF;
 
-statement: Def IDENTIFIER Colon source                   # definition
+statement: Def Key source                   # definition
   | valueChain To sink                                   # valueChainToSink
   | StartTemplatesDefinition IDENTIFIER templatesBody EndDefinition IDENTIFIER # templatesDefinition
 ;
@@ -14,9 +14,14 @@ source: Dereference
   | arithmeticExpression
   | rangeLiteral
   | arrayLiteral
+  | structureLiteral
 ;
 
 arrayLiteral: LeftBracket valueChain (Comma? valueChain)* RightBracket;
+
+structureLiteral: LeftBrace (keyValue Comma?)* RightBrace;
+
+keyValue: Key valueChain;
 
 templates: stringLiteral                 # stringLiteralTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates

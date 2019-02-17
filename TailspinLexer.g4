@@ -24,6 +24,12 @@ LeftBracket: '[';
 
 RightBracket: ']';
 
+LeftBrace: '{';
+
+RightBrace: '}';
+
+Key: IDENTIFIER Colon;
+
 StartMatcher: '<' -> pushMode(MATCHER);
 
 StartTemplatesDefinition: 'templates';

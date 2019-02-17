@@ -50,6 +50,18 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#structureLiteral}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStructureLiteral(TailspinParser.StructureLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#keyValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitKeyValue(TailspinParser.KeyValueContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code stringLiteralTemplates}
 	 * labeled alternative in {@link TailspinParser#templates}.
 	 * @param ctx the parse tree

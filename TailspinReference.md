@@ -64,8 +64,13 @@ _Current limitations_: start, end and increment must all be integer literals. (A
 
 ### Array literal
 An array literal produces an [array](#arrays) of values. It starts with a left bracket followed by
-a [stream](#streams) of _value chains_, optionally separated by commas, and ended by a right bracket.
+a [stream](#streams) of _value chains_, optionally separated by commas, and ends with a right bracket.
 E.g. `[1,2,3,4,5]` and `[1 2 3, 4 5]` and `[1..5]` all produce an array of size 5 containing the numbers 1 to 5.
+
+### Structure literal
+A structure literal produces a [structure](#structures) value. It starts with a left brace, followed by
+a [stream](#streams) of key-value pairs, optionally separated by commas, and ends with a right brace.
+A key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
 
 ## Sinks
 A sink is a place where a value "disappears" and the value chain ends. A symbol definition could
@@ -80,6 +85,9 @@ Transforms take the current value (or each value separately from a [stream](#str
 it into another value (or no value, or a stream of values) that is then passed to the next stage in the
 chain, to ultimately end up in a [sink](#sinks).
 
+### Literal transform
+The preferred tailspin way to create new things is by a declarative literal expression. Most of the things
+listed as [sources](#sources) qualify as transforms if they reference the _current value_ `$it`.
 ### Deconstructor
 A deconstructor is a transform that works on [arrays](#arrays) by flowing the elements out of an array
 into a [stream](#streams), e.g. `[4,7,9]...` will create a stream of the values 4, 7 and 9.
@@ -151,3 +159,8 @@ Only one dimension is currently supported.
 
 _Future directions_: Very flexible declarative ways of selecting elements as array slices.
 Multidimensional arrays.
+
+## Structures
+A structure is a collection of named values without any inherent order. The values of a structure
+can be accessed by appending a dot and the key to the [dereference](#dereference) of the structure.
+E.g. if the structure `{ a: 1 }` is the _current value_, the value `1` can be accessed by `$it.a`.
