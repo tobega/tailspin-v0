@@ -194,8 +194,7 @@ public class RunMain extends TailspinParserBaseVisitor {
         }
         Object nextValue = visit(ctx.templates());
         if (ctx.transform() != null) {
-            scope.defineValue("it", nextValue);
-            return visit(ctx.transform());
+            return chain(ctx.transform(), nextValue);
         }
         return nextValue;
     }
