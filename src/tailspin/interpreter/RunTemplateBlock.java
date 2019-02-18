@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import tailspin.parser.TailspinParser;
@@ -52,6 +53,28 @@ class RunTemplateBlock extends RunMain {
     Pattern compiled = Pattern
         .compile("\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ);
     return compiled.matcher(it).matches();
+  }
+
+  @Override
+  public Boolean visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
+    Object oIt = scope.resolveValue("it");
+    if (!(oIt instanceof Map)) return false;
+    if (ctx.StructureKey().isEmpty()) {
+      return true;
+    }
+    boolean stillPossible = true;
+    @SuppressWarnings("unchecked")
+    Map<String, Object> it = (Map<String, Object>) oIt;
+    for (int i = 0; stillPossible && i < ctx.StructureKey().size(); i++) {
+      String key = ctx.StructureKey(i).getText().replace(":", "");
+      scope.defineValue("it", it.get(key));
+      TailspinParser.MatcherContext matcher = ctx.matcher(i);
+      if (!visitMatcher(matcher)) {
+        stillPossible = false;
+      }
+    }
+    scope.defineValue("it", it);
+    return stillPossible;
   }
 
   @Override

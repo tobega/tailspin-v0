@@ -77,6 +77,8 @@ END_STRING: '\'' -> popMode;
 
 mode MATCHER;
 
+StartSubMatcher: '<' -> pushMode(MATCHER);
+
 EndMatcher: '>' -> popMode;
 
 MatchInteger: Zero | NonZeroInteger;
@@ -84,3 +86,11 @@ MatchInteger: Zero | NonZeroInteger;
 RangeMatch: Range;
 
 START_REGEXP: '\'' -> pushMode(IN_STRING);
+
+StartStructureMatch: LeftBrace;
+
+EndStructureMatch: RightBrace;
+
+StructureKey: Key;
+
+MatcherIgnoreWS: WS -> skip;

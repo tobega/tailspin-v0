@@ -50,11 +50,12 @@ transform: To templates transform?
   | Deconstructor transform?
 ;
 
-matcher: StartMatcher condition? EndMatcher;
+matcher: (StartMatcher|StartSubMatcher) condition? EndMatcher;
 
 condition: MatchInteger                    # integerEquals
   | lowerBound? RangeMatch upperBound?     # rangeMatch
   | stringLiteral                          # regexpMatch
+  | StartStructureMatch (StructureKey matcher Comma?)* EndStructureMatch # structureMatch
 ;
 
 lowerBound: MatchInteger;

@@ -142,8 +142,14 @@ executed for that current value.
   * `<..3>` for "less than or equal to 3"
   * `<10..>` for "greater than or equal to 10" 
 * String match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
-For more info on how matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
+For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
 Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
+* Structure match is similar to a [structure literal](#structure-literal), surrounded by braces,
+lists keys of fields that need to exist for the matcher to match, with a matcher for the value of the field, e.g.
+  * `<{}>` matches any structure, but not numbers, strings or arrays
+  * `<{a: <>}>` matches any structure that has a field `a`, whatever its value
+  * `<{a:<0>, b:<1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
+  whatever other fields it might have.
 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by

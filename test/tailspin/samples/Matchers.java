@@ -47,4 +47,56 @@ class Matchers {
 
     assertEquals("yes", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void structureMatchIsAStructure() throws Exception {
+    String program = "{ a: 1 } -> (<1> 'no!' <{}> 'yes' <> 'no') -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void structureMatchNotAStructure() throws Exception {
+    String program = "1 -> (<{}> 'no!' <1> 'yes' <> 'no') -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void structureMatchPropertyExists() throws Exception {
+    String program = "{ a: 1 } -> (<{ a1: <1> }> 'no!' <{ a:<> }> 'yes' <> 'no') -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void structureMatchPropertyMatches() throws Exception {
+    String program = "{ a: 1 } -> (<{ a: <0> }> 'no!' <{ a:<1> }> 'yes' <> 'no') -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
 }
