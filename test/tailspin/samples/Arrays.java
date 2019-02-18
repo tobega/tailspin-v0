@@ -88,4 +88,17 @@ class Arrays {
 
     assertEquals("2", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void literalTransform() throws IOException {
+    String program = "5 -> [$it - 1, $it, $it +1] -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[4, 5, 6]", output.toString(StandardCharsets.UTF_8));
+  }
 }

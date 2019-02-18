@@ -1,19 +1,18 @@
 package tailspin.samples;
 
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
-
-public class Streams {
+class Streams {
   @Test
-  public void iterate() throws IOException {
+  void iterate() throws IOException {
     String program = "1..3 -> 'a $it ' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -26,7 +25,7 @@ public class Streams {
   }
 
   @Test
-  public void iterateIncrement() throws IOException {
+  void iterateIncrement() throws IOException {
     String program = "1..6:2 -> 'a $it ' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -39,7 +38,7 @@ public class Streams {
   }
 
   @Test
-  public void iterateBackwards() throws IOException {
+  void iterateBackwards() throws IOException {
     String program = "3..1:-1 -> 'a $it ' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -52,12 +51,43 @@ public class Streams {
   }
 
   @Test
-  public void iterateZeroIncrementIllegal() {
+  void iterateZeroIncrementIllegal() {
     String program = "1..3:0 -> 'a $it ' -> stdout";
     try {
-      Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+      Tailspin runner =
+          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      runner.run(input, output);
       fail();
     } catch (Exception expected) {
+      assertEquals("Cannot produce range with zero increment at 1:5", expected.getMessage());
     }
+  }
+
+  @Test
+  void iterateTransformLimit() throws IOException {
+    String program = "5 -> 1..$it -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("12345", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateTransformIncrement() throws IOException {
+    String program = "5 -> 10..20:$it -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("101520", output.toString(StandardCharsets.UTF_8));
   }
 }

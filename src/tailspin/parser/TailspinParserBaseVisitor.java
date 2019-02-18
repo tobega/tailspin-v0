@@ -80,7 +80,7 @@ public class TailspinParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> im
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStringLiteralTemplates(TailspinParser.StringLiteralTemplatesContext ctx) { return visitChildren(ctx); }
+	@Override public T visitLiteralTemplates(TailspinParser.LiteralTemplatesContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

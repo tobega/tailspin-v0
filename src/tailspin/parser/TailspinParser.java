@@ -644,14 +644,14 @@ public class TailspinParser extends Parser {
 			super.copyFrom(ctx);
 		}
 	}
-	public static class StringLiteralTemplatesContext extends TemplatesContext {
-		public StringLiteralContext stringLiteral() {
-			return getRuleContext(StringLiteralContext.class,0);
+	public static class LiteralTemplatesContext extends TemplatesContext {
+		public SourceContext source() {
+			return getRuleContext(SourceContext.class,0);
 		}
-		public StringLiteralTemplatesContext(TemplatesContext ctx) { copyFrom(ctx); }
+		public LiteralTemplatesContext(TemplatesContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStringLiteralTemplates(this);
+			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitLiteralTemplates(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -700,17 +700,16 @@ public class TailspinParser extends Parser {
 		try {
 			setState(130);
 			_errHandler.sync(this);
-			switch (_input.LA(1)) {
-			case START_STRING:
-			case START_REGEXP:
-				_localctx = new StringLiteralTemplatesContext(_localctx);
+			switch ( getInterpreter().adaptivePredict(_input,8,_ctx) ) {
+			case 1:
+				_localctx = new LiteralTemplatesContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(117);
-				stringLiteral();
+				source();
 				}
 				break;
-			case LeftParen:
+			case 2:
 				_localctx = new InlineTemplatesContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
@@ -722,7 +721,7 @@ public class TailspinParser extends Parser {
 				match(RightParen);
 				}
 				break;
-			case IDENTIFIER:
+			case 3:
 				_localctx = new CallDefinedTemplatesContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
@@ -730,7 +729,7 @@ public class TailspinParser extends Parser {
 				match(IDENTIFIER);
 				}
 				break;
-			case LeftBracket:
+			case 4:
 				_localctx = new ArrayTemplatesContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
@@ -748,8 +747,6 @@ public class TailspinParser extends Parser {
 				match(RightParen);
 				}
 				break;
-			default:
-				throw new NoViableAltException(this);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1478,15 +1475,14 @@ public class TailspinParser extends Parser {
 	}
 
 	public static class RangeLiteralContext extends ParserRuleContext {
-		public List<IntegerLiteralContext> integerLiteral() {
-			return getRuleContexts(IntegerLiteralContext.class);
+		public List<ArithmeticExpressionContext> arithmeticExpression() {
+			return getRuleContexts(ArithmeticExpressionContext.class);
 		}
-		public IntegerLiteralContext integerLiteral(int i) {
-			return getRuleContext(IntegerLiteralContext.class,i);
+		public ArithmeticExpressionContext arithmeticExpression(int i) {
+			return getRuleContext(ArithmeticExpressionContext.class,i);
 		}
 		public TerminalNode Range() { return getToken(TailspinParser.Range, 0); }
 		public TerminalNode Colon() { return getToken(TailspinParser.Colon, 0); }
-		public TerminalNode NonZeroInteger() { return getToken(TailspinParser.NonZeroInteger, 0); }
 		public RangeLiteralContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1506,11 +1502,11 @@ public class TailspinParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(212);
-			integerLiteral();
+			arithmeticExpression(0);
 			setState(213);
 			match(Range);
 			setState(214);
-			integerLiteral();
+			arithmeticExpression(0);
 			setState(217);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -1519,7 +1515,7 @@ public class TailspinParser extends Parser {
 				setState(215);
 				match(Colon);
 				setState(216);
-				match(NonZeroInteger);
+				arithmeticExpression(0);
 				}
 			}
 
@@ -1977,9 +1973,9 @@ public class TailspinParser extends Parser {
 		"\16\2a^\3\2\2\2be\3\2\2\2ca\3\2\2\2cd\3\2\2\2df\3\2\2\2ec\3\2\2\2fg\7"+
 		"\17\2\2g\13\3\2\2\2ho\7\20\2\2ik\5\16\b\2jl\7\t\2\2kj\3\2\2\2kl\3\2\2"+
 		"\2ln\3\2\2\2mi\3\2\2\2nq\3\2\2\2om\3\2\2\2op\3\2\2\2pr\3\2\2\2qo\3\2\2"+
-		"\2rs\7\21\2\2s\r\3\2\2\2tu\7\22\2\2uv\5\32\16\2v\17\3\2\2\2w\u0085\5*"+
-		"\26\2xy\7\f\2\2yz\5\22\n\2z{\7\r\2\2{\u0085\3\2\2\2|\u0085\7\36\2\2}~"+
-		"\7\16\2\2~\177\7\36\2\2\177\u0080\7\17\2\2\u0080\u0081\7\f\2\2\u0081\u0082"+
+		"\2rs\7\21\2\2s\r\3\2\2\2tu\7\22\2\2uv\5\32\16\2v\17\3\2\2\2w\u0085\5\6"+
+		"\4\2xy\7\f\2\2yz\5\22\n\2z{\7\r\2\2{\u0085\3\2\2\2|\u0085\7\36\2\2}~\7"+
+		"\16\2\2~\177\7\36\2\2\177\u0080\7\17\2\2\u0080\u0081\7\f\2\2\u0081\u0082"+
 		"\5\22\n\2\u0082\u0083\7\r\2\2\u0083\u0085\3\2\2\2\u0084w\3\2\2\2\u0084"+
 		"x\3\2\2\2\u0084|\3\2\2\2\u0084}\3\2\2\2\u0085\21\3\2\2\2\u0086\u008a\5"+
 		"\26\f\2\u0087\u0089\5\24\13\2\u0088\u0087\3\2\2\2\u0089\u008c\3\2\2\2"+
@@ -2009,25 +2005,25 @@ public class TailspinParser extends Parser {
 		"\u00cd\3\2\2\2\u00cd\u00cf\3\2\2\2\u00ce\u00cc\3\2\2\2\u00cf\u00d1\7*"+
 		"\2\2\u00d0\u00bb\3\2\2\2\u00d0\u00bd\3\2\2\2\u00d0\u00c3\3\2\2\2\u00d0"+
 		"\u00c4\3\2\2\2\u00d1!\3\2\2\2\u00d2\u00d3\7&\2\2\u00d3#\3\2\2\2\u00d4"+
-		"\u00d5\7&\2\2\u00d5%\3\2\2\2\u00d6\u00d7\5(\25\2\u00d7\u00d8\7\30\2\2"+
-		"\u00d8\u00db\5(\25\2\u00d9\u00da\7\b\2\2\u00da\u00dc\7\34\2\2\u00db\u00d9"+
-		"\3\2\2\2\u00db\u00dc\3\2\2\2\u00dc\'\3\2\2\2\u00dd\u00de\t\3\2\2\u00de"+
-		")\3\2\2\2\u00df\u00e3\t\4\2\2\u00e0\u00e2\5,\27\2\u00e1\u00e0\3\2\2\2"+
-		"\u00e2\u00e5\3\2\2\2\u00e3\u00e1\3\2\2\2\u00e3\u00e4\3\2\2\2\u00e4\u00e6"+
-		"\3\2\2\2\u00e5\u00e3\3\2\2\2\u00e6\u00e7\7#\2\2\u00e7+\3\2\2\2\u00e8\u00eb"+
-		"\5.\30\2\u00e9\u00eb\7\"\2\2\u00ea\u00e8\3\2\2\2\u00ea\u00e9\3\2\2\2\u00eb"+
-		"-\3\2\2\2\u00ec\u00f2\7!\2\2\u00ed\u00ee\7 \2\2\u00ee\u00ef\5\32\16\2"+
-		"\u00ef\u00f0\7\r\2\2\u00f0\u00f2\3\2\2\2\u00f1\u00ec\3\2\2\2\u00f1\u00ed"+
-		"\3\2\2\2\u00f2/\3\2\2\2\u00f3\u00f4\7\3\2\2\u00f4\61\3\2\2\2\u00f5\u00f6"+
-		"\b\32\1\2\u00f6\u00fc\5(\25\2\u00f7\u00f9\7\31\2\2\u00f8\u00f7\3\2\2\2"+
-		"\u00f8\u00f9\3\2\2\2\u00f9\u00fa\3\2\2\2\u00fa\u00fc\5\b\5\2\u00fb\u00f5"+
-		"\3\2\2\2\u00fb\u00f8\3\2\2\2\u00fc\u0105\3\2\2\2\u00fd\u00fe\f\4\2\2\u00fe"+
-		"\u00ff\7\32\2\2\u00ff\u0104\5\62\32\5\u0100\u0101\f\3\2\2\u0101\u0102"+
-		"\7\31\2\2\u0102\u0104\5\62\32\4\u0103\u00fd\3\2\2\2\u0103\u0100\3\2\2"+
-		"\2\u0104\u0107\3\2\2\2\u0105\u0103\3\2\2\2\u0105\u0106\3\2\2\2\u0106\63"+
-		"\3\2\2\2\u0107\u0105\3\2\2\2\"8JRX^cko\u0084\u008a\u0090\u0092\u009a\u00a2"+
-		"\u00a8\u00ad\u00b1\u00b3\u00b7\u00bd\u00c1\u00c8\u00cc\u00d0\u00db\u00e3"+
-		"\u00ea\u00f1\u00f8\u00fb\u0103\u0105";
+		"\u00d5\7&\2\2\u00d5%\3\2\2\2\u00d6\u00d7\5\62\32\2\u00d7\u00d8\7\30\2"+
+		"\2\u00d8\u00db\5\62\32\2\u00d9\u00da\7\b\2\2\u00da\u00dc\5\62\32\2\u00db"+
+		"\u00d9\3\2\2\2\u00db\u00dc\3\2\2\2\u00dc\'\3\2\2\2\u00dd\u00de\t\3\2\2"+
+		"\u00de)\3\2\2\2\u00df\u00e3\t\4\2\2\u00e0\u00e2\5,\27\2\u00e1\u00e0\3"+
+		"\2\2\2\u00e2\u00e5\3\2\2\2\u00e3\u00e1\3\2\2\2\u00e3\u00e4\3\2\2\2\u00e4"+
+		"\u00e6\3\2\2\2\u00e5\u00e3\3\2\2\2\u00e6\u00e7\7#\2\2\u00e7+\3\2\2\2\u00e8"+
+		"\u00eb\5.\30\2\u00e9\u00eb\7\"\2\2\u00ea\u00e8\3\2\2\2\u00ea\u00e9\3\2"+
+		"\2\2\u00eb-\3\2\2\2\u00ec\u00f2\7!\2\2\u00ed\u00ee\7 \2\2\u00ee\u00ef"+
+		"\5\32\16\2\u00ef\u00f0\7\r\2\2\u00f0\u00f2\3\2\2\2\u00f1\u00ec\3\2\2\2"+
+		"\u00f1\u00ed\3\2\2\2\u00f2/\3\2\2\2\u00f3\u00f4\7\3\2\2\u00f4\61\3\2\2"+
+		"\2\u00f5\u00f6\b\32\1\2\u00f6\u00fc\5(\25\2\u00f7\u00f9\7\31\2\2\u00f8"+
+		"\u00f7\3\2\2\2\u00f8\u00f9\3\2\2\2\u00f9\u00fa\3\2\2\2\u00fa\u00fc\5\b"+
+		"\5\2\u00fb\u00f5\3\2\2\2\u00fb\u00f8\3\2\2\2\u00fc\u0105\3\2\2\2\u00fd"+
+		"\u00fe\f\4\2\2\u00fe\u00ff\7\32\2\2\u00ff\u0104\5\62\32\5\u0100\u0101"+
+		"\f\3\2\2\u0101\u0102\7\31\2\2\u0102\u0104\5\62\32\4\u0103\u00fd\3\2\2"+
+		"\2\u0103\u0100\3\2\2\2\u0104\u0107\3\2\2\2\u0105\u0103\3\2\2\2\u0105\u0106"+
+		"\3\2\2\2\u0106\63\3\2\2\2\u0107\u0105\3\2\2\2\"8JRX^cko\u0084\u008a\u0090"+
+		"\u0092\u009a\u00a2\u00a8\u00ad\u00b1\u00b3\u00b7\u00bd\u00c1\u00c8\u00cc"+
+		"\u00d0\u00db\u00e3\u00ea\u00f1\u00f8\u00fb\u0103\u0105";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

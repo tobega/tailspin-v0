@@ -109,11 +109,6 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
 
     @Override
-    public Object visitStringLiteralTemplates(TailspinParser.StringLiteralTemplatesContext ctx) {
-        return visit(ctx.stringLiteral());
-    }
-
-    @Override
     public Object visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx) {
         Templates templates = visitTemplatesBody(ctx.templatesBody());
         return templates.run(new NestedScope(scope));
@@ -294,9 +289,13 @@ public class RunMain extends TailspinParserBaseVisitor {
 
     @Override
     public Object visitRangeLiteral(TailspinParser.RangeLiteralContext ctx) {
-        Integer start = (Integer) visit(ctx.integerLiteral(0));
-        Integer end = (Integer) visit(ctx.integerLiteral(1));
-        Integer increment = ctx.NonZeroInteger() == null ? 1 : Integer.valueOf(ctx.NonZeroInteger().getText());
+        Integer start = (Integer) visit(ctx.arithmeticExpression(0));
+        Integer end = (Integer) visit(ctx.arithmeticExpression(1));
+        Integer increment = ctx.arithmeticExpression(2) == null ? 1 : (Integer) visit(ctx.arithmeticExpression(2));
+        if (increment == 0) {
+            throw new IllegalArgumentException("Cannot produce range with zero increment at "
+                + ctx.stop.getLine() + ":" + ctx.stop.getCharPositionInLine());
+        }
         return Stream.iterate(
                 start,
                 i -> (increment > 0 && i <= end) || (increment < 0 && i >= end),

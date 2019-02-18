@@ -25,7 +25,7 @@ structureLiteral: LeftBrace (keyValue Comma?)* RightBrace;
 
 keyValue: Key valueChain;
 
-templates: stringLiteral                 # stringLiteralTemplates
+templates: source                        # literalTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
   | IDENTIFIER                           # callDefinedTemplates
   | LeftBracket IDENTIFIER RightBracket LeftParen templatesBody RightParen # arrayTemplates
@@ -64,7 +64,7 @@ lowerBound: MatchInteger;
 
 upperBound: MatchInteger;
 
-rangeLiteral: integerLiteral Range integerLiteral (Colon NonZeroInteger)?;
+rangeLiteral: arithmeticExpression Range arithmeticExpression (Colon arithmeticExpression)?;
 
 integerLiteral: Zero | NonZeroInteger;
 
