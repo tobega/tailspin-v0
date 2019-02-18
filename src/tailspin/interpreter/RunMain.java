@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParserBaseVisitor;
 
@@ -65,7 +66,14 @@ public class RunMain extends TailspinParserBaseVisitor {
         }
         if (ctx.Dereference() != null) {
             String identifier = ctx.Dereference().getText().substring(1);
-            return scope.resolveValue(identifier);
+            Object value = scope.resolveValue(identifier);
+            for (TerminalNode fieldDereference : ctx.FieldDereference()) {
+                String fieldIdentifier = fieldDereference.getText().substring(1);
+                @SuppressWarnings("unchecked")
+                Map<String, Object> structure = (Map<String, Object>) value;
+                value = structure.get(fieldIdentifier);
+            }
+            return value;
         }
         if (ctx.arithmeticExpression() != null) {
             return visit(ctx.arithmeticExpression());

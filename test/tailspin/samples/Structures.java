@@ -23,4 +23,18 @@ class Structures {
     // TODO: Make the object default printing be valid json
     assertEquals("{a=0, b=1}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void fieldDerefence() throws IOException {
+    String program = "{ a: 0, b: 1 } -> ($it.a $it.b) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    // TODO: Make the object default printing be valid json
+    assertEquals("01", output.toString(StandardCharsets.UTF_8));
+  }
 }

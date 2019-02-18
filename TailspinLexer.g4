@@ -6,6 +6,8 @@ Def: 'def' [ \r\t\n];
 
 Dereference: StartDereference IDENTIFIER EndIdentifier?;
 
+FieldDereference: '.' IDENTIFIER;
+
 To: '->';
 
 Colon: ':';

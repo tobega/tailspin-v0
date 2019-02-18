@@ -167,6 +167,6 @@ _Future directions_: Very flexible declarative ways of selecting elements as arr
 Multidimensional arrays.
 
 ## Structures
-A structure is a collection of named values without any inherent order. The values of a structure
-can be accessed by appending a dot and the key to the [dereference](#dereference) of the structure.
+A structure is a collection of named values without any inherent order. The field values of a structure
+can be accessed by appending a dot and the field key identifier to the [dereference](#dereference) of the structure.
 E.g. if the structure `{ a: 1 }` is the _current value_, the value `1` can be accessed by `$it.a`.
