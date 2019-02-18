@@ -9,13 +9,15 @@ statement: Def Key valueChain                   # definition
   | StartTemplatesDefinition IDENTIFIER templatesBody EndDefinition IDENTIFIER # templatesDefinition
 ;
 
-source: Dereference (FieldDereference)*
+source: dereferenceValue
   | stringLiteral
   | arithmeticExpression
   | rangeLiteral
   | arrayLiteral
   | structureLiteral
 ;
+
+dereferenceValue: Dereference (FieldDereference)*;
 
 arrayLiteral: LeftBracket valueChain (Comma? valueChain)* RightBracket;
 
@@ -75,6 +77,6 @@ stringInterpolate: StringDereference | StringEvaluate valueChain RightParen;
 sink: Stdout;
 
 arithmeticExpression: integerLiteral
-  | Dereference
+  | AdditiveOperator? dereferenceValue
   | arithmeticExpression MultiplicativeOperator arithmeticExpression
   | arithmeticExpression AdditiveOperator arithmeticExpression;

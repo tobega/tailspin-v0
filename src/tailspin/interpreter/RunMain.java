@@ -64,16 +64,8 @@ public class RunMain extends TailspinParserBaseVisitor {
             // TODO: Difference between stringLiteral here and StringLiteralTemplates
             return visit(ctx.stringLiteral());
         }
-        if (ctx.Dereference() != null) {
-            String identifier = ctx.Dereference().getText().substring(1);
-            Object value = scope.resolveValue(identifier);
-            for (TerminalNode fieldDereference : ctx.FieldDereference()) {
-                String fieldIdentifier = fieldDereference.getText().substring(1);
-                @SuppressWarnings("unchecked")
-                Map<String, Object> structure = (Map<String, Object>) value;
-                value = structure.get(fieldIdentifier);
-            }
-            return value;
+        if (ctx.dereferenceValue() != null) {
+            return visitDereferenceValue(ctx.dereferenceValue());
         }
         if (ctx.arithmeticExpression() != null) {
             return visit(ctx.arithmeticExpression());
@@ -88,6 +80,19 @@ public class RunMain extends TailspinParserBaseVisitor {
             return visitStructureLiteral(ctx.structureLiteral());
         }
         throw new UnsupportedOperationException(ctx.toString());
+    }
+
+    @Override
+    public Object visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
+        String identifier = ctx.Dereference().getText().substring(1);
+        Object value = scope.resolveValue(identifier);
+        for (TerminalNode fieldDereference : ctx.FieldDereference()) {
+            String fieldIdentifier = fieldDereference.getText().substring(1);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> structure = (Map<String, Object>) value;
+            value = structure.get(fieldIdentifier);
+        }
+        return value;
     }
 
     @Override
@@ -245,6 +250,18 @@ public class RunMain extends TailspinParserBaseVisitor {
 
     @Override
     public Integer visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
+        if (ctx.dereferenceValue() != null) {
+            String unaryOperator = ctx.AdditiveOperator() == null ? "" : ctx.AdditiveOperator().getText();
+            switch (unaryOperator) {
+                case "":
+                case "+":
+                    return (Integer) visitDereferenceValue(ctx.dereferenceValue());
+                case "-":
+                    return - (Integer) visitDereferenceValue(ctx.dereferenceValue());
+                default:
+                    throw new UnsupportedOperationException("Unknown unary operator " + unaryOperator);
+            }
+        }
         if (ctx.AdditiveOperator() != null) {
             Integer left = (Integer) visit(ctx.arithmeticExpression(0));
             Integer right = (Integer) visit(ctx.arithmeticExpression(1));
@@ -272,10 +289,6 @@ public class RunMain extends TailspinParserBaseVisitor {
         }
         if (ctx.integerLiteral() != null) {
             return (Integer) visit(ctx.integerLiteral());
-        }
-        if (ctx.Dereference() != null) {
-            String identifier = ctx.Dereference().getText().replaceAll("[$;]", "");
-            return (Integer) scope.resolveValue(identifier);
         }
         throw new UnsupportedOperationException();
     }

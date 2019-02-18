@@ -81,7 +81,6 @@ public class Tailspin {
     public void reportContextSensitivity(
         Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atnConfigSet) {
       System.out.println("Context sensitivity " + parser.getRuleContext().toInfoString(parser));
-      error = true;
     }
   }
 }
