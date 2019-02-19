@@ -31,4 +31,14 @@ class NestedScope implements Scope {
   public OutputStream getOutput() {
     return parentScope.getOutput();
   }
+
+  @Override
+  public void setState(String stateContext, Object value) {
+    parentScope.setState(stateContext, value);
+  }
+
+  @Override
+  public Object getState(String stateContext) {
+    return parentScope.getState(stateContext);
+  }
 }

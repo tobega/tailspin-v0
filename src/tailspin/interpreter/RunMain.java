@@ -1,5 +1,10 @@
 package tailspin.interpreter;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import tailspin.parser.TailspinParser;
+import tailspin.parser.TailspinParserBaseVisitor;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -9,10 +14,6 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import tailspin.parser.TailspinParser;
-import tailspin.parser.TailspinParserBaseVisitor;
 
 public class RunMain extends TailspinParserBaseVisitor {
     final Scope scope;
@@ -85,7 +86,12 @@ public class RunMain extends TailspinParserBaseVisitor {
     @Override
     public Object visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
         String identifier = ctx.Dereference().getText().substring(1);
-        Object value = scope.resolveValue(identifier);
+        Object value;
+        if (identifier.startsWith(":")) {
+            value = scope.getState(identifier.substring(1));
+        } else {
+            value = scope.resolveValue(identifier);
+        }
         for (TerminalNode fieldDereference : ctx.FieldDereference()) {
             String fieldIdentifier = fieldDereference.getText().substring(1);
             @SuppressWarnings("unchecked")
@@ -111,7 +117,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     @Override
     public Object visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx) {
         Templates templates = visitTemplatesBody(ctx.templatesBody());
-        return templates.run(new NestedScope(scope));
+        return templates.run(new TemplatesScope(scope, ""));
     }
 
     @Override
@@ -133,7 +139,7 @@ public class RunMain extends TailspinParserBaseVisitor {
         List<?> it = (List<?>) oIt;
         Stream<?>[] result = new Stream[it.size()];
         for (int i = 0; i < it.size(); i++) {
-            Scope itemScope = new NestedScope(scope);
+            Scope itemScope = new TemplatesScope(scope, "");
             itemScope.defineValue(loopVariable, i + 1);
             itemScope.defineValue("it", it.get(i));
             result[i] = templates.run(itemScope);
@@ -171,7 +177,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     public Object visitCallDefinedTemplates(TailspinParser.CallDefinedTemplatesContext ctx) {
         String name = ctx.IDENTIFIER().getText();
         Templates templates = (Templates) scope.resolveValue(name);
-        return templates.run(new NestedScope(scope));
+        return templates.run(new TemplatesScope(scope, name));
     }
 
     @Override
@@ -221,7 +227,7 @@ public class RunMain extends TailspinParserBaseVisitor {
             String identifier = ctx.StringDereference().getText().replaceAll("[$;]", "");
             Object interpolated = scope.resolveValue(identifier);
             if (interpolated instanceof Templates) {
-                return ((Templates) interpolated).run(new NestedScope(scope))
+                return ((Templates) interpolated).run(new TemplatesScope(scope, identifier))
                     .map(Object::toString).collect(Collectors.joining());
             }
             return interpolated.toString();

@@ -1,4 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.7.2
+// Generated from TailspinParser.g4 by ANTLR 4.7.1
 package tailspin.parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -134,6 +134,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitBlockStatement(TailspinParser.BlockStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code stateAssignment}
+	 * labeled alternative in {@link TailspinParser#blockExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStateAssignment(TailspinParser.StateAssignmentContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#valueChain}.
 	 * @param ctx the parse tree

@@ -30,4 +30,14 @@ public class BasicScope implements Scope {
   public OutputStream getOutput() {
     return output;
   }
+
+  @Override
+  public void setState(String stateContext, Object value) {
+    throw new IllegalStateException("Cannot set state on base scope");
+  }
+
+  @Override
+  public Object getState(String stateContext) {
+    throw new IllegalStateException("Cannot get state from base scope");
+  }
 }

@@ -42,6 +42,7 @@ block: (blockExpression)+;
 blockExpression: valueChain        # resultValue
   | valueChain To TemplateMatch    # sendToTemplates
   | statement                      # blockStatement
+  | valueChain To Colon IDENTIFIER?   # stateAssignment
 ;
 
 valueChain: source

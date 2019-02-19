@@ -1,9 +1,10 @@
 package tailspin.interpreter;
 
+import tailspin.parser.TailspinParser;
+
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import tailspin.parser.TailspinParser;
 
 class RunTemplateBlock extends RunMain {
   private final Templates templates;
@@ -111,5 +112,16 @@ class RunTemplateBlock extends RunMain {
       matcherScope.defineValue("it", it);
       return templates.matchTemplates(RunTemplateBlock.this.new RunMatcherBlock(templates, matcherScope));
     }
+  }
+
+  @Override
+  public Object visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
+    String stateContext = ctx.IDENTIFIER() == null ? "" : ctx.IDENTIFIER().getText();
+    Object value = visitValueChain(ctx.valueChain());
+    if (!(value instanceof Stream)) {
+      value = Stream.of(value);
+    }
+    ((Stream<?>) value).forEach(v -> scope.setState(stateContext, v));
+    return null;
   }
 }

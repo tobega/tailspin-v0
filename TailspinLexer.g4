@@ -4,7 +4,7 @@ Stdout: 'stdout';
 
 Def: 'def' [ \r\t\n];
 
-Dereference: StartDereference IDENTIFIER EndIdentifier?;
+Dereference: StartDereference (Colon IDENTIFIER? | IDENTIFIER EndIdentifier?);
 
 FieldDereference: '.' IDENTIFIER;
 
