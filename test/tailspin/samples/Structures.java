@@ -1,13 +1,14 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Structures {
   @Test
@@ -26,7 +27,7 @@ class Structures {
 
   @Test
   void fieldDerefence() throws IOException {
-    String program = "{ a: 0, b: 1 } -> ($it.a $it.b) -> stdout";
+    String program = "{ a: 0, b: 1 } -> ($it.a ! $it.b !) -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

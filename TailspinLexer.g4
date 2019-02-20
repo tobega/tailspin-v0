@@ -10,6 +10,8 @@ FieldDereference: '.' IDENTIFIER;
 
 To: '->';
 
+ResultMarker: '!';
+
 Colon: ':';
 
 Comma: ',';

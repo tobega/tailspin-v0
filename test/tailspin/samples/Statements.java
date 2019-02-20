@@ -1,14 +1,15 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class Statements {
 
@@ -143,7 +144,7 @@ class Statements {
 
   @Test
   void definedTemplate() throws Exception {
-    String program = "templates greet\n<2> 'Goodbye ' <> 'Hello '\nend greet\n"
+    String program = "templates greet\n<2> 'Goodbye '! <> 'Hello '!\nend greet\n"
         + "1..3 -> greet -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

@@ -1,10 +1,10 @@
 templates sayBottleCount
   <1>
-    '1 bottle'
+    '1 bottle' !
   <0>
-    'No bottles'
+    'No bottles' !
   <>
-    '$it bottles'
+    '$it bottles' !
 end sayBottleCount
 
 99..1:-1 ->

@@ -1,14 +1,15 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class Strings {
 
@@ -187,7 +188,7 @@ class Strings {
 
   @Test
   void interpolateTemplates() throws Exception {
-    String program = "templates foo <1> 'one' end foo\n"
+    String program = "templates foo <1> 'one' ! end foo\n"
         + "1 -> '$foo $it $foo' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -201,7 +202,7 @@ class Strings {
 
   @Test
   void interpolateTemplatesWithNoMatch() throws Exception {
-    String program = "templates foo <2> 'two' end foo\n"
+    String program = "templates foo <2> 'two'! end foo\n"
         + "1 -> '$foo $it $foo' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -229,7 +230,7 @@ class Strings {
 
   @Test
   void interpolateTemplatesChain() throws Exception {
-    String program = "3 -> '$($it - 1 -> ($it - 2))' -> stdout";
+    String program = "3 -> '$($it - 1 -> ($it - 2!))' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -242,7 +243,7 @@ class Strings {
 
   @Test
   void valueChainInterpolation() throws Exception {
-    String program = "1..3 -> (<> 'hi') -> '$it' -> stdout";
+    String program = "1..3 -> (<> 'hi'!) -> '$it' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

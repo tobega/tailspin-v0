@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class Templates {
     @Test
     void inlineMatchers() throws Exception {
-        String program = "1..3 -> (<2> 'Goodbye ' <> 'Hello ') -> stdout";
+        String program = "1..3 -> (<2> 'Goodbye '! <> 'Hello '!) -> stdout";
         Tailspin runner =
                 Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -25,7 +25,7 @@ class Templates {
 
     @Test
     void recursiveMatch() throws Exception {
-        String program = "templates spin\n<5> $it + 2 <> $it + 1 -> #\nend spin\n"
+        String program = "templates spin\n<5> $it + 2 ! <> $it + 1 -> #\nend spin\n"
             + "1 -> spin -> stdout";
         Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -39,7 +39,7 @@ class Templates {
 
     @Test
     void consecutiveChainsInMatchBlock() throws Exception {
-        String program = "templates spin\n<5> $it + 2 <> $it + 1 -> #\n $it -> stdout\nend spin\n"
+        String program = "templates spin\n<5> $it + 2 ! <> $it + 1 -> #\n $it -> stdout\nend spin\n"
             + "1 -> spin -> stdout";
         Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -59,7 +59,7 @@ class Templates {
     @Test
     void consecutiveChainsInMatchBlockReversedOrder() throws Exception {
     String program =
-        "templates spin\n<5> $it + 2 <> $it -> stdout\n $it + 1 -> #\nend spin\n"
+        "templates spin\n<5> $it + 2 ! <> $it -> stdout\n $it + 1 -> #\nend spin\n"
             + "1 -> spin -> stdout";
         Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -74,7 +74,7 @@ class Templates {
 
     @Test
     void multipleResultsInMatchBlock() throws Exception {
-        String program = "templates spin\n<5> $it + 2 <> $it + 1 -> #\n $it\nend spin\n"
+        String program = "templates spin\n<5> $it + 2 ! <> $it + 1 -> #\n $it !\nend spin\n"
             + "1 -> spin -> stdout";
         Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -89,7 +89,7 @@ class Templates {
 
     @Test
     void initialBlock() throws Exception {
-        String program = "templates simple\n$it + 1\n $it\nend simple\n"
+        String program = "templates simple\n$it + 1 !\n $it !\nend simple\n"
             + "1 -> simple -> stdout";
         Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -104,7 +104,7 @@ class Templates {
 
     @Test
     void initialBlockCallsTemplates() throws Exception {
-        String program = "templates simple\n$it + 1 -> #\n <> $it + 1\nend simple\n"
+        String program = "templates simple\n$it + 1 -> #\n <> $it + 1 !\nend simple\n"
             + "1 -> simple -> stdout";
         Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -119,7 +119,7 @@ class Templates {
 
     @Test
     void arrayTemplates() throws Exception {
-        String program = "[2..4] -> [i]($i * $it) -> stdout";
+        String program = "[2..4] -> [i]($i * $it !) -> stdout";
         Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -132,7 +132,7 @@ class Templates {
 
     @Test
     void multipleTransforms() throws Exception {
-        String program = "1 -> (<> 2) -> (<> 3) -> stdout";
+        String program = "1 -> (<> 2!) -> (<> 3!) -> stdout";
         Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -145,7 +145,7 @@ class Templates {
 
     @Test
     void templatesState() throws Exception {
-        String program = "templates state\n$it + 1 -> :\n$it -> #\n<> $:\nend state\n"
+        String program = "templates state\n$it + 1 -> :\n$it -> #\n<> $: !\nend state\n"
                 + "1 -> state -> stdout";
         Tailspin runner =
                 Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

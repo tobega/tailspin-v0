@@ -73,12 +73,21 @@ a [stream](#streams) of key-value pairs, optionally separated by commas, and end
 A key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
 
 ## Sinks
-A sink is a place where a value "disappears" and the value chain ends. A symbol definition could
-be considered to have an implicit sink at the end that captures the value into the symbol.
-Another implicit sink is in a [templates](#templates) block where a value is emitted out into the
-result stream of the calling context.
+A sink is a place where a value "disappears" and the value chain ends.
+
+A symbol definition could be considered to have an implicit sink at the end that captures the value into the symbol.
+
 Currently the only defined explicit sink is `-> stdout` which outputs the result stream, converted to text,
 into the standard output (generally the console).
+
+### Templates sinks
+A templates object has modifiable local temporary state, valid for the processing of one input value,
+which can be modified by the special sink `:` and dereferenced as `$:`. Optionally, or to access
+a surrounding outer templates object's state, you can append the templates name, e.g. `:name` and `$:name`.
+
+Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
+result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues
+elsewhere in the program, so it is not really a sink as such.
 
 ## Transforms
 Transforms take the current value (or each value separately from a [stream](#streams)) and convert
@@ -97,7 +106,7 @@ A templates object consists of an optional _initial block_ and an optional seque
 each with a _block_.
 
 A block is simply a series of value chains that either dry up, with no value for the next stage;
-produce a value (or several) that gets emitted out of the template; sends a value to a sink; or,
+produce a value (or several) that gets emitted out of the template (by `!`); sends a value to a [sink](#sinks); or,
 most important, __sends a value to the [matchers](#matchers)__
 
 The initial block is executed with the value passed into the template accessible as the

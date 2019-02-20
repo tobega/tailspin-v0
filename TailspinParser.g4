@@ -39,7 +39,7 @@ matchTemplate: matcher block;
 
 block: (blockExpression)+;
 
-blockExpression: valueChain        # resultValue
+blockExpression: valueChain ResultMarker       # resultValue
   | valueChain To TemplateMatch    # sendToTemplates
   | statement                      # blockStatement
   | valueChain To Colon IDENTIFIER?   # stateAssignment

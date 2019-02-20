@@ -1,13 +1,14 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Arrays {
 
@@ -78,7 +79,7 @@ class Arrays {
 
   @Test
   void deconstructToTransform() throws IOException {
-    String program = "[1, 4, 3]... -> (<4> 2) -> stdout";
+    String program = "[1, 4, 3]... -> (<4> 2 !) -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

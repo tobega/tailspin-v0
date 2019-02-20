@@ -3,13 +3,13 @@ templates fibonacciNstep10
     $it(1) -> :next
     [ $it(2..-1)... -> ($it
     $it + $:next -> :next),
-    $:next ]
+    $:next ] !
   end next
 
   $it -> :
   1..10 -> #
   <>
-    $:(1)
+    $:(1) !
     $: -> next -> :
 end fibonacciNstep10
 

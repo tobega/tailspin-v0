@@ -1,12 +1,12 @@
 templates fizz
   $it mod 3 -> #
-  <0> 'Fizz'
+  <0> 'Fizz' !
 end fizz
 
 templates buzz
   $it mod 5 -> #
-  <0> 'Buzz'
+  <0> 'Buzz' !
 end buzz
 
-[ 1..100 -> '$fizz$buzz' ] -> [i](<''> $i <> $it)... -> '$it
+[ 1..100 -> '$fizz$buzz' ] -> [i](<''> $i ! <> $it !)... -> '$it
 ' -> stdout

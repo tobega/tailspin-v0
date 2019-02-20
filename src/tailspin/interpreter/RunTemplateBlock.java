@@ -124,4 +124,9 @@ class RunTemplateBlock extends RunMain {
     ((Stream<?>) value).forEach(v -> scope.setState(stateContext, v));
     return null;
   }
+
+  @Override
+  public Object visitResultValue(TailspinParser.ResultValueContext ctx) {
+    return visitValueChain(ctx.valueChain());
+  }
 }
