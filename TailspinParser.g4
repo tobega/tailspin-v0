@@ -17,7 +17,11 @@ source: dereferenceValue
   | structureLiteral
 ;
 
-dereferenceValue: Dereference (FieldDereference)*;
+dereferenceValue: Dereference arrayDereference? structureDereference*;
+
+structureDereference: FieldDereference+ arrayDereference?;
+
+arrayDereference: LeftParen (NonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue) RightParen;
 
 arrayLiteral: LeftBracket valueChain (Comma? valueChain)* RightBracket;
 

@@ -15,7 +15,7 @@ class NestedScope implements Scope {
 
   @Override
   public Object resolveValue(String identifier) {
-    Object value =  definitions.get(identifier);
+    Object value = definitions.get(identifier);
     if (value == null) {
       return parentScope.resolveValue(identifier);
     }

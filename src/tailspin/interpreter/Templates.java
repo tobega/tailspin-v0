@@ -25,8 +25,8 @@ class Templates {
   }
 
   Stream<?> matchTemplates(RunTemplateBlock runner) {
-    Optional<MatchTemplate> match = matchTemplates.stream()
-        .filter(m -> runner.visitMatcher(m.matcher)).findFirst();
+    Optional<MatchTemplate> match =
+        matchTemplates.stream().filter(m -> runner.visitMatcher(m.matcher)).findFirst();
     // This cannot be written as match.stream().flatMap because that will defer execution of
     // visitBlock.
     return match.map(m -> runner.visitBlock(m.block)).orElse(Stream.empty());

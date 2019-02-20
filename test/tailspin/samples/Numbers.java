@@ -235,7 +235,7 @@ class Numbers {
   void subtractDereferences() throws IOException {
     String program = "5 -> $it - $it -> stdout";
     Tailspin runner =
-            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -248,7 +248,7 @@ class Numbers {
   void subtractDereferencesInTemplates() throws IOException {
     String program = "5 -> ($it - $it !) -> stdout";
     Tailspin runner =
-            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -261,7 +261,7 @@ class Numbers {
   void subtractDereferencesInMatchBlock() throws IOException {
     String program = "templates a\n<> $it - $it !\n end a\n 5 -> a -> stdout";
     Tailspin runner =
-            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();

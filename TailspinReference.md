@@ -167,13 +167,20 @@ Streams can be captured into an [array](#arrays) by surrounding them with an [ar
 
 ## Arrays
 Arrays are an ordered list of objects that can be turned into a [stream](#streams) by a [deconstructor](#deconstructor).
-The first element of an array has index `1`. The last element of an array can be accessed as index `-1`.
 
-_Current limitations_: You cannot really do anything except turn them into streams.
-Only one dimension is currently supported.
+To access elements of an array, append a selector within parentheses, e.g. `$it(3)` to get the third element of the current array value.
+The first element of an array has selector `1`. Elements can also be selected counting from the end
+of the array by negative selectors, e.g. the last element of an array can be accessed by selector `-1`.
 
-_Future directions_: Very flexible declarative ways of selecting elements as array slices.
-Multidimensional arrays.
+A new array can be created by selecting from an existing array by a [range literal](#range-literal).
+Negative start or end values are interpreted as from the end of the array.
+E.g. `$it(2..-2:3)` would select every third element starting at the second element and ending on or before
+the second last element. As usual, you can leave out the increment which defaults to 1.
+
+A new array can be created by selecting from an existing array with an array, e.g. `$it([3,1,5])`
+would select the third element, followed by the first element and last the fifth element.
+
+_Future directions_: Multidimensional arrays.
 
 ## Structures
 A structure is a collection of named values without any inherent order. The field values of a structure

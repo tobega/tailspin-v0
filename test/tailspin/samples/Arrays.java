@@ -1,14 +1,13 @@
 package tailspin.samples;
 
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 class Arrays {
 
@@ -101,5 +100,135 @@ class Arrays {
     runner.run(input, output);
 
     assertEquals("[4, 5, 6]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void simpleDereference() throws IOException {
+    String program = "[1,3,4,7,11] -> $it(3)  -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void simpleDereferenceBackward() throws IOException {
+    String program = "[1,3,4,7,11] -> $it(-3)  -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void simpleDereferenceDereference() throws IOException {
+    String program = "def i: 3\n [1,3,4,7,11] -> $it($i)  -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeDereference() throws IOException {
+    String program = "[1,3,4,7,11] -> $it(2..4)  -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[3, 4, 7]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeDereferenceBackward() throws IOException {
+    String program = "[1,3,4,7,11] -> $it(-4..-2)  -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[3, 4, 7]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeDereferenceMixed() throws IOException {
+    String program = "[1,3,4,7,11] -> $it(2..-2)  -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[3, 4, 7]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeDereferenceStepping() throws IOException {
+    String program = "[1,3,4,7,11] -> $it(1..-1:2)  -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[1, 4, 11]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void permutationDereference() throws IOException {
+    String program = "[1,3,4,7,11] -> $it([3,1,4])  -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[4, 1, 7]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void permutationDereferenceDereference() throws IOException {
+    String program = "def order: [3,1,4]\n [1,3,4,7,11] -> $it($order) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[4, 1, 7]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void elementStructureDereference() throws IOException {
+    String program = "[{}, {a: 5}] -> $it(2).a -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("5", output.toString(StandardCharsets.UTF_8));
   }
 }

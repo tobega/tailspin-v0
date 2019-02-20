@@ -1,10 +1,9 @@
 package tailspin.interpreter;
 
-import tailspin.parser.TailspinParser;
-
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import tailspin.parser.TailspinParser;
 
 class RunTemplateBlock extends RunMain {
   private final Templates templates;
@@ -39,7 +38,7 @@ class RunTemplateBlock extends RunMain {
     }
     if (ctx.upperBound() != null) {
       int upperBound = Integer.valueOf(ctx.upperBound().MatchInteger().getText());
-      if (it > upperBound) return false;
+      return it <= upperBound;
     }
     return true;
   }
@@ -51,8 +50,9 @@ class RunTemplateBlock extends RunMain {
     String it = (String) oIt;
     String pattern = visitStringLiteral(ctx.stringLiteral());
     // TODO: this coud be good to save in compiled form
-    Pattern compiled = Pattern
-        .compile("\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ);
+    Pattern compiled =
+        Pattern.compile(
+            "\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ);
     return compiled.matcher(it).matches();
   }
 
@@ -110,7 +110,8 @@ class RunTemplateBlock extends RunMain {
       Object it = visitValueChain(ctx.valueChain());
       Scope matcherScope = new NestedScope(RunTemplateBlock.this.scope);
       matcherScope.defineValue("it", it);
-      return templates.matchTemplates(RunTemplateBlock.this.new RunMatcherBlock(templates, matcherScope));
+      return templates.matchTemplates(
+          RunTemplateBlock.this.new RunMatcherBlock(templates, matcherScope));
     }
   }
 

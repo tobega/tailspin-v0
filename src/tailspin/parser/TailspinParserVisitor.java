@@ -50,6 +50,18 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDereferenceValue(TailspinParser.DereferenceValueContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#structureDereference}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStructureDereference(TailspinParser.StructureDereferenceContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#arrayDereference}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArrayDereference(TailspinParser.ArrayDereferenceContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#arrayLiteral}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
