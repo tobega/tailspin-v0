@@ -78,6 +78,7 @@ stringInterpolate: StringDereference | StringEvaluate valueChain RightParen;
 sink: Stdout;
 
 arithmeticExpression: integerLiteral
+  | LeftParen arithmeticExpression RightParen
   | AdditiveOperator? dereferenceValue
   | arithmeticExpression MultiplicativeOperator arithmeticExpression
   | arithmeticExpression AdditiveOperator arithmeticExpression;

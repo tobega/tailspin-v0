@@ -1,4 +1,4 @@
-// Generated from TailspinLexer.g4 by ANTLR 4.7.1
+// Generated from TailspinLexer.g4 by ANTLR 4.7.2
 package tailspin.parser;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class TailspinLexer extends Lexer {
-	static { RuntimeMetaData.checkVersion("4.7.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.7.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -36,36 +36,45 @@ public class TailspinLexer extends Lexer {
 		"DEFAULT_MODE", "IN_STRING", "MATCHER"
 	};
 
-	public static final String[] ruleNames = {
-		"Stdout", "Def", "Dereference", "FieldDereference", "To", "ResultMarker", 
-		"Colon", "Comma", "Deconstructor", "EndIdentifier", "LeftParen", "RightParen", 
-		"LeftBracket", "RightBracket", "LeftBrace", "RightBrace", "Key", "StartMatcher", 
-		"StartTemplatesDefinition", "EndDefinition", "TemplateMatch", "StartDereference", 
-		"Range", "AdditiveOperator", "MultiplicativeOperator", "Zero", "NonZeroInteger", 
-		"Digits", "START_STRING", "IDENTIFIER", "IDENTIFIER_START", "IDENTIFIER_PART", 
-		"WS", "StringEvaluate", "StringDereference", "STRING_TEXT", "STRING_CHAR", 
-		"END_STRING", "StartSubMatcher", "EndMatcher", "MatchInteger", "RangeMatch", 
-		"START_REGEXP", "StartStructureMatch", "EndStructureMatch", "StructureKey", 
-		"MatcherIgnoreWS"
-	};
+	private static String[] makeRuleNames() {
+		return new String[] {
+			"Stdout", "Def", "Dereference", "FieldDereference", "To", "ResultMarker", 
+			"Colon", "Comma", "Deconstructor", "EndIdentifier", "LeftParen", "RightParen", 
+			"LeftBracket", "RightBracket", "LeftBrace", "RightBrace", "Key", "StartMatcher", 
+			"StartTemplatesDefinition", "EndDefinition", "TemplateMatch", "StartDereference", 
+			"Range", "AdditiveOperator", "MultiplicativeOperator", "Zero", "NonZeroInteger", 
+			"Digits", "START_STRING", "IDENTIFIER", "IDENTIFIER_START", "IDENTIFIER_PART", 
+			"WS", "StringEvaluate", "StringDereference", "STRING_TEXT", "STRING_CHAR", 
+			"END_STRING", "StartSubMatcher", "EndMatcher", "MatchInteger", "RangeMatch", 
+			"START_REGEXP", "StartStructureMatch", "EndStructureMatch", "StructureKey", 
+			"MatcherIgnoreWS"
+		};
+	}
+	public static final String[] ruleNames = makeRuleNames();
 
-	private static final String[] _LITERAL_NAMES = {
-		null, "'stdout'", null, null, null, "'->'", "'!'", "':'", "','", "'...'", 
-		"';'", "'('", "')'", "'['", "']'", "'{'", "'}'", null, null, "'templates'", 
-		"'end'", "'#'", "'$'", "'..'", null, null, "'0'", null, null, null, null, 
-		null, null, null, null, null, "'>'"
-	};
-	private static final String[] _SYMBOLIC_NAMES = {
-		null, "Stdout", "Def", "Dereference", "FieldDereference", "To", "ResultMarker", 
-		"Colon", "Comma", "Deconstructor", "EndIdentifier", "LeftParen", "RightParen", 
-		"LeftBracket", "RightBracket", "LeftBrace", "RightBrace", "Key", "StartMatcher", 
-		"StartTemplatesDefinition", "EndDefinition", "TemplateMatch", "StartDereference", 
-		"Range", "AdditiveOperator", "MultiplicativeOperator", "Zero", "NonZeroInteger", 
-		"START_STRING", "IDENTIFIER", "WS", "StringEvaluate", "StringDereference", 
-		"STRING_TEXT", "END_STRING", "StartSubMatcher", "EndMatcher", "MatchInteger", 
-		"RangeMatch", "START_REGEXP", "StartStructureMatch", "EndStructureMatch", 
-		"StructureKey", "MatcherIgnoreWS"
-	};
+	private static String[] makeLiteralNames() {
+		return new String[] {
+			null, "'stdout'", null, null, null, "'->'", "'!'", "':'", "','", "'...'", 
+			"';'", "'('", "')'", "'['", "']'", "'{'", "'}'", null, null, "'templates'", 
+			"'end'", "'#'", "'$'", "'..'", null, null, "'0'", null, null, null, null, 
+			null, null, null, null, null, "'>'"
+		};
+	}
+	private static final String[] _LITERAL_NAMES = makeLiteralNames();
+	private static String[] makeSymbolicNames() {
+		return new String[] {
+			null, "Stdout", "Def", "Dereference", "FieldDereference", "To", "ResultMarker", 
+			"Colon", "Comma", "Deconstructor", "EndIdentifier", "LeftParen", "RightParen", 
+			"LeftBracket", "RightBracket", "LeftBrace", "RightBrace", "Key", "StartMatcher", 
+			"StartTemplatesDefinition", "EndDefinition", "TemplateMatch", "StartDereference", 
+			"Range", "AdditiveOperator", "MultiplicativeOperator", "Zero", "NonZeroInteger", 
+			"START_STRING", "IDENTIFIER", "WS", "StringEvaluate", "StringDereference", 
+			"STRING_TEXT", "END_STRING", "StartSubMatcher", "EndMatcher", "MatchInteger", 
+			"RangeMatch", "START_REGEXP", "StartStructureMatch", "EndStructureMatch", 
+			"StructureKey", "MatcherIgnoreWS"
+		};
+	}
+	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
 	/**

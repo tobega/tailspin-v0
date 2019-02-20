@@ -262,6 +262,9 @@ public class RunMain extends TailspinParserBaseVisitor {
                     throw new UnsupportedOperationException("Unknown unary operator " + unaryOperator);
             }
         }
+        if (ctx.LeftParen() != null) {
+            return visitArithmeticExpression(ctx.arithmeticExpression(0));
+        }
         if (ctx.AdditiveOperator() != null) {
             Integer left = (Integer) visit(ctx.arithmeticExpression(0));
             Integer right = (Integer) visit(ctx.arithmeticExpression(1));

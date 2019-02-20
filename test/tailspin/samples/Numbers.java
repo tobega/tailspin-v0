@@ -1,14 +1,13 @@
 package tailspin.samples;
 
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 class Numbers {
   @Test
@@ -165,6 +164,19 @@ class Numbers {
     runner.run(input, output);
 
     assertEquals("8", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void precedenceParentheses() throws IOException {
+    String program = "(3 + 2) * (5 + 1) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("30", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
