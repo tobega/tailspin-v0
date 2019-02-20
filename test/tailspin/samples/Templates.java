@@ -156,4 +156,39 @@ class Templates {
     // Here the return values do get generated in the "correct" order
     assertEquals("2", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void templatesNamedState() throws Exception {
+    String program =
+        "templates state\n$it + 1 -> :state\n$it -> #\n<> $:state !\nend state\n" + "1 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    // Here the return values do get generated in the "correct" order
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void templatesNamedNestedState() throws Exception {
+    String program =
+        "templates state\n"
+            + "templates nested\n"
+            + "$it + 1 -> :state\n"
+            + "end nested\n"
+            + "$it -> nested !\n"
+            + "$: !\nend state\n" + "1 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    // Here the return values do get generated in the "correct" order
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
 }
