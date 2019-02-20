@@ -2,7 +2,7 @@ templates fibonacciNstep10
   templates next
     $it(1) -> :next
     [ $it(2..-1)... -> ($it !
-    $it + $:next ! -> :next),
+    $it + $:next -> :next),
     $:next ] !
   end next
 

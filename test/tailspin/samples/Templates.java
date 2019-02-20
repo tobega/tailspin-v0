@@ -191,4 +191,56 @@ class Templates {
     // Here the return values do get generated in the "correct" order
     assertEquals("2", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void streamMatcherBlock() throws Exception {
+    String program = "1..3 -> (<> 'Goodbye '! 'Hello '!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("Goodbye Hello Goodbye Hello Goodbye Hello ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void correctItOnNextValueChain() throws Exception {
+    String program = "1..3 -> ($it + 1 -> stdout $it !) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("213243", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void streamToMatchers() throws Exception {
+    String program = "1 -> (1..3 -> # <2> $it!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void streamToMatcherBlock() throws Exception {
+    String program = "1 -> (1..3 -> # <> $it! $it!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("112233", output.toString(StandardCharsets.UTF_8));
+  }
 }

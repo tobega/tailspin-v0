@@ -1,5 +1,7 @@
 package tailspin.interpreter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -81,6 +83,7 @@ class RunTemplateBlock extends RunMain {
   @Override
   public Stream<?> visitBlock(TailspinParser.BlockContext ctx) {
     Stream<Object> results = Stream.empty();
+    Object it = scope.resolveValue("it");
     for (TailspinParser.BlockExpressionContext exp : ctx.blockExpression()) {
       Object result = visit(exp);
       if (result != null) {
@@ -88,16 +91,30 @@ class RunTemplateBlock extends RunMain {
             Stream.concat(
                 results, result instanceof Stream ? (Stream<?>) result : Stream.of(result));
       }
+      // reset $it for next chain
+      scope.defineValue("it", it);
     }
     return results;
   }
 
   @Override
-  public Object visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx) {
-    Object it = visitValueChain(ctx.valueChain());
-    Scope matcherScope = new NestedScope(scope);
-    matcherScope.defineValue("it", it);
-    return templates.matchTemplates(new RunMatcherBlock(templates, matcherScope));
+  public Stream<Object> visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx) {
+    Object oIt = visitValueChain(ctx.valueChain());
+    if (!(oIt instanceof Stream)) {
+      oIt = Stream.of(oIt);
+    }
+    Stream<?> sIt = (Stream<?>) oIt;
+    List<Object> result = new ArrayList<>();
+    sIt.forEach(it -> {
+      Scope matcherScope = newMatcherScope();
+      matcherScope.defineValue("it", it);
+      result.add(templates.matchTemplates(new RunMatcherBlock(templates, matcherScope)));
+    });
+    return result.stream().flatMap(r -> r instanceof Stream ? (Stream<?>) r : Stream.of(r));
+  }
+
+  Scope newMatcherScope() {
+    return new NestedScope(scope);
   }
 
   private class RunMatcherBlock extends RunTemplateBlock {
@@ -106,12 +123,8 @@ class RunTemplateBlock extends RunMain {
     }
 
     @Override
-    public Object visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx) {
-      Object it = visitValueChain(ctx.valueChain());
-      Scope matcherScope = new NestedScope(RunTemplateBlock.this.scope);
-      matcherScope.defineValue("it", it);
-      return templates.matchTemplates(
-          RunTemplateBlock.this.new RunMatcherBlock(templates, matcherScope));
+    Scope newMatcherScope() {
+      return new NestedScope(RunTemplateBlock.this.scope);
     }
   }
 

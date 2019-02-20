@@ -68,19 +68,19 @@ public class Tailspin {
         boolean b,
         BitSet bitSet,
         ATNConfigSet atnConfigSet) {
-      System.out.println("Ambiguity " + parser.getRuleContext().toInfoString(parser));
+      // System.out.println("Ambiguity " + parser.getRuleContext().toInfoString(parser));
     }
 
     @Override
     public void reportAttemptingFullContext(
         Parser parser, DFA dfa, int i, int i1, BitSet bitSet, ATNConfigSet atnConfigSet) {
-      System.out.println("Attempting full context " + parser.getRuleContext().toInfoString(parser));
+      // System.out.println("Attempting full context " + parser.getRuleContext().toInfoString(parser));
     }
 
     @Override
     public void reportContextSensitivity(
         Parser parser, DFA dfa, int i, int i1, int i2, ATNConfigSet atnConfigSet) {
-      System.out.println("Context sensitivity " + parser.getRuleContext().toInfoString(parser));
+      // System.out.println("Context sensitivity " + parser.getRuleContext().toInfoString(parser));
     }
   }
 }

@@ -49,7 +49,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     return source;
   }
 
-  private Object chain(ParserRuleContext ctx, Object source) {
+  Object chain(ParserRuleContext ctx, Object source) {
     if (source instanceof Stream) {
       return ((Stream<?>) source)
           .map(
