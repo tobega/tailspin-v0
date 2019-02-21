@@ -295,19 +295,17 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public String visitStringContent(TailspinParser.StringContentContext ctx) {
     if (ctx.STRING_TEXT() != null) {
-      return ctx.STRING_TEXT().getSymbol().getText().replace("''", "'");
-    }
-    if (ctx.DollarSign() != null) {
-      return "$";
+      return ctx.STRING_TEXT().getSymbol().getText().replace("''", "'")
+          .replace("$$", "$");
     }
     return visit(ctx.stringInterpolate()).toString();
   }
 
   @Override
   public String visitStringInterpolate(TailspinParser.StringInterpolateContext ctx) {
-    if (ctx.stringDereferenceValue() != null) {
-      String identifier = ctx.stringDereferenceValue().StringDereferenceIdentifier().getText();
-      Object interpolated = visitStringDereferenceValue(ctx.stringDereferenceValue());
+    if (ctx.interpolateDereferenceValue() != null) {
+      String identifier = ctx.interpolateDereferenceValue().InterpolateIdentifier().getText();
+      Object interpolated = visitInterpolateDereferenceValue(ctx.interpolateDereferenceValue());
       if (interpolated instanceof Templates) {
         return ((Templates) interpolated)
             .run(new TemplatesScope(scope, identifier))
@@ -316,8 +314,8 @@ public class RunMain extends TailspinParserBaseVisitor {
       }
       return interpolated.toString();
     }
-    if (ctx.stringEvaluate() != null) {
-      Object value = visit(ctx.stringEvaluate().valueChain());
+    if (ctx.interpolateEvaluate() != null) {
+      Object value = visit(ctx.interpolateEvaluate().valueChain());
       if (!(value instanceof Stream)) {
         value = Stream.of(value);
       }
@@ -327,8 +325,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Object visitStringDereferenceValue(TailspinParser.StringDereferenceValueContext ctx) {
-    String identifier = ctx.StringDereferenceIdentifier().getText();;
+  public Object visitInterpolateDereferenceValue(TailspinParser.InterpolateDereferenceValueContext ctx) {
+    String identifier = ctx.InterpolateIdentifier().getText();;
     Object value;
     if (identifier.startsWith(":")) {
       value = scope.getState(identifier.substring(1));
@@ -339,8 +337,8 @@ public class RunMain extends TailspinParserBaseVisitor {
       List<?> array = (List<?>) value;
       value = resolveArrayDereference(ctx.arrayDereference(), array);
     }
-    for (TailspinParser.StringStructureDereferenceContext sdc : ctx.stringStructureDereference()) {
-      value = resolveFieldDereferences(value, sdc.StringFieldDereference());
+    for (TailspinParser.InterpolateStructureDereferenceContext sdc : ctx.interpolateStructureDereference()) {
+      value = resolveFieldDereferences(value, sdc.InterpolateField());
       if (sdc.arrayDereference() != null) {
         List<?> array = (List<?>) value;
         value = resolveArrayDereference(sdc.arrayDereference(), array);

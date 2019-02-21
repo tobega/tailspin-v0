@@ -1,7 +1,6 @@
 def input: {N: 100, words: [ { mod: 3, word: 'Fizz' }, { mod: 5, word: 'Buzz'}, {mod:7, word: 'Baxx'}]}
 
-def sayTemplate: '$($input.words... -> '$$sayWord($it.mod, $it.word)')'
-def sayTemplate: $input.words... -> '$$sayWord($it.mod, $it.word)' -> '$it'
+def sayTemplate: $input.words... -> '$$sayWord($it.mod;, $it.word;);'
 
 $sayTemplate -> stdout
 

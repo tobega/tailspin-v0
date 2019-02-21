@@ -1,7 +1,7 @@
 99..1:-1 ->
-'$it bottles of beer on the wall
-$it bottles of beer
-Take one down, pass it around
-$($it - 1) bottles of beer on the wall
+'$it; bottles of beer on the wall,
+$it; bottles of beer.
+Take one down, pass it around,
+$($it - 1) bottles of beer on the wall.
 
 ' -> stdout

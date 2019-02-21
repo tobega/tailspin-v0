@@ -75,15 +75,15 @@ integerLiteral: Zero | NonZeroInteger;
 
 stringLiteral: (START_STRING|START_REGEXP) stringContent* END_STRING;
 
-stringContent: stringInterpolate | STRING_TEXT | DollarSign;
+stringContent: stringInterpolate | STRING_TEXT;
 
-stringInterpolate: StartStringInterpolate (stringEvaluate|stringDereferenceValue);
+stringInterpolate: interpolateEvaluate|interpolateDereferenceValue;
 
-stringEvaluate: StringLeftParen valueChain RightParen;
+interpolateEvaluate: StartStringEvaluate valueChain RightParen;
 
-stringDereferenceValue: StringDereferenceIdentifier (StringLeftParen arrayDereference RightParen)? stringStructureDereference* EndStringDereference?;
+interpolateDereferenceValue: StartStringInterpolate InterpolateIdentifier (InterpolateArray arrayDereference RightParen)? interpolateStructureDereference*  EndInterpolate;
 
-stringStructureDereference: StringFieldDereference+ (StringLeftParen arrayDereference RightParen)?;
+interpolateStructureDereference: InterpolateField+ (InterpolateArray arrayDereference RightParen)?;
 
 sink: Stdout;
 

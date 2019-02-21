@@ -8,5 +8,5 @@ templates buzz
   <0> 'Buzz' !
 end buzz
 
-[ 1..100 -> '$fizz$buzz' ] -> [i](<''> $i ! <> $it !)... -> '$it
+[ 1..100 -> '$fizz;$buzz;' ] -> [i](<''> $i ! <> $it !)... -> '$it;
 ' -> stdout

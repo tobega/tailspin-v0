@@ -12,7 +12,7 @@ templates nthFibonacci
     { N: $it.N - 1, n1: $it.n0, n0: $it.n1 - $it.n0, sign: -1} -> #
 end nthFibonacci
 
-8 -> nthFibonacci -> '$it
+8 -> nthFibonacci -> '$it;
 ' -> stdout
--5 -> nthFibonacci -> '$it
+-5 -> nthFibonacci -> '$it;
 ' -> stdout

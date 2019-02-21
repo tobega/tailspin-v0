@@ -13,7 +13,7 @@ import tailspin.Tailspin;
 class Streams {
   @Test
   void iterate() throws IOException {
-    String program = "1..3 -> 'a $it ' -> stdout";
+    String program = "1..3 -> 'a $it; ' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -26,7 +26,7 @@ class Streams {
 
   @Test
   void iterateIncrement() throws IOException {
-    String program = "1..6:2 -> 'a $it ' -> stdout";
+    String program = "1..6:2 -> 'a $it; ' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -39,7 +39,7 @@ class Streams {
 
   @Test
   void iterateBackwards() throws IOException {
-    String program = "3..1:-1 -> 'a $it ' -> stdout";
+    String program = "3..1:-1 -> 'a $it; ' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -52,7 +52,7 @@ class Streams {
 
   @Test
   void iterateZeroIncrementIllegal() {
-    String program = "1..3:0 -> 'a $it ' -> stdout";
+    String program = "1..3:0 -> 'a $it; ' -> stdout";
     try {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

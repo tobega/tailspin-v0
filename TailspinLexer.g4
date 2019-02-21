@@ -70,29 +70,28 @@ fragment IDENTIFIER_PART: IDENTIFIER_START
 WS : [ \r\t\n]+ -> skip ;
 
 
-
-
 mode IN_STRING;
 
-DollarSign: '$$';
+StartStringEvaluate: '$(' -> pushMode(DEFAULT_MODE);
 
-StartStringInterpolate: '$' { inStringDereference = true; };
+StartStringInterpolate: '$' -> pushMode(INTERPOLATE);
 
-StringLeftParen: '(' { inStringDereference }? -> pushMode(DEFAULT_MODE);
+STRING_TEXT: STRING_CHAR+;
 
-StringDereferenceIdentifier: IDENTIFIER { inStringDereference }?;
-
-StringFieldDereference: FieldDereference { inStringDereference }?;
-
-EndStringDereference: ';' { inStringDereference }? { inStringDereference = false; };
-
-STRING_TEXT: STRING_CHAR+? { inStringDereference = false; };
-
-fragment STRING_CHAR: '\'\'' | ((';'|'(') { !inStringDereference }?) | ~['$;];
+fragment STRING_CHAR: '\'\'' | '$$' | ~['$];
 
 END_STRING: '\'' -> popMode;
 
 
+mode INTERPOLATE;
+
+EndInterpolate: ';' -> popMode;
+
+InterpolateArray: '(' -> pushMode(DEFAULT_MODE);
+
+InterpolateIdentifier: IDENTIFIER;
+
+InterpolateField: FieldDereference;
 
 
 mode MATCHER;

@@ -130,7 +130,7 @@ class Statements {
 
   @Test
   void chain() throws Exception {
-    String program = "'World!' -> 'Hello $it' -> stdout";
+    String program = "'World!' -> 'Hello $it;' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -171,7 +171,7 @@ class Statements {
 
   @Test
   void definedSymbolFromValueChain() throws Exception {
-    String program = "def helloWorld: 'World!' -> 'Hello $it' \n $helloWorld -> stdout\n";
+    String program = "def helloWorld: 'World!' -> 'Hello $it;' \n $helloWorld -> stdout\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

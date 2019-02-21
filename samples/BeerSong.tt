@@ -4,13 +4,13 @@ templates sayBottleCount
   <0>
     'No bottles' !
   <>
-    '$it bottles' !
+    '$it; bottles' !
 end sayBottleCount
 
 99..1:-1 ->
-'$sayBottleCount of beer on the wall,
-$sayBottleCount of beer.
-Take one down, pass it around.
-$($it - 1 -> sayBottleCount) of beer on the wall
+'$sayBottleCount; of beer on the wall,
+$sayBottleCount; of beer.
+Take one down, pass it around,
+$($it - 1 -> sayBottleCount) of beer on the wall.
 
 ' -> stdout
