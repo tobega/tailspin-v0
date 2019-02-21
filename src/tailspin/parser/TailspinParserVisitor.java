@@ -242,6 +242,24 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStringInterpolate(TailspinParser.StringInterpolateContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#stringEvaluate}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringEvaluate(TailspinParser.StringEvaluateContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#stringDereferenceValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringDereferenceValue(TailspinParser.StringDereferenceValueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#stringStructureDereference}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringStructureDereference(TailspinParser.StringStructureDereferenceContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#sink}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

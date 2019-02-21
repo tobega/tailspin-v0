@@ -100,15 +100,20 @@ public class RunMain extends TailspinParserBaseVisitor {
       value = resolveArrayDereference(ctx.arrayDereference(), (List<?>) value);
     }
     for (TailspinParser.StructureDereferenceContext sdc : ctx.structureDereference()) {
-      for (TerminalNode fieldDereference : sdc.FieldDereference()) {
-        String fieldIdentifier = fieldDereference.getText().substring(1);
-        @SuppressWarnings("unchecked")
-        Map<String, Object> structure = (Map<String, Object>) value;
-        value = structure.get(fieldIdentifier);
-      }
+      value = resolveFieldDereferences(value, sdc.FieldDereference());
       if (sdc.arrayDereference() != null) {
-          value = resolveArrayDereference(sdc.arrayDereference(), (List<?>) value);
+        value = resolveArrayDereference(sdc.arrayDereference(), (List<?>) value);
       }
+    }
+    return value;
+  }
+
+  private Object resolveFieldDereferences(Object value, List<TerminalNode> terminalNodes) {
+    for (TerminalNode fieldDereference : terminalNodes) {
+      String fieldIdentifier = fieldDereference.getText().substring(1);
+      @SuppressWarnings("unchecked")
+      Map<String, Object> structure = (Map<String, Object>) value;
+      value = structure.get(fieldIdentifier);
     }
     return value;
   }
@@ -290,16 +295,19 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public String visitStringContent(TailspinParser.StringContentContext ctx) {
     if (ctx.STRING_TEXT() != null) {
-      return ctx.STRING_TEXT().getSymbol().getText().replace("''", "'").replace("$$", "$");
+      return ctx.STRING_TEXT().getSymbol().getText().replace("''", "'");
+    }
+    if (ctx.DollarSign() != null) {
+      return "$";
     }
     return visit(ctx.stringInterpolate()).toString();
   }
 
   @Override
   public String visitStringInterpolate(TailspinParser.StringInterpolateContext ctx) {
-    if (ctx.StringDereference() != null) {
-      String identifier = ctx.StringDereference().getText().replaceAll("[$;]", "");
-      Object interpolated = scope.resolveValue(identifier);
+    if (ctx.stringDereferenceValue() != null) {
+      String identifier = ctx.stringDereferenceValue().StringDereferenceIdentifier().getText();
+      Object interpolated = visitStringDereferenceValue(ctx.stringDereferenceValue());
       if (interpolated instanceof Templates) {
         return ((Templates) interpolated)
             .run(new TemplatesScope(scope, identifier))
@@ -308,14 +316,37 @@ public class RunMain extends TailspinParserBaseVisitor {
       }
       return interpolated.toString();
     }
-    if (ctx.valueChain() != null) {
-      Object value = visit(ctx.valueChain());
+    if (ctx.stringEvaluate() != null) {
+      Object value = visit(ctx.stringEvaluate().valueChain());
       if (!(value instanceof Stream)) {
         value = Stream.of(value);
       }
       return ((Stream<?>) value).map(Object::toString).collect(Collectors.joining());
     }
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Object visitStringDereferenceValue(TailspinParser.StringDereferenceValueContext ctx) {
+    String identifier = ctx.StringDereferenceIdentifier().getText();;
+    Object value;
+    if (identifier.startsWith(":")) {
+      value = scope.getState(identifier.substring(1));
+    } else {
+      value = scope.resolveValue(identifier);
+    }
+    if (ctx.arrayDereference() != null) {
+      List<?> array = (List<?>) value;
+      value = resolveArrayDereference(ctx.arrayDereference(), array);
+    }
+    for (TailspinParser.StringStructureDereferenceContext sdc : ctx.stringStructureDereference()) {
+      value = resolveFieldDereferences(value, sdc.StringFieldDereference());
+      if (sdc.arrayDereference() != null) {
+        List<?> array = (List<?>) value;
+        value = resolveArrayDereference(sdc.arrayDereference(), array);
+      }
+    }
+    return value;
   }
 
   @Override

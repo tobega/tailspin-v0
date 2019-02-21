@@ -250,4 +250,69 @@ class Strings {
 
     assertEquals("hihihi", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void interpolateStructureField() throws Exception {
+    String program = "{a: 'hi'} -> '$it.a' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("hi", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void interpolateArrayElement() throws Exception {
+    String program = "['yo', 'hi'] -> '$it(2)' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("hi", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void interpolateArrayRange() throws Exception {
+    String program = "['yo', 'hi', 'ho'] -> '$it(2..3)' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[hi, ho]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void interpolateStructureArrayElement() throws Exception {
+    String program = "{a:['yo', 'hi']} -> '$it.a(2)' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("hi", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void testParentheses() throws Exception {
+    String program = "'(2)' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("(2)", output.toString(StandardCharsets.UTF_8));
+  }
 }

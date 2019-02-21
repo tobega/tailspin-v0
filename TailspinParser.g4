@@ -17,11 +17,11 @@ source: dereferenceValue
   | structureLiteral
 ;
 
-dereferenceValue: Dereference arrayDereference? structureDereference*;
+dereferenceValue: Dereference (LeftParen arrayDereference RightParen)? structureDereference*;
 
-structureDereference: FieldDereference+ arrayDereference?;
+structureDereference: FieldDereference+ (LeftParen arrayDereference RightParen)?;
 
-arrayDereference: LeftParen (NonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue) RightParen;
+arrayDereference: NonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue;
 
 arrayLiteral: LeftBracket valueChain (Comma? valueChain)* RightBracket;
 
@@ -75,9 +75,15 @@ integerLiteral: Zero | NonZeroInteger;
 
 stringLiteral: (START_STRING|START_REGEXP) stringContent* END_STRING;
 
-stringContent: stringInterpolate | STRING_TEXT;
+stringContent: stringInterpolate | STRING_TEXT | DollarSign;
 
-stringInterpolate: StringDereference | StringEvaluate valueChain RightParen;
+stringInterpolate: StartStringInterpolate (stringEvaluate|stringDereferenceValue);
+
+stringEvaluate: StringLeftParen valueChain RightParen;
+
+stringDereferenceValue: StringDereferenceIdentifier (StringLeftParen arrayDereference RightParen)? stringStructureDereference* EndStringDereference?;
+
+stringStructureDereference: StringFieldDereference+ (StringLeftParen arrayDereference RightParen)?;
 
 sink: Stdout;
 

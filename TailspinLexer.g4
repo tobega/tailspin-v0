@@ -1,10 +1,14 @@
 lexer grammar TailspinLexer;
 
+@lexer::members {
+  boolean inStringDereference = false;
+}
+
 Stdout: 'stdout';
 
 Def: 'def' [ \r\t\n];
 
-Dereference: StartDereference (Colon IDENTIFIER? | IDENTIFIER EndIdentifier?);
+Dereference: StartDereference (Colon IDENTIFIER? | IDENTIFIER);
 
 FieldDereference: '.' IDENTIFIER;
 
@@ -17,8 +21,6 @@ Colon: ':';
 Comma: ',';
 
 Deconstructor: '...';
-
-EndIdentifier: ';';
 
 LeftParen: '(' -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
 
@@ -67,17 +69,31 @@ fragment IDENTIFIER_PART: IDENTIFIER_START
 
 WS : [ \r\t\n]+ -> skip ;
 
+
+
+
 mode IN_STRING;
 
-StringEvaluate: StartDereference LeftParen -> pushMode(DEFAULT_MODE);
+DollarSign: '$$';
 
-StringDereference: Dereference;
+StartStringInterpolate: '$' { inStringDereference = true; };
 
-STRING_TEXT: STRING_CHAR+;
+StringLeftParen: '(' { inStringDereference }? -> pushMode(DEFAULT_MODE);
 
-fragment STRING_CHAR: '\'\'' | '$$' | ~['$];
+StringDereferenceIdentifier: IDENTIFIER { inStringDereference }?;
+
+StringFieldDereference: FieldDereference { inStringDereference }?;
+
+EndStringDereference: ';' { inStringDereference }? { inStringDereference = false; };
+
+STRING_TEXT: STRING_CHAR+? { inStringDereference = false; };
+
+fragment STRING_CHAR: '\'\'' | ((';'|'(') { !inStringDereference }?) | ~['$;];
 
 END_STRING: '\'' -> popMode;
+
+
+
 
 mode MATCHER;
 
