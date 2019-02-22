@@ -4,6 +4,8 @@ lexer grammar TailspinLexer;
   boolean inStringDereference = false;
 }
 
+StartComment: '//' -> skip, pushMode(COMMENT_MODE);
+
 Stdout: 'stdout';
 
 Def: 'def' [ \r\t\n];
@@ -113,3 +115,7 @@ EndStructureMatch: RightBrace;
 StructureKey: Key;
 
 MatcherIgnoreWS: WS -> skip;
+
+mode COMMENT_MODE;
+
+Comment: ~('\n')* ('\n'|EOF) -> skip, popMode;

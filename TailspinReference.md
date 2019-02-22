@@ -17,6 +17,8 @@ Whitespace works as a separator but is ignored.
 Language constructs are designed to be as like the value they match or produce as possible.
 Rather than using control flow keywords, you would in tailspin produce streams of values in a declarative way.
 
+Comments are started with `//` and continue to the end of the line.
+
 ## Sources
 A source is the simplest _value chain_, simply producing a value.
 

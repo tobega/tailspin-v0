@@ -181,4 +181,17 @@ class Statements {
 
     assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void commentsIgnored() throws Exception {
+    String program = "1 -> stdout\n // 2 -> stdout\n 3 -> stdout // 4 -> stdout\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("13", output.toString(StandardCharsets.UTF_8));
+  }
 }
