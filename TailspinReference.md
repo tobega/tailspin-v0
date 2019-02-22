@@ -31,6 +31,10 @@ identifier prefixed by a dollar sign, e.g. `$myValue`
 An identifier must have its value defined before it is used and the definition must be in the same scope
 as, or a scope larger than (or outside), the scope where the dereference takes place.
 
+A symbol may not change its value in the same scope, but it may be shadowed in a nested scope.
+
+Note that templates have a modifiable state value that can be dereferenced, see [templates sinks](#templates-sinks)
+
 ### String literal
 A series of characters within single quotes, e.g. `'Hello World!'`. To write
 a single quote in a string, just double it up, e.g. `'What''s up?'`.

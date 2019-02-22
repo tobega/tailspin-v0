@@ -1,14 +1,15 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class Statements {
 
@@ -193,5 +194,20 @@ class Statements {
     runner.run(input, output);
 
     assertEquals("13", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void symbolsMayNotBeRedefined() throws Exception {
+    String program = "def one: 1 \n def one: 1\n";
+    try {
+      Tailspin runner =
+              Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      runner.run(input, output);
+      fail();
+    } catch (Exception expected) {
+    }
   }
 }
