@@ -1,8 +1,7 @@
-def input: {N: 100, words: [ { mod: 3, word: 'Fizz' }, { mod: 5, word: 'Buzz'}, {mod:7, word: 'Baxx'}]}
+def input: {N: 110, words: [ { mod: 3, word: 'Fizz' }, { mod: 5, word: 'Buzz'}, {mod:7, word: 'Baxx'}]}
 
-def sayTemplate: $input.words... -> '$$sayWord($it.mod;, $it.word;);'
-
-$sayTemplate -> stdout
-
-'
+[1..$input.N] ->  [i]('$($input.words... -> (
+                      def word: $it.word
+                      $i mod $it.mod -> (<0> $word !) !
+                  ))' !) -> [i](<''> $i ! <> $it !) -> '$it;
 ' -> stdout
