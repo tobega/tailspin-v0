@@ -1,4 +1,3 @@
-// Not done yet, just trying things out
 templates bubblesort
   templates bubble
     $it(1) -> :
@@ -11,8 +10,17 @@ templates bubblesort
       $: !
       $it -> :
   end bubble
-  [ $it -> bubble ] !
-  $: !
+  $it -> :
+  1 -> #
+  <0>
+    $: !
+  <1> // A bit of a tortuous dance
+    def array: $:
+    0 -> :
+    def bubbled: [ $array -> bubble ]
+    def done: $:
+    $bubbled -> :
+    $done -> #
 end bubblesort
 
 [4,5,3,8,1,2,6,7,9,8,5] -> bubblesort -> stdout
