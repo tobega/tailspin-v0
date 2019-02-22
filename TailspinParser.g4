@@ -59,15 +59,21 @@ transform: To templates transform?
 
 matcher: (StartMatcher|StartSubMatcher) condition? EndMatcher;
 
-condition: MatchInteger                    # integerEquals
+condition: matchArithmeticExpression       # integerEquals
   | lowerBound? RangeMatch upperBound?     # rangeMatch
   | stringLiteral                          # regexpMatch
   | StartStructureMatch (StructureKey matcher Comma?)* EndStructureMatch # structureMatch
 ;
 
-lowerBound: MatchInteger;
+lowerBound: matchArithmeticExpression;
 
-upperBound: MatchInteger;
+upperBound: matchArithmeticExpression;
+
+matchArithmeticExpression: MatchInteger | matchDereferenceValue;
+
+matchDereferenceValue: MatchDereference (MatchArrayDereference arrayDereference RightParen)? matchStructureDereference*;
+
+matchStructureDereference: MatchFieldDereference+ (MatchArrayDereference arrayDereference RightParen)?;
 
 rangeLiteral: arithmeticExpression Range arithmeticExpression (Colon arithmeticExpression)?;
 

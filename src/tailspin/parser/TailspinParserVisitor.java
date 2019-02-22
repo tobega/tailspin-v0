@@ -1,4 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.7.2
+// Generated from TailspinParser.g4 by ANTLR 4.7.1
 package tailspin.parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -211,6 +211,24 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitUpperBound(TailspinParser.UpperBoundContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#matchArithmeticExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMatchArithmeticExpression(TailspinParser.MatchArithmeticExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#matchDereferenceValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMatchDereferenceValue(TailspinParser.MatchDereferenceValueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#matchStructureDereference}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMatchStructureDereference(TailspinParser.MatchStructureDereferenceContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#rangeLiteral}.
 	 * @param ctx the parse tree

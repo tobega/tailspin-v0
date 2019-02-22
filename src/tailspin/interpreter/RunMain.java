@@ -1,5 +1,10 @@
 package tailspin.interpreter;
 
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.TerminalNode;
+import tailspin.parser.TailspinParser;
+import tailspin.parser.TailspinParserBaseVisitor;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -9,10 +14,6 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import tailspin.parser.TailspinParser;
-import tailspin.parser.TailspinParserBaseVisitor;
 
 public class RunMain extends TailspinParserBaseVisitor {
   final Scope scope;
@@ -108,7 +109,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     return value;
   }
 
-  private Object resolveFieldDereferences(Object value, List<TerminalNode> terminalNodes) {
+  Object resolveFieldDereferences(Object value, List<TerminalNode> terminalNodes) {
     for (TerminalNode fieldDereference : terminalNodes) {
       String fieldIdentifier = fieldDereference.getText().substring(1);
       @SuppressWarnings("unchecked")
@@ -118,7 +119,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     return value;
   }
 
-  private Object resolveArrayDereference(TailspinParser.ArrayDereferenceContext ctx, List<?> array) {
+  Object resolveArrayDereference(TailspinParser.ArrayDereferenceContext ctx, List<?> array) {
     if (ctx.NonZeroInteger() != null) {
       int index = javaizeArrayIndex(Integer.valueOf(ctx.NonZeroInteger().getText()), array.size());
       return array.get(index);

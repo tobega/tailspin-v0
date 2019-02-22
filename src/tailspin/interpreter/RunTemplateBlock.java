@@ -1,11 +1,12 @@
 package tailspin.interpreter;
 
+import tailspin.parser.TailspinParser;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import tailspin.parser.TailspinParser;
 
 class RunTemplateBlock extends RunMain {
   private final Templates templates;
@@ -25,8 +26,40 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
-    Integer expected = Integer.valueOf(ctx.MatchInteger().getText());
+    Integer expected = visitMatchArithmeticExpression(ctx.matchArithmeticExpression());
     return expected.equals(scope.resolveValue("it"));
+  }
+
+  @Override
+  public Integer visitMatchArithmeticExpression(TailspinParser.MatchArithmeticExpressionContext ctx) {
+    if (ctx.MatchInteger() != null) {
+      return Integer.valueOf(ctx.MatchInteger().getText());
+    }
+    if (ctx.matchDereferenceValue() != null) {
+      return (Integer) visitMatchDereferenceValue(ctx.matchDereferenceValue());
+    }
+    throw new UnsupportedOperationException("Stumped at match arithmetic");
+  }
+
+  @Override
+  public Object visitMatchDereferenceValue(TailspinParser.MatchDereferenceValueContext ctx) {
+    String identifier = ctx.MatchDereference().getText().substring(1);
+    Object value;
+    if (identifier.startsWith(":")) {
+      value = scope.getState(identifier.substring(1));
+    } else {
+      value = scope.resolveValue(identifier);
+    }
+    if (ctx.arrayDereference() != null) {
+      value = resolveArrayDereference(ctx.arrayDereference(), (List<?>) value);
+    }
+    for (TailspinParser.MatchStructureDereferenceContext sdc : ctx.matchStructureDereference()) {
+      value = resolveFieldDereferences(value, sdc.MatchFieldDereference());
+      if (sdc.arrayDereference() != null) {
+        value = resolveArrayDereference(sdc.arrayDereference(), (List<?>) value);
+      }
+    }
+    return value;
   }
 
   @Override
@@ -35,11 +68,11 @@ class RunTemplateBlock extends RunMain {
     if (!(oIt instanceof Integer)) return false;
     Integer it = (Integer) oIt;
     if (ctx.lowerBound() != null) {
-      int lowerBound = Integer.valueOf(ctx.lowerBound().MatchInteger().getText());
+      int lowerBound = (int) visitLowerBound(ctx.lowerBound());
       if (it < lowerBound) return false;
     }
     if (ctx.upperBound() != null) {
-      int upperBound = Integer.valueOf(ctx.upperBound().MatchInteger().getText());
+      int upperBound = (int) visitUpperBound(ctx.upperBound());
       return it <= upperBound;
     }
     return true;

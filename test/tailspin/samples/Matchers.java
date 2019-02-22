@@ -1,12 +1,13 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Matchers {
   @Test
@@ -98,5 +99,31 @@ class Matchers {
     runner.run(input, output);
 
     assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeMatchDereference() throws Exception {
+    String program = "def mid: 3\n1..6 -> (<..$mid> 'L'! <> 'H'!) -> stdout";
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("LLLHHH", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeMatchDereferenceState() throws Exception {
+    String program = "1..6 -> (3 -> : $it -> # <..$:> 'L'! <> 'H'!) -> stdout";
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("LLLHHH", output.toString(StandardCharsets.UTF_8));
   }
 }

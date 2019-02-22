@@ -114,6 +114,13 @@ EndStructureMatch: RightBrace;
 
 StructureKey: Key;
 
+MatchDereference: StartDereference (Colon IDENTIFIER? | IDENTIFIER);
+
+MatchArrayDereference: '(' -> pushMode(DEFAULT_MODE);
+
+MatchFieldDereference: FieldDereference;
+
+
 MatcherIgnoreWS: WS -> skip;
 
 mode COMMENT_MODE;
