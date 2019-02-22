@@ -1,7 +1,13 @@
 def input: {N: 110, words: [ { mod: 3, word: 'Fizz' }, { mod: 5, word: 'Buzz'}, {mod:7, word: 'Baxx'}]}
 
-[1..$input.N] ->  [i]('$($input.words... -> (
-                      def word: $it.word
-                      $i mod $it.mod -> (<0> $word !) !
-                  ))' !) -> [i](<''> $i ! <> $it !) -> '$it;
+templates sayWords
+  def i: $it
+  templates maybeSay
+    def word: $it.word
+    $i mod $it.mod -> (<0> $word !) !
+  end maybeSay
+  $input.words... -> maybeSay !
+end sayWords
+
+[1..$input.N] ->  [i]('$sayWords;' !) -> [i](<''> $i ! <> $it !) -> '$it;
 ' -> stdout
