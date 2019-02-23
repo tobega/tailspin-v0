@@ -17,9 +17,10 @@ source: dereferenceValue
   | structureLiteral
 ;
 
-dereferenceValue: Dereference (LeftParen arrayDereference RightParen)? structureDereference*;
+dereferenceValue: Dereference structureDereference*
+  | StartArrayDereference arrayDereference RightParen structureDereference*;
 
-structureDereference: FieldDereference+ (LeftParen arrayDereference RightParen)?;
+structureDereference: FieldDereference* (FieldDereference | (FieldArrayDereference arrayDereference RightParen));
 
 arrayDereference: NonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue;
 

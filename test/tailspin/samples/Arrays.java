@@ -1,13 +1,14 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Arrays {
 
@@ -230,5 +231,31 @@ class Arrays {
     runner.run(input, output);
 
     assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayLiteralInterpolationArrayDereferenceValueChain() throws IOException {
+    String program = "def a: [5]\n 1 -> [ $a(1) -> 'foo$it;' ] -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[foo5]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayLiteralInterpolationFieldArrayDereferenceValueChain() throws IOException {
+    String program = "def a: { b: [5]}\n 1 -> [ $a.b(1) -> 'foo$it;' ] -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[foo5]", output.toString(StandardCharsets.UTF_8));
   }
 }

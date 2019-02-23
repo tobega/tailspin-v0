@@ -90,7 +90,8 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
-    String identifier = ctx.Dereference().getText().substring(1);
+    String identifier = ctx.Dereference() != null ? ctx.Dereference().getText().substring(1)
+            : ctx.StartArrayDereference().getText().substring(1).replace("(", "");
     Object value;
     if (identifier.startsWith(":")) {
       value = scope.getState(identifier.substring(1));
@@ -101,7 +102,11 @@ public class RunMain extends TailspinParserBaseVisitor {
       value = resolveArrayDereference(ctx.arrayDereference(), (List<?>) value);
     }
     for (TailspinParser.StructureDereferenceContext sdc : ctx.structureDereference()) {
-      value = resolveFieldDereferences(value, sdc.FieldDereference());
+      List<TerminalNode> fieldDereferences = new ArrayList<>(sdc.FieldDereference());
+      if (sdc.FieldArrayDereference() != null) {
+        fieldDereferences.add(sdc.FieldArrayDereference());
+      }
+      value = resolveFieldDereferences(value, fieldDereferences);
       if (sdc.arrayDereference() != null) {
         value = resolveArrayDereference(sdc.arrayDereference(), (List<?>) value);
       }
@@ -111,7 +116,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   Object resolveFieldDereferences(Object value, List<TerminalNode> terminalNodes) {
     for (TerminalNode fieldDereference : terminalNodes) {
-      String fieldIdentifier = fieldDereference.getText().substring(1);
+      String fieldIdentifier = fieldDereference.getText().substring(1).replace("(", "");
       @SuppressWarnings("unchecked")
       Map<String, Object> structure = (Map<String, Object>) value;
       value = structure.get(fieldIdentifier);
@@ -327,7 +332,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitInterpolateDereferenceValue(TailspinParser.InterpolateDereferenceValueContext ctx) {
-    String identifier = ctx.InterpolateIdentifier().getText();;
+    String identifier = ctx.InterpolateIdentifier().getText();
     Object value;
     if (identifier.startsWith(":")) {
       value = scope.getState(identifier.substring(1));

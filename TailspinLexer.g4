@@ -12,7 +12,11 @@ Def: 'def' [ \r\t\n];
 
 Dereference: StartDereference (Colon IDENTIFIER? | IDENTIFIER);
 
+StartArrayDereference: Dereference LeftParen -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
+
 FieldDereference: '.' IDENTIFIER;
+
+FieldArrayDereference: '.' IDENTIFIER LeftParen -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
 
 To: '->';
 
