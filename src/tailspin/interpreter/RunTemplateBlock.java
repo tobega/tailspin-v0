@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 class RunTemplateBlock extends RunMain {
@@ -119,6 +120,9 @@ class RunTemplateBlock extends RunMain {
     Object it = scope.resolveValue("it");
     for (TailspinParser.BlockExpressionContext exp : ctx.blockExpression()) {
       Object result = visit(exp);
+      if (result instanceof Stream) {
+        result = ((Stream<?>) result).collect(Collectors.toList()).stream(); // Make sure to execute the chain
+      }
       if (result != null) {
         results =
             Stream.concat(

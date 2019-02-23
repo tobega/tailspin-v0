@@ -1,12 +1,13 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Templates {
   @Test
@@ -190,6 +191,21 @@ class Templates {
 
     // Here the return values do get generated in the "correct" order
     assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void templatesNamedFromInline() throws Exception {
+    String program =
+            "templates state\n1..3 -> ($it + 1 -> :state) !\n$: !\nend state\n" + "1 -> state -> stdout";
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    // Here the return values do get generated in the "correct" order
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
