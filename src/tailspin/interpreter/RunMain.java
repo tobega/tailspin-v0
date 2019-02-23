@@ -43,11 +43,15 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitValueChain(TailspinParser.ValueChainContext ctx) {
-    Object source = visit(ctx.source());
+    Object oldIt = scope.resolveValue("it");
+    Object value = visit(ctx.source());
     if (ctx.transform() != null) {
-      return chain(ctx.transform(), source);
+      value = chain(ctx.transform(), value);
     }
-    return source;
+    if (oldIt != null) {
+      scope.defineValue("it", oldIt); // reset for next value chain in same scope
+    }
+    return value;
   }
 
   Object chain(ParserRuleContext ctx, Object source) {
