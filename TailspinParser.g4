@@ -64,6 +64,7 @@ condition: matchArithmeticExpression       # integerEquals
   | lowerBound? RangeMatch upperBound?     # rangeMatch
   | stringLiteral                          # regexpMatch
   | StartStructureMatch (StructureKey matcher Comma?)* EndStructureMatch # structureMatch
+  | InvertMatch condition                  # invertMatch
 ;
 
 lowerBound: matchArithmeticExpression;

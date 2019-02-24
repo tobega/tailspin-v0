@@ -1,3 +1,4 @@
+// This always does N^2 comparisons
 templates bubblesort
   templates bubble
     $it(1) -> :
@@ -11,7 +12,6 @@ templates bubblesort
   end bubble
   $it -> :
   def indexes: $it -> [i]($i!)
-  // Currently no good way to break early since any checking of conditions tends to be recursion
   $indexes(-1..2:-1)... -> (
     [ $:bubblesort(1..$it) -> bubble, $:bubblesort($it+1..-1)... ] -> :bubblesort
   ) !

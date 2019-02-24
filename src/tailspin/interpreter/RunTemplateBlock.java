@@ -114,7 +114,12 @@ class RunTemplateBlock extends RunMain {
     return stillPossible;
   }
 
-  @Override
+    @Override
+    public Boolean visitInvertMatch(TailspinParser.InvertMatchContext ctx) {
+        return ! ((Boolean) visit(ctx.condition()));
+    }
+
+    @Override
   public Stream<?> visitBlock(TailspinParser.BlockContext ctx) {
     Stream<Object> results = Stream.empty();
     Object it = scope.resolveValue("it");

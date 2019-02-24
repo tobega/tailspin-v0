@@ -1,6 +1,8 @@
 # Tailspin reference
 This is the syntax as it is working so far, with some indications of future developments
 
+_Current limitations_: The current implementation cannot handle very deep recursion.
+
 ## Basic structure
 A typical tailspin statement starts with a [source](#sources) for a value,
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
@@ -165,6 +167,7 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   * `<{a: <>}>` matches any structure that has a field `a`, whatever its value
   * `<{a:<0>, b:<1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
   whatever other fields it might have.
+* Inverse match, to match the opposite of a conditon, just put an exclamation mark inside the angle bracket, e.g. `<!5>`
 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by
