@@ -1,35 +1,28 @@
-// Keeps track of where the last swap occurred and only bubbles to there on next spin
-// Uses the mutable state value of bubblesort to keep the current array, the state of spin for last unsorted position
-// and the state of bubble for the current maximum value bubbling up
+// Keeps track of where the last swap occurred and only bubbles to there on next round
 templates bubblesort
-  templates spin
       templates bubble
-        1 -> :spin // stop condition if no position changed
-        $it(1) -> :
-        // The [i] makes the inline templates apply to each value of the array, with i as the index value
-        // for the array slice sent in (not the original array)
-        $it(2..-1) -> [i](
-            <..$:bubble>
-              $i -> :spin // last position that changed
-              $it !
-            <>
-              $:bubble !
-              $it -> :bubble
-        )... ! // output the elements as a stream
-        $: ! // output the maximum value saved in the state value
+          {N: 1} -> ...$:bubblesort -> :bubblesort // stop condition if no position changed, merge with current value
+          $it(1) -> :
+          // The [i] makes the inline templates apply to each value of the array, with i as the index value
+          // for the array slice sent in (not the original array)
+          $it(2..-1) -> [i](
+              <..$:bubble>
+                {N: $i} -> ...$:bubblesort -> :bubblesort // last position that changed
+                $it !
+              <>
+                $:bubble !
+                $it -> :bubble
+          )... ! // output the elements as a stream
+          $: ! // output the maximum value saved in the state value
       end bubble
 
-      $it -> :bubblesort
+      { array: $it } -> :
       -1 -> # // -1 refers to the last element, since all is unsorted to start with
       <1>
-        $:bubblesort !
+        $:.array !
       <!1>
-        [ $:bubblesort(1..$it) -> bubble, $:bubblesort($it+1..-1)... ] -> :bubblesort
-        $: -> #
-  end spin
-
-  // This extra level is just to get an additional state value to use. Could have used a structure {N:, array:} instead.
-  $it -> spin !
+        {array: [ $:.array(1..$it) -> bubble, $:.array($it+1..-1)... ]} -> ...$: -> :
+        $:.N -> #
 end bubblesort
 
 [4,5,3,8,1,2,6,7,9,8,5] -> bubblesort -> stdout

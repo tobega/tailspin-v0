@@ -1,4 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.7.1
+// Generated from TailspinParser.g4 by ANTLR 4.7.2
 package tailspin.parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -179,6 +179,13 @@ public class TailspinParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> im
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitTransform(TailspinParser.TransformContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitCollector(TailspinParser.CollectorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

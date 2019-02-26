@@ -1,8 +1,9 @@
 package tailspin.interpreter;
 
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.Queue;
 import tailspin.parser.TailspinParser;
 
 class Templates {
@@ -15,7 +16,7 @@ class Templates {
     this.matchTemplates = matchTemplates;
   }
 
-  Stream<?> run(Scope scope) {
+  Queue<Object> run(Scope scope) {
     RunTemplateBlock runner = new RunTemplateBlock(this, scope);
     if (block != null) {
       return runner.visitBlock(block);
@@ -24,11 +25,9 @@ class Templates {
     }
   }
 
-  Stream<?> matchTemplates(RunTemplateBlock runner) {
+  Queue<Object> matchTemplates(RunTemplateBlock runner) {
     Optional<MatchTemplate> match =
         matchTemplates.stream().filter(m -> runner.visitMatcher(m.matcher)).findFirst();
-    // This cannot be written as match.stream().flatMap because that will defer execution of
-    // visitBlock.
-    return match.map(m -> runner.visitBlock(m.block)).orElse(Stream.empty());
+    return match.map(m -> runner.visitBlock(m.block)).orElse(new ArrayDeque<>());
   }
 }

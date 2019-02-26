@@ -56,6 +56,10 @@ valueChain: source
 
 transform: To templates transform?
   | Deconstructor transform?
+  | To Deconstructor collector transform?
+;
+
+collector: dereferenceValue
 ;
 
 matcher: (StartMatcher|StartSubMatcher) condition? EndMatcher;

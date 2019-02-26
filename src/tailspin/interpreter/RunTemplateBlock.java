@@ -1,13 +1,12 @@
 package tailspin.interpreter;
 
-import tailspin.parser.TailspinParser;
-
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import tailspin.parser.TailspinParser;
 
 class RunTemplateBlock extends RunMain {
   private final Templates templates;
@@ -28,7 +27,11 @@ class RunTemplateBlock extends RunMain {
   @Override
   public Boolean visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
     Integer expected = visitMatchArithmeticExpression(ctx.matchArithmeticExpression());
-    return expected.equals(scope.resolveValue("it"));
+    Queue<Object> it = scope.getIt();
+    if (it.size() != 1) {
+      throw new AssertionError("Matcher called with several values");
+    }
+    return expected.equals(it.peek());
   }
 
   @Override
@@ -65,7 +68,11 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitRangeMatch(TailspinParser.RangeMatchContext ctx) {
-    Object oIt = scope.resolveValue("it");
+    Queue<Object> qIt = scope.getIt();
+    if (qIt.size() != 1) {
+      throw new AssertionError("Matcher called with several values");
+    }
+    Object oIt = qIt.peek();
     if (!(oIt instanceof Integer)) return false;
     Integer it = (Integer) oIt;
     if (ctx.lowerBound() != null) {
@@ -81,7 +88,11 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
-    Object oIt = scope.resolveValue("it");
+    Queue<Object> qIt = scope.getIt();
+    if (qIt.size() != 1) {
+      throw new AssertionError("Matcher called with several values");
+    }
+    Object oIt = qIt.peek();
     if (!(oIt instanceof String)) return false;
     String it = (String) oIt;
     String pattern = visitStringLiteral(ctx.stringLiteral());
@@ -94,7 +105,11 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
-    Object oIt = scope.resolveValue("it");
+    Queue<Object> qIt = scope.getIt();
+    if (qIt.size() != 1) {
+      throw new AssertionError("Matcher called with several values");
+    }
+    Object oIt = qIt.peek();
     if (!(oIt instanceof Map)) return false;
     if (ctx.StructureKey().isEmpty()) {
       return true;
@@ -104,13 +119,18 @@ class RunTemplateBlock extends RunMain {
     Map<String, Object> it = (Map<String, Object>) oIt;
     for (int i = 0; stillPossible && i < ctx.StructureKey().size(); i++) {
       String key = ctx.StructureKey(i).getText().replace(":", "");
-      scope.defineValue("it", it.get(key));
+      if (!it.containsKey(key)) {
+        stillPossible = false;
+        break;
+      }
+      scope.setIt(queueOf(it.get(key)));
       TailspinParser.MatcherContext matcher = ctx.matcher(i);
       if (!visitMatcher(matcher)) {
         stillPossible = false;
+        break;
       }
     }
-    scope.defineValue("it", it);
+    scope.setIt(qIt);
     return stillPossible;
   }
 
@@ -120,39 +140,34 @@ class RunTemplateBlock extends RunMain {
     }
 
     @Override
-  public Stream<?> visitBlock(TailspinParser.BlockContext ctx) {
-    Stream<Object> results = Stream.empty();
-    Object it = scope.resolveValue("it");
+  public Queue<Object> visitBlock(TailspinParser.BlockContext ctx) {
+    Queue<Object> results = new ArrayDeque<>();
+    Queue<Object> it = scope.getIt();
     for (TailspinParser.BlockExpressionContext exp : ctx.blockExpression()) {
       Object result = visit(exp);
-      if (result instanceof Stream) {
-        result = ((Stream<?>) result).collect(Collectors.toList()).stream(); // Make sure to execute the chain
-      }
       if (result != null) {
-        results =
-            Stream.concat(
-                results, result instanceof Stream ? (Stream<?>) result : Stream.of(result));
+        if (result instanceof Queue) {
+          results.addAll((Collection<?>) result);
+        } else {
+          results.add(result);
+        }
       }
       // reset $it for next chain
-      scope.defineValue("it", it);
+      scope.setIt(it);
     }
     return results;
   }
 
   @Override
-  public Stream<Object> visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx) {
-    Object oIt = visitValueChain(ctx.valueChain());
-    if (!(oIt instanceof Stream)) {
-      oIt = Stream.of(oIt);
-    }
-    Stream<?> sIt = (Stream<?>) oIt;
-    List<Object> result = new ArrayList<>();
-    sIt.forEach(it -> {
+  public Queue<Object> visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx) {
+    Queue<Object> qIt = visitValueChain(ctx.valueChain());
+    Queue<Object> result = new ArrayDeque<>();
+    qIt.forEach(it -> {
       Scope matcherScope = newMatcherScope();
-      matcherScope.defineValue("it", it);
-      result.add(templates.matchTemplates(new RunMatcherBlock(templates, matcherScope)));
+      matcherScope.setIt(queueOf(it));
+      result.addAll(templates.matchTemplates(new RunMatcherBlock(templates, matcherScope)));
     });
-    return result.stream().flatMap(r -> r instanceof Stream ? (Stream<?>) r : Stream.of(r));
+    return result;
   }
 
   Scope newMatcherScope() {
@@ -173,11 +188,11 @@ class RunTemplateBlock extends RunMain {
   @Override
   public Object visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
     String stateContext = ctx.IDENTIFIER() == null ? "" : ctx.IDENTIFIER().getText();
-    Object value = visitValueChain(ctx.valueChain());
-    if (!(value instanceof Stream)) {
-      value = Stream.of(value);
+    Queue<Object> value = visitValueChain(ctx.valueChain());
+    if (value.size() != 1) {
+      throw new IllegalArgumentException("Attempt to set state to multiple values " + value.size());
     }
-    ((Stream<?>) value).forEach(v -> scope.setState(stateContext, v));
+    scope.setState(stateContext, value.peek());
     return null;
   }
 

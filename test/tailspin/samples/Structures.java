@@ -75,4 +75,30 @@ class Structures {
 
     assertEquals("5", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void reconstructDereference() throws IOException {
+    String program = "def anA: { a: 1 }\n {b:2} -> ...$anA -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{a=1, b=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void reconstructStreamDereference() throws IOException {
+    String program = "def anA: { a: 1 }\n 1..2 -> (<2>{b:2} ! <>{c:3} !) -> ...$anA -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{a=1, b=2, c=3}", output.toString(StandardCharsets.UTF_8));
+  }
 }

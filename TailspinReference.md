@@ -88,6 +88,9 @@ A symbol definition could be considered to have an implicit sink at the end that
 Currently the only defined explicit sink is `-> stdout` which outputs the result stream, converted to text,
 into the standard output (generally the console).
 
+Sinks generally denote side effects. The current specification is that each step of a _value chain_ is executed
+for all of the values of a stream `$it` before the next step is evaluated. This may change.
+
 ### Templates sinks
 A templates object has modifiable local temporary state, valid for the processing of one input value,
 which can be modified by the special sink `:` and dereferenced as `$:`. Optionally, or to access
@@ -105,10 +108,21 @@ chain, to ultimately end up in a [sink](#sinks).
 ### Literal transform
 The preferred tailspin way to create new things is by a declarative literal expression. Most of the things
 listed as [sources](#sources) qualify as transforms if they reference the _current value_ `$it`.
+
 ### Deconstructor
 A deconstructor is a transform that works on [arrays](#arrays) by flowing the elements out of an array
 into a [stream](#streams), e.g. `[4,7,9]...` will create a stream of the values 4, 7 and 9.
 
+### Restructuring
+A restructuring is a transform that works on streams and compose the stream into more structured data.
+
+#### Merge operator
+This is the same symbol as the deconstructor, but applied before an object instead of after it, e.g. `...$myVal`
+Slightly different things happen depending on what type of object is used as a collector:
+ * A structure: the stream must be a stream of structures (or just one structure) and the result is that of
+ the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
+ `{a:2, c:2} -> ...{a:1, b:1}` results in `{a:2, b:1, c:2}`
+ 
 ### Templates
 A templates object consists of an optional _initial block_ and an optional sequence of [matchers](#matchers),
 each with a _block_.
@@ -171,8 +185,12 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by
-repeating the remainder of the chain by setting __each__ of its values as the _current value_ in turn.
+repeating each step of the chain by setting __each__ of the stream values as the _current value_ in turn.
+See the note on side effects in the section on [sinks](#sinks).
+
 Streams can be captured into an [array](#arrays) by surrounding them with an [array literal](#array-literal).
+
+Streams can also be composed into larger objects through [restructuring](#restructuring).
 
 ## Arrays
 Arrays are an ordered list of objects that can be turned into a [stream](#streams) by a [deconstructor](#deconstructor).

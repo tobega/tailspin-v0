@@ -1,6 +1,7 @@
 package tailspin.interpreter;
 
 import java.io.OutputStream;
+import java.util.Queue;
 
 interface Scope {
   Object resolveValue(String identifier);
@@ -12,4 +13,8 @@ interface Scope {
   void setState(String stateContext, Object value);
 
   Object getState(String stateContext);
+
+  void setIt(Queue<Object> it);
+
+  Queue<Object> getIt();
 }

@@ -1,13 +1,12 @@
 package tailspin.samples;
 
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 class Templates {
   @Test
@@ -231,7 +230,7 @@ class Templates {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output);
 
-    assertEquals("213243", output.toString(StandardCharsets.UTF_8));
+    assertEquals("234123", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
