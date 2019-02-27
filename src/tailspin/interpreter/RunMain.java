@@ -330,6 +330,20 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
+  public Object visitCollector(TailspinParser.CollectorContext ctx) {
+    if (ctx.dereferenceValue() != null) {
+      Object originalCollector = visitDereferenceValue(ctx.dereferenceValue());
+      if (originalCollector instanceof Map) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> collector = new TreeMap<>((Map<String, Object>) originalCollector);
+        return collector;
+      }
+      throw new UnsupportedOperationException("Cannot create collector for " + originalCollector);
+    }
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public Queue<Object> visitLiteralTemplates(TailspinParser.LiteralTemplatesContext ctx) {
     Queue<Object> its = scope.getIt();
     Queue<Object> result = new ArrayDeque<>();

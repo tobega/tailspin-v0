@@ -77,7 +77,7 @@ class Structures {
   }
 
   @Test
-  void reconstructDereference() throws IOException {
+  void restructureDereference() throws IOException {
     String program = "def anA: { a: 1 }\n {b:2} -> ...$anA -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -90,7 +90,20 @@ class Structures {
   }
 
   @Test
-  void reconstructStreamDereference() throws IOException {
+  void restructureDereferenceDoesNotChangeOriginal() throws IOException {
+    String program = "def anA: { a: 1 }\n def aAndB: {b:2} -> ...$anA\n $anA -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{a=1}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void restructureStreamDereference() throws IOException {
     String program = "def anA: { a: 1 }\n 1..2 -> (<2>{b:2} ! <>{c:3} !) -> ...$anA -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
