@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,11 @@ class NestedScope implements Scope {
       throw new IllegalStateException("Attempt to redefine " + identifier);
     }
     definitions.put(identifier, value);
+  }
+
+  @Override
+  public InputStream getInput() {
+    return parentScope.getInput();
   }
 
   @Override

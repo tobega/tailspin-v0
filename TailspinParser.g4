@@ -9,7 +9,8 @@ statement: Def Key valueChain                   # definition
   | StartTemplatesDefinition IDENTIFIER templatesBody EndDefinition IDENTIFIER # templatesDefinition
 ;
 
-source: dereferenceValue
+source: Stdin
+  | dereferenceValue
   | stringLiteral
   | arithmeticExpression
   | rangeLiteral

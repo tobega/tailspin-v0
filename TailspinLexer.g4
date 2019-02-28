@@ -8,6 +8,8 @@ StartComment: '//' -> skip, pushMode(COMMENT_MODE);
 
 Stdout: 'stdout';
 
+Stdin: 'stdin';
+
 Def: 'def' [ \r\t\n];
 
 Dereference: StartDereference (Colon IDENTIFIER? | IDENTIFIER);

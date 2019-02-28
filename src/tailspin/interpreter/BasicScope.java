@@ -39,6 +39,11 @@ public class BasicScope implements Scope {
   }
 
   @Override
+  public InputStream getInput() {
+    return input;
+  }
+
+  @Override
   public OutputStream getOutput() {
     return output;
   }
