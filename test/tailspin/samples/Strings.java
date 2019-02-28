@@ -341,4 +341,17 @@ class Strings {
 
     assertEquals("hi and so much more", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void restructureString() throws Exception {
+    String program = "1..3 -> ...'' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("123", output.toString(StandardCharsets.UTF_8));
+  }
 }

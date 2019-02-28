@@ -285,13 +285,17 @@ public class RunMain extends TailspinParserBaseVisitor {
       Queue<Object> it = scope.getIt();
       Object collector = visitCollector(ctx.collector());
       if (collector instanceof Map) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> collectorMap = (Map<String, Object>) collector;
         it.forEach(m -> {
-          @SuppressWarnings("unchecked")
-          Map<String, Object> collectorMap = (Map<String, Object>) collector;
           @SuppressWarnings("unchecked")
           Map<String, Object> itMap = (Map<String, Object>) m;
           collectorMap.putAll(itMap);
         });
+      } else if (collector instanceof StringBuilder){
+        StringBuilder sbCollector = (StringBuilder) collector;
+        it.forEach(s -> sbCollector.append(s.toString()));
+        collector = sbCollector.toString();
       } else {
         throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
       }
@@ -339,6 +343,9 @@ public class RunMain extends TailspinParserBaseVisitor {
         return collector;
       }
       throw new UnsupportedOperationException("Cannot create collector for " + originalCollector);
+    }
+    if (ctx.START_STRING() != null) {
+      return new StringBuilder();
     }
     throw new UnsupportedOperationException();
   }

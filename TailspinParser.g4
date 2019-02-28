@@ -60,6 +60,7 @@ transform: To templates transform?
 ;
 
 collector: dereferenceValue
+  | START_STRING END_STRING
 ;
 
 matcher: (StartMatcher|StartSubMatcher) condition? EndMatcher;
