@@ -354,4 +354,43 @@ class Strings {
 
     assertEquals("123", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void deconstructString() throws Exception {
+    String program = "'abc'... -> (<'c'> 3 ! <'a'> 1 ! <> 2 !) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("123", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deconstructStringEachTransformInTurn() throws Exception {
+    String program = "'abc'... -> ($it -> stdout\n$it!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("abcabc", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void multiDeconstructStringEachTransformInTurn() throws Exception {
+    String program = "['abc', 'def', 'ghi']... -> $it... -> ($it -> stdout\n$it!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("abcdefghiabcdefghi", output.toString(StandardCharsets.UTF_8));
+  }
 }

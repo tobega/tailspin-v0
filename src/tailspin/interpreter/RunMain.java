@@ -314,13 +314,24 @@ public class RunMain extends TailspinParserBaseVisitor {
       Queue<Object> result = new ArrayDeque<>();
       its.forEach(it -> {
         if (it instanceof List) {
-          Stream<?> deconstructed = ((List<?>) it).stream();
+          Queue<Object> deconstructed = queueOf(((List<?>) it).stream());
           if (ctx.transform() != null) {
-            scope.setIt(queueOf(deconstructed));
+            scope.setIt(deconstructed);
             result.addAll(visitTransform(ctx.transform()));
             return;
           }
-          result.addAll(queueOf(deconstructed));
+          result.addAll(deconstructed);
+          return;
+        }
+        if (it instanceof String) {
+          Queue<Object> deconstructed = queueOf(((String) it).codePoints()
+              .mapToObj(i -> new String(Character.toChars(i))));
+          if (ctx.transform() != null) {
+            scope.setIt(deconstructed);
+            result.addAll(visitTransform(ctx.transform()));
+            return;
+          }
+          result.addAll(deconstructed);
           return;
         }
         throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());

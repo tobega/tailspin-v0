@@ -1,0 +1,5 @@
+parser nums
+  [ (<ws>*) <INT> (<ws>+) <INT> (<ws>*) ]
+end nums
+
+stdin... -> nums -> $it(1) + $it(2) -> stdout
