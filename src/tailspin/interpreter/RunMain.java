@@ -312,30 +312,24 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.Deconstructor() != null) {
       Queue<Object> its = scope.getIt();
       Queue<Object> result = new ArrayDeque<>();
-      its.forEach(it -> {
-        if (it instanceof List) {
-          Queue<Object> deconstructed = queueOf(((List<?>) it).stream());
-          if (ctx.transform() != null) {
-            scope.setIt(deconstructed);
-            result.addAll(visitTransform(ctx.transform()));
-            return;
-          }
-          result.addAll(deconstructed);
-          return;
-        }
-        if (it instanceof String) {
-          Queue<Object> deconstructed = queueOf(((String) it).codePoints()
-              .mapToObj(i -> new String(Character.toChars(i))));
-          if (ctx.transform() != null) {
-            scope.setIt(deconstructed);
-            result.addAll(visitTransform(ctx.transform()));
-            return;
-          }
-          result.addAll(deconstructed);
-          return;
-        }
-        throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
-      });
+      its.forEach(
+          it -> {
+            if (it instanceof List) {
+              Queue<Object> deconstructed = queueOf(((List<?>) it).stream());
+              result.addAll(deconstructed);
+            } else if (it instanceof String) {
+              Queue<Object> deconstructed =
+                  queueOf(
+                      ((String) it).codePoints().mapToObj(i -> new String(Character.toChars(i))));
+              result.addAll(deconstructed);
+            } else {
+              throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
+            }
+          });
+      if (ctx.transform() != null) {
+        scope.setIt(result);
+        return visitTransform(ctx.transform());
+      }
       return result;
     }
     @SuppressWarnings("unchecked")
