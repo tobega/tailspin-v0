@@ -22,4 +22,16 @@ class Input {
     assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
   }
 
+  @Test
+  void helloMultiline() throws Exception {
+    String program = "stdin -> 'Hello $it;!\n' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("John\nMary".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("Hello John!\nHello Mary!\n", output.toString(StandardCharsets.UTF_8));
+  }
 }

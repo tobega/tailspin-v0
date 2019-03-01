@@ -72,11 +72,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       return queueOf(visitStructureLiteral(ctx.structureLiteral()));
     }
     if (ctx.Stdin() != null) {
-      try {
-        return queueOf(new String(scope.getInput().readAllBytes(), StandardCharsets.UTF_8).codePoints().mapToObj(i -> new String(Character.toChars(i))));
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      return queueOf(scope.getInput().lines());
     }
     throw new UnsupportedOperationException(ctx.toString());
   }

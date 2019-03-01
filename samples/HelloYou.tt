@@ -1,6 +1,6 @@
 'What is your name?
 ' -> stdout
 
-// This works, but you have to enter end-of-file (ctrl/cmd-D) after your name
-stdin -> ...'' -> 'Hello $it;!
+// Reads all lines of the input before continuing, so you need to press ctrl-D or cmd-D at end
+stdin -> 'Hello $it;!
 ' -> stdout

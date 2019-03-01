@@ -24,19 +24,6 @@ Comments are started with `//` and continue to the end of the line.
 ## Sources
 A source is the simplest _value chain_, simply producing a value.
 
-### Dereference
-An identifier can be defined to represent a value, e.g. `def myValue: _value chain_` where \_value chain\_ should be a _value chain_
-that produces the desired value.
-Then the value can be retrieved as a source itself by a dereference which is done by simply writing the
-identifier prefixed by a dollar sign, e.g. `$myValue`
-
-An identifier must have its value defined before it is used and the definition must be in the same scope
-as, or a scope larger than (or outside), the scope where the dereference takes place.
-
-A symbol may not change its value in the same scope, but it may be shadowed in a nested scope.
-
-Note that templates have a modifiable state value that can be dereferenced, see [templates sinks](#templates-sinks)
-
 ### String literal
 A series of characters within single quotes, e.g. `'Hello World!'`. To write
 a single quote in a string, just double it up, e.g. `'What''s up?'`.
@@ -79,6 +66,27 @@ E.g. `[1,2,3,4,5]` and `[1 2 3, 4 5]` and `[1..5]` all produce an array of size 
 A structure literal produces a [structure](#structures) value. It starts with a left brace, followed by
 a [stream](#streams) of key-value pairs, optionally separated by commas, and ends with a right brace.
 A key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
+
+### Input
+Input is data obtained from an external source. An input source is currently defined as producing a stream
+of lines of data (with the line-end marker removed).
+
+#### Stdin
+A user entering data in the terminal (or data from the unix standard input pipe) is accessed by the token `stdin`.
+Once the stadard input is closed (end of file, ctrl-D) it produces a stream of all lines entered.
+
+### Dereference
+An identifier can be defined to represent a value, e.g. `def myValue: _value chain_` where \_value chain\_ should be a _value chain_
+that produces the desired value.
+Then the value can be retrieved as a source itself by a dereference which is done by simply writing the
+identifier prefixed by a dollar sign, e.g. `$myValue`
+
+An identifier must have its value defined before it is used and the definition must be in the same scope
+as, or a scope larger than (or outside), the scope where the dereference takes place.
+
+A symbol may not change its value in the same scope, but it may be shadowed in a nested scope.
+
+Note that templates have a modifiable state value that can be dereferenced, see [templates sinks](#templates-sinks)
 
 ## Sinks
 A sink is a place where a value "disappears" and the value chain ends.

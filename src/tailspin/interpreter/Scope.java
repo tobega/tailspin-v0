@@ -1,6 +1,6 @@
 package tailspin.interpreter;
 
-import java.io.InputStream;
+import java.io.BufferedReader;
 import java.io.OutputStream;
 import java.util.Queue;
 
@@ -9,7 +9,7 @@ interface Scope {
 
   void defineValue(String identifier, Object value);
 
-  InputStream getInput();
+  BufferedReader getInput();
 
   OutputStream getOutput();
 

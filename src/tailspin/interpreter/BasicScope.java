@@ -1,13 +1,15 @@
 package tailspin.interpreter;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
 public class BasicScope implements Scope {
-  private final InputStream input;
+  private final BufferedReader input;
   private final OutputStream output;
 
   private final Map<String, Object> definitions = new HashMap<>();
@@ -15,7 +17,7 @@ public class BasicScope implements Scope {
   private Queue<Object> it;
 
   public BasicScope(InputStream input, OutputStream output) {
-    this.input = input;
+    this.input = new BufferedReader(new InputStreamReader(input));
     this.output = output;
   }
 
@@ -39,7 +41,7 @@ public class BasicScope implements Scope {
   }
 
   @Override
-  public InputStream getInput() {
+  public BufferedReader getInput() {
     return input;
   }
 
