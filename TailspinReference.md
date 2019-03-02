@@ -1,5 +1,8 @@
 # Tailspin reference
-This is the syntax as it is working so far, with some indications of future developments
+This is the syntax as it is working so far, with some indications of future developments.
+
+Note that you may think that concepts in the language already have other established names that
+should have been used instead. This is deliberate in order to free the mind of preconceived notions. 
 
 _Current limitations_: The current implementation cannot handle very deep recursion.
 
@@ -69,11 +72,11 @@ A key-value pair is an identifier followed by a colon and a _value chain_. E.g. 
 
 ### Input
 Input is data obtained from an external source. An input source is currently defined as producing a stream
-of lines of data (with the line-end marker removed).
+of lines of data (with the line-end markers removed).
 
 #### Stdin
 A user entering data in the terminal (or data from the unix standard input pipe) is accessed by the token `stdin`.
-Once the stadard input is closed (end of file, ctrl-D) it produces a stream of all lines entered.
+Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).
 
 ### Dereference
 An identifier can be defined to represent a value, e.g. `def myValue: _value chain_` where \_value chain\_ should be a _value chain_
@@ -169,6 +172,29 @@ Array templates is a convenient way to process [array](#arrays) elements individ
 their index in the array. They are created by prefixing an [inline templates](#inline-templates)
 definition with an identifier for the index within brackets,
 e.g. `[4,5,6] -> [i]($it + $i)` will produce the value `[5,7,9]`.
+
+### Composer
+A composer takes a string and composes it into other objects according to the specified pattern.
+A pattern consists of a sequence of result-constructing symbols and composition matchers. Sequences may be put in
+parentheses to indicate that they should not be output.
+
+The composer definition starts with `composer _identifier_` and ends with `end _identifier_`.
+
+The main pattern is given first, but may be followed by named sub-patterns that are used within the composer.
+
+E.g. to compose a string of text like `'Line(Point(5,7),Point(13,9))'` into the array of structures `[{x:5,y:7},{x:13,y:9}]`:
+```
+composer line
+  (<'Line\('>) [ <point>, <point> ] (<')'>)
+  point: (<'Point\('>) { x: <INT>, y: <INT> } (<')'>)
+end line
+```
+
+Composition matchers can be string literals containing regexp patterns [(currently) according to java Pattern](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html).
+
+Other composition matchers are the ones defined in the composer as sub-patterns.
+
+There are also built-in composition matchers like <INT> which parses an integer.
 
 ## Matchers
 A matcher is a condition enclosed by angle brackets. A sequence of matchers is evaluated from the

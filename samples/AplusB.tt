@@ -1,5 +1,5 @@
-parser nums
+composer nums
   [ (<ws>*) <INT> (<ws>+) <INT> (<ws>*) ]
 end nums
 
-stdin... -> nums -> $it(1) + $it(2) -> stdout
+stdin -> nums -> $it(1) + $it(2) -> stdout

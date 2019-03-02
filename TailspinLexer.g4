@@ -48,6 +48,8 @@ StartMatcher: '<' -> pushMode(MATCHER);
 
 StartTemplatesDefinition: 'templates';
 
+StartComposerDefinition: 'composer' -> pushMode(COMPOSER);
+
 EndDefinition: 'end';
 
 TemplateMatch: '#';
@@ -134,3 +136,15 @@ MatcherIgnoreWS: WS -> skip;
 mode COMMENT_MODE;
 
 Comment: ~('\n')* ('\n'|EOF) -> skip, popMode;
+
+mode COMPOSER;
+
+ComposerEndDefinition: 'end' -> popMode;
+
+StartComposerMatch: '<';
+
+EndComposerMatch: '>';
+
+ComposerId: IDENTIFIER;
+
+ComposerIgnoreWS: WS -> skip;

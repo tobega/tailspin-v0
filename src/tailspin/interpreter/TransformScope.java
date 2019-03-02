@@ -1,10 +1,10 @@
 package tailspin.interpreter;
 
-class TemplatesScope extends NestedScope {
+class TransformScope extends NestedScope {
   private final String scopeContext;
   private Object state;
 
-  TemplatesScope(Scope parentScope, String scopeContext) {
+  TransformScope(Scope parentScope, String scopeContext) {
     super(parentScope);
     this.scopeContext = scopeContext;
   }

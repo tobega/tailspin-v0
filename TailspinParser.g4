@@ -7,6 +7,7 @@ program: statement (statement)* EOF;
 statement: Def Key valueChain                   # definition
   | valueChain To sink                                   # valueChainToSink
   | StartTemplatesDefinition IDENTIFIER templatesBody EndDefinition IDENTIFIER # templatesDefinition
+  | StartComposerDefinition ComposerId composerBody ComposerEndDefinition IDENTIFIER # composerDefinition
 ;
 
 source: Stdin
@@ -33,7 +34,7 @@ keyValue: Key valueChain;
 
 templates: source                        # literalTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
-  | IDENTIFIER                           # callDefinedTemplates
+  | IDENTIFIER                           # callDefinedTransform
   | LeftBracket IDENTIFIER RightBracket LeftParen templatesBody RightParen # arrayTemplates
 ;
 
@@ -105,4 +106,8 @@ arithmeticExpression: integerLiteral
   | LeftParen arithmeticExpression RightParen
   | AdditiveOperator? dereferenceValue
   | arithmeticExpression MultiplicativeOperator arithmeticExpression
-  | arithmeticExpression AdditiveOperator arithmeticExpression;
+  | arithmeticExpression AdditiveOperator arithmeticExpression
+;
+
+composerBody: StartComposerMatch ComposerId EndComposerMatch
+;

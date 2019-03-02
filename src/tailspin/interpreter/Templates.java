@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.Queue;
 import tailspin.parser.TailspinParser;
 
-class Templates {
+class Templates implements Transform {
   // @Nullable
   private final TailspinParser.BlockContext block;
   private final List<MatchTemplate> matchTemplates;
@@ -16,7 +16,8 @@ class Templates {
     this.matchTemplates = matchTemplates;
   }
 
-  Queue<Object> run(Scope scope) {
+  @Override
+  public Queue<Object> run(Scope scope) {
     RunTemplateBlock runner = new RunTemplateBlock(this, scope);
     if (block != null) {
       return runner.visitBlock(block);

@@ -38,6 +38,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTemplatesDefinition(TailspinParser.TemplatesDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code composerDefinition}
+	 * labeled alternative in {@link TailspinParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComposerDefinition(TailspinParser.ComposerDefinitionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#source}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -94,12 +101,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code callDefinedTemplates}
+	 * Visit a parse tree produced by the {@code callDefinedTransform}
 	 * labeled alternative in {@link TailspinParser#templates}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCallDefinedTemplates(TailspinParser.CallDefinedTemplatesContext ctx);
+	T visitCallDefinedTransform(TailspinParser.CallDefinedTransformContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code arrayTemplates}
 	 * labeled alternative in {@link TailspinParser#templates}.
@@ -302,4 +309,10 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#composerBody}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComposerBody(TailspinParser.ComposerBodyContext ctx);
 }
