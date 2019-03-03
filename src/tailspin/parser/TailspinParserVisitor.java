@@ -1,4 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.7.2
+// Generated from TailspinParser.g4 by ANTLR 4.7.1
 package tailspin.parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -315,4 +315,16 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitComposerBody(TailspinParser.ComposerBodyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#compositionSequence}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompositionSequence(TailspinParser.CompositionSequenceContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#compositionMatcher}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompositionMatcher(TailspinParser.CompositionMatcherContext ctx);
 }

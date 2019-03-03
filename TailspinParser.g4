@@ -109,5 +109,13 @@ arithmeticExpression: integerLiteral
   | arithmeticExpression AdditiveOperator arithmeticExpression
 ;
 
-composerBody: StartComposerMatch ComposerId EndComposerMatch
+composerBody: compositionSequence
+;
+
+compositionSequence: compositionMatcher+
+;
+
+compositionMatcher: StartComposerMatch ComposerId EndComposerMatch
+  | StartComposerMatch START_REGEX REGEX_TEXT END_REGEX EndComposerMatch
+  | StartSkipRule compositionSequence EndSkipRule
 ;

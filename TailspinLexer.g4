@@ -133,9 +133,13 @@ MatchFieldDereference: FieldDereference;
 
 MatcherIgnoreWS: WS -> skip;
 
+
+
 mode COMMENT_MODE;
 
 Comment: ~('\n')* ('\n'|EOF) -> skip, popMode;
+
+
 
 mode COMPOSER;
 
@@ -145,6 +149,21 @@ StartComposerMatch: '<';
 
 EndComposerMatch: '>';
 
+START_REGEX: '\'' -> pushMode(IN_REGEX);
+
+StartSkipRule: '(';
+
+EndSkipRule: ')';
+
 ComposerId: IDENTIFIER;
 
 ComposerIgnoreWS: WS -> skip;
+
+
+mode IN_REGEX;
+
+REGEX_TEXT: REGEX_CHAR+;
+
+fragment REGEX_CHAR: '\'\'' | ~['];
+
+END_REGEX: '\'' -> popMode;

@@ -1,19 +1,16 @@
 package tailspin.interpreter;
 
+import org.antlr.v4.runtime.tree.TerminalNode;
+import tailspin.interpreter.Composer.CompositionSpec;
+import tailspin.parser.TailspinParser;
+import tailspin.parser.TailspinParser.CompositionSequenceContext;
+import tailspin.parser.TailspinParserBaseVisitor;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.antlr.v4.runtime.tree.TerminalNode;
-import tailspin.parser.TailspinParser;
-import tailspin.parser.TailspinParserBaseVisitor;
 
 public class RunMain extends TailspinParserBaseVisitor {
   final Scope scope;
@@ -574,7 +571,28 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Composer visitComposerBody(TailspinParser.ComposerBodyContext ctx) {
-    String matchRule = ctx.ComposerId().getText();
-    return new Composer(matchRule);
+    return new Composer(visitCompositionSequence(ctx.compositionSequence()));
+  }
+
+  @Override
+  public List<CompositionSpec> visitCompositionSequence(CompositionSequenceContext ctx) {
+    return ctx.compositionMatcher().stream().map(this::visitCompositionMatcher)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public Composer.CompositionSpec visitCompositionMatcher(TailspinParser.CompositionMatcherContext ctx) {
+    if (ctx.StartSkipRule() != null) {
+      return new Composer.SkipComposition(visitCompositionSequence(ctx.compositionSequence()));
+    }
+    if (ctx.ComposerId() != null) {
+      String matchRule = ctx.ComposerId().getText();
+      return new Composer.NamedComposition(matchRule);
+    }
+    if (ctx.REGEX_TEXT() != null) {
+      String regex = ctx.REGEX_TEXT().getText();
+      return new Composer.RegexComposition(regex);
+    }
+    throw new UnsupportedOperationException("Unknown type of composition matcher");
   }
 }

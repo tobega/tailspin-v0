@@ -6,9 +6,9 @@ import java.util.regex.Pattern;
 
 class RegexpComposerFactory implements SubComposerFactory {
   private final Pattern pattern;
-  private final Function<String, Object> valueCreator;
+  private final Function<? super String, Object> valueCreator;
 
-  RegexpComposerFactory(String pattern, Function<String, Object> valueCreator) {
+  RegexpComposerFactory(String pattern, Function<? super String, Object> valueCreator) {
     this.pattern = Pattern.compile(pattern);
     this.valueCreator = valueCreator;
   }
