@@ -5,12 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Queue;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 class Composer implements Transform {
-  private static final HashMap<String, SubComposerFactory> namedComposers = new HashMap<>();
+  private static final HashMap<String, Pattern> namedPatterns = new HashMap<>();
+  private static final HashMap<String, Function<? super String, Object>> namedValueCreators = new HashMap<>();
   static {
-    namedComposers.put("INT", new RegexpComposerFactory("[+-]?[1-9][0-9]*", Integer::valueOf));
+    namedPatterns.put("INT", Pattern.compile("[+-]?[1-9][0-9]*"));
+    namedValueCreators.put("INT", Integer::valueOf);
   }
 
   private final List<CompositionSpec> specs;
@@ -33,10 +36,11 @@ class Composer implements Transform {
 
   private SubComposer resolveSpec(CompositionSpec spec) {
     if (spec instanceof NamedComposition) {
-      return namedComposers.get(((NamedComposition) spec).namedPattern).newSubComposer();
+      String name = ((NamedComposition) spec).namedPattern;
+      return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name));
     }
     if (spec instanceof RegexComposition) {
-      return new RegexpComposerFactory(((RegexComposition) spec).pattern, Function.identity()).newSubComposer();
+      return new RegexpSubComposer(Pattern.compile(((RegexComposition) spec).pattern), Function.identity());
     }
     if (spec instanceof SkipComposition) {
       return new SkipSubComposer(((SkipComposition) spec).skipSpecs.stream().map(this::resolveSpec).collect(
