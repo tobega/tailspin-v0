@@ -118,4 +118,5 @@ compositionSequence: compositionMatcher+
 compositionMatcher: StartComposerMatch ComposerId EndComposerMatch
   | StartComposerMatch START_REGEX REGEX_TEXT END_REGEX EndComposerMatch
   | StartSkipRule compositionSequence EndSkipRule
+  | StartBuildArray compositionSequence EndBuildArray
 ;

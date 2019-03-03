@@ -585,6 +585,9 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.StartSkipRule() != null) {
       return new Composer.SkipComposition(visitCompositionSequence(ctx.compositionSequence()));
     }
+    if (ctx.StartBuildArray() != null) {
+      return new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()));
+    }
     if (ctx.ComposerId() != null) {
       String matchRule = ctx.ComposerId().getText();
       return new Composer.NamedComposition(matchRule);

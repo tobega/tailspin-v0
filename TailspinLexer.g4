@@ -155,6 +155,10 @@ StartSkipRule: '(';
 
 EndSkipRule: ')';
 
+StartBuildArray: '[';
+
+EndBuildArray: ']';
+
 ComposerId: IDENTIFIER;
 
 ComposerIgnoreWS: WS -> skip;

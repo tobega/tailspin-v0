@@ -1,6 +1,8 @@
 package tailspin.interpreter;
 
+import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Queue;
 
 public class SkipSubComposer implements SubComposer {
   private final List<SubComposer> subComposers;
@@ -10,22 +12,16 @@ public class SkipSubComposer implements SubComposer {
   }
 
   @Override
-  public String accept(String s) {
+  public String nibble(String s) {
     for (SubComposer subComposer : subComposers) {
-      for (s = subComposer.accept(s); subComposer.hasNewValue(); s = subComposer.accept(s)) {
-        subComposer.getValue(); // Skip value
-      }
+      s = subComposer.nibble(s);
+      subComposer.getValues(); // Skip values
     }
     return s;
   }
 
   @Override
-  public boolean hasNewValue() {
-    return false;
-  }
-
-  @Override
-  public Object getValue() {
-    throw new AssertionError("Should never get value from " + this.getClass().getSimpleName());
+  public Queue<Object> getValues() {
+    return new ArrayDeque<>();
   }
 }

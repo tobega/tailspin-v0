@@ -15,6 +15,40 @@ class Composer implements Transform {
 
   private final List<CompositionSpec> specs;
 
+  Composer(List<CompositionSpec> specs) {
+    this.specs = specs;
+  }
+
+  @Override
+  public Queue<Object> run(Scope scope) {
+    ArrayDeque<Object> result = new ArrayDeque<>();
+    String s = (String) scope.getIt().peek();
+    for (CompositionSpec spec : specs) {
+      SubComposer subComposer = resolveSpec(spec);
+      s = subComposer.nibble(s);
+      result.addAll(subComposer.getValues());
+    }
+    return result;
+  }
+
+  private SubComposer resolveSpec(CompositionSpec spec) {
+    if (spec instanceof NamedComposition) {
+      return namedComposers.get(((NamedComposition) spec).namedPattern).newSubComposer();
+    }
+    if (spec instanceof RegexComposition) {
+      return new RegexpComposerFactory(((RegexComposition) spec).pattern, Function.identity()).newSubComposer();
+    }
+    if (spec instanceof SkipComposition) {
+      return new SkipSubComposer(((SkipComposition) spec).skipSpecs.stream().map(this::resolveSpec).collect(
+          Collectors.toList()));
+    }
+    if (spec instanceof ArrayComposition) {
+      return new ArraySubComposer(((ArrayComposition) spec).itemSpecs.stream().map(this::resolveSpec).collect(
+          Collectors.toList()));
+    }
+    throw new UnsupportedOperationException("Unknown composition spec " + spec.getClass().getSimpleName());
+  }
+
   interface CompositionSpec {}
 
   static class NamedComposition implements CompositionSpec {
@@ -41,34 +75,11 @@ class Composer implements Transform {
     }
   }
 
-  Composer(List<CompositionSpec> specs) {
-    this.specs = specs;
-  }
+  static class ArrayComposition implements CompositionSpec {
+    private final List<CompositionSpec> itemSpecs;
 
-  @Override
-  public Queue<Object> run(Scope scope) {
-    ArrayDeque<Object> result = new ArrayDeque<>();
-    String s = (String) scope.getIt().peek();
-    for (CompositionSpec spec : specs) {
-      SubComposer subComposer = resolveSpec(spec);
-      for (s = subComposer.accept(s); subComposer.hasNewValue(); s = subComposer.accept(s)) {
-        result.add(subComposer.getValue());
-      }
+    public ArrayComposition(List<CompositionSpec> itemSpecs) {
+      this.itemSpecs = itemSpecs;
     }
-    return result;
-  }
-
-  private SubComposer resolveSpec(CompositionSpec spec) {
-    if (spec instanceof NamedComposition) {
-      return namedComposers.get(((NamedComposition) spec).namedPattern).newSubComposer();
-    }
-    if (spec instanceof RegexComposition) {
-      return new RegexpComposerFactory(((RegexComposition) spec).pattern, Function.identity()).newSubComposer();
-    }
-    if (spec instanceof SkipComposition) {
-      return new SkipSubComposer(((SkipComposition) spec).skipSpecs.stream().map(this::resolveSpec).collect(
-          Collectors.toList()));
-    }
-    throw new UnsupportedOperationException("Unknown composition spec " + spec.getClass().getSimpleName());
   }
 }

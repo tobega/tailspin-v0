@@ -1,5 +1,7 @@
 package tailspin.interpreter;
 
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,7 +25,7 @@ class RegexpComposerFactory implements SubComposerFactory {
     boolean ready = true;
 
     @Override
-    public String accept(String s) {
+    public String nibble(String s) {
       if (!ready) {
         return s;
       }
@@ -36,13 +38,9 @@ class RegexpComposerFactory implements SubComposerFactory {
     }
 
     @Override
-    public boolean hasNewValue() {
-      return latestValue != null;
-    }
-
-    @Override
-    public Object getValue() {
-      Object result = valueCreator.apply(latestValue);
+    public Queue<Object> getValues() {
+      Queue<Object> result = new ArrayDeque<>();
+      result.add(valueCreator.apply(latestValue));
       latestValue = null;
       return result;
     }

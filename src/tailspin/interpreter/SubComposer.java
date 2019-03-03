@@ -1,10 +1,10 @@
 package tailspin.interpreter;
 
+import java.util.Queue;
+
 public interface SubComposer {
 
-  String accept(String s);
+  String nibble(String s);
 
-  boolean hasNewValue();
-
-  Object getValue();
+  Queue<Object> getValues();
 }

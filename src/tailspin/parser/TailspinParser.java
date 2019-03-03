@@ -31,7 +31,8 @@ public class TailspinParser extends Parser {
 		EndStructureMatch=50, StructureKey=51, MatchDereference=52, MatchArrayDereference=53, 
 		MatchFieldDereference=54, MatcherIgnoreWS=55, Comment=56, ComposerEndDefinition=57, 
 		StartComposerMatch=58, EndComposerMatch=59, START_REGEX=60, StartSkipRule=61, 
-		EndSkipRule=62, ComposerId=63, ComposerIgnoreWS=64, REGEX_TEXT=65, END_REGEX=66;
+		EndSkipRule=62, StartBuildArray=63, EndBuildArray=64, ComposerId=65, ComposerIgnoreWS=66, 
+		REGEX_TEXT=67, END_REGEX=68;
 	public static final int
 		RULE_program = 0, RULE_statement = 1, RULE_source = 2, RULE_dereferenceValue = 3, 
 		RULE_structureDereference = 4, RULE_arrayDereference = 5, RULE_arrayLiteral = 6, 
@@ -59,7 +60,7 @@ public class TailspinParser extends Parser {
 
 	private static final String[] _LITERAL_NAMES = {
 		null, "'//'", "'stdout'", "'stdin'", null, null, null, null, null, "'->'", 
-		null, "':'", "','", "'...'", null, null, "'['", "']'", "'{'", "'}'", null, 
+		null, "':'", "','", "'...'", null, null, null, null, "'{'", "'}'", null, 
 		null, "'templates'", "'composer'", null, "'#'", null, "'..'", null, null, 
 		"'0'", null, null, null, null, "'$('", null, null, null, "';'"
 	};
@@ -76,8 +77,8 @@ public class TailspinParser extends Parser {
 		"RangeMatch", "START_REGEXP", "StartStructureMatch", "EndStructureMatch", 
 		"StructureKey", "MatchDereference", "MatchArrayDereference", "MatchFieldDereference", 
 		"MatcherIgnoreWS", "Comment", "ComposerEndDefinition", "StartComposerMatch", 
-		"EndComposerMatch", "START_REGEX", "StartSkipRule", "EndSkipRule", "ComposerId", 
-		"ComposerIgnoreWS", "REGEX_TEXT", "END_REGEX"
+		"EndComposerMatch", "START_REGEX", "StartSkipRule", "EndSkipRule", "StartBuildArray", 
+		"EndBuildArray", "ComposerId", "ComposerIgnoreWS", "REGEX_TEXT", "END_REGEX"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -2794,7 +2795,7 @@ public class TailspinParser extends Parser {
 				setState(409); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( _la==StartComposerMatch || _la==StartSkipRule );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << StartComposerMatch) | (1L << StartSkipRule) | (1L << StartBuildArray))) != 0) );
 			}
 		}
 		catch (RecognitionException re) {
@@ -2820,6 +2821,8 @@ public class TailspinParser extends Parser {
 			return getRuleContext(CompositionSequenceContext.class,0);
 		}
 		public TerminalNode EndSkipRule() { return getToken(TailspinParser.EndSkipRule, 0); }
+		public TerminalNode StartBuildArray() { return getToken(TailspinParser.StartBuildArray, 0); }
+		public TerminalNode EndBuildArray() { return getToken(TailspinParser.EndBuildArray, 0); }
 		public CompositionMatcherContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2835,7 +2838,7 @@ public class TailspinParser extends Parser {
 		CompositionMatcherContext _localctx = new CompositionMatcherContext(_ctx, getState());
 		enterRule(_localctx, 72, RULE_compositionMatcher);
 		try {
-			setState(423);
+			setState(427);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,50,_ctx) ) {
 			case 1:
@@ -2875,6 +2878,17 @@ public class TailspinParser extends Parser {
 				match(EndSkipRule);
 				}
 				break;
+			case 4:
+				enterOuterAlt(_localctx, 4);
+				{
+				setState(423);
+				match(StartBuildArray);
+				setState(424);
+				compositionSequence();
+				setState(425);
+				match(EndBuildArray);
+				}
+				break;
 			}
 		}
 		catch (RecognitionException re) {
@@ -2906,7 +2920,7 @@ public class TailspinParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3D\u01ac\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3F\u01b0\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -2938,42 +2952,42 @@ public class TailspinParser extends Parser {
 		" \3 \3!\6!\u0174\n!\r!\16!\u0175\3!\3!\3!\3!\5!\u017c\n!\3\"\3\"\3#\3"+
 		"#\3#\3#\3#\3#\3#\5#\u0187\n#\3#\5#\u018a\n#\3#\3#\3#\3#\3#\3#\7#\u0192"+
 		"\n#\f#\16#\u0195\13#\3$\3$\3%\6%\u019a\n%\r%\16%\u019b\3&\3&\3&\3&\3&"+
-		"\3&\3&\3&\3&\3&\3&\3&\5&\u01aa\n&\3&\2\3D\'\2\4\6\b\n\f\16\20\22\24\26"+
-		"\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJ\2\5\4\2\27\27--\3\2 !\4\2"+
-		"\"\"\62\62\2\u01cc\2L\3\2\2\2\4h\3\2\2\2\6q\3\2\2\2\b\u0083\3\2\2\2\n"+
-		"\u0088\3\2\2\2\f\u0096\3\2\2\2\16\u0098\3\2\2\2\20\u00a5\3\2\2\2\22\u00b1"+
-		"\3\2\2\2\24\u00c1\3\2\2\2\26\u00cf\3\2\2\2\30\u00d1\3\2\2\2\32\u00d5\3"+
-		"\2\2\2\34\u00e7\3\2\2\2\36\u00ed\3\2\2\2 \u00fe\3\2\2\2\"\u0103\3\2\2"+
-		"\2$\u0105\3\2\2\2&\u0122\3\2\2\2(\u0124\3\2\2\2*\u0126\3\2\2\2,\u012a"+
-		"\3\2\2\2.\u012c\3\2\2\2\60\u013a\3\2\2\2\62\u0144\3\2\2\2\64\u014b\3\2"+
-		"\2\2\66\u014d\3\2\2\28\u0158\3\2\2\2:\u015c\3\2\2\2<\u015e\3\2\2\2>\u0162"+
-		"\3\2\2\2@\u0173\3\2\2\2B\u017d\3\2\2\2D\u0189\3\2\2\2F\u0196\3\2\2\2H"+
-		"\u0199\3\2\2\2J\u01a9\3\2\2\2LP\5\4\3\2MO\5\4\3\2NM\3\2\2\2OR\3\2\2\2"+
-		"PN\3\2\2\2PQ\3\2\2\2QS\3\2\2\2RP\3\2\2\2ST\7\2\2\3T\3\3\2\2\2UV\7\6\2"+
-		"\2VW\7\26\2\2Wi\5\36\20\2XY\5\36\20\2YZ\7\13\2\2Z[\5B\"\2[i\3\2\2\2\\"+
-		"]\7\30\2\2]^\7#\2\2^_\5\26\f\2_`\7\32\2\2`a\7#\2\2ai\3\2\2\2bc\7\31\2"+
-		"\2cd\7A\2\2de\5F$\2ef\7;\2\2fg\7#\2\2gi\3\2\2\2hU\3\2\2\2hX\3\2\2\2h\\"+
-		"\3\2\2\2hb\3\2\2\2i\5\3\2\2\2jr\7\5\2\2kr\5\b\5\2lr\5\66\34\2mr\5D#\2"+
-		"nr\5\62\32\2or\5\16\b\2pr\5\20\t\2qj\3\2\2\2qk\3\2\2\2ql\3\2\2\2qm\3\2"+
-		"\2\2qn\3\2\2\2qo\3\2\2\2qp\3\2\2\2r\7\3\2\2\2sw\7\7\2\2tv\5\n\6\2ut\3"+
-		"\2\2\2vy\3\2\2\2wu\3\2\2\2wx\3\2\2\2x\u0084\3\2\2\2yw\3\2\2\2z{\7\b\2"+
-		"\2{|\5\f\7\2|\u0080\7\21\2\2}\177\5\n\6\2~}\3\2\2\2\177\u0082\3\2\2\2"+
-		"\u0080~\3\2\2\2\u0080\u0081\3\2\2\2\u0081\u0084\3\2\2\2\u0082\u0080\3"+
-		"\2\2\2\u0083s\3\2\2\2\u0083z\3\2\2\2\u0084\t\3\2\2\2\u0085\u0087\7\t\2"+
-		"\2\u0086\u0085\3\2\2\2\u0087\u008a\3\2\2\2\u0088\u0086\3\2\2\2\u0088\u0089"+
-		"\3\2\2\2\u0089\u0090\3\2\2\2\u008a\u0088\3\2\2\2\u008b\u0091\7\t\2\2\u008c"+
-		"\u008d\7\n\2\2\u008d\u008e\5\f\7\2\u008e\u008f\7\21\2\2\u008f\u0091\3"+
-		"\2\2\2\u0090\u008b\3\2\2\2\u0090\u008c\3\2\2\2\u0091\13\3\2\2\2\u0092"+
-		"\u0097\7!\2\2\u0093\u0097\5\62\32\2\u0094\u0097\5\16\b\2\u0095\u0097\5"+
-		"\b\5\2\u0096\u0092\3\2\2\2\u0096\u0093\3\2\2\2\u0096\u0094\3\2\2\2\u0096"+
-		"\u0095\3\2\2\2\u0097\r\3\2\2\2\u0098\u0099\7\22\2\2\u0099\u00a0\5\36\20"+
-		"\2\u009a\u009c\7\16\2\2\u009b\u009a\3\2\2\2\u009b\u009c\3\2\2\2\u009c"+
-		"\u009d\3\2\2\2\u009d\u009f\5\36\20\2\u009e\u009b\3\2\2\2\u009f\u00a2\3"+
-		"\2\2\2\u00a0\u009e\3\2\2\2\u00a0\u00a1\3\2\2\2\u00a1\u00a3\3\2\2\2\u00a2"+
-		"\u00a0\3\2\2\2\u00a3\u00a4\7\23\2\2\u00a4\17\3\2\2\2\u00a5\u00ac\7\24"+
-		"\2\2\u00a6\u00a8\5\22\n\2\u00a7\u00a9\7\16\2\2\u00a8\u00a7\3\2\2\2\u00a8"+
-		"\u00a9\3\2\2\2\u00a9\u00ab\3\2\2\2\u00aa\u00a6\3\2\2\2\u00ab\u00ae\3\2"+
-		"\2\2\u00ac\u00aa\3\2\2\2\u00ac\u00ad\3\2\2\2\u00ad\u00af\3\2\2\2\u00ae"+
+		"\3&\3&\3&\3&\3&\3&\3&\3&\3&\3&\3&\5&\u01ae\n&\3&\2\3D\'\2\4\6\b\n\f\16"+
+		"\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJ\2\5\4\2\27\27"+
+		"--\3\2 !\4\2\"\"\62\62\2\u01d1\2L\3\2\2\2\4h\3\2\2\2\6q\3\2\2\2\b\u0083"+
+		"\3\2\2\2\n\u0088\3\2\2\2\f\u0096\3\2\2\2\16\u0098\3\2\2\2\20\u00a5\3\2"+
+		"\2\2\22\u00b1\3\2\2\2\24\u00c1\3\2\2\2\26\u00cf\3\2\2\2\30\u00d1\3\2\2"+
+		"\2\32\u00d5\3\2\2\2\34\u00e7\3\2\2\2\36\u00ed\3\2\2\2 \u00fe\3\2\2\2\""+
+		"\u0103\3\2\2\2$\u0105\3\2\2\2&\u0122\3\2\2\2(\u0124\3\2\2\2*\u0126\3\2"+
+		"\2\2,\u012a\3\2\2\2.\u012c\3\2\2\2\60\u013a\3\2\2\2\62\u0144\3\2\2\2\64"+
+		"\u014b\3\2\2\2\66\u014d\3\2\2\28\u0158\3\2\2\2:\u015c\3\2\2\2<\u015e\3"+
+		"\2\2\2>\u0162\3\2\2\2@\u0173\3\2\2\2B\u017d\3\2\2\2D\u0189\3\2\2\2F\u0196"+
+		"\3\2\2\2H\u0199\3\2\2\2J\u01ad\3\2\2\2LP\5\4\3\2MO\5\4\3\2NM\3\2\2\2O"+
+		"R\3\2\2\2PN\3\2\2\2PQ\3\2\2\2QS\3\2\2\2RP\3\2\2\2ST\7\2\2\3T\3\3\2\2\2"+
+		"UV\7\6\2\2VW\7\26\2\2Wi\5\36\20\2XY\5\36\20\2YZ\7\13\2\2Z[\5B\"\2[i\3"+
+		"\2\2\2\\]\7\30\2\2]^\7#\2\2^_\5\26\f\2_`\7\32\2\2`a\7#\2\2ai\3\2\2\2b"+
+		"c\7\31\2\2cd\7C\2\2de\5F$\2ef\7;\2\2fg\7#\2\2gi\3\2\2\2hU\3\2\2\2hX\3"+
+		"\2\2\2h\\\3\2\2\2hb\3\2\2\2i\5\3\2\2\2jr\7\5\2\2kr\5\b\5\2lr\5\66\34\2"+
+		"mr\5D#\2nr\5\62\32\2or\5\16\b\2pr\5\20\t\2qj\3\2\2\2qk\3\2\2\2ql\3\2\2"+
+		"\2qm\3\2\2\2qn\3\2\2\2qo\3\2\2\2qp\3\2\2\2r\7\3\2\2\2sw\7\7\2\2tv\5\n"+
+		"\6\2ut\3\2\2\2vy\3\2\2\2wu\3\2\2\2wx\3\2\2\2x\u0084\3\2\2\2yw\3\2\2\2"+
+		"z{\7\b\2\2{|\5\f\7\2|\u0080\7\21\2\2}\177\5\n\6\2~}\3\2\2\2\177\u0082"+
+		"\3\2\2\2\u0080~\3\2\2\2\u0080\u0081\3\2\2\2\u0081\u0084\3\2\2\2\u0082"+
+		"\u0080\3\2\2\2\u0083s\3\2\2\2\u0083z\3\2\2\2\u0084\t\3\2\2\2\u0085\u0087"+
+		"\7\t\2\2\u0086\u0085\3\2\2\2\u0087\u008a\3\2\2\2\u0088\u0086\3\2\2\2\u0088"+
+		"\u0089\3\2\2\2\u0089\u0090\3\2\2\2\u008a\u0088\3\2\2\2\u008b\u0091\7\t"+
+		"\2\2\u008c\u008d\7\n\2\2\u008d\u008e\5\f\7\2\u008e\u008f\7\21\2\2\u008f"+
+		"\u0091\3\2\2\2\u0090\u008b\3\2\2\2\u0090\u008c\3\2\2\2\u0091\13\3\2\2"+
+		"\2\u0092\u0097\7!\2\2\u0093\u0097\5\62\32\2\u0094\u0097\5\16\b\2\u0095"+
+		"\u0097\5\b\5\2\u0096\u0092\3\2\2\2\u0096\u0093\3\2\2\2\u0096\u0094\3\2"+
+		"\2\2\u0096\u0095\3\2\2\2\u0097\r\3\2\2\2\u0098\u0099\7\22\2\2\u0099\u00a0"+
+		"\5\36\20\2\u009a\u009c\7\16\2\2\u009b\u009a\3\2\2\2\u009b\u009c\3\2\2"+
+		"\2\u009c\u009d\3\2\2\2\u009d\u009f\5\36\20\2\u009e\u009b\3\2\2\2\u009f"+
+		"\u00a2\3\2\2\2\u00a0\u009e\3\2\2\2\u00a0\u00a1\3\2\2\2\u00a1\u00a3\3\2"+
+		"\2\2\u00a2\u00a0\3\2\2\2\u00a3\u00a4\7\23\2\2\u00a4\17\3\2\2\2\u00a5\u00ac"+
+		"\7\24\2\2\u00a6\u00a8\5\22\n\2\u00a7\u00a9\7\16\2\2\u00a8\u00a7\3\2\2"+
+		"\2\u00a8\u00a9\3\2\2\2\u00a9\u00ab\3\2\2\2\u00aa\u00a6\3\2\2\2\u00ab\u00ae"+
+		"\3\2\2\2\u00ac\u00aa\3\2\2\2\u00ac\u00ad\3\2\2\2\u00ad\u00af\3\2\2\2\u00ae"+
 		"\u00ac\3\2\2\2\u00af\u00b0\7\25\2\2\u00b0\21\3\2\2\2\u00b1\u00b2\7\26"+
 		"\2\2\u00b2\u00b3\5\36\20\2\u00b3\23\3\2\2\2\u00b4\u00c2\5\6\4\2\u00b5"+
 		"\u00b6\7\20\2\2\u00b6\u00b7\5\26\f\2\u00b7\u00b8\7\21\2\2\u00b8\u00c2"+
@@ -3053,15 +3067,16 @@ public class TailspinParser extends Parser {
 		"\3\2\2\2\u0193\u0191\3\2\2\2\u0193\u0194\3\2\2\2\u0194E\3\2\2\2\u0195"+
 		"\u0193\3\2\2\2\u0196\u0197\5H%\2\u0197G\3\2\2\2\u0198\u019a\5J&\2\u0199"+
 		"\u0198\3\2\2\2\u019a\u019b\3\2\2\2\u019b\u0199\3\2\2\2\u019b\u019c\3\2"+
-		"\2\2\u019cI\3\2\2\2\u019d\u019e\7<\2\2\u019e\u019f\7A\2\2\u019f\u01aa"+
-		"\7=\2\2\u01a0\u01a1\7<\2\2\u01a1\u01a2\7>\2\2\u01a2\u01a3\7C\2\2\u01a3"+
-		"\u01a4\7D\2\2\u01a4\u01aa\7=\2\2\u01a5\u01a6\7?\2\2\u01a6\u01a7\5H%\2"+
-		"\u01a7\u01a8\7@\2\2\u01a8\u01aa\3\2\2\2\u01a9\u019d\3\2\2\2\u01a9\u01a0"+
-		"\3\2\2\2\u01a9\u01a5\3\2\2\2\u01aaK\3\2\2\2\65Phqw\u0080\u0083\u0088\u0090"+
-		"\u0096\u009b\u00a0\u00a8\u00ac\u00c1\u00c7\u00cd\u00cf\u00d7\u00e5\u00e7"+
-		"\u00ed\u00f2\u00f6\u00fc\u00fe\u0103\u0107\u010d\u0111\u0118\u011c\u0122"+
-		"\u012a\u0131\u0136\u013c\u0142\u0149\u0151\u0158\u015c\u0168\u016d\u0175"+
-		"\u017b\u0186\u0189\u0191\u0193\u019b\u01a9";
+		"\2\2\u019cI\3\2\2\2\u019d\u019e\7<\2\2\u019e\u019f\7C\2\2\u019f\u01ae"+
+		"\7=\2\2\u01a0\u01a1\7<\2\2\u01a1\u01a2\7>\2\2\u01a2\u01a3\7E\2\2\u01a3"+
+		"\u01a4\7F\2\2\u01a4\u01ae\7=\2\2\u01a5\u01a6\7?\2\2\u01a6\u01a7\5H%\2"+
+		"\u01a7\u01a8\7@\2\2\u01a8\u01ae\3\2\2\2\u01a9\u01aa\7A\2\2\u01aa\u01ab"+
+		"\5H%\2\u01ab\u01ac\7B\2\2\u01ac\u01ae\3\2\2\2\u01ad\u019d\3\2\2\2\u01ad"+
+		"\u01a0\3\2\2\2\u01ad\u01a5\3\2\2\2\u01ad\u01a9\3\2\2\2\u01aeK\3\2\2\2"+
+		"\65Phqw\u0080\u0083\u0088\u0090\u0096\u009b\u00a0\u00a8\u00ac\u00c1\u00c7"+
+		"\u00cd\u00cf\u00d7\u00e5\u00e7\u00ed\u00f2\u00f6\u00fc\u00fe\u0103\u0107"+
+		"\u010d\u0111\u0118\u011c\u0122\u012a\u0131\u0136\u013c\u0142\u0149\u0151"+
+		"\u0158\u015c\u0168\u016d\u0175\u017b\u0186\u0189\u0191\u0193\u019b\u01ad";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

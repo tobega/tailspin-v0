@@ -73,4 +73,20 @@ class Composer {
 
     assertEquals("35", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void buildArray() throws IOException {
+    String program = "composer intArray\n"
+        + "[ <INT> (<','>) <INT> ]\n"
+        + "end intArray\n"
+        + "'1,2' -> intArray -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[1, 2]", output.toString(StandardCharsets.UTF_8));
+  }
 }
