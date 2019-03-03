@@ -26,8 +26,9 @@ class RegexpSubComposer implements SubComposer {
     if (matcher.lookingAt()) {
       latestValue = matcher.group();
       ready = false;
+      return s.substring(matcher.end());
     }
-    return s.substring(matcher.end());
+    return s;
   }
 
   @Override

@@ -1,6 +1,7 @@
 package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -88,5 +89,33 @@ class Composer {
     runner.run(input, output);
 
     assertEquals("[1, 2]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void failSkipped() throws IOException {
+    String program = "composer int\n"
+        + "(<'Value: '>) <INT>\n"
+        + "end int\n"
+        + "'23' -> int -> $it + 12 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
+  }
+
+  @Test
+  void failInt() throws IOException {
+    String program = "composer int\n"
+        + "(<'Value: '>) <INT>\n"
+        + "end int\n"
+        + "'Value: ' -> int -> $it + 12 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
   }
 }
