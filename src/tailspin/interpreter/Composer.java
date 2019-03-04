@@ -14,6 +14,8 @@ class Composer implements Transform {
   static {
     namedPatterns.put("INT", Pattern.compile("[+-]?[1-9][0-9]*"));
     namedValueCreators.put("INT", Integer::valueOf);
+    namedPatterns.put("WS", Pattern.compile("\\s"));
+    namedValueCreators.put("WS", Function.identity());
   }
 
   private final List<CompositionSpec> specs;

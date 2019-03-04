@@ -194,7 +194,7 @@ Composition matchers can be string literals containing regexp patterns [(current
 
 Other composition matchers are the ones defined in the composer as sub-patterns.
 
-There are also built-in composition matchers like <INT> which parses an integer.
+There are also built-in composition matchers like <INT> which parses an integer and <WS> for a whitespace character.
 
 ## Matchers
 A matcher is a condition enclosed by angle brackets. A sequence of matchers is evaluated from the

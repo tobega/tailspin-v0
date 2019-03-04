@@ -1,5 +1,5 @@
 composer nums
-  [ (<ws>*) <INT> (<ws>+) <INT> (<ws>*) ]
+  [ (<WS>*) <INT> (<WS>+) <INT> (<WS>*) ]
 end nums
 
 stdin -> nums -> $it(1) + $it(2) -> stdout
