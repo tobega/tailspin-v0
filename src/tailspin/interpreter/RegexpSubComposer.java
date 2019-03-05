@@ -9,12 +9,15 @@ import java.util.regex.Pattern;
 class RegexpSubComposer implements SubComposer {
   private final Pattern pattern;
   private final Function<? super String, Object> valueCreator;
+  private final boolean optional;
   String latestValue;
   boolean ready = true;
 
-  RegexpSubComposer(Pattern pattern, Function<? super String, Object> valueCreator) {
+  RegexpSubComposer(Pattern pattern, Function<? super String, Object> valueCreator,
+      boolean optional) {
     this.pattern = pattern;
     this.valueCreator = valueCreator;
+    this.optional = optional;
   }
 
   @Override
@@ -34,6 +37,9 @@ class RegexpSubComposer implements SubComposer {
   @Override
   public Queue<Object> getValues() {
     Queue<Object> result = new ArrayDeque<>();
+    if (optional && latestValue == null) {
+      return result;
+    }
     result.add(valueCreator.apply(latestValue));
     latestValue = null;
     return result;

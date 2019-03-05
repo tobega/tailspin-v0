@@ -115,8 +115,8 @@ composerBody: compositionSequence
 compositionSequence: compositionMatcher+
 ;
 
-compositionMatcher: StartComposerMatch ComposerId EndComposerMatch
-  | StartComposerMatch START_REGEX REGEX_TEXT END_REGEX EndComposerMatch
+compositionMatcher: StartComposerMatch ComposerId EndComposerMatch Optional?
+  | StartComposerMatch START_REGEX REGEX_TEXT END_REGEX EndComposerMatch Optional?
   | StartSkipRule compositionSequence EndSkipRule
   | StartBuildArray compositionSequence EndBuildArray
 ;

@@ -149,6 +149,8 @@ StartComposerMatch: '<';
 
 EndComposerMatch: '>';
 
+Optional: '?';
+
 START_REGEX: '\'' -> pushMode(IN_REGEX);
 
 StartSkipRule: '(';

@@ -120,6 +120,20 @@ class Composer {
   }
 
   @Test
+  void failExtra() throws IOException {
+    String program = "composer int\n"
+        + "<INT>\n"
+        + "end int\n"
+        + "'23 ' -> int -> $it + 12 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
+  }
+
+  @Test
   void composeWhitespace() throws IOException {
     String program = "composer int\n"
         + "<INT> (<WS>) <INT>\n"
@@ -133,5 +147,53 @@ class Composer {
     runner.run(input, output);
 
     assertEquals("1520", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void multipleWhitespace() throws IOException {
+    String program = "composer int\n"
+        + "<INT> (<WS>) <INT>\n"
+        + "end int\n"
+        + "'3 \r\n\t 8' -> int -> $it + 12 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("1520", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void optionalNamed() throws IOException {
+    String program = "composer int\n"
+        + "(<WS>?) <INT>\n"
+        + "end int\n"
+        + "'3' -> int -> $it + 12 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("15", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void optionalRegex() throws IOException {
+    String program = "composer int\n"
+        + "(<'Value: '>?) <INT>\n"
+        + "end int\n"
+        + "'3' -> int -> $it + 12 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("15", output.toString(StandardCharsets.UTF_8));
   }
 }

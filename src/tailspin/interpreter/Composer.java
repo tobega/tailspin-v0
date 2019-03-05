@@ -14,7 +14,7 @@ class Composer implements Transform {
   static {
     namedPatterns.put("INT", Pattern.compile("[+-]?[1-9][0-9]*"));
     namedValueCreators.put("INT", Integer::valueOf);
-    namedPatterns.put("WS", Pattern.compile("\\s"));
+    namedPatterns.put("WS", Pattern.compile("\\s+"));
     namedValueCreators.put("WS", Function.identity());
   }
 
@@ -33,16 +33,22 @@ class Composer implements Transform {
       s = subComposer.nibble(s);
       result.addAll(subComposer.getValues());
     }
+    if (!s.isEmpty()) {
+      throw new IllegalStateException("Composer did not use entire string. Remaining:'" + s + "'");
+    }
     return result;
   }
 
   private SubComposer resolveSpec(CompositionSpec spec) {
     if (spec instanceof NamedComposition) {
-      String name = ((NamedComposition) spec).namedPattern;
-      return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name));
+      NamedComposition namedSpec = (NamedComposition) spec;
+      String name = namedSpec.namedPattern;
+      return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name),
+          namedSpec.optional);
     }
     if (spec instanceof RegexComposition) {
-      return new RegexpSubComposer(Pattern.compile(((RegexComposition) spec).pattern), Function.identity());
+      RegexComposition regexSpec = (RegexComposition) spec;
+      return new RegexpSubComposer(Pattern.compile(regexSpec.pattern), Function.identity(), regexSpec.optional);
     }
     if (spec instanceof SkipComposition) {
       return new SkipSubComposer(((SkipComposition) spec).skipSpecs.stream().map(this::resolveSpec).collect(
@@ -59,17 +65,21 @@ class Composer implements Transform {
 
   static class NamedComposition implements CompositionSpec {
     private final String namedPattern;
+    private final boolean optional;
 
-    NamedComposition(String namedPattern) {
+    NamedComposition(String namedPattern, boolean optional) {
       this.namedPattern = namedPattern;
+      this.optional = optional;
     }
   }
 
   static class RegexComposition implements CompositionSpec {
     private final String pattern;
+    private final boolean optional;
 
-    RegexComposition(String pattern) {
+    RegexComposition(String pattern, boolean optional) {
       this.pattern = pattern;
+      this.optional = optional;
     }
   }
 
