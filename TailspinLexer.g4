@@ -122,6 +122,10 @@ StartStructureMatch: LeftBrace;
 
 EndStructureMatch: RightBrace;
 
+StartArrayMatch: LeftBracket;
+
+EndArrayMatch: RightBracket;
+
 StructureKey: Key;
 
 MatchDereference: StartDereference (Colon IDENTIFIER? | IDENTIFIER);

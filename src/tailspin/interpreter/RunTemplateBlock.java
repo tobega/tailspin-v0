@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.regex.Pattern;
 import tailspin.parser.TailspinParser;
+import tailspin.parser.TailspinParser.ArrayMatchContext;
 
 class RunTemplateBlock extends RunMain {
   private final Templates templates;
@@ -139,7 +140,17 @@ class RunTemplateBlock extends RunMain {
         return ! ((Boolean) visit(ctx.condition()));
     }
 
-    @Override
+  @Override
+  public Boolean visitArrayMatch(ArrayMatchContext ctx) {
+    Queue<Object> qIt = scope.getIt();
+    if (qIt.size() != 1) {
+      throw new AssertionError("Matcher called with several values");
+    }
+    Object oIt = qIt.peek();
+    return (oIt instanceof List);
+  }
+
+  @Override
   public Queue<Object> visitBlock(TailspinParser.BlockContext ctx) {
     Queue<Object> results = new ArrayDeque<>();
     Queue<Object> it = scope.getIt();

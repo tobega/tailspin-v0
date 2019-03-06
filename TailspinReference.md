@@ -196,6 +196,8 @@ Other composition matchers are the ones defined in the composer as sub-patterns.
 
 There are also built-in composition matchers like <INT> which parses an integer and <WS> for a whitespace character.
 
+A composition matcher can have a qualifier after it, `?` if it is optional.
+
 ## Matchers
 A matcher is a condition enclosed by angle brackets. A sequence of matchers is evaluated from the
 start to the end, where the first matcher that matches the current value will have its block
@@ -209,6 +211,7 @@ executed for that current value.
 * String match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
 For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
 Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
+`<''>` matches the empty string, `<'.*'>` matches any string, `<'.+'>` any non-empty string.
 * Structure match is similar to a [structure literal](#structure-literal), surrounded by braces,
 lists keys of fields that need to exist for the matcher to match, with a matcher for the value of the field, e.g.
   * `<{}>` matches any structure, but not numbers, strings or arrays
@@ -216,6 +219,7 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   * `<{a:<0>, b:<1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
   whatever other fields it might have.
 * Inverse match, to match the opposite of a conditon, just put an exclamation mark inside the angle bracket, e.g. `<!5>`
+* Array match, given as `<[]>` matches if the _current value_ is an array.
 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by
