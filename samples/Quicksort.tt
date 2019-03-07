@@ -1,8 +1,8 @@
 templates quicksort
-  def pivot: $it(1)
   [] -> :
   $it -> #
   <[](2..)>
+    def pivot: $it(1)
     [ [ $it(2..-1)... -> (
       <..$pivot>
         $it !
