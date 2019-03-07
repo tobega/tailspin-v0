@@ -66,10 +66,10 @@ public class TailspinLexer extends Lexer {
 
 	private static final String[] _LITERAL_NAMES = {
 		null, "'//'", "'stdout'", "'stdin'", null, null, null, null, null, "'->'", 
-		null, "':'", "','", "'...'", null, null, null, null, "'{'", "'}'", null, 
+		"'!'", "':'", "','", "'...'", null, null, null, null, "'{'", "'}'", null, 
 		null, "'templates'", "'composer'", null, "'#'", null, "'..'", null, null, 
 		"'0'", null, null, null, null, "'$('", null, null, null, "';'", null, 
-		null, null, null, null, null, null, null, null, null, null, null, null, 
+		null, null, null, null, "'~'", null, null, null, null, null, null, null, 
 		null, null, null, null, null, null, null, null, null, "'?'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
@@ -273,8 +273,8 @@ public class TailspinLexer extends Lexer {
 		"\5K#\2\u0164b\3\2\2\2\u0165\u0166\5\25\b\2\u0166d\3\2\2\2\u0167\u0168"+
 		"\7>\2\2\u0168\u0169\3\2\2\2\u0169\u016a\b\60\6\2\u016af\3\2\2\2\u016b"+
 		"\u016c\7@\2\2\u016c\u016d\3\2\2\2\u016d\u016e\b\61\5\2\u016eh\3\2\2\2"+
-		"\u016f\u0170\7#\2\2\u0170j\3\2\2\2\u0171\u0174\5C\37\2\u0172\u0174\5E"+
-		" \2\u0173\u0171\3\2\2\2\u0173\u0172\3\2\2\2\u0174l\3\2\2\2\u0175\u0176"+
+		"\u016f\u0170\7\u0080\2\2\u0170j\3\2\2\2\u0171\u0174\5C\37\2\u0172\u0174"+
+		"\5E \2\u0173\u0171\3\2\2\2\u0173\u0172\3\2\2\2\u0174l\3\2\2\2\u0175\u0176"+
 		"\5=\34\2\u0176n\3\2\2\2\u0177\u0178\7)\2\2\u0178\u0179\3\2\2\2\u0179\u017a"+
 		"\b\65\b\2\u017ap\3\2\2\2\u017b\u017c\5+\23\2\u017cr\3\2\2\2\u017d\u017e"+
 		"\5-\24\2\u017et\3\2\2\2\u017f\u0180\5\'\21\2\u0180v\3\2\2\2\u0181\u0182"+

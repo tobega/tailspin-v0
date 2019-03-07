@@ -110,7 +110,7 @@ StartSubMatcher: '<' -> pushMode(MATCHER);
 
 EndMatcher: '>' -> popMode;
 
-InvertMatch: '!';
+InvertMatch: '~';
 
 MatchInteger: Zero | NonZeroInteger;
 

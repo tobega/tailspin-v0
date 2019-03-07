@@ -20,7 +20,7 @@ templates bubblesort
       -1 -> # // -1 refers to the last element, since all is unsorted to start with
       <1>
         $:.array !
-      <!1>
+      <~1>
         {array: [ $:.array(1..$it) -> bubble, $:.array($it+1..-1)... ]} -> ...$: -> :
         $:.N -> #
 end bubblesort

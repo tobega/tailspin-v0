@@ -218,7 +218,7 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   * `<{a: <>}>` matches any structure that has a field `a`, whatever its value
   * `<{a:<0>, b:<1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
   whatever other fields it might have.
-* Inverse match, to match the opposite of a conditon, just put an exclamation mark inside the angle bracket, e.g. `<!5>`
+* Inverse match, to match the opposite of a conditon, just put a tilde inside the angle bracket, e.g. `<~5>`
 * Array match, given as `<[]>` matches if the _current value_ is an array.
 
 ## Streams

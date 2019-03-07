@@ -61,10 +61,10 @@ public class TailspinParser extends Parser {
 
 	private static final String[] _LITERAL_NAMES = {
 		null, "'//'", "'stdout'", "'stdin'", null, null, null, null, null, "'->'", 
-		null, "':'", "','", "'...'", null, null, null, null, "'{'", "'}'", null, 
+		"'!'", "':'", "','", "'...'", null, null, null, null, "'{'", "'}'", null, 
 		null, "'templates'", "'composer'", null, "'#'", null, "'..'", null, null, 
 		"'0'", null, null, null, null, "'$('", null, null, null, "';'", null, 
-		null, null, null, null, null, null, null, null, null, null, null, null, 
+		null, null, null, null, "'~'", null, null, null, null, null, null, null, 
 		null, null, null, null, null, null, null, null, null, "'?'"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
