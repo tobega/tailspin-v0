@@ -164,4 +164,108 @@ class Matchers {
 
     assertEquals("yes", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void arrayMatchNotOnWrongLength() throws Exception {
+    String program = "[1,2] -> (<[](1)> 'no!'! <> 'yes'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMatchOnRightLength() throws Exception {
+    String program = "[1,2] -> (<[](2)> 'yes'! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMatchOnLowerBound() throws Exception {
+    String program = "[1,2] -> (<[](1..)> 'yes'! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMatchNotOnLowerBound() throws Exception {
+    String program = "[1,2] -> (<[](3..)> 'yes'! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("no", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMatchOnUpperBound() throws Exception {
+    String program = "[1,2] -> (<[](..2)> 'yes'! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMatchNotOnUpperBound() throws Exception {
+    String program = "[1,2,3] -> (<[](..2)> 'yes'! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("no", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMatchOnRange() throws Exception {
+    String program = "[1,2] -> (<[](1..3)> 'yes'! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMatchNotOnRange() throws Exception {
+    String program = "[1,2] -> (<[](3..4)> 'yes'! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("no", output.toString(StandardCharsets.UTF_8));
+  }
 }

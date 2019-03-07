@@ -133,6 +133,8 @@ Slightly different things happen depending on what type of object is used as a c
  * A structure: the stream must be a stream of structures (or just one structure) and the result is that of
  the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
  `{a:2, c:2} -> ...{a:1, b:1}` results in `{a:2, b:1, c:2}`
+ * A string: append the stream to the end of the string.
+ * An array: append the stream to the end of the array.
  
 ### Templates
 A templates object consists of an optional _initial block_ and an optional sequence of [matchers](#matchers),
@@ -219,7 +221,8 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   * `<{a:<0>, b:<1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
   whatever other fields it might have.
 * Inverse match, to match the opposite of a conditon, just put a tilde inside the angle bracket, e.g. `<~5>`
-* Array match, given as `<[]>` matches if the _current value_ is an array.
+* Array match, given as `<[]>` matches if the _current value_ is an array. A match can also be restricted to arrays
+  of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`
 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by

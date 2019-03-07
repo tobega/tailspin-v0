@@ -72,7 +72,7 @@ condition: matchArithmeticExpression       # integerEquals
   | stringLiteral                          # regexpMatch
   | StartStructureMatch (StructureKey matcher Comma?)* EndStructureMatch # structureMatch
   | InvertMatch condition                  # invertMatch
-  | StartArrayMatch EndArrayMatch          # arrayMatch
+  | StartArrayMatch EndArrayMatch (MatchArrayDereference arithmeticExpression? Range? arithmeticExpression? RightParen)?         # arrayMatch
 ;
 
 lowerBound: matchArithmeticExpression;

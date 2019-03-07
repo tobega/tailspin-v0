@@ -147,7 +147,24 @@ class RunTemplateBlock extends RunMain {
       throw new AssertionError("Matcher called with several values");
     }
     Object oIt = qIt.peek();
-    return (oIt instanceof List);
+    if (!(oIt instanceof List)) return false;
+    List<?> it = (List<?>) oIt;
+    if (ctx.Range() != null) {
+      if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() < ctx.Range().getSymbol().getTokenIndex()) {
+        int lowerBound = visitArithmeticExpression(ctx.arithmeticExpression(0));
+        if (it.size() < lowerBound) return false;
+      }
+      if (ctx.arithmeticExpression(1) != null) {
+        int upperBound = visitArithmeticExpression(ctx.arithmeticExpression(1));
+        return it.size() <= upperBound;
+      } else if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() > ctx.Range().getSymbol().getTokenIndex()) {
+        int upperBound = visitArithmeticExpression(ctx.arithmeticExpression(0));
+        return it.size() <= upperBound;
+      }
+    } else if (ctx.arithmeticExpression(0) != null) {
+      return visitArithmeticExpression(ctx.arithmeticExpression(0)) == it.size();
+    }
+    return true;
   }
 
   @Override
