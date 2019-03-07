@@ -26,7 +26,7 @@ structureDereference: FieldDereference* (FieldDereference | (FieldArrayDereferen
 
 arrayDereference: NonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue;
 
-arrayLiteral: LeftBracket valueChain (Comma? valueChain)* RightBracket;
+arrayLiteral: LeftBracket RightBracket | LeftBracket valueChain (Comma? valueChain)* RightBracket;
 
 structureLiteral: LeftBrace (keyValue Comma?)* RightBrace;
 

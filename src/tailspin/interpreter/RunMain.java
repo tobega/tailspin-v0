@@ -296,6 +296,10 @@ public class RunMain extends TailspinParserBaseVisitor {
         StringBuilder sbCollector = (StringBuilder) collector;
         it.forEach(s -> sbCollector.append(s.toString()));
         collector = sbCollector.toString();
+      } else if (collector instanceof List) {
+        @SuppressWarnings("unchecked")
+        List<Object> collectorList = (List<Object>) collector;
+        collectorList.addAll(it);
       } else {
         throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
       }
@@ -345,6 +349,11 @@ public class RunMain extends TailspinParserBaseVisitor {
       if (originalCollector instanceof Map) {
         @SuppressWarnings("unchecked")
         Map<String, Object> collector = new TreeMap<>((Map<String, Object>) originalCollector);
+        return collector;
+      }
+      if (originalCollector instanceof List) {
+        @SuppressWarnings("unchecked")
+        List<Object> collector = new ArrayList<>((List<Object>) originalCollector);
         return collector;
       }
       throw new UnsupportedOperationException("Cannot create collector for " + originalCollector);
