@@ -8,6 +8,7 @@ import java.util.Queue;
 import java.util.regex.Pattern;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ArrayMatchContext;
+import tailspin.parser.TailspinParser.SuchThatContext;
 
 class RunTemplateBlock extends RunMain {
   private final Templates templates;
@@ -19,10 +20,27 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitMatcher(TailspinParser.MatcherContext ctx) {
-    if (ctx.condition() == null) {
-      return true;
+    if (ctx.condition() != null) {
+      if (!(Boolean) visit(ctx.condition())) return false;
     }
-    return (Boolean) visit(ctx.condition());
+    if (ctx.suchThat() != null) {
+      for (SuchThatContext suchThat : ctx.suchThat()) {
+        if (!visitSuchThat(suchThat)) return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  public Boolean visitSuchThat(SuchThatContext ctx) {
+    // It has to be a single value here
+    scope.defineValue("it", scope.getIt().peek(), true);
+    try {
+      scope.setIt(visitSource(ctx.source()));
+      return visitMatcher(ctx.matcher());
+    } finally{
+      scope.setIt(queueOf(scope.resolveValue("it", true)));
+    }
   }
 
   @Override
@@ -53,7 +71,7 @@ class RunTemplateBlock extends RunMain {
     if (identifier.startsWith(":")) {
       value = scope.getState(identifier.substring(1));
     } else {
-      value = scope.resolveValue(identifier);
+      value = scope.resolveValue(identifier, true);
     }
     if (ctx.arrayDereference() != null) {
       value = resolveArrayDereference(ctx.arrayDereference(), (List<?>) value);
@@ -118,7 +136,7 @@ class RunTemplateBlock extends RunMain {
     boolean stillPossible = true;
     @SuppressWarnings("unchecked")
     Map<String, Object> it = (Map<String, Object>) oIt;
-    for (int i = 0; stillPossible && i < ctx.StructureKey().size(); i++) {
+    for (int i = 0; i < ctx.StructureKey().size(); i++) {
       String key = ctx.StructureKey(i).getText().replace(":", "");
       if (!it.containsKey(key)) {
         stillPossible = false;

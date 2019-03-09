@@ -223,6 +223,12 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
 * Inverse match, to match the opposite of a conditon, just put a tilde inside the angle bracket, e.g. `<~5>`
 * Array match, given as `<[]>` matches if the _current value_ is an array. A match can also be restricted to arrays
   of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`
+  
+### Such-that conditions
+Sometimes you want to match relations between parts of a structure or values at certain array positions, then you can
+use a number of such-that conditions either after or instead of the main condition. E.g.
+* Array where first and second elements are equal: `<[]?($it(1)<$it(2)>)>`
+* Structure where the elements obey the relation a <= b <= c: `<?($it.a<..$it.b>)?($it.b<..$it.c>)>`
 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by

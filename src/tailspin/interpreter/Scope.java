@@ -5,9 +5,10 @@ import java.io.OutputStream;
 import java.util.Queue;
 
 interface Scope {
-  Object resolveValue(String identifier);
+  /** In sub-matchers we need to be able to dereference the old it */
+  Object resolveValue(String identifier, boolean allowIt);
 
-  void defineValue(String identifier, Object value);
+  void defineValue(String identifier, Object value, boolean allowIt);
 
   BufferedReader getInput();
 

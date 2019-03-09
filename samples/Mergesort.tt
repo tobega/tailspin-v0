@@ -1,0 +1,30 @@
+templates merge
+  <?($it(1)<[](0)>)>
+    $it(2)
+  <?($it(2)<[](0)>)>
+    $it(1)
+  <?($it(1;1)<..$it(2;1)>)>
+    $it(1;1) !
+    [$it(1;2..-1), $it(2)] -> #
+end merge
+
+templates mergePairs
+  <[](0)>
+    '' -> stdout
+  <[](1)>
+    $it(1) !
+  <>
+    $it(1..2) -> merge !
+    $it(3..-1) -> #
+end mergePairs
+
+templates mergeAll
+  <[](0)>
+    $it !
+  <[](1)>
+    $it(1) !
+  <>
+    [ $it -> mergePairs ] -> #
+end mergeAll
+
+[4,5,3,8,1,2,6,7,9,8,5] -> [ $it... -> [ $it ] ] -> mergeAll -> stdout

@@ -112,6 +112,8 @@ EndMatcher: '>' -> popMode;
 
 InvertMatch: '~';
 
+BeginSuchThat: '?(' -> pushMode(DEFAULT_MODE);
+
 MatchInteger: Zero | NonZeroInteger;
 
 RangeMatch: Range;

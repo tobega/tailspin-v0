@@ -100,7 +100,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else if (identifier.startsWith(":")) {
       value = scope.getState(identifier.substring(1));
     } else {
-      value = scope.resolveValue(identifier);
+      value = scope.resolveValue(identifier, false);
     }
     if (ctx.arrayDereference() != null) {
       value = resolveArrayDereference(ctx.arrayDereference(), (List<?>) value);
@@ -233,7 +233,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     Queue<Object> result = new ArrayDeque<>();
     for (int i = 0; i < it.size(); i++) {
       Scope itemScope = new TransformScope(scope, "");
-      itemScope.defineValue(loopVariable, i + 1);
+      itemScope.defineValue(loopVariable, i + 1, false);
       itemScope.setIt(queueOf(it.get(i)));
       result.addAll(templates.run(itemScope));
     }
@@ -262,14 +262,14 @@ public class RunMain extends TailspinParserBaseVisitor {
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
     }
     Templates templates = visitTemplatesBody(ctx.templatesBody());
-    scope.defineValue(name, templates);
+    scope.defineValue(name, templates, false);
     return null;
   }
 
   @Override
   public Queue<Object> visitCallDefinedTransform(TailspinParser.CallDefinedTransformContext ctx) {
     String name = ctx.IDENTIFIER().getText();
-    Transform transform = (Transform) scope.resolveValue(name);
+    Transform transform = (Transform) scope.resolveValue(name, false);
     Queue<Object> qIt = scope.getIt();
     Queue<Object> result = new ArrayDeque<>();
     qIt.forEach(it -> {
@@ -383,7 +383,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       throw new IllegalArgumentException(
           "Attempt to define a symbol with " + valueChainResult.size() + " values");
     }
-    scope.defineValue(identifier, valueChainResult.peek());
+    scope.defineValue(identifier, valueChainResult.peek(), false);
     return null;
   }
 
@@ -438,7 +438,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else if (identifier.startsWith(":")) {
       value = scope.getState(identifier.substring(1));
     } else {
-      value = scope.resolveValue(identifier);
+      value = scope.resolveValue(identifier, false);
     }
     if (ctx.arrayDereference() != null) {
       List<?> array = (List<?>) value;
@@ -574,7 +574,7 @@ public class RunMain extends TailspinParserBaseVisitor {
           "Mismatched end " + ctx.IDENTIFIER().getText() + " for parser " + name);
     }
     Composer composer = visitComposerBody(ctx.composerBody());
-    scope.defineValue(name, composer);
+    scope.defineValue(name, composer, false);
     return null;
   }
 

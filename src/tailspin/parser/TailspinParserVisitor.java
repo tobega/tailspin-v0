@@ -227,6 +227,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArrayMatch(TailspinParser.ArrayMatchContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#suchThat}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSuchThat(TailspinParser.SuchThatContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#lowerBound}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

@@ -65,7 +65,7 @@ collector: dereferenceValue
   | START_STRING END_STRING
 ;
 
-matcher: (StartMatcher|StartSubMatcher) condition? EndMatcher;
+matcher: (StartMatcher|StartSubMatcher) condition? suchThat* EndMatcher;
 
 condition: matchArithmeticExpression       # integerEquals
   | lowerBound? RangeMatch upperBound?     # rangeMatch
@@ -74,6 +74,8 @@ condition: matchArithmeticExpression       # integerEquals
   | InvertMatch condition                  # invertMatch
   | StartArrayMatch EndArrayMatch (MatchArrayDereference arithmeticExpression? Range? arithmeticExpression? RightParen)?         # arrayMatch
 ;
+
+suchThat: BeginSuchThat source matcher RightParen;
 
 lowerBound: matchArithmeticExpression;
 
