@@ -101,6 +101,19 @@ class Matchers {
   }
 
   @Test
+  void structureMatchMultiplePropertyMatches() throws Exception {
+    String program = "{ a: 1, b: 2 } -> (<{ a: <1>, b: <1> }> 'no!' !<{ b:<2> }> 'yes'! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void rangeMatchDereference() throws Exception {
     String program = "def mid: 3\n1..6 -> (<..$mid> 'L'! <> 'H'!) -> stdout";
     Tailspin runner =

@@ -110,6 +110,8 @@ mode MATCHER;
 
 Else: '|';
 
+MatchComma: ',';
+
 StartSubMatcher: '<' -> pushMode(MATCHER);
 
 EndMatcher: '>' -> popMode;

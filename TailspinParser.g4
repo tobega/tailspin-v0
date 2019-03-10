@@ -74,7 +74,7 @@ condition: typeMatch? suchThat*;
 typeMatch: matchArithmeticExpression       # integerEquals
   | lowerBound? RangeMatch upperBound?     # rangeMatch
   | stringLiteral                          # regexpMatch
-  | StartStructureMatch (StructureKey matcher Comma?)* EndStructureMatch # structureMatch
+  | StartStructureMatch (StructureKey matcher MatchComma?)* EndStructureMatch # structureMatch
   | InvertMatch condition                  # invertMatch
   | StartArrayMatch EndArrayMatch (MatchArrayDereference arithmeticExpression? Range? arithmeticExpression? RightParen)?         # arrayMatch
 ;
