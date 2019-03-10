@@ -254,7 +254,11 @@ the second last element. As usual, you can leave out the increment which default
 A new array can be created by selecting from an existing array with an array, e.g. `$it([3,1,5])`
 would select the third element, followed by the first element and last the fifth element.
 
-_Future directions_: Multidimensional arrays.
+All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semi-colon `;`, e.g.
+`$it(1..3; 2)` to select the second element of each of the first three dimensions (returns a one-dimensional array of size 3,
+although the elements could be arrays).
+
+It is an error to select elements outside the range of a dimension.
 
 ## Structures
 A structure is a collection of named values without any inherent order. The field values of a structure

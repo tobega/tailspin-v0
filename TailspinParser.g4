@@ -24,7 +24,9 @@ dereferenceValue: Dereference structureDereference*
 
 structureDereference: FieldDereference* (FieldDereference | (FieldArrayDereference arrayDereference RightParen));
 
-arrayDereference: NonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue;
+arrayDereference: dimensionDereference (SemiColon dimensionDereference)*;
+
+dimensionDereference: NonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue;
 
 arrayLiteral: LeftBracket RightBracket | LeftBracket valueChain (Comma? valueChain)* RightBracket;
 

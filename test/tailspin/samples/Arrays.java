@@ -309,4 +309,43 @@ class Arrays {
 
     assertEquals("[5]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void twoDimensionalSingleValue() throws IOException {
+    String program = "[['no','no'],['yes','no']] -> $it(2;1) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void twoDimensionalRangeOnSecond() throws IOException {
+    String program = "[[1,2,3],[4,5,6]] -> $it(2;1..2) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[4, 5]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void twoDimensionalRangeOnFirst() throws IOException {
+    String program = "[[1,2,3],[4,5,6]] -> $it(1..2;1) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[1, 4]", output.toString(StandardCharsets.UTF_8));
+  }
 }

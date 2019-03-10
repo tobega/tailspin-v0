@@ -26,6 +26,8 @@ ResultMarker: '!';
 
 Colon: ':';
 
+SemiColon: ';';
+
 Comma: ',';
 
 Deconstructor: '...';

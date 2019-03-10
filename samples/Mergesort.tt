@@ -1,11 +1,14 @@
 templates merge
   <?($it(1)<[](0)>)>
-    $it(2)
+    $it(2)... !
   <?($it(2)<[](0)>)>
-    $it(1)
+    $it(1)... !
   <?($it(1;1)<..$it(2;1)>)>
     $it(1;1) !
     [$it(1;2..-1), $it(2)] -> #
+  <>
+    $it(2;1) !
+    [$it(1), $it(2;2..-1)] -> #
 end merge
 
 templates mergePairs
@@ -14,7 +17,7 @@ templates mergePairs
   <[](1)>
     $it(1) !
   <>
-    $it(1..2) -> merge !
+    [$it(1..2) -> merge] !
     $it(3..-1) -> #
 end mergePairs
 

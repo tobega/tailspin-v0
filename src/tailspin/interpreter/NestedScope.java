@@ -34,7 +34,7 @@ class NestedScope implements Scope {
     if (!allowIt && "it".equals(identifier)) {
       throw new IllegalArgumentException("Attempt to set it as an identifier");
     }
-    if (definitions.containsKey(identifier)) {
+    if (definitions.containsKey(identifier) && !allowIt) {
       throw new IllegalStateException("Attempt to redefine " + identifier);
     }
     definitions.put(identifier, value);
