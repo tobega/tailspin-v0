@@ -108,6 +108,8 @@ InterpolateField: FieldDereference;
 
 mode MATCHER;
 
+Else: '|';
+
 StartSubMatcher: '<' -> pushMode(MATCHER);
 
 EndMatcher: '>' -> popMode;

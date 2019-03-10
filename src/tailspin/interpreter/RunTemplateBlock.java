@@ -8,6 +8,8 @@ import java.util.Queue;
 import java.util.regex.Pattern;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ArrayMatchContext;
+import tailspin.parser.TailspinParser.ConditionContext;
+import tailspin.parser.TailspinParser.MatcherContext;
 import tailspin.parser.TailspinParser.SuchThatContext;
 
 class RunTemplateBlock extends RunMain {
@@ -19,9 +21,19 @@ class RunTemplateBlock extends RunMain {
   }
 
   @Override
-  public Boolean visitMatcher(TailspinParser.MatcherContext ctx) {
-    if (ctx.condition() != null) {
-      if (!(Boolean) visit(ctx.condition())) return false;
+  public Boolean visitMatcher(MatcherContext ctx) {
+    for (ConditionContext condition : ctx.condition()) {
+      if (visitCondition(condition)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @Override
+  public Boolean visitCondition(TailspinParser.ConditionContext ctx) {
+    if (ctx.typeMatch() != null) {
+      if (!(Boolean) visit(ctx.typeMatch())) return false;
     }
     if (ctx.suchThat() != null) {
       for (SuchThatContext suchThat : ctx.suchThat()) {

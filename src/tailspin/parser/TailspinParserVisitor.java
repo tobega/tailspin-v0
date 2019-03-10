@@ -191,43 +191,49 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMatcher(TailspinParser.MatcherContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#condition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCondition(TailspinParser.ConditionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code integerEquals}
-	 * labeled alternative in {@link TailspinParser#condition}.
+	 * labeled alternative in {@link TailspinParser#typeMatch}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code rangeMatch}
-	 * labeled alternative in {@link TailspinParser#condition}.
+	 * labeled alternative in {@link TailspinParser#typeMatch}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitRangeMatch(TailspinParser.RangeMatchContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code regexpMatch}
-	 * labeled alternative in {@link TailspinParser#condition}.
+	 * labeled alternative in {@link TailspinParser#typeMatch}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitRegexpMatch(TailspinParser.RegexpMatchContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code structureMatch}
-	 * labeled alternative in {@link TailspinParser#condition}.
+	 * labeled alternative in {@link TailspinParser#typeMatch}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitStructureMatch(TailspinParser.StructureMatchContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code invertMatch}
-	 * labeled alternative in {@link TailspinParser#condition}.
+	 * labeled alternative in {@link TailspinParser#typeMatch}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitInvertMatch(TailspinParser.InvertMatchContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code arrayMatch}
-	 * labeled alternative in {@link TailspinParser#condition}.
+	 * labeled alternative in {@link TailspinParser#typeMatch}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */

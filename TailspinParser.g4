@@ -67,9 +67,11 @@ collector: dereferenceValue
   | START_STRING END_STRING
 ;
 
-matcher: (StartMatcher|StartSubMatcher) condition? suchThat* EndMatcher;
+matcher: (StartMatcher|StartSubMatcher) condition (Else condition)* EndMatcher;
 
-condition: matchArithmeticExpression       # integerEquals
+condition: typeMatch? suchThat*;
+
+typeMatch: matchArithmeticExpression       # integerEquals
   | lowerBound? RangeMatch upperBound?     # rangeMatch
   | stringLiteral                          # regexpMatch
   | StartStructureMatch (StructureKey matcher Comma?)* EndStructureMatch # structureMatch

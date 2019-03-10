@@ -1,33 +1,36 @@
-templates merge
-  <?($it(1)<[](0)>)>
-    $it(2)... !
-  <?($it(2)<[](0)>)>
-    $it(1)... !
-  <?($it(1;1)<..$it(2;1)>)>
-    $it(1;1) !
-    [$it(1;2..-1), $it(2)] -> #
-  <>
-    $it(2;1) !
-    [$it(1), $it(2;2..-1)] -> #
-end merge
+templates mergesort
+  templates merge
+    $it(2) -> :
+    $it(1)... -> (
+      <?($:merge<[](0)>)
+      | ..$:merge(1)>
+        $it !
+      <>
+        $:merge(1) !
+        $:merge(2..-1) -> :merge
+        $it -> #
+     ) !
+     $:... !
+  end merge
 
-templates mergePairs
-  <[](0)>
-    '' -> stdout
-  <[](1)>
-    $it(1) !
-  <>
-    [$it(1..2) -> merge] !
-    $it(3..-1) -> #
-end mergePairs
+  templates mergePairs
+    <[](1)>
+      $it(1) !
+    <[](2..)>
+      [$it(1..2) -> merge] !
+      $it(3..-1) -> #
+  end mergePairs
 
-templates mergeAll
-  <[](0)>
-    $it !
-  <[](1)>
-    $it(1) !
-  <>
-    [ $it -> mergePairs ] -> #
-end mergeAll
+  templates mergeAll
+    <[](0)>
+      $it !
+    <[](1)>
+      $it(1) !
+    <>
+      [ $it -> mergePairs ] -> #
+  end mergeAll
 
-[4,5,3,8,1,2,6,7,9,8,5] -> [ $it... -> [ $it ] ] -> mergeAll -> stdout
+  $it -> [ $it... -> [ $it ] ] -> mergeAll !
+end mergesort
+
+[4,5,3,8,1,2,6,7,9,8,5] -> mergesort -> stdout
