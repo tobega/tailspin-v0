@@ -130,7 +130,7 @@ A restructuring is a transform that works on streams and compose the stream into
 #### Merge operator
 This is the same symbol as the deconstructor, but applied before an object instead of after it, e.g. `...$myVal`
 Slightly different things happen depending on what type of object is used as a collector:
- * A structure: the stream must be a stream of structures (or just one structure) and the result is that of
+ * A structure: the stream must be a stream of structures or keyed values (or just one structure or keyed value) and the result is that of
  the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
  `{a:2, c:2} -> ...{a:1, b:1}` results in `{a:2, b:1, c:2}`
  * A string: append the stream to the end of the string.
@@ -264,3 +264,10 @@ It is an error to select elements outside the range of a dimension.
 A structure is a collection of named values without any inherent order. The field values of a structure
 can be accessed by appending a dot and the field key identifier to the [dereference](#dereference) of the structure.
 E.g. if the structure `{ a: 1 }` is the _current value_, the value `1` can be accessed by `$it.a`.
+
+### Keyed values
+A structure can be [deconstructed](#deconstructor) into a stream of keyed values (or key-value pairs).
+The stream of keyed values can be [restructured](#restructuring) into a structure at some point.
+
+While keyed values can be treated separately to some extent, currently the only way to create them is inside a [structure literal](#structure-literal).
+Since structures also can be restructured into a structure. this is not a problem.

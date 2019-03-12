@@ -114,4 +114,43 @@ class Structures {
 
     assertEquals("{a=1, b=2, c=3}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void restructureLiteral() throws IOException {
+    String program = "{b:2} -> ...{a: 1} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{a=1, b=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deconstruct() throws IOException {
+    String program = "{ a: 1, b: 2 }... -> '$it;\n' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("a=1\nb=2\n", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void restructureKeyedValues() throws IOException {
+    String program = "{ a: 1, b: 2 }... -> ...{} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{a=1, b=2}", output.toString(StandardCharsets.UTF_8));
+  }
 }

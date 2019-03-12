@@ -333,9 +333,15 @@ public class RunMain extends TailspinParserBaseVisitor {
         Map<String, Object> collectorMap = (Map<String, Object>) collector;
         it.forEach(
             m -> {
-              @SuppressWarnings("unchecked")
-              Map<String, Object> itMap = (Map<String, Object>) m;
-              collectorMap.putAll(itMap);
+              if (m instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> itMap = (Map<String, Object>) m;
+                collectorMap.putAll(itMap);
+              } else {
+                @SuppressWarnings("unchecked")
+                Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) m;
+                collectorMap.put(itEntry.getKey(), itEntry.getValue());
+              }
             });
       } else if (collector instanceof StringBuilder) {
         StringBuilder sbCollector = (StringBuilder) collector;
@@ -367,6 +373,9 @@ public class RunMain extends TailspinParserBaseVisitor {
               Queue<Object> deconstructed =
                   queueOf(
                       ((String) it).codePoints().mapToObj(i -> new String(Character.toChars(i))));
+              result.addAll(deconstructed);
+            } else if (it instanceof Map) {
+              Queue<Object> deconstructed = queueOf(((Map<?,?>) it).entrySet().stream());
               result.addAll(deconstructed);
             } else {
               throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
@@ -405,6 +414,9 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
     if (ctx.START_STRING() != null) {
       return new StringBuilder();
+    }
+    if (ctx.structureLiteral() != null) {
+      return visitStructureLiteral(ctx.structureLiteral());
     }
     throw new UnsupportedOperationException();
   }
@@ -583,7 +595,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Object visitStructureLiteral(TailspinParser.StructureLiteralContext ctx) {
+  public Map<String, Object> visitStructureLiteral(TailspinParser.StructureLiteralContext ctx) {
     Map<String, Object> structure = new TreeMap<>();
     for (TailspinParser.KeyValueContext kvc : ctx.keyValue()) {
       KeyValue keyValue = visitKeyValue(kvc);

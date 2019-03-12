@@ -65,6 +65,7 @@ transform: To templates transform?
 
 collector: dereferenceValue
   | START_STRING END_STRING
+  | structureLiteral
 ;
 
 matcher: (StartMatcher|StartSubMatcher) condition (Else condition)* EndMatcher;
