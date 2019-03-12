@@ -269,5 +269,5 @@ E.g. if the structure `{ a: 1 }` is the _current value_, the value `1` can be ac
 A structure can be [deconstructed](#deconstructor) into a stream of keyed values (or key-value pairs).
 The stream of keyed values can be [restructured](#restructuring) into a structure at some point.
 
-While keyed values can be treated separately to some extent, currently the only way to create them is inside a [structure literal](#structure-literal).
-Since structures also can be restructured into a structure. this is not a problem.
+When creating keyed values, the transform chain binds to the value, not the whole keyed value, e.g. `a: 1 -> (<1> 'yes')` will give the result `a: 'yes'`.
+To send the keyed value through a transform, put it in parentheses, so `(a: 1) -> ...{}` creates `{a: 1}`.

@@ -17,6 +17,7 @@ source: Stdin
   | rangeLiteral
   | arrayLiteral
   | structureLiteral
+  | keyValue
 ;
 
 dereferenceValue: Dereference structureDereference*
@@ -62,7 +63,9 @@ sendToTemplates: valueChain To TemplateMatch;
 stateAssignment: valueChain To Colon IDENTIFIER?;
 
 valueChain: source
+  | LeftParen source RightParen
   | source transform
+  | LeftParen source RightParen transform
 ;
 
 transform: To templates transform?

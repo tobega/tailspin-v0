@@ -166,4 +166,43 @@ class Structures {
 
     assertEquals("{a=2}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void freeKeyedValue() throws IOException {
+    String program = "a: 1 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("a=1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void freeKeyedValueRestructure() throws IOException {
+    String program = "(a: 1) -> ...{} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{a=1}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void freeKeyedValueFromChain() throws IOException {
+    String program = "a: 1 -> (<1> 'yes'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("a=yes", output.toString(StandardCharsets.UTF_8));
+  }
 }

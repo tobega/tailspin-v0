@@ -79,6 +79,9 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.Stdin() != null) {
       return queueOf(scope.getInput().lines());
     }
+    if (ctx.keyValue() != null) {
+      return queueOf(visitKeyValue(ctx.keyValue()));
+    }
     throw new UnsupportedOperationException(ctx.toString());
   }
 
@@ -632,13 +635,33 @@ public class RunMain extends TailspinParserBaseVisitor {
     return new KeyValue(key, valueQueue.peek());
   }
 
-  private static class KeyValue {
+  private static class KeyValue implements Map.Entry<String, Object> {
     final String key;
     final Object value;
 
     private KeyValue(String key, Object value) {
       this.key = key;
       this.value = value;
+    }
+
+    @Override
+    public String getKey() {
+      return key;
+    }
+
+    @Override
+    public Object getValue() {
+      return value;
+    }
+
+    @Override
+    public Object setValue(Object value) {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public String toString() {
+      return key + "=" + value.toString();
     }
   }
 
