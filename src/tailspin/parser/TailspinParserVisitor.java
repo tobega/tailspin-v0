@@ -81,6 +81,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#valueProduction}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitValueProduction(TailspinParser.ValueProductionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#structureLiteral}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -139,29 +145,31 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitBlock(TailspinParser.BlockContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code resultValue}
-	 * labeled alternative in {@link TailspinParser#blockExpression}.
+	 * Visit a parse tree produced by {@link TailspinParser#blockExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBlockExpression(TailspinParser.BlockExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#resultValue}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitResultValue(TailspinParser.ResultValueContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code sendToTemplates}
-	 * labeled alternative in {@link TailspinParser#blockExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code blockStatement}
-	 * labeled alternative in {@link TailspinParser#blockExpression}.
+	 * Visit a parse tree produced by {@link TailspinParser#blockStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitBlockStatement(TailspinParser.BlockStatementContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code stateAssignment}
-	 * labeled alternative in {@link TailspinParser#blockExpression}.
+	 * Visit a parse tree produced by {@link TailspinParser#sendToTemplates}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#stateAssignment}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */

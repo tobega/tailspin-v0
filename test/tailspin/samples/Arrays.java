@@ -348,4 +348,17 @@ class Arrays {
 
     assertEquals("[1, 4]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void valueProductionViaTemplates() throws Exception {
+    String program = "3 -> ([ 1..$it -> # ] ! <2> $it!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[2]", output.toString(StandardCharsets.UTF_8));
+  }
 }

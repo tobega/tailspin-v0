@@ -16,6 +16,8 @@ import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
 import tailspin.parser.TailspinParser.DimensionDereferenceContext;
+import tailspin.parser.TailspinParser.SendToTemplatesContext;
+import tailspin.parser.TailspinParser.ValueProductionContext;
 import tailspin.parser.TailspinParserBaseVisitor;
 
 public class RunMain extends TailspinParserBaseVisitor {
@@ -585,13 +587,29 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public List<?> visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx) {
-    return ctx.valueChain().stream()
+    return ctx.valueProduction().stream()
         .flatMap(
-            vc -> {
-              Queue<Object> result = visitValueChain(vc);
+            vp -> {
+              Queue<Object> result = visitValueProduction(vp);
               return result.stream();
             })
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public Queue<Object> visitValueProduction(ValueProductionContext ctx) {
+    if (ctx.valueChain() != null) {
+      return visitValueChain(ctx.valueChain());
+    }
+    if (ctx.sendToTemplates() != null) {
+      return visitSendToTemplates(ctx.sendToTemplates());
+    }
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Queue<Object> visitSendToTemplates(SendToTemplatesContext ctx) {
+    throw new UnsupportedOperationException("Can only send to templates in a templates object");
   }
 
   @Override
@@ -607,7 +625,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public KeyValue visitKeyValue(TailspinParser.KeyValueContext ctx) {
     String key = ctx.Key().getText().replace(":", "");
-    Queue<Object> valueQueue = visitValueChain(ctx.valueChain());
+    Queue<Object> valueQueue = visitValueProduction(ctx.valueProduction());
     if (valueQueue.size() != 1) {
       throw new AssertionError("Invalid multiple value " + valueQueue.size());
     }

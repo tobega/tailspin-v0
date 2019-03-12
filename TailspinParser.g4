@@ -28,11 +28,13 @@ arrayDereference: dimensionDereference (SemiColon dimensionDereference)*;
 
 dimensionDereference: NonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue;
 
-arrayLiteral: LeftBracket RightBracket | LeftBracket valueChain (Comma? valueChain)* RightBracket;
+arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma? valueProduction)* RightBracket;
+
+valueProduction: sendToTemplates | valueChain;
 
 structureLiteral: LeftBrace (keyValue Comma?)* RightBrace;
 
-keyValue: Key valueChain;
+keyValue: Key valueProduction;
 
 templates: source                        # literalTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
@@ -46,13 +48,18 @@ templatesBody: block matchTemplate*
 
 matchTemplate: matcher block;
 
-block: (blockExpression)+;
+block: (blockExpression|sendToTemplates)+;
 
-blockExpression: valueChain ResultMarker       # resultValue
-  | valueChain To TemplateMatch    # sendToTemplates
-  | statement                      # blockStatement
-  | valueChain To Colon IDENTIFIER?   # stateAssignment
+blockExpression: blockStatement
+  | stateAssignment
+  | sendToTemplates
+  | resultValue
 ;
+
+resultValue: valueChain ResultMarker;
+blockStatement: statement;
+sendToTemplates: valueChain To TemplateMatch;
+stateAssignment: valueChain To Colon IDENTIFIER?;
 
 valueChain: source
   | source transform
