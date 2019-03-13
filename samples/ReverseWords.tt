@@ -1,0 +1,18 @@
+def input: ['---------- Ice and Fire ------------',
+                    '',
+                    'fire, in end will world the say Some',
+                    'ice. in say Some',
+                    'desire of tasted I''ve what From',
+                    'fire. favor who those with hold I',
+                    '',
+                    '... elided paragraph last ...',
+                    '',
+                    'Frost Robert -----------------------']
+
+composer words
+  [ <word>+ ]
+  word: <~WS> (<WS>?)
+end words
+
+$input... -> ($it -> words -> $it(-1..1:-1)... -> ...' ' !) -> '$it
+' -> stdout
