@@ -393,4 +393,21 @@ class Strings {
 
     assertEquals("abcdefghiabcdefghi", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void keepCombiningMarksOnCharacter() throws Exception {
+    String program =
+        "templates reverse\n"
+            + "  [ $it... ] -> $it(-1..1:-1)... -> ...'' !\n"
+            + "end reverse\n"
+            + "'as⃝df̅' -> reverse -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("f̅ds⃝a", output.toString(StandardCharsets.UTF_8));
+  }
 }

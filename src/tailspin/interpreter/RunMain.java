@@ -375,9 +375,18 @@ public class RunMain extends TailspinParserBaseVisitor {
               Queue<Object> deconstructed = queueOf(((List<?>) it).stream());
               result.addAll(deconstructed);
             } else if (it instanceof String) {
-              Queue<Object> deconstructed =
-                  queueOf(
-                      ((String) it).codePoints().mapToObj(i -> new String(Character.toChars(i))));
+              ArrayDeque<String> deconstructed = new ArrayDeque<>();
+              for (char c : ((String) it).toCharArray()) {
+                int type = Character.getType(c);
+                if (Character.isLowSurrogate(c)
+                    || type == Character.COMBINING_SPACING_MARK
+                    || type == Character.ENCLOSING_MARK
+                    || type == Character.NON_SPACING_MARK) {
+                  deconstructed.add(deconstructed.removeLast() + c);
+                } else {
+                  deconstructed.add(String.valueOf(c));
+                }
+              }
               result.addAll(deconstructed);
             } else if (it instanceof Map) {
               Queue<Object> deconstructed = queueOf(((Map<?,?>) it).entrySet().stream());

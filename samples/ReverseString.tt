@@ -1,0 +1,10 @@
+templates reverse
+  [ $it... ] -> $it(-1..1:-1)... -> ...'' !
+end reverse
+
+'asdf' -> reverse -> stdout
+
+'
+' -> stdout
+
+'as⃝df̅' -> reverse -> stdout
