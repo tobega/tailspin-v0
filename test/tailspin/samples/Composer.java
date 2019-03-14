@@ -196,4 +196,36 @@ class Composer {
 
     assertEquals("15", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void inverseWhitespace() throws IOException {
+    String program = "composer word\n"
+        + "<~WS> (<WS>) <~WS>\n"
+        + "end word\n"
+        + "'Hello World!' -> word -> ':$it;:' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals(":Hello::World!:", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void inverseRegex() throws IOException {
+    String program = "composer parts\n"
+        + "<~'def'> <~'z'>\n"
+        + "end parts\n"
+        + "'abcdefg' -> parts -> ':$it;:' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals(":abc::defg:", output.toString(StandardCharsets.UTF_8));
+  }
 }

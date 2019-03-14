@@ -196,9 +196,11 @@ Composition matchers can be string literals containing regexp patterns [(current
 
 Other composition matchers are the ones defined in the composer as sub-patterns.
 
-There are also built-in composition matchers like <INT> which parses an integer and <WS> for a whitespace character.
+There are also built-in composition matchers like `<INT>` which parses an integer and `<WS>` for a sequence of whitespace characters.
 
 A composition matcher can have a qualifier after it, `?` if it is optional.
+
+A composition matcher can be negated by a tilde just inside the bracket, e.g. `<~WS>`, which will match everything up until the next matching pattern.
 
 ## Matchers
 A matcher is a condition enclosed by angle brackets. A sequence of matchers is evaluated from the

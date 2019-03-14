@@ -709,11 +709,11 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
     if (ctx.ComposerId() != null) {
       String matchRule = ctx.ComposerId().getText();
-      return new Composer.NamedComposition(matchRule, ctx.Optional() != null);
+      return new Composer.NamedComposition(matchRule, ctx.Optional() != null, ctx.InvertComposerMatch() != null);
     }
     if (ctx.REGEX_TEXT() != null) {
       String regex = ctx.REGEX_TEXT().getText();
-      return new Composer.RegexComposition(regex, ctx.Optional() != null);
+      return new Composer.RegexComposition(regex, ctx.Optional() != null, ctx.InvertComposerMatch() != null);
     }
     throw new UnsupportedOperationException("Unknown type of composition matcher");
   }

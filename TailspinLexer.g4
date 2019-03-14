@@ -161,6 +161,8 @@ StartComposerMatch: '<';
 
 EndComposerMatch: '>';
 
+InvertComposerMatch: '~';
+
 Optional: '?';
 
 START_REGEX: '\'' -> pushMode(IN_REGEX);

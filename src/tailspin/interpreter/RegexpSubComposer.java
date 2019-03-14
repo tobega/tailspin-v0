@@ -10,14 +10,16 @@ class RegexpSubComposer implements SubComposer {
   private final Pattern pattern;
   private final Function<? super String, Object> valueCreator;
   private final boolean optional;
+  private final boolean invert;
   String latestValue;
   boolean ready = true;
 
   RegexpSubComposer(Pattern pattern, Function<? super String, Object> valueCreator,
-      boolean optional) {
+      boolean optional, boolean invert) {
     this.pattern = pattern;
     this.valueCreator = valueCreator;
     this.optional = optional;
+    this.invert = invert;
   }
 
   @Override
@@ -26,7 +28,16 @@ class RegexpSubComposer implements SubComposer {
       return s;
     }
     Matcher matcher = pattern.matcher(s);
-    if (matcher.lookingAt()) {
+    if (invert) {
+      if (matcher.find()) {
+        latestValue = s.substring(0, matcher.start());
+        s = s.substring(matcher.start());
+      } else {
+        latestValue = s;
+        s = "";
+      }
+      ready = false;
+    } else if (matcher.lookingAt()) {
       latestValue = matcher.group();
       ready = false;
       return s.substring(matcher.end());

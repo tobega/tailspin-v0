@@ -44,11 +44,12 @@ class Composer implements Transform {
       NamedComposition namedSpec = (NamedComposition) spec;
       String name = namedSpec.namedPattern;
       return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name),
-          namedSpec.optional);
+          namedSpec.optional, namedSpec.invert);
     }
     if (spec instanceof RegexComposition) {
       RegexComposition regexSpec = (RegexComposition) spec;
-      return new RegexpSubComposer(Pattern.compile(regexSpec.pattern), Function.identity(), regexSpec.optional);
+      return new RegexpSubComposer(Pattern.compile(regexSpec.pattern), Function.identity(), regexSpec.optional,
+          regexSpec.invert);
     }
     if (spec instanceof SkipComposition) {
       return new SkipSubComposer(((SkipComposition) spec).skipSpecs.stream().map(this::resolveSpec).collect(
@@ -66,20 +67,24 @@ class Composer implements Transform {
   static class NamedComposition implements CompositionSpec {
     private final String namedPattern;
     private final boolean optional;
+    private final boolean invert;
 
-    NamedComposition(String namedPattern, boolean optional) {
+    NamedComposition(String namedPattern, boolean optional, boolean invert) {
       this.namedPattern = namedPattern;
       this.optional = optional;
+      this.invert = invert;
     }
   }
 
   static class RegexComposition implements CompositionSpec {
     private final String pattern;
     private final boolean optional;
+    private final boolean invert;
 
-    RegexComposition(String pattern, boolean optional) {
+    RegexComposition(String pattern, boolean optional, boolean invert) {
       this.pattern = pattern;
       this.optional = optional;
+      this.invert = invert;
     }
   }
 
