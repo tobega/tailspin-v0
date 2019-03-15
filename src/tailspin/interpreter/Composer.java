@@ -3,6 +3,7 @@ package tailspin.interpreter;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -19,9 +20,11 @@ class Composer implements Transform {
   }
 
   private final List<CompositionSpec> specs;
+  private final Map<String, List<CompositionSpec>> definedSequences;
 
-  Composer(List<CompositionSpec> specs) {
+  Composer(List<CompositionSpec> specs, Map<String, List<CompositionSpec>> definedSequences) {
     this.specs = specs;
+    this.definedSequences = definedSequences;
   }
 
   @Override
@@ -43,6 +46,9 @@ class Composer implements Transform {
     if (spec instanceof NamedComposition) {
       NamedComposition namedSpec = (NamedComposition) spec;
       String name = namedSpec.namedPattern;
+      if (definedSequences.containsKey(name)) {
+        return new SequenceSubComposer(resolveSpecs(definedSequences.get(name)));
+      }
       return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name),
           namedSpec.optional, namedSpec.invert);
     }
@@ -52,14 +58,17 @@ class Composer implements Transform {
           regexSpec.invert);
     }
     if (spec instanceof SkipComposition) {
-      return new SkipSubComposer(((SkipComposition) spec).skipSpecs.stream().map(this::resolveSpec).collect(
-          Collectors.toList()));
+      return new SkipSubComposer(resolveSpecs(((SkipComposition) spec).skipSpecs));
     }
     if (spec instanceof ArrayComposition) {
-      return new ArraySubComposer(((ArrayComposition) spec).itemSpecs.stream().map(this::resolveSpec).collect(
-          Collectors.toList()));
+      return new ArraySubComposer(resolveSpecs(((ArrayComposition) spec).itemSpecs));
     }
     throw new UnsupportedOperationException("Unknown composition spec " + spec.getClass().getSimpleName());
+  }
+
+  private List<SubComposer> resolveSpecs(List<CompositionSpec> specs) {
+    return specs.stream().map(this::resolveSpec).collect(
+        Collectors.toList());
   }
 
   interface CompositionSpec {}

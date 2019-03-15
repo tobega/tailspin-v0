@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -15,6 +16,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
+import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
 import tailspin.parser.TailspinParser.DimensionDereferenceContext;
 import tailspin.parser.TailspinParser.SendToTemplatesContext;
 import tailspin.parser.TailspinParser.ValueProductionContext;
@@ -688,7 +690,12 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Composer visitComposerBody(TailspinParser.ComposerBodyContext ctx) {
-    return new Composer(visitCompositionSequence(ctx.compositionSequence()));
+    Map<String, List<CompositionSpec>> definedSequences = new HashMap<>();
+    for (DefinedCompositionSequenceContext definition : ctx.definedCompositionSequence()) {
+      String key = definition.SequenceKey().getText().replace(":", "");
+      definedSequences.put(key, visitCompositionSequence(definition.compositionSequence()));
+    }
+    return new Composer(visitCompositionSequence(ctx.compositionSequence()), definedSequences);
   }
 
   @Override

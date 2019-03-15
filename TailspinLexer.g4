@@ -163,6 +163,8 @@ EndComposerMatch: '>';
 
 InvertComposerMatch: '~';
 
+SequenceKey: Key;
+
 Optional: '?';
 
 START_REGEX: '\'' -> pushMode(IN_REGEX);

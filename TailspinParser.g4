@@ -127,7 +127,10 @@ arithmeticExpression: integerLiteral
   | arithmeticExpression AdditiveOperator arithmeticExpression
 ;
 
-composerBody: compositionSequence
+composerBody: compositionSequence definedCompositionSequence*
+;
+
+definedCompositionSequence: SequenceKey compositionSequence
 ;
 
 compositionSequence: compositionMatcher+
