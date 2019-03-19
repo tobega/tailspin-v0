@@ -32,9 +32,9 @@ public class TailspinLexer extends Lexer {
 		StartArrayMatch=55, EndArrayMatch=56, StructureKey=57, MatchDereference=58, 
 		MatchArrayDereference=59, MatchFieldDereference=60, MatcherIgnoreWS=61, 
 		Comment=62, ComposerEndDefinition=63, StartComposerMatch=64, EndComposerMatch=65, 
-		InvertComposerMatch=66, SequenceKey=67, Optional=68, START_REGEX=69, StartSkipRule=70, 
-		EndSkipRule=71, StartBuildArray=72, EndBuildArray=73, ComposerId=74, ComposerIgnoreWS=75, 
-		REGEX_TEXT=76, END_REGEX=77;
+		InvertComposerMatch=66, SequenceKey=67, Multiplier=68, START_REGEX=69, 
+		StartSkipRule=70, EndSkipRule=71, StartBuildArray=72, EndBuildArray=73, 
+		ComposerId=74, ComposerIgnoreWS=75, REGEX_TEXT=76, END_REGEX=77;
 	public static final int
 		IN_STRING=1, INTERPOLATE=2, MATCHER=3, COMMENT_MODE=4, COMPOSER=5, IN_REGEX=6;
 	public static String[] channelNames = {
@@ -61,7 +61,7 @@ public class TailspinLexer extends Lexer {
 		"StartStructureMatch", "EndStructureMatch", "StartArrayMatch", "EndArrayMatch", 
 		"StructureKey", "MatchDereference", "MatchArrayDereference", "MatchFieldDereference", 
 		"MatcherIgnoreWS", "Comment", "ComposerEndDefinition", "StartComposerMatch", 
-		"EndComposerMatch", "InvertComposerMatch", "SequenceKey", "Optional", 
+		"EndComposerMatch", "InvertComposerMatch", "SequenceKey", "Multiplier", 
 		"START_REGEX", "StartSkipRule", "EndSkipRule", "StartBuildArray", "EndBuildArray", 
 		"ComposerId", "ComposerIgnoreWS", "REGEX_TEXT", "REGEX_CHAR", "END_REGEX"
 	};
@@ -71,9 +71,7 @@ public class TailspinLexer extends Lexer {
 		"'!'", "':'", null, null, "'...'", null, null, null, null, "'{'", "'}'", 
 		null, null, "'templates'", "'composer'", null, "'#'", null, "'..'", null, 
 		null, "'0'", null, null, null, null, "'$('", null, null, null, null, null, 
-		null, null, "'|'", null, null, null, null, "'?('", null, null, null, null, 
-		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, "'?'"
+		null, null, "'|'", null, null, null, null, "'?('"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, "StartComment", "Stdout", "Stdin", "Def", "Dereference", "StartArrayDereference", 
@@ -89,7 +87,7 @@ public class TailspinLexer extends Lexer {
 		"StartStructureMatch", "EndStructureMatch", "StartArrayMatch", "EndArrayMatch", 
 		"StructureKey", "MatchDereference", "MatchArrayDereference", "MatchFieldDereference", 
 		"MatcherIgnoreWS", "Comment", "ComposerEndDefinition", "StartComposerMatch", 
-		"EndComposerMatch", "InvertComposerMatch", "SequenceKey", "Optional", 
+		"EndComposerMatch", "InvertComposerMatch", "SequenceKey", "Multiplier", 
 		"START_REGEX", "StartSkipRule", "EndSkipRule", "StartBuildArray", "EndBuildArray", 
 		"ComposerId", "ComposerIgnoreWS", "REGEX_TEXT", "END_REGEX"
 	};
@@ -189,28 +187,28 @@ public class TailspinLexer extends Lexer {
 		"Q\2S%U&W\'Y([\2])_*a+c,e-g.i/k\60m\61o\62q\63s\64u\65w\66y\67{8}9\177"+
 		":\u0081;\u0083<\u0085=\u0087>\u0089?\u008b@\u008dA\u008fB\u0091C\u0093"+
 		"D\u0095E\u0097F\u0099G\u009bH\u009dI\u009fJ\u00a1K\u00a3L\u00a5M\u00a7"+
-		"N\u00a9\2\u00abO\t\2\3\4\5\6\7\b\r\5\2\13\f\17\17\"\"\4\2--//\4\2,,\61"+
-		"\61\3\2\63;\3\2\62;\4\2C\\c|\4\2\62;aa\4\2&&))\3\2\f\f\3\3\f\f\3\2))\2"+
-		"\u01f0\2\t\3\2\2\2\2\13\3\2\2\2\2\r\3\2\2\2\2\17\3\2\2\2\2\21\3\2\2\2"+
-		"\2\23\3\2\2\2\2\25\3\2\2\2\2\27\3\2\2\2\2\31\3\2\2\2\2\33\3\2\2\2\2\35"+
-		"\3\2\2\2\2\37\3\2\2\2\2!\3\2\2\2\2#\3\2\2\2\2%\3\2\2\2\2\'\3\2\2\2\2)"+
-		"\3\2\2\2\2+\3\2\2\2\2-\3\2\2\2\2/\3\2\2\2\2\61\3\2\2\2\2\63\3\2\2\2\2"+
-		"\65\3\2\2\2\2\67\3\2\2\2\29\3\2\2\2\2;\3\2\2\2\2=\3\2\2\2\2?\3\2\2\2\2"+
-		"A\3\2\2\2\2C\3\2\2\2\2E\3\2\2\2\2G\3\2\2\2\2K\3\2\2\2\2M\3\2\2\2\2S\3"+
-		"\2\2\2\3U\3\2\2\2\3W\3\2\2\2\3Y\3\2\2\2\3]\3\2\2\2\4_\3\2\2\2\4a\3\2\2"+
-		"\2\4c\3\2\2\2\4e\3\2\2\2\5g\3\2\2\2\5i\3\2\2\2\5k\3\2\2\2\5m\3\2\2\2\5"+
-		"o\3\2\2\2\5q\3\2\2\2\5s\3\2\2\2\5u\3\2\2\2\5w\3\2\2\2\5y\3\2\2\2\5{\3"+
-		"\2\2\2\5}\3\2\2\2\5\177\3\2\2\2\5\u0081\3\2\2\2\5\u0083\3\2\2\2\5\u0085"+
-		"\3\2\2\2\5\u0087\3\2\2\2\5\u0089\3\2\2\2\6\u008b\3\2\2\2\7\u008d\3\2\2"+
-		"\2\7\u008f\3\2\2\2\7\u0091\3\2\2\2\7\u0093\3\2\2\2\7\u0095\3\2\2\2\7\u0097"+
-		"\3\2\2\2\7\u0099\3\2\2\2\7\u009b\3\2\2\2\7\u009d\3\2\2\2\7\u009f\3\2\2"+
-		"\2\7\u00a1\3\2\2\2\7\u00a3\3\2\2\2\7\u00a5\3\2\2\2\b\u00a7\3\2\2\2\b\u00ab"+
-		"\3\2\2\2\t\u00ad\3\2\2\2\13\u00b3\3\2\2\2\r\u00ba\3\2\2\2\17\u00c0\3\2"+
-		"\2\2\21\u00c6\3\2\2\2\23\u00ce\3\2\2\2\25\u00d3\3\2\2\2\27\u00d6\3\2\2"+
-		"\2\31\u00dc\3\2\2\2\33\u00df\3\2\2\2\35\u00e1\3\2\2\2\37\u00e3\3\2\2\2"+
-		"!\u00e5\3\2\2\2#\u00e7\3\2\2\2%\u00eb\3\2\2\2\'\u00ef\3\2\2\2)\u00f3\3"+
-		"\2\2\2+\u00f5\3\2\2\2-\u00f7\3\2\2\2/\u00f9\3\2\2\2\61\u00fb\3\2\2\2\63"+
-		"\u00fe\3\2\2\2\65\u0102\3\2\2\2\67\u010c\3\2\2\29\u0117\3\2\2\2;\u011b"+
+		"N\u00a9\2\u00abO\t\2\3\4\5\6\7\b\16\5\2\13\f\17\17\"\"\4\2--//\4\2,,\61"+
+		"\61\3\2\63;\3\2\62;\4\2C\\c|\4\2\62;aa\4\2&&))\3\2\f\f\3\3\f\f\4\2,-A"+
+		"A\3\2))\2\u01f0\2\t\3\2\2\2\2\13\3\2\2\2\2\r\3\2\2\2\2\17\3\2\2\2\2\21"+
+		"\3\2\2\2\2\23\3\2\2\2\2\25\3\2\2\2\2\27\3\2\2\2\2\31\3\2\2\2\2\33\3\2"+
+		"\2\2\2\35\3\2\2\2\2\37\3\2\2\2\2!\3\2\2\2\2#\3\2\2\2\2%\3\2\2\2\2\'\3"+
+		"\2\2\2\2)\3\2\2\2\2+\3\2\2\2\2-\3\2\2\2\2/\3\2\2\2\2\61\3\2\2\2\2\63\3"+
+		"\2\2\2\2\65\3\2\2\2\2\67\3\2\2\2\29\3\2\2\2\2;\3\2\2\2\2=\3\2\2\2\2?\3"+
+		"\2\2\2\2A\3\2\2\2\2C\3\2\2\2\2E\3\2\2\2\2G\3\2\2\2\2K\3\2\2\2\2M\3\2\2"+
+		"\2\2S\3\2\2\2\3U\3\2\2\2\3W\3\2\2\2\3Y\3\2\2\2\3]\3\2\2\2\4_\3\2\2\2\4"+
+		"a\3\2\2\2\4c\3\2\2\2\4e\3\2\2\2\5g\3\2\2\2\5i\3\2\2\2\5k\3\2\2\2\5m\3"+
+		"\2\2\2\5o\3\2\2\2\5q\3\2\2\2\5s\3\2\2\2\5u\3\2\2\2\5w\3\2\2\2\5y\3\2\2"+
+		"\2\5{\3\2\2\2\5}\3\2\2\2\5\177\3\2\2\2\5\u0081\3\2\2\2\5\u0083\3\2\2\2"+
+		"\5\u0085\3\2\2\2\5\u0087\3\2\2\2\5\u0089\3\2\2\2\6\u008b\3\2\2\2\7\u008d"+
+		"\3\2\2\2\7\u008f\3\2\2\2\7\u0091\3\2\2\2\7\u0093\3\2\2\2\7\u0095\3\2\2"+
+		"\2\7\u0097\3\2\2\2\7\u0099\3\2\2\2\7\u009b\3\2\2\2\7\u009d\3\2\2\2\7\u009f"+
+		"\3\2\2\2\7\u00a1\3\2\2\2\7\u00a3\3\2\2\2\7\u00a5\3\2\2\2\b\u00a7\3\2\2"+
+		"\2\b\u00ab\3\2\2\2\t\u00ad\3\2\2\2\13\u00b3\3\2\2\2\r\u00ba\3\2\2\2\17"+
+		"\u00c0\3\2\2\2\21\u00c6\3\2\2\2\23\u00ce\3\2\2\2\25\u00d3\3\2\2\2\27\u00d6"+
+		"\3\2\2\2\31\u00dc\3\2\2\2\33\u00df\3\2\2\2\35\u00e1\3\2\2\2\37\u00e3\3"+
+		"\2\2\2!\u00e5\3\2\2\2#\u00e7\3\2\2\2%\u00eb\3\2\2\2\'\u00ef\3\2\2\2)\u00f3"+
+		"\3\2\2\2+\u00f5\3\2\2\2-\u00f7\3\2\2\2/\u00f9\3\2\2\2\61\u00fb\3\2\2\2"+
+		"\63\u00fe\3\2\2\2\65\u0102\3\2\2\2\67\u010c\3\2\2\29\u0117\3\2\2\2;\u011b"+
 		"\3\2\2\2=\u011d\3\2\2\2?\u011f\3\2\2\2A\u0122\3\2\2\2C\u0128\3\2\2\2E"+
 		"\u012a\3\2\2\2G\u012d\3\2\2\2I\u0134\3\2\2\2K\u0138\3\2\2\2M\u013c\3\2"+
 		"\2\2O\u0143\3\2\2\2Q\u0147\3\2\2\2S\u014a\3\2\2\2U\u0150\3\2\2\2W\u0155"+
@@ -304,19 +302,19 @@ public class TailspinLexer extends Lexer {
 		"\7f\2\2\u01bd\u01be\3\2\2\2\u01be\u01bf\bD\5\2\u01bf\u008e\3\2\2\2\u01c0"+
 		"\u01c1\7>\2\2\u01c1\u0090\3\2\2\2\u01c2\u01c3\7@\2\2\u01c3\u0092\3\2\2"+
 		"\2\u01c4\u01c5\7\u0080\2\2\u01c5\u0094\3\2\2\2\u01c6\u01c7\5\61\26\2\u01c7"+
-		"\u0096\3\2\2\2\u01c8\u01c9\7A\2\2\u01c9\u0098\3\2\2\2\u01ca\u01cb\7)\2"+
-		"\2\u01cb\u01cc\3\2\2\2\u01cc\u01cd\bJ\n\2\u01cd\u009a\3\2\2\2\u01ce\u01cf"+
-		"\7*\2\2\u01cf\u009c\3\2\2\2\u01d0\u01d1\7+\2\2\u01d1\u009e\3\2\2\2\u01d2"+
-		"\u01d3\7]\2\2\u01d3\u00a0\3\2\2\2\u01d4\u01d5\7_\2\2\u01d5\u00a2\3\2\2"+
-		"\2\u01d6\u01d7\5M$\2\u01d7\u00a4\3\2\2\2\u01d8\u01d9\5S\'\2\u01d9\u01da"+
-		"\3\2\2\2\u01da\u01db\bP\2\2\u01db\u00a6\3\2\2\2\u01dc\u01de\5\u00a9R\2"+
-		"\u01dd\u01dc\3\2\2\2\u01de\u01df\3\2\2\2\u01df\u01dd\3\2\2\2\u01df\u01e0"+
-		"\3\2\2\2\u01e0\u00a8\3\2\2\2\u01e1\u01e2\7)\2\2\u01e2\u01e5\7)\2\2\u01e3"+
-		"\u01e5\n\f\2\2\u01e4\u01e1\3\2\2\2\u01e4\u01e3\3\2\2\2\u01e5\u00aa\3\2"+
-		"\2\2\u01e6\u01e7\7)\2\2\u01e7\u01e8\3\2\2\2\u01e8\u01e9\bS\5\2\u01e9\u00ac"+
-		"\3\2\2\2\33\2\3\4\5\6\7\b\u00c9\u00cc\u0128\u012d\u0131\u0136\u0140\u0147"+
-		"\u014c\u015c\u0163\u018a\u019f\u01a2\u01b1\u01b5\u01df\u01e4\13\b\2\2"+
-		"\7\6\2\7\2\2\6\2\2\7\5\2\7\7\2\7\3\2\7\4\2\7\b\2";
+		"\u0096\3\2\2\2\u01c8\u01c9\t\f\2\2\u01c9\u0098\3\2\2\2\u01ca\u01cb\7)"+
+		"\2\2\u01cb\u01cc\3\2\2\2\u01cc\u01cd\bJ\n\2\u01cd\u009a\3\2\2\2\u01ce"+
+		"\u01cf\7*\2\2\u01cf\u009c\3\2\2\2\u01d0\u01d1\7+\2\2\u01d1\u009e\3\2\2"+
+		"\2\u01d2\u01d3\7]\2\2\u01d3\u00a0\3\2\2\2\u01d4\u01d5\7_\2\2\u01d5\u00a2"+
+		"\3\2\2\2\u01d6\u01d7\5M$\2\u01d7\u00a4\3\2\2\2\u01d8\u01d9\5S\'\2\u01d9"+
+		"\u01da\3\2\2\2\u01da\u01db\bP\2\2\u01db\u00a6\3\2\2\2\u01dc\u01de\5\u00a9"+
+		"R\2\u01dd\u01dc\3\2\2\2\u01de\u01df\3\2\2\2\u01df\u01dd\3\2\2\2\u01df"+
+		"\u01e0\3\2\2\2\u01e0\u00a8\3\2\2\2\u01e1\u01e2\7)\2\2\u01e2\u01e5\7)\2"+
+		"\2\u01e3\u01e5\n\r\2\2\u01e4\u01e1\3\2\2\2\u01e4\u01e3\3\2\2\2\u01e5\u00aa"+
+		"\3\2\2\2\u01e6\u01e7\7)\2\2\u01e7\u01e8\3\2\2\2\u01e8\u01e9\bS\5\2\u01e9"+
+		"\u00ac\3\2\2\2\33\2\3\4\5\6\7\b\u00c9\u00cc\u0128\u012d\u0131\u0136\u0140"+
+		"\u0147\u014c\u015c\u0163\u018a\u019f\u01a2\u01b1\u01b5\u01df\u01e4\13"+
+		"\b\2\2\7\6\2\7\2\2\6\2\2\7\5\2\7\7\2\7\3\2\7\4\2\7\b\2";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

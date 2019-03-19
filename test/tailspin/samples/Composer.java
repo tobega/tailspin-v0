@@ -245,4 +245,70 @@ class Composer {
 
     assertEquals(":Hello::World!:", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void atLeastOne() throws IOException {
+    String program = "composer words\n"
+        + "<word>+\n"
+        + "word: <~WS> (<WS>?)\n"
+        + "end words\n"
+        + "'Hello World!' -> words -> ':$it;:' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals(":Hello::World!:", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void atLeastOneThrowsOnNone() throws IOException {
+    String program = "composer words\n"
+        + "<word>+\n"
+        + "word: <~WS> (<WS>?)\n"
+        + "end words\n"
+        + "'' -> words -> ':$it;:' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
+  }
+
+  @Test
+  void any() throws IOException {
+    String program = "composer words\n"
+        + "<word>*\n"
+        + "word: <~WS> (<WS>?)\n"
+        + "end words\n"
+        + "'Hello World!' -> words -> ':$it;:' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals(":Hello::World!:", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void anyNoneOk() throws IOException {
+    String program = "composer words\n"
+        + "<word>*\n"
+        + "word: <~WS> (<WS>?)\n"
+        + "end words\n"
+        + "'' -> words -> ':$it;:' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("::", output.toString(StandardCharsets.UTF_8));
+  }
 }

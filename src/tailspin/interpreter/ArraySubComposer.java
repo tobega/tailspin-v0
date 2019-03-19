@@ -31,4 +31,9 @@ public class ArraySubComposer implements SubComposer {
     value = null;
     return result;
   }
+
+  @Override
+  public boolean isSatisfied() {
+    return  itemComposers.stream().allMatch(SubComposer::isSatisfied);
+  }
 }

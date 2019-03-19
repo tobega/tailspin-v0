@@ -7,4 +7,6 @@ public interface SubComposer {
   String nibble(String s);
 
   Queue<Object> getValues();
+
+  boolean isSatisfied();
 }

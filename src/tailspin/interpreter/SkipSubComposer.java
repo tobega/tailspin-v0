@@ -24,4 +24,9 @@ public class SkipSubComposer implements SubComposer {
   public Queue<Object> getValues() {
     return new ArrayDeque<>();
   }
+
+  @Override
+  public boolean isSatisfied() {
+    return  subComposers.stream().allMatch(SubComposer::isSatisfied);
+  }
 }

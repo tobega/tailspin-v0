@@ -136,8 +136,8 @@ definedCompositionSequence: SequenceKey compositionSequence
 compositionSequence: compositionMatcher+
 ;
 
-compositionMatcher: StartComposerMatch InvertComposerMatch? ComposerId EndComposerMatch Optional?
-  | StartComposerMatch InvertComposerMatch? START_REGEX REGEX_TEXT END_REGEX EndComposerMatch Optional?
+compositionMatcher: StartComposerMatch InvertComposerMatch? ComposerId EndComposerMatch Multiplier?
+  | StartComposerMatch InvertComposerMatch? START_REGEX REGEX_TEXT END_REGEX EndComposerMatch Multiplier?
   | StartSkipRule compositionSequence EndSkipRule
   | StartBuildArray compositionSequence EndBuildArray
 ;

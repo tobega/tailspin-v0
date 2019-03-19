@@ -30,4 +30,9 @@ public class SequenceSubComposer implements SubComposer {
     value = null;
     return result;
   }
+
+  @Override
+  public boolean isSatisfied() {
+    return  subComposers.stream().allMatch(SubComposer::isSatisfied);
+  }
 }

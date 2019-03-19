@@ -32,9 +32,9 @@ public class TailspinParser extends Parser {
 		StartArrayMatch=55, EndArrayMatch=56, StructureKey=57, MatchDereference=58, 
 		MatchArrayDereference=59, MatchFieldDereference=60, MatcherIgnoreWS=61, 
 		Comment=62, ComposerEndDefinition=63, StartComposerMatch=64, EndComposerMatch=65, 
-		InvertComposerMatch=66, SequenceKey=67, Optional=68, START_REGEX=69, StartSkipRule=70, 
-		EndSkipRule=71, StartBuildArray=72, EndBuildArray=73, ComposerId=74, ComposerIgnoreWS=75, 
-		REGEX_TEXT=76, END_REGEX=77;
+		InvertComposerMatch=66, SequenceKey=67, Multiplier=68, START_REGEX=69, 
+		StartSkipRule=70, EndSkipRule=71, StartBuildArray=72, EndBuildArray=73, 
+		ComposerId=74, ComposerIgnoreWS=75, REGEX_TEXT=76, END_REGEX=77;
 	public static final int
 		RULE_program = 0, RULE_statement = 1, RULE_source = 2, RULE_dereferenceValue = 3, 
 		RULE_structureDereference = 4, RULE_arrayDereference = 5, RULE_dimensionDereference = 6, 
@@ -70,9 +70,7 @@ public class TailspinParser extends Parser {
 		"'!'", "':'", null, null, "'...'", null, null, null, null, "'{'", "'}'", 
 		null, null, "'templates'", "'composer'", null, "'#'", null, "'..'", null, 
 		null, "'0'", null, null, null, null, "'$('", null, null, null, null, null, 
-		null, null, "'|'", null, null, null, null, "'?('", null, null, null, null, 
-		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, "'?'"
+		null, null, "'|'", null, null, null, null, "'?('"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, "StartComment", "Stdout", "Stdin", "Def", "Dereference", "StartArrayDereference", 
@@ -88,7 +86,7 @@ public class TailspinParser extends Parser {
 		"StartStructureMatch", "EndStructureMatch", "StartArrayMatch", "EndArrayMatch", 
 		"StructureKey", "MatchDereference", "MatchArrayDereference", "MatchFieldDereference", 
 		"MatcherIgnoreWS", "Comment", "ComposerEndDefinition", "StartComposerMatch", 
-		"EndComposerMatch", "InvertComposerMatch", "SequenceKey", "Optional", 
+		"EndComposerMatch", "InvertComposerMatch", "SequenceKey", "Multiplier", 
 		"START_REGEX", "StartSkipRule", "EndSkipRule", "StartBuildArray", "EndBuildArray", 
 		"ComposerId", "ComposerIgnoreWS", "REGEX_TEXT", "END_REGEX"
 	};
@@ -3388,7 +3386,7 @@ public class TailspinParser extends Parser {
 		public TerminalNode ComposerId() { return getToken(TailspinParser.ComposerId, 0); }
 		public TerminalNode EndComposerMatch() { return getToken(TailspinParser.EndComposerMatch, 0); }
 		public TerminalNode InvertComposerMatch() { return getToken(TailspinParser.InvertComposerMatch, 0); }
-		public TerminalNode Optional() { return getToken(TailspinParser.Optional, 0); }
+		public TerminalNode Multiplier() { return getToken(TailspinParser.Multiplier, 0); }
 		public TerminalNode START_REGEX() { return getToken(TailspinParser.START_REGEX, 0); }
 		public TerminalNode REGEX_TEXT() { return getToken(TailspinParser.REGEX_TEXT, 0); }
 		public TerminalNode END_REGEX() { return getToken(TailspinParser.END_REGEX, 0); }
@@ -3440,10 +3438,10 @@ public class TailspinParser extends Parser {
 				setState(511);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if (_la==Optional) {
+				if (_la==Multiplier) {
 					{
 					setState(510);
-					match(Optional);
+					match(Multiplier);
 					}
 				}
 
@@ -3475,10 +3473,10 @@ public class TailspinParser extends Parser {
 				setState(522);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if (_la==Optional) {
+				if (_la==Multiplier) {
 					{
 					setState(521);
-					match(Optional);
+					match(Multiplier);
 					}
 				}
 

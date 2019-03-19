@@ -67,7 +67,7 @@ null
 null
 null
 null
-'?'
+null
 null
 null
 null
@@ -147,7 +147,7 @@ StartComposerMatch
 EndComposerMatch
 InvertComposerMatch
 SequenceKey
-Optional
+Multiplier
 START_REGEX
 StartSkipRule
 EndSkipRule

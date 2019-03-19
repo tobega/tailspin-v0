@@ -708,20 +708,26 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Composer.CompositionSpec visitCompositionMatcher(
       TailspinParser.CompositionMatcherContext ctx) {
+    CompositionSpec compositionSpec;
     if (ctx.StartSkipRule() != null) {
-      return new Composer.SkipComposition(visitCompositionSequence(ctx.compositionSequence()));
-    }
-    if (ctx.StartBuildArray() != null) {
-      return new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()));
-    }
-    if (ctx.ComposerId() != null) {
+      compositionSpec = new Composer.SkipComposition(visitCompositionSequence(ctx.compositionSequence()));
+    } else if (ctx.StartBuildArray() != null) {
+      compositionSpec = new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()));
+    } else if (ctx.ComposerId() != null) {
       String matchRule = ctx.ComposerId().getText();
-      return new Composer.NamedComposition(matchRule, ctx.Optional() != null, ctx.InvertComposerMatch() != null);
-    }
-    if (ctx.REGEX_TEXT() != null) {
+      compositionSpec = new Composer.NamedComposition(matchRule, ctx.InvertComposerMatch() != null);
+    } else if (ctx.REGEX_TEXT() != null) {
       String regex = ctx.REGEX_TEXT().getText();
-      return new Composer.RegexComposition(regex, ctx.Optional() != null, ctx.InvertComposerMatch() != null);
+      compositionSpec = new Composer.RegexComposition(regex, ctx.InvertComposerMatch() != null);
+    } else {
+      throw new UnsupportedOperationException("Unknown type of composition matcher");
     }
-    throw new UnsupportedOperationException("Unknown type of composition matcher");
+    if (ctx.Multiplier() == null) return compositionSpec;
+    switch (ctx.Multiplier().getText()) {
+      case "?": return new Composer.OptionalComposition(compositionSpec);
+      case "+": return new Composer.OneOrMoreComposition(compositionSpec);
+      case "*": return new Composer.AnyComposition(compositionSpec);
+      default: throw new UnsupportedOperationException("Unknown multiplier " + ctx.Multiplier().getText());
+    }
   }
 }

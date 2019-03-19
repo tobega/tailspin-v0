@@ -165,7 +165,7 @@ InvertComposerMatch: '~';
 
 SequenceKey: Key;
 
-Optional: '?';
+Multiplier: '?' | '+' | '*';
 
 START_REGEX: '\'' -> pushMode(IN_REGEX);
 

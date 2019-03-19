@@ -50,11 +50,11 @@ class Composer implements Transform {
         return new SequenceSubComposer(resolveSpecs(definedSequences.get(name)));
       }
       return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name),
-          namedSpec.optional, namedSpec.invert);
+          namedSpec.invert);
     }
     if (spec instanceof RegexComposition) {
       RegexComposition regexSpec = (RegexComposition) spec;
-      return new RegexpSubComposer(Pattern.compile(regexSpec.pattern), Function.identity(), regexSpec.optional,
+      return new RegexpSubComposer(Pattern.compile(regexSpec.pattern), Function.identity(),
           regexSpec.invert);
     }
     if (spec instanceof SkipComposition) {
@@ -62,6 +62,15 @@ class Composer implements Transform {
     }
     if (spec instanceof ArrayComposition) {
       return new ArraySubComposer(resolveSpecs(((ArrayComposition) spec).itemSpecs));
+    }
+    if (spec instanceof OptionalComposition) {
+      return new OptionalSubComposer(resolveSpec(((OptionalComposition) spec).compositionSpec));
+    }
+    if (spec instanceof OneOrMoreComposition) {
+      return new OneOrMoreSubComposer(resolveSpec(((OneOrMoreComposition) spec).compositionSpec));
+    }
+    if (spec instanceof AnyComposition) {
+      return new AnySubComposer(resolveSpec(((AnyComposition) spec).compositionSpec));
     }
     throw new UnsupportedOperationException("Unknown composition spec " + spec.getClass().getSimpleName());
   }
@@ -75,24 +84,20 @@ class Composer implements Transform {
 
   static class NamedComposition implements CompositionSpec {
     private final String namedPattern;
-    private final boolean optional;
     private final boolean invert;
 
-    NamedComposition(String namedPattern, boolean optional, boolean invert) {
+    NamedComposition(String namedPattern, boolean invert) {
       this.namedPattern = namedPattern;
-      this.optional = optional;
       this.invert = invert;
     }
   }
 
   static class RegexComposition implements CompositionSpec {
     private final String pattern;
-    private final boolean optional;
     private final boolean invert;
 
-    RegexComposition(String pattern, boolean optional, boolean invert) {
+    RegexComposition(String pattern, boolean invert) {
       this.pattern = pattern;
-      this.optional = optional;
       this.invert = invert;
     }
   }
@@ -110,6 +115,30 @@ class Composer implements Transform {
 
     public ArrayComposition(List<CompositionSpec> itemSpecs) {
       this.itemSpecs = itemSpecs;
+    }
+  }
+
+  static class OptionalComposition implements CompositionSpec {
+    private final CompositionSpec compositionSpec;
+
+    public OptionalComposition(CompositionSpec compositionSpec) {
+      this.compositionSpec = compositionSpec;
+    }
+  }
+
+  static class OneOrMoreComposition implements CompositionSpec {
+    private final CompositionSpec compositionSpec;
+
+    public OneOrMoreComposition(CompositionSpec compositionSpec) {
+      this.compositionSpec = compositionSpec;
+    }
+  }
+
+  static class AnyComposition implements CompositionSpec {
+    private final CompositionSpec compositionSpec;
+
+    public AnyComposition(CompositionSpec compositionSpec) {
+      this.compositionSpec = compositionSpec;
     }
   }
 }

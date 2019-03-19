@@ -56,7 +56,7 @@ Decimal numbers will probably have to be typed by number of significant digits a
 
 ### Range literal
 A range literal produces a [stream](#streams) of numbers. They are specified by a start, an end and
-an optional increment, e.g. `1..10` will give the numbers 1 to 10 inclusive and `10..1:-1` does the same but backwards.
+an multiplier increment, e.g. `1..10` will give the numbers 1 to 10 inclusive and `10..1:-1` does the same but backwards.
 
 _Current limitations_: start, end and increment must all be integer literals. (At some point they will most likely be full arithmetic expressions)
 
@@ -137,7 +137,7 @@ Slightly different things happen depending on what type of object is used as a c
  * An array: append the stream to the end of the array.
  
 ### Templates
-A templates object consists of an optional _initial block_ and an optional sequence of [matchers](#matchers),
+A templates object consists of an multiplier _initial block_ and an multiplier sequence of [matchers](#matchers),
 each with a _block_.
 
 A block is simply a series of value chains that either dry up, with no value for the next stage;
@@ -198,7 +198,7 @@ Other composition matchers are the ones defined in the composer as sub-patterns.
 
 There are also built-in composition matchers like `<INT>` which parses an integer and `<WS>` for a sequence of whitespace characters.
 
-A composition matcher can have a qualifier after it, `?` if it is optional.
+A composition matcher can have a qualifier after it, `?` if it is multiplier.
 
 A composition matcher can be negated by a tilde just inside the bracket, e.g. `<~WS>`, which will match everything up until the next matching pattern.
 
