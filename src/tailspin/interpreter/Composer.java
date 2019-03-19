@@ -34,6 +34,9 @@ class Composer implements Transform {
     for (CompositionSpec spec : specs) {
       SubComposer subComposer = resolveSpec(spec);
       s = subComposer.nibble(s);
+      if (!subComposer.isSatisfied()) {
+        throw new IllegalStateException("No composer match at '" + s + "'");
+      }
       result.addAll(subComposer.getValues());
     }
     if (!s.isEmpty()) {

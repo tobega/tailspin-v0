@@ -309,6 +309,6 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output);
 
-    assertEquals("::", output.toString(StandardCharsets.UTF_8));
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
   }
 }

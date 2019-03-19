@@ -8,7 +8,7 @@ public class OneOrMoreSubComposer implements SubComposer {
   private final SubComposer subComposer;
   private Queue<Object> values;
 
-  public OneOrMoreSubComposer(SubComposer subComposer) {
+  OneOrMoreSubComposer(SubComposer subComposer) {
     this.subComposer = subComposer;
   }
 

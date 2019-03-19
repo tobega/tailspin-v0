@@ -6,15 +6,18 @@ import java.util.Queue;
 
 public class SkipSubComposer implements SubComposer {
   private final List<SubComposer> subComposers;
+  private boolean satisfied = false;
 
-  public SkipSubComposer(List<SubComposer> subComposers) {
+  SkipSubComposer(List<SubComposer> subComposers) {
     this.subComposers = subComposers;
   }
 
   @Override
   public String nibble(String s) {
     for (SubComposer subComposer : subComposers) {
+      satisfied = true;
       s = subComposer.nibble(s);
+      satisfied &= subComposer.isSatisfied();
       subComposer.getValues(); // Skip values
     }
     return s;
@@ -22,11 +25,12 @@ public class SkipSubComposer implements SubComposer {
 
   @Override
   public Queue<Object> getValues() {
+    satisfied = false;
     return new ArrayDeque<>();
   }
 
   @Override
   public boolean isSatisfied() {
-    return  subComposers.stream().allMatch(SubComposer::isSatisfied);
+    return  satisfied;
   }
 }

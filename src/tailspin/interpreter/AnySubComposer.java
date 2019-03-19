@@ -8,7 +8,7 @@ public class AnySubComposer implements SubComposer {
   private final SubComposer subComposer;
   private Queue<Object> values;
 
-  public AnySubComposer(SubComposer subComposer) {
+  AnySubComposer(SubComposer subComposer) {
     this.subComposer = subComposer;
   }
 

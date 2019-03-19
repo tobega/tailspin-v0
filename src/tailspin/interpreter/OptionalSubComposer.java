@@ -7,7 +7,7 @@ public class OptionalSubComposer implements SubComposer {
 
   private final SubComposer subComposer;
 
-  public OptionalSubComposer(SubComposer subComposer) {
+  OptionalSubComposer(SubComposer subComposer) {
     this.subComposer = subComposer;
   }
 
