@@ -147,7 +147,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     return  resolveDimensionDereference(ctx.dimensionDereference(), 0, array);
   }
 
-  Object resolveDimensionDereference(
+  private Object resolveDimensionDereference(
       List<TailspinParser.DimensionDereferenceContext> dimensionDereferences,
       int currentDereference,
       List<?> array) {
@@ -595,8 +595,19 @@ public class RunMain extends TailspinParserBaseVisitor {
               + ":"
               + ctx.stop.getCharPositionInLine());
     }
+    int rangeTokenIndex = ctx.Range().getSymbol().getTokenIndex();
+    boolean[] closedInterval = {true, true};
+    for (TerminalNode invert : ctx.Invert()) {
+      if (invert.getSymbol().getTokenIndex() < rangeTokenIndex) {
+        closedInterval[0] = false;
+      } else {
+        closedInterval[1] = false;
+      }
+    }
     return Stream.iterate(
-        start, i -> (increment > 0 && i <= end) || (increment < 0 && i >= end), i -> i + increment);
+        closedInterval[0] ? start : start + increment,
+        i -> (increment > 0 && i < end) || (increment < 0 && i > end) || (closedInterval[1] && i.equals(end)),
+        i -> i + increment);
   }
 
   @Override

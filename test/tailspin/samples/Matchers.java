@@ -23,6 +23,19 @@ class Matchers {
   }
 
   @Test
+  void rangeMatchExclusive() throws Exception {
+    String program = "1..6 -> (<..~2> 'L'! <3..4> 'M'! <5~..> 'H'! <> '-' !) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("L-MM-H", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void emptyStringMatch() throws Exception {
     String program = "'' -> (<'foo'> 'no way'! <''> 'yes'! <> 'no'!) -> stdout";
     Tailspin runner =

@@ -92,9 +92,9 @@ typeMatch: matchArithmeticExpression       # integerEquals
 
 suchThat: BeginSuchThat source matcher RightParen;
 
-lowerBound: matchArithmeticExpression;
+lowerBound: matchArithmeticExpression InvertMatch?;
 
-upperBound: matchArithmeticExpression;
+upperBound: InvertMatch? matchArithmeticExpression;
 
 matchArithmeticExpression: MatchInteger | matchDereferenceValue;
 
@@ -102,7 +102,7 @@ matchDereferenceValue: MatchDereference (MatchArrayDereference arrayDereference 
 
 matchStructureDereference: MatchFieldDereference+ (MatchArrayDereference arrayDereference RightParen)?;
 
-rangeLiteral: arithmeticExpression Range arithmeticExpression (Colon arithmeticExpression)?;
+rangeLiteral: arithmeticExpression Invert? Range Invert? arithmeticExpression (Colon arithmeticExpression)?;
 
 integerLiteral: Zero | NonZeroInteger;
 

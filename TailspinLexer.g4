@@ -32,6 +32,8 @@ Comma: ',';
 
 Deconstructor: '...';
 
+Invert: '~';
+
 LeftParen: '(' -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
 
 RightParen: ')' -> popMode;

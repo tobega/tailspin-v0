@@ -57,6 +57,8 @@ Decimal numbers will probably have to be typed by number of significant digits a
 ### Range literal
 A range literal produces a [stream](#streams) of numbers. They are specified by a start, an end and
 an multiplier increment, e.g. `1..10` will give the numbers 1 to 10 inclusive and `10..1:-1` does the same but backwards.
+To exclude the bounds, add a tilde between the numeric bound and the range operator `..`, so `1~..5:2` will give `3 5`,
+while `1..~5:2` will give `1 3`.
 
 _Current limitations_: start, end and increment must all be integer literals. (At some point they will most likely be full arithmetic expressions)
 
@@ -208,10 +210,11 @@ start to the end, where the first matcher that matches the current value will ha
 executed for that current value.
 * Empty condition always matches `<>`
 * Numeric condition, [arithmetic expression](#arithmetic-expression) matches if equal, e.g. `<5>` for "equals 5"
-* Range match has a lower bound and/or an upper bound separated by the range operator, e.g.
+* Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
+ the range operator on the side(s) where the bound is not included. E.g.
   * `<2..5>` for "between 2 and 5 inclusive"
-  * `<..3>` for "less than or equal to 3"
-  * `<10..>` for "greater than or equal to 10" 
+  * `<..3>` for "less than or equal to 3", or `<..~3>` for "less than 3"
+  * `<10..>` for "greater than or equal to 10" , or `<10~..>` for "greater than 10"
 * String match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
 For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
 Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).

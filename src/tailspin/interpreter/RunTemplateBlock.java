@@ -107,14 +107,35 @@ class RunTemplateBlock extends RunMain {
     if (!(oIt instanceof Integer)) return false;
     Integer it = (Integer) oIt;
     if (ctx.lowerBound() != null) {
-      int lowerBound = (int) visitLowerBound(ctx.lowerBound());
-      if (it < lowerBound) return false;
+      Bound lowerBound = visitLowerBound(ctx.lowerBound());
+      if (it < lowerBound.value) return false;
+      if (!lowerBound.inclusive && it == lowerBound.value) return false;
     }
     if (ctx.upperBound() != null) {
-      int upperBound = (int) visitUpperBound(ctx.upperBound());
-      return it <= upperBound;
+      Bound upperBound = visitUpperBound(ctx.upperBound());
+      if (it > upperBound.value) return false;
+      if (!upperBound.inclusive && it == upperBound.value) return false;
     }
     return true;
+  }
+
+  private static class Bound {
+    int value;
+    boolean inclusive;
+    Bound(int value, boolean inclusive) {
+      this.value = value;
+      this.inclusive = inclusive;
+    }
+  }
+
+  @Override
+  public Bound visitLowerBound(TailspinParser.LowerBoundContext ctx) {
+    return new Bound(visitMatchArithmeticExpression(ctx.matchArithmeticExpression()), ctx.InvertMatch() == null);
+  }
+
+  @Override
+  public Bound visitUpperBound(TailspinParser.UpperBoundContext ctx) {
+    return new Bound(visitMatchArithmeticExpression(ctx.matchArithmeticExpression()), ctx.InvertMatch() == null);
   }
 
   @Override
@@ -180,14 +201,15 @@ class RunTemplateBlock extends RunMain {
     if (!(oIt instanceof List)) return false;
     List<?> it = (List<?>) oIt;
     if (ctx.Range() != null) {
-      if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() < ctx.Range().getSymbol().getTokenIndex()) {
+      int rangeTokenIndex = ctx.Range().getSymbol().getTokenIndex();
+      if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() < rangeTokenIndex) {
         int lowerBound = visitArithmeticExpression(ctx.arithmeticExpression(0));
         if (it.size() < lowerBound) return false;
       }
       if (ctx.arithmeticExpression(1) != null) {
         int upperBound = visitArithmeticExpression(ctx.arithmeticExpression(1));
         return it.size() <= upperBound;
-      } else if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() > ctx.Range().getSymbol().getTokenIndex()) {
+      } else if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() > rangeTokenIndex) {
         int upperBound = visitArithmeticExpression(ctx.arithmeticExpression(0));
         return it.size() <= upperBound;
       }
