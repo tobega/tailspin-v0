@@ -141,7 +141,7 @@ class Matchers {
 
   @Test
   void rangeMatchDereferenceState() throws Exception {
-    String program = "1..6 -> (3 -> : $it -> # <..$:> 'L'! <> 'H'!) -> stdout";
+    String program = "1..6 -> (3 -> @ $it -> # <..$@> 'L'! <> 'H'!) -> stdout";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

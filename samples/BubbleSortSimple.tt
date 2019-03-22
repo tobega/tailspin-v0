@@ -1,21 +1,21 @@
 // This always does N^2 comparisons
 templates bubblesort
   templates bubble
-    $it(1) -> :
+    $it(1) -> @
     $it(2..-1)... -> #
-    $: !
-    <..$:>
+    $@ !
+    <..$@>
       $it !
     <>
-      $: !
-      $it -> :
+      $@ !
+      $it -> @
   end bubble
-  $it -> :
+  $it -> @
   def indexes: $it -> [i]($i!)
   $indexes(-1..2:-1)... -> (
-    [ $:bubblesort(1..$it) -> bubble, $:bubblesort($it+1..-1)... ] -> :bubblesort
+    [ $@bubblesort(1..$it) -> bubble, $@bubblesort($it+1..-1)... ] -> @bubblesort
   ) !
-  $: !
+  $@ !
 end bubblesort
 
 [4,5,3,8,1,2,6,7,9,8,5] -> bubblesort -> stdout

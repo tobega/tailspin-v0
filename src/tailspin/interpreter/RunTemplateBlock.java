@@ -80,7 +80,7 @@ class RunTemplateBlock extends RunMain {
   public Object visitMatchDereferenceValue(TailspinParser.MatchDereferenceValueContext ctx) {
     String identifier = ctx.MatchDereference().getText().substring(1);
     Object value;
-    if (identifier.startsWith(":")) {
+    if (identifier.startsWith("@")) {
       value = scope.getState(identifier.substring(1));
     } else {
       value = scope.resolveValue(identifier, true);

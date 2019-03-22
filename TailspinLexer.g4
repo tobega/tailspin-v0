@@ -12,7 +12,7 @@ Stdin: 'stdin';
 
 Def: 'def' [ \r\t\n];
 
-Dereference: StartDereference (Colon IDENTIFIER? | IDENTIFIER);
+Dereference: StartDereference (At IDENTIFIER? | IDENTIFIER);
 
 StartArrayDereference: Dereference LeftParen -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
 
@@ -23,6 +23,8 @@ FieldArrayDereference: '.' IDENTIFIER LeftParen -> pushMode(DEFAULT_MODE); // Ju
 To: '->';
 
 ResultMarker: '!';
+
+At: '@';
 
 Colon: ':';
 
@@ -138,7 +140,7 @@ EndArrayMatch: RightBracket;
 
 StructureKey: Key;
 
-MatchDereference: StartDereference (Colon IDENTIFIER? | IDENTIFIER);
+MatchDereference: StartDereference (At IDENTIFIER? | IDENTIFIER);
 
 MatchArrayDereference: '(' -> pushMode(DEFAULT_MODE);
 

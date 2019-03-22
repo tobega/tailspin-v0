@@ -1,28 +1,28 @@
 // Keeps track of where the last swap occurred and only bubbles to there on next round
 templates bubblesort
       templates bubble
-          {N: 1} -> ...$:bubblesort -> :bubblesort // stop condition if no position changed, merge with current value
-          $it(1) -> :
+          {N: 1} -> ...$@bubblesort -> @bubblesort // stop condition if no position changed, merge with current value
+          $it(1) -> @
           // The [i] makes the inline templates apply to each value of the array, with i as the index value
           // for the array slice sent in (not the original array)
           $it(2..-1) -> [i](
-              <..$:bubble>
-                {N: $i} -> ...$:bubblesort -> :bubblesort // last position that changed
+              <..$@bubble>
+                {N: $i} -> ...$@bubblesort -> @bubblesort // last position that changed
                 $it !
               <>
-                $:bubble !
-                $it -> :bubble
+                $@bubble !
+                $it -> @bubble
           )... ! // output the elements as a stream
-          $: ! // output the maximum value saved in the state value
+          $@ ! // output the maximum value saved in the state value
       end bubble
 
-      { array: $it } -> :
+      { array: $it } -> @
       -1 -> # // -1 refers to the last element, since all is unsorted to start with
       <1>
-        $:.array !
+        $@.array !
       <~1>
-        {array: [ $:.array(1..$it) -> bubble, $:.array($it+1..-1)... ]} -> ...$: -> :
-        $:.N -> #
+        {array: [ $@.array(1..$it) -> bubble, $@.array($it+1..-1)... ]} -> ...$@ -> @
+        $@.N -> #
 end bubblesort
 
 [4,5,3,8,1,2,6,7,9,8,5] -> bubblesort -> stdout

@@ -60,7 +60,7 @@ blockExpression: blockStatement
 resultValue: valueChain ResultMarker;
 blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
-stateAssignment: valueChain To Colon IDENTIFIER?;
+stateAssignment: valueChain To At IDENTIFIER?;
 
 valueChain: source
   | LeftParen source RightParen

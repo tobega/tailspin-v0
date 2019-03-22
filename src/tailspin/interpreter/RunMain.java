@@ -112,7 +112,7 @@ public class RunMain extends TailspinParserBaseVisitor {
         throw new AssertionError("Invalid it dereference " + itQ.size());
       }
       value = itQ.peek();
-    } else if (identifier.startsWith(":")) {
+    } else if (identifier.startsWith("@")) {
       value = scope.getState(identifier.substring(1));
     } else {
       value = scope.resolveValue(identifier, false);

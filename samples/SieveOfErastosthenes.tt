@@ -1,23 +1,23 @@
 templates sieve
   def limit: $it
-  [ 2..$limit ] -> :
+  [ 2..$limit ] -> @
 
   templates sift
     def inc: $it
-    $inc * $inc -> :
-    [ $:sieve... -> # ] -> :sieve
-    <..~$:>
+    $inc * $inc -> @
+    [ $@sieve... -> # ] -> @sieve
+    <..~$@>
       $it !
-    <$:~..>
-      $: + $inc -> :
+    <$@~..>
+      $@ + $inc -> @
       $it -> #
   end sift
 
   1 -> #
-  $: !
+  $@ !
 
-  <?($:($it..-1) <[](1..)>)>
-    $:($it) -> sift !
+  <?($@($it..-1) <[](1..)>)>
+    $@($it) -> sift !
     $it + 1 -> #
 
 end sieve

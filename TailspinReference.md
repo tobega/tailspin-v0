@@ -106,8 +106,8 @@ for all of the values of a stream `$it` before the next step is evaluated. This 
 
 ### Templates sinks
 A templates object has modifiable local temporary state, valid for the processing of one input value,
-which can be modified by the special sink `:` and dereferenced as `$:`. Optionally, or to access
-a surrounding outer templates object's state, you can append the templates name, e.g. `:name` and `$:name`.
+which can be modified by the special sink `@` and dereferenced as `$@`. Optionally, or to access
+a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
 
 Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
 result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues

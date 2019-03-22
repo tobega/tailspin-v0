@@ -145,7 +145,7 @@ class Templates {
   @Test
   void templatesState() throws Exception {
     String program =
-        "templates state\n$it + 1 -> :\n$it -> #\n<> $: !\nend state\n" + "1 -> state -> stdout";
+        "templates state\n$it + 1 -> @\n$it -> #\n<> $@ !\nend state\n" + "1 -> state -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -160,7 +160,7 @@ class Templates {
   @Test
   void templatesNamedState() throws Exception {
     String program =
-        "templates state\n$it + 1 -> :state\n$it -> #\n<> $:state !\nend state\n" + "1 -> state -> stdout";
+        "templates state\n$it + 1 -> @state\n$it -> #\n<> $@state !\nend state\n" + "1 -> state -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -177,10 +177,10 @@ class Templates {
     String program =
         "templates state\n"
             + "templates nested\n"
-            + "$it + 1 -> :state\n"
+            + "$it + 1 -> @state\n"
             + "end nested\n"
             + "$it -> nested !\n"
-            + "$: !\nend state\n" + "1 -> state -> stdout";
+            + "$@ !\nend state\n" + "1 -> state -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -195,7 +195,7 @@ class Templates {
   @Test
   void templatesNamedFromInline() throws Exception {
     String program =
-            "templates state\n1..3 -> ($it + 1 -> :state) !\n$: !\nend state\n" + "1 -> state -> stdout";
+            "templates state\n1..3 -> ($it + 1 -> @state) !\n$@ !\nend state\n" + "1 -> state -> stdout";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

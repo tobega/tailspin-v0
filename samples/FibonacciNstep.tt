@@ -1,15 +1,15 @@
 templates fibonacciNstep10
   templates next
-    $it(1) -> :next
-    $it(2..-1)... -> ($it + $:next -> :next) !
-    [ $it(2..-1)..., $:next ] !
+    $it(1) -> @next
+    $it(2..-1)... -> ($it + $@next -> @next) !
+    [ $it(2..-1)..., $@next ] !
   end next
 
-  $it -> :
+  $it -> @
   1..10 -> #
   <>
-    $:(1) !
-    $: -> next -> :
+    $@(1) !
+    $@ -> next -> @
 end fibonacciNstep10
 
 [1,1] -> fibonacciNstep10 -> '$it; ' -> stdout

@@ -1,5 +1,5 @@
 templates quicksort
-  [] -> :
+  [] -> @
   $it -> #
   <[](2..)>
     def pivot: $it(1)
@@ -7,8 +7,8 @@ templates quicksort
       <..$pivot>
         $it !
       <>
-        $it -> ...$:quicksort -> :quicksort
-     )] -> quicksort..., $pivot, $: -> quicksort... ] !
+        $it -> ...$@quicksort -> @quicksort
+     )] -> quicksort..., $pivot, $@ -> quicksort... ] !
    <>
      $it !
 end quicksort
