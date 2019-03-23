@@ -361,4 +361,17 @@ class Arrays {
 
     assertEquals("[2]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void length() throws Exception {
+    String program = "[ 1..6 ] -> $it::length -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("6", output.toString(StandardCharsets.UTF_8));
+  }
 }

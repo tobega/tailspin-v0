@@ -153,6 +153,19 @@ class Matchers {
   }
 
   @Test
+  void matchDereferenceMessage() throws Exception {
+    String program = "def a: [ 1..3 ]\n1..6 -> (<..$a::length> 'L'! <> 'H'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("LLLHHH", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void invertMatch() throws Exception {
     String program = "1..6 -> (<~3> $it !) -> stdout";
     Tailspin runner =

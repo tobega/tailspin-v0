@@ -261,9 +261,13 @@ would select the third element, followed by the first element and last the fifth
 
 All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semi-colon `;`, e.g.
 `$it(1..3; 2)` to select the second element of each of the first three dimensions (returns a one-dimensional array of size 3,
-although the elements could be arrays).
+although the elements could be arrays). Selecting only a few dimensions will select everything from the remaining dimensions
+as a new array, but you cannot dereference it immediately in the same step.
 
 It is an error to select elements outside the range of a dimension.
+
+An array is a built-in processor that responds to the following messages:
+* `::length` returns the length of the first dimension.
 
 ## Structures
 A structure is a collection of named values without any inherent order. The field values of a structure
@@ -276,3 +280,11 @@ The stream of keyed values can be [restructured](#restructuring) into a structur
 
 When creating keyed values, the transform chain binds to the value, not the whole keyed value, e.g. `a: 1 -> (<1> 'yes')` will give the result `a: 'yes'`.
 To send the keyed value through a transform, put it in parentheses, so `(a: 1) -> ...{}` creates `{a: 1}`.
+
+## Processors
+A processor is an object that is more complex than simply data. It would normally have some
+state that could possibly change. To interact with processors, you send [messages](#messages) to them
+
+### Messages
+A message is sent to a processor by getting a reference to the processor and appending two colons and the message identifier,
+e.g. `$it::length` to get the length of an array that is the _current value_.

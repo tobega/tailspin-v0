@@ -20,8 +20,8 @@ source: Stdin
   | keyValue
 ;
 
-dereferenceValue: Dereference structureDereference*
-  | StartArrayDereference arrayDereference RightParen structureDereference*;
+dereferenceValue: Dereference structureDereference*  Message?
+  | StartArrayDereference arrayDereference RightParen structureDereference*  Message?;
 
 structureDereference: FieldDereference* (FieldDereference | (FieldArrayDereference arrayDereference RightParen));
 
@@ -98,7 +98,7 @@ upperBound: InvertMatch? matchArithmeticExpression;
 
 matchArithmeticExpression: MatchInteger | matchDereferenceValue;
 
-matchDereferenceValue: MatchDereference (MatchArrayDereference arrayDereference RightParen)? matchStructureDereference*;
+matchDereferenceValue: MatchDereference (MatchArrayDereference arrayDereference RightParen)? matchStructureDereference* MatchMessage?;
 
 matchStructureDereference: MatchFieldDereference+ (MatchArrayDereference arrayDereference RightParen)?;
 

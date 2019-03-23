@@ -94,6 +94,9 @@ class RunTemplateBlock extends RunMain {
         value = resolveArrayDereference(sdc.arrayDereference(), (List<?>) value);
       }
     }
+    if (ctx.MatchMessage() != null) {
+      value = resolveProcessorMessage(ctx.MatchMessage().getText().substring(2), value);
+    }
     return value;
   }
 

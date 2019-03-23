@@ -26,6 +26,8 @@ ResultMarker: '!';
 
 At: '@';
 
+Message: '::' IDENTIFIER;
+
 Colon: ':';
 
 SemiColon: ';';
@@ -139,6 +141,8 @@ StartArrayMatch: LeftBracket;
 EndArrayMatch: RightBracket;
 
 StructureKey: Key;
+
+MatchMessage: '::' IDENTIFIER;
 
 MatchDereference: StartDereference (At IDENTIFIER? | IDENTIFIER);
 

@@ -1,25 +1,23 @@
 templates sieve
   def limit: $it
   [ 2..$limit ] -> @
-
-  templates sift
-    def inc: $it
-    $inc * $inc -> @
-    [ $@sieve... -> # ] -> @sieve
-    <..~$@>
-      $it !
-    <$@~..>
-      $@ + $inc -> @
-      $it -> #
-  end sift
-
   1 -> #
   $@ !
 
-  <?($@($it..-1) <[](1..)>)>
+  <..$@::length ?($@($it) * $@($it) <..$limit>)>
+    templates sift
+      def inc: $it
+      $inc * $inc -> @
+      [ $@sieve... -> # ] -> @sieve
+      <..~$@>
+        $it !
+      <$@~..>
+        $@ + $inc -> @
+        $it -> #
+    end sift
+
     $@($it) -> sift !
     $it + 1 -> #
-
 end sieve
 
 1000 -> sieve ...->  '$it; ' -> stdout

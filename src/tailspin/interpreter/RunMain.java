@@ -130,6 +130,22 @@ public class RunMain extends TailspinParserBaseVisitor {
         value = resolveArrayDereference(sdc.arrayDereference(), (List<?>) value);
       }
     }
+    if (ctx.Message() != null) {
+      value = resolveProcessorMessage(ctx.Message().getSymbol().getText().substring(2), value);
+    }
+    return value;
+  }
+
+  Object resolveProcessorMessage(String message, Object value) {
+    if (value instanceof List) {
+      if (message.equals("length")) {
+        value = ((List<?>) value).size();
+      } else {
+        throw new UnsupportedOperationException("Unknown array message " + message);
+      }
+    } else {
+      throw new UnsupportedOperationException("Unimplemented processor type " + value.getClass().getSimpleName());
+    }
     return value;
   }
 
