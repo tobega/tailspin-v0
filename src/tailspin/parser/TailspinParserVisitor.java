@@ -38,6 +38,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTemplatesDefinition(TailspinParser.TemplatesDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code processorDefinition}
+	 * labeled alternative in {@link TailspinParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProcessorDefinition(TailspinParser.ProcessorDefinitionContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code composerDefinition}
 	 * labeled alternative in {@link TailspinParser#statement}.
 	 * @param ctx the parse tree

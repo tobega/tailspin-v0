@@ -7,6 +7,7 @@ program: statement (statement)* EOF;
 statement: Def Key valueChain                   # definition
   | valueChain To sink                                   # valueChainToSink
   | StartTemplatesDefinition IDENTIFIER templatesBody EndDefinition IDENTIFIER # templatesDefinition
+  | StartProcessorDefinition IDENTIFIER block EndDefinition IDENTIFIER # processorDefinition
   | StartComposerDefinition ComposerId composerBody ComposerEndDefinition IDENTIFIER # composerDefinition
 ;
 
@@ -49,7 +50,7 @@ templatesBody: block matchTemplate*
 
 matchTemplate: matcher block;
 
-block: (blockExpression|sendToTemplates)+;
+block: blockExpression+;
 
 blockExpression: blockStatement
   | stateAssignment

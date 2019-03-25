@@ -17,7 +17,7 @@ class Templates implements Transform {
   }
 
   @Override
-  public Queue<Object> run(Scope scope) {
+  public Queue<Object> run(TransformScope scope) {
     RunTemplateBlock runner = new RunTemplateBlock(this, scope);
     if (block != null) {
       return runner.visitBlock(block);

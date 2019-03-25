@@ -28,7 +28,7 @@ class Composer implements Transform {
   }
 
   @Override
-  public Queue<Object> run(Scope scope) {
+  public Queue<Object> run(TransformScope scope) {
     ArrayDeque<Object> result = new ArrayDeque<>();
     String s = (String) scope.getIt().peek();
     for (CompositionSpec spec : specs) {
@@ -108,7 +108,7 @@ class Composer implements Transform {
   static class SkipComposition implements CompositionSpec {
     private final List<CompositionSpec> skipSpecs;
 
-    public SkipComposition(List<CompositionSpec> skipSpecs) {
+    SkipComposition(List<CompositionSpec> skipSpecs) {
       this.skipSpecs = skipSpecs;
     }
   }
@@ -116,7 +116,7 @@ class Composer implements Transform {
   static class ArrayComposition implements CompositionSpec {
     private final List<CompositionSpec> itemSpecs;
 
-    public ArrayComposition(List<CompositionSpec> itemSpecs) {
+    ArrayComposition(List<CompositionSpec> itemSpecs) {
       this.itemSpecs = itemSpecs;
     }
   }
@@ -124,7 +124,7 @@ class Composer implements Transform {
   static class OptionalComposition implements CompositionSpec {
     private final CompositionSpec compositionSpec;
 
-    public OptionalComposition(CompositionSpec compositionSpec) {
+    OptionalComposition(CompositionSpec compositionSpec) {
       this.compositionSpec = compositionSpec;
     }
   }
@@ -132,7 +132,7 @@ class Composer implements Transform {
   static class OneOrMoreComposition implements CompositionSpec {
     private final CompositionSpec compositionSpec;
 
-    public OneOrMoreComposition(CompositionSpec compositionSpec) {
+    OneOrMoreComposition(CompositionSpec compositionSpec) {
       this.compositionSpec = compositionSpec;
     }
   }
@@ -140,7 +140,7 @@ class Composer implements Transform {
   static class AnyComposition implements CompositionSpec {
     private final CompositionSpec compositionSpec;
 
-    public AnyComposition(CompositionSpec compositionSpec) {
+    AnyComposition(CompositionSpec compositionSpec) {
       this.compositionSpec = compositionSpec;
     }
   }

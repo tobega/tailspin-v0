@@ -58,6 +58,8 @@ StartTemplatesDefinition: 'templates';
 
 StartComposerDefinition: 'composer' -> pushMode(COMPOSER);
 
+StartProcessorDefinition: 'processor';
+
 EndDefinition: 'end';
 
 TemplateMatch: '#';

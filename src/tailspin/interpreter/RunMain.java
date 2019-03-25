@@ -143,6 +143,8 @@ public class RunMain extends TailspinParserBaseVisitor {
       } else {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
+    } else if (value instanceof ProcessorInstance) {
+      value = ((ProcessorInstance) value).receiveMessage(message, scope.getIt());
     } else {
       throw new UnsupportedOperationException("Unimplemented processor type " + value.getClass().getSimpleName());
     }
@@ -298,7 +300,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     List<?> it = (List<?>) oIt;
     Queue<Object> result = new ArrayDeque<>();
     for (int i = 0; i < it.size(); i++) {
-      Scope itemScope = new TransformScope(scope, "");
+      TransformScope itemScope = new TransformScope(scope, "");
       itemScope.defineValue(loopVariable, i + 1, false);
       itemScope.setIt(queueOf(it.get(i)));
       result.addAll(templates.run(itemScope));
@@ -329,6 +331,18 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
     Templates templates = visitTemplatesBody(ctx.templatesBody());
     scope.defineValue(name, templates, false);
+    return null;
+  }
+
+  @Override
+  public Object visitProcessorDefinition(TailspinParser.ProcessorDefinitionContext ctx) {
+    String name = ctx.IDENTIFIER(0).getText();
+    if (!name.equals(ctx.IDENTIFIER(1).getText())) {
+      throw new IllegalStateException(
+          "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
+    }
+    ProcessorDefinition processor = new ProcessorDefinition(ctx.block());
+    scope.defineValue(name, processor, false);
     return null;
   }
 
