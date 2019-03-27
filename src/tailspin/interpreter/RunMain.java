@@ -226,7 +226,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   private int javaizeArrayIndex(int index, int size) {
-    if (index <= 0) {
+    if (index < 0) {
       return index + size;
     } else {
       return index - 1;
