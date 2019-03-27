@@ -10,6 +10,8 @@ Stdout: 'stdout';
 
 Stdin: 'stdin';
 
+Void: 'void';
+
 Def: 'def' [ \r\t\n];
 
 Dereference: StartDereference (At IDENTIFIER? | IDENTIFIER);

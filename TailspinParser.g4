@@ -119,7 +119,7 @@ interpolateDereferenceValue: StartStringInterpolate InterpolateIdentifier (Inter
 
 interpolateStructureDereference: InterpolateField+ (InterpolateArray arrayDereference RightParen)?;
 
-sink: Stdout;
+sink: Stdout | Void;
 
 arithmeticExpression: integerLiteral
   | LeftParen arithmeticExpression RightParen

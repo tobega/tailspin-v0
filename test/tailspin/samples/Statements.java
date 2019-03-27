@@ -1,18 +1,16 @@
 package tailspin.samples;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 class Statements {
-
   @Test
   void helloWorld() throws Exception {
     String program = "'Hello World' -> stdout";
@@ -209,5 +207,18 @@ class Statements {
       fail();
     } catch (Exception expected) {
     }
+  }
+
+  @Test
+  void voidSink() throws Exception {
+    String program = "'Hello World' -> void";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
   }
 }

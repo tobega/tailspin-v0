@@ -98,8 +98,9 @@ A sink is a place where a value "disappears" and the value chain ends.
 
 A symbol definition could be considered to have an implicit sink at the end that captures the value into the symbol.
 
-Currently the only defined explicit sink is `-> stdout` which outputs the result stream, converted to text,
-into the standard output (generally the console).
+Currently the defined explicit sinks are:
+ * `-> stdout` which outputs the result stream, converted to text, into the standard output (generally the console).
+ * `-> void` which is used to ignore the output.
 
 Sinks generally denote side effects. The current specification is that each step of a _value chain_ is executed
 for all of the values of a stream `$it` before the next step is evaluated. This may change.
