@@ -64,8 +64,9 @@ _Current limitations_: start, end and increment must all be integer literals. (A
 
 ### Array literal
 An array literal produces an [array](#arrays) of values. It starts with a left bracket followed by
-a [stream](#streams) of _value chains_, optionally separated by commas, and ends with a right bracket.
-E.g. `[1,2,3,4,5]` and `[1 2 3, 4 5]` and `[1..5]` all produce an array of size 5 containing the numbers 1 to 5.
+a [stream](#streams) of _value chains_, separated by commas, and ends with a right bracket.
+Each _value chain_ may produce a stream of values, which will be flat-mapped into the array.
+E.g. `[1,2,3,4,5]` and `[1..3, 4..5]` and `[1..5]` all produce an array of size 5 containing the numbers 1 to 5.
 
 ### Structure literal
 A structure literal produces a [structure](#structures) value. It starts with a left brace, followed by

@@ -278,6 +278,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMatchArithmeticExpression(TailspinParser.MatchArithmeticExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#matchIntegerLiteral}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMatchIntegerLiteral(TailspinParser.MatchIntegerLiteralContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#matchDereferenceValue}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -301,6 +307,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#nonZeroInteger}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#stringLiteral}.
 	 * @param ctx the parse tree

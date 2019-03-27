@@ -28,9 +28,9 @@ structureDereference: FieldDereference* (FieldDereference | (FieldArrayDereferen
 
 arrayDereference: dimensionDereference (SemiColon dimensionDereference)*;
 
-dimensionDereference: NonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue;
+dimensionDereference: nonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue;
 
-arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma? valueProduction)* RightBracket;
+arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valueProduction)* RightBracket;
 
 valueProduction: sendToTemplates | valueChain;
 
@@ -97,7 +97,9 @@ lowerBound: matchArithmeticExpression InvertMatch?;
 
 upperBound: InvertMatch? matchArithmeticExpression;
 
-matchArithmeticExpression: MatchInteger | matchDereferenceValue;
+matchArithmeticExpression: matchIntegerLiteral | matchDereferenceValue;
+
+matchIntegerLiteral: MatchAdditiveOperator? MatchInteger;
 
 matchDereferenceValue: MatchDereference (MatchArrayDereference arrayDereference RightParen)? matchStructureDereference* MatchMessage?;
 
@@ -105,7 +107,9 @@ matchStructureDereference: MatchFieldDereference+ (MatchArrayDereference arrayDe
 
 rangeLiteral: arithmeticExpression Invert? Range Invert? arithmeticExpression (Colon arithmeticExpression)?;
 
-integerLiteral: Zero | NonZeroInteger;
+integerLiteral: Zero | nonZeroInteger;
+
+nonZeroInteger: AdditiveOperator? PositiveInteger;
 
 stringLiteral: (START_STRING|START_REGEXP) stringContent* END_STRING;
 

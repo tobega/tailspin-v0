@@ -67,13 +67,22 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Integer visitMatchArithmeticExpression(TailspinParser.MatchArithmeticExpressionContext ctx) {
-    if (ctx.MatchInteger() != null) {
-      return Integer.valueOf(ctx.MatchInteger().getText());
+    if (ctx.matchIntegerLiteral() != null) {
+      return visitMatchIntegerLiteral(ctx.matchIntegerLiteral());
     }
     if (ctx.matchDereferenceValue() != null) {
       return (Integer) visitMatchDereferenceValue(ctx.matchDereferenceValue());
     }
     throw new UnsupportedOperationException("Stumped at match arithmetic");
+  }
+
+  @Override
+  public Integer visitMatchIntegerLiteral(TailspinParser.MatchIntegerLiteralContext ctx) {
+    Integer value = Integer.valueOf(ctx.MatchInteger().getText());
+    if (ctx.MatchAdditiveOperator() != null && ctx.MatchAdditiveOperator().getText().equals("-")) {
+      value = - value;
+    }
+    return value;
   }
 
   @Override

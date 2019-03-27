@@ -76,7 +76,7 @@ MultiplicativeOperator: '*' | '/' | 'mod';
 
 Zero: '0';
 
-NonZeroInteger: '-'? [1-9] Digits?;
+PositiveInteger: [1-9] Digits?;
 
 fragment Digits: [0-9]+;
 
@@ -130,7 +130,9 @@ InvertMatch: '~';
 
 BeginSuchThat: '?(' -> pushMode(DEFAULT_MODE);
 
-MatchInteger: Zero | NonZeroInteger;
+MatchInteger: Zero | PositiveInteger;
+
+MatchAdditiveOperator: '+' | '-';
 
 RangeMatch: Range;
 

@@ -171,8 +171,8 @@ public class RunMain extends TailspinParserBaseVisitor {
       List<?> array) {
     DimensionDereferenceContext ctx = dimensionDereferences.get(currentDereference);
     Object dimensionResult;
-    if (ctx.NonZeroInteger() != null) {
-      int index = javaizeArrayIndex(Integer.valueOf(ctx.NonZeroInteger().getText()), array.size());
+    if (ctx.nonZeroInteger() != null) {
+      int index = javaizeArrayIndex(visitNonZeroInteger(ctx.nonZeroInteger()), array.size());
       dimensionResult = array.get(index);
     } else if (ctx.rangeLiteral() != null) {
       dimensionResult = resolveArrayRangeDereference(ctx.rangeLiteral(), array);
@@ -561,7 +561,16 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Integer visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx) {
     if (ctx.Zero() != null) return 0;
-    return Integer.valueOf(ctx.NonZeroInteger().getText());
+    return visitNonZeroInteger(ctx.nonZeroInteger());
+  }
+
+  @Override
+  public Integer visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx) {
+    Integer value = Integer.valueOf(ctx.PositiveInteger().getText());
+    if (ctx.AdditiveOperator() != null && ctx.AdditiveOperator().getText().equals("-")) {
+      value = - value;
+    }
+    return value;
   }
 
   @Override
