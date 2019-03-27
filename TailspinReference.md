@@ -266,7 +266,9 @@ All these rules can be applied to multiple dimensions by separating the dimensio
 although the elements could be arrays). Selecting only a few dimensions will select everything from the remaining dimensions
 as a new array, but you cannot dereference it immediately in the same step.
 
-It is an error to select elements outside the range of a dimension.
+It is an error to select elements outside the range of a dimension. However, impossible ranges are legal but result in an empty array.
+In particular, zero is allowed in both the start and end of a range to always give an empty result,
+to cater for using length as the end index `$it(1..$it::length)` when length is zero and taking the tail of the array after the last index, e.g. `$a($it+1..-1)` when _it_ is _-1_.
 
 An array is a built-in processor that responds to the following messages:
 * `::length` returns the length of the first dimension.

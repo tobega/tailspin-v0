@@ -246,6 +246,9 @@ public class RunMain extends TailspinParserBaseVisitor {
               + ":"
               + ctx.stop.getCharPositionInLine());
     }
+    if (start < 0) {
+      return Stream.empty();
+    }
     return Stream.iterate(
             start,
             i -> (increment > 0 && i <= end) || (increment < 0 && i >= end),
