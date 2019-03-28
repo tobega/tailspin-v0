@@ -56,6 +56,16 @@ class RunTemplateBlock extends RunMain {
   }
 
   @Override
+  public Boolean visitObjectEquals(TailspinParser.ObjectEqualsContext ctx) {
+    Object expected = visitMatchDereferenceValue(ctx.matchDereferenceValue());
+    Queue<Object> it = scope.getIt();
+    if (it.size() != 1) {
+      throw new AssertionError("Matcher called with several values");
+    }
+    return expected.equals(it.peek());
+  }
+
+  @Override
   public Boolean visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
     Integer expected = visitMatchArithmeticExpression(ctx.matchArithmeticExpression());
     Queue<Object> it = scope.getIt();

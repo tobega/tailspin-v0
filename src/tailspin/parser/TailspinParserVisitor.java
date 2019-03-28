@@ -212,6 +212,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCondition(TailspinParser.ConditionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code objectEquals}
+	 * labeled alternative in {@link TailspinParser#typeMatch}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitObjectEquals(TailspinParser.ObjectEqualsContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code integerEquals}
 	 * labeled alternative in {@link TailspinParser#typeMatch}.
 	 * @param ctx the parse tree

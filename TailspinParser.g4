@@ -83,7 +83,8 @@ matcher: (StartMatcher|StartSubMatcher) condition (Else condition)* EndMatcher;
 
 condition: typeMatch? suchThat*;
 
-typeMatch: matchArithmeticExpression       # integerEquals
+typeMatch: matchDereferenceValue           # objectEquals
+  | matchArithmeticExpression              # integerEquals
   | lowerBound? RangeMatch upperBound?     # rangeMatch
   | stringLiteral                          # regexpMatch
   | StartStructureMatch (StructureKey matcher MatchComma?)* EndStructureMatch # structureMatch
