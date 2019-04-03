@@ -191,6 +191,12 @@ StartBuildArray: '[';
 
 EndBuildArray: ']';
 
+StartBuildStructure: '{';
+
+EndBuildStructure: '}';
+
+KeySeparator: ':';
+
 ComposerId: IDENTIFIER;
 
 ComposerIgnoreWS: WS -> skip;

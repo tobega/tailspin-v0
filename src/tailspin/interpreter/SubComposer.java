@@ -2,11 +2,11 @@ package tailspin.interpreter;
 
 import java.util.Queue;
 
-public interface SubComposer {
+public interface SubComposer<T> {
 
   String nibble(String s);
 
-  Queue<Object> getValues();
+  Queue<T> getValues();
 
   boolean isSatisfied();
 }

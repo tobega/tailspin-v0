@@ -311,4 +311,20 @@ class Composer {
 
     assertEquals("", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void buildStructure() throws IOException {
+    String program = "composer coords\n"
+        + "{ x: <INT> (<','>) y: <INT> }\n"
+        + "end coords\n"
+        + "'1,2' -> coords -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{x=1, y=2}", output.toString(StandardCharsets.UTF_8));
+  }
 }

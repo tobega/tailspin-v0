@@ -139,11 +139,17 @@ composerBody: compositionSequence definedCompositionSequence*
 definedCompositionSequence: SequenceKey compositionSequence
 ;
 
-compositionSequence: compositionMatcher+
+compositionSequence: compositionSkipRule* compositionComponent+
 ;
 
 compositionMatcher: StartComposerMatch InvertComposerMatch? ComposerId EndComposerMatch Multiplier?
   | StartComposerMatch InvertComposerMatch? START_REGEX REGEX_TEXT END_REGEX EndComposerMatch Multiplier?
-  | StartSkipRule compositionSequence EndSkipRule
   | StartBuildArray compositionSequence EndBuildArray
+  | StartBuildStructure compositionSkipRule* compositionKeyValue+ EndBuildStructure
 ;
+
+compositionSkipRule: StartSkipRule compositionMatcher+ EndSkipRule;
+
+compositionKeyValue: SequenceKey compositionSkipRule* compositionComponent;
+
+compositionComponent: compositionMatcher compositionSkipRule*;

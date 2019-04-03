@@ -684,7 +684,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     Map<String, Object> structure = new TreeMap<>();
     for (TailspinParser.KeyValueContext kvc : ctx.keyValue()) {
       KeyValue keyValue = visitKeyValue(kvc);
-      structure.put(keyValue.key, keyValue.value);
+      structure.put(keyValue.getKey(), keyValue.getValue());
     }
     return structure;
   }
@@ -697,36 +697,6 @@ public class RunMain extends TailspinParserBaseVisitor {
       throw new AssertionError("Invalid multiple value " + valueQueue.size());
     }
     return new KeyValue(key, valueQueue.peek());
-  }
-
-  private static class KeyValue implements Map.Entry<String, Object> {
-    final String key;
-    final Object value;
-
-    private KeyValue(String key, Object value) {
-      this.key = key;
-      this.value = value;
-    }
-
-    @Override
-    public String getKey() {
-      return key;
-    }
-
-    @Override
-    public Object getValue() {
-      return value;
-    }
-
-    @Override
-    public Object setValue(Object value) {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String toString() {
-      return key + "=" + value.toString();
-    }
   }
 
   @Override
@@ -753,19 +723,39 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public List<CompositionSpec> visitCompositionSequence(CompositionSequenceContext ctx) {
-    return ctx.compositionMatcher().stream()
-        .map(this::visitCompositionMatcher)
-        .collect(Collectors.toList());
+    List<CompositionSpec> result = new ArrayList<>();
+    ctx.compositionSkipRule().forEach(s -> result.add(visitCompositionSkipRule(s)));
+    ctx.compositionComponent().stream()
+        .map(this::visitCompositionComponent)
+        .forEach(result::addAll);
+    return result;
   }
 
   @Override
-  public Composer.CompositionSpec visitCompositionMatcher(
+  public List<CompositionSpec> visitCompositionComponent(TailspinParser.CompositionComponentContext ctx) {
+    List<CompositionSpec> result = new ArrayList<>();
+    result.add(visitCompositionMatcher(ctx.compositionMatcher()));
+    ctx.compositionSkipRule().forEach(s -> result.add(visitCompositionSkipRule(s)));
+    return result;
+  }
+
+  @Override
+  public CompositionSpec visitCompositionSkipRule(TailspinParser.CompositionSkipRuleContext ctx) {
+    return new Composer.SkipComposition(ctx.compositionMatcher().stream()
+        .map(this::visitCompositionMatcher).collect(Collectors.toList()));
+  }
+
+  @Override
+  public CompositionSpec visitCompositionMatcher(
       TailspinParser.CompositionMatcherContext ctx) {
     CompositionSpec compositionSpec;
-    if (ctx.StartSkipRule() != null) {
-      compositionSpec = new Composer.SkipComposition(visitCompositionSequence(ctx.compositionSequence()));
-    } else if (ctx.StartBuildArray() != null) {
+    if (ctx.StartBuildArray() != null) {
       compositionSpec = new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()));
+    } else if (ctx.StartBuildStructure() != null) {
+      List<CompositionSpec> contents = new ArrayList<>();
+      ctx.compositionSkipRule().forEach(s -> contents.add(visitCompositionSkipRule(s)));
+      ctx.compositionKeyValue().forEach(k -> contents.add(visitCompositionKeyValue(k)));
+      compositionSpec = new Composer.StructureComposition(contents);
     } else if (ctx.ComposerId() != null) {
       String matchRule = ctx.ComposerId().getText();
       compositionSpec = new Composer.NamedComposition(matchRule, ctx.InvertComposerMatch() != null);
@@ -782,5 +772,14 @@ public class RunMain extends TailspinParserBaseVisitor {
       case "*": return new Composer.AnyComposition(compositionSpec);
       default: throw new UnsupportedOperationException("Unknown multiplier " + ctx.Multiplier().getText());
     }
+  }
+
+  @Override
+  public CompositionSpec visitCompositionKeyValue(TailspinParser.CompositionKeyValueContext ctx) {
+    String key = ctx.SequenceKey().getText().replace(":", "");
+    List<CompositionSpec> valueMatch = new ArrayList<>();
+    ctx.compositionSkipRule().forEach(s -> valueMatch.add(visitCompositionSkipRule(s)));
+    valueMatch.addAll(visitCompositionComponent(ctx.compositionComponent()));
+    return new Composer.KeyValueComposition(key, valueMatch);
   }
 }

@@ -66,6 +66,13 @@ class Composer implements Transform {
     if (spec instanceof ArrayComposition) {
       return new ArraySubComposer(resolveSpecs(((ArrayComposition) spec).itemSpecs));
     }
+    if (spec instanceof StructureComposition) {
+      return new StructureSubComposer(resolveSpecs(((StructureComposition) spec).contents));
+    }
+    if (spec instanceof KeyValueComposition) {
+      KeyValueComposition keyValueSpec = (KeyValueComposition) spec;
+      return new KeyValueSubComposer(keyValueSpec.key, resolveSpecs(keyValueSpec.valueMatch));
+    }
     if (spec instanceof OptionalComposition) {
       return new OptionalSubComposer(resolveSpec(((OptionalComposition) spec).compositionSpec));
     }
@@ -142,6 +149,24 @@ class Composer implements Transform {
 
     AnyComposition(CompositionSpec compositionSpec) {
       this.compositionSpec = compositionSpec;
+    }
+  }
+
+  static class StructureComposition implements CompositionSpec {
+    private final List<CompositionSpec> contents;
+
+    StructureComposition(List<CompositionSpec> contents) {
+      this.contents = contents;
+    }
+  }
+
+  static class KeyValueComposition implements CompositionSpec {
+    private final String key;
+    private final List<CompositionSpec> valueMatch;
+
+    KeyValueComposition(String key, List<CompositionSpec> valueMatch) {
+      this.key = key;
+      this.valueMatch = valueMatch;
     }
   }
 }
