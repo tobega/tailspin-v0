@@ -118,7 +118,11 @@ public class RunMain extends TailspinParserBaseVisitor {
       value = scope.resolveValue(identifier, false);
     }
     if (ctx.arrayDereference() != null) {
-      value = resolveArrayDereference(ctx.arrayDereference(), (List<?>) value);
+      try {
+        value = resolveArrayDereference(ctx.arrayDereference(), (List<?>) value);
+      } catch (RuntimeException e) {
+        throw new IllegalArgumentException("Failed array dereference of " + identifier, e);
+      }
     }
     for (TailspinParser.StructureDereferenceContext sdc : ctx.structureDereference()) {
       List<TerminalNode> fieldDereferences = new ArrayList<>(sdc.FieldDereference());
@@ -154,6 +158,9 @@ public class RunMain extends TailspinParserBaseVisitor {
   Object resolveFieldDereferences(Object value, List<TerminalNode> terminalNodes) {
     for (TerminalNode fieldDereference : terminalNodes) {
       String fieldIdentifier = fieldDereference.getText().substring(1).replace("(", "");
+      if (value == null) {
+        throw new NullPointerException("Cannot dereference " + fieldIdentifier);
+      }
       @SuppressWarnings("unchecked")
       Map<String, Object> structure = (Map<String, Object>) value;
       value = structure.get(fieldIdentifier);
@@ -488,7 +495,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     Queue<Object> valueChainResult = visitValueChain(ctx.valueChain());
     if (valueChainResult.size() != 1) {
       throw new IllegalArgumentException(
-          "Attempt to define a symbol with " + valueChainResult.size() + " values");
+          "Attempt to define symbol " + identifier + " with " + valueChainResult.size() + " values");
     }
     scope.defineValue(identifier, valueChainResult.peek(), false);
     return null;

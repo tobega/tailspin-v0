@@ -18,7 +18,9 @@ public class SkipSubComposer implements SubComposer {
       satisfied = true;
       s = subComposer.nibble(s);
       satisfied &= subComposer.isSatisfied();
-      subComposer.getValues(); // Skip values
+      if (subComposer.isSatisfied()) {
+        subComposer.getValues(); // Skip values
+      }
     }
     return s;
   }

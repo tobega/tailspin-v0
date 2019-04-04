@@ -13,7 +13,7 @@ class Composer implements Transform {
   private static final HashMap<String, Pattern> namedPatterns = new HashMap<>();
   private static final HashMap<String, Function<? super String, Object>> namedValueCreators = new HashMap<>();
   static {
-    namedPatterns.put("INT", Pattern.compile("[+-]?[1-9][0-9]*"));
+    namedPatterns.put("INT", Pattern.compile("[+-]?(0|[1-9][0-9]*)"));
     namedValueCreators.put("INT", Integer::valueOf);
     namedPatterns.put("WS", Pattern.compile("\\s+"));
     namedValueCreators.put("WS", Function.identity());

@@ -28,6 +28,22 @@ class Composer {
   }
 
   @Test
+  void composeIntShouldWorkForZero() throws IOException {
+    String program = "composer int\n"
+        + "<INT>\n"
+        + "end int\n"
+        + "'0' -> int -> $it + 12 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("12", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void composeRegex() throws IOException {
     String program = "composer all\n"
         + "<'.*'>\n"
