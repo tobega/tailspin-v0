@@ -9,7 +9,7 @@ class ProcessorInstance {
     this.scope = scope;
   }
 
-  Object receiveMessage(String message, Queue<Object> it) {
+  Queue<Object> receiveMessage(String message, Queue<Object> it) {
     Transform transform = (Transform) scope.resolveValue(message, false);
     TransformScope transformScope = new TransformScope(scope, message);
     transformScope.setIt(it);

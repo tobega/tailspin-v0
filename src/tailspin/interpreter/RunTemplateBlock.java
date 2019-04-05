@@ -119,7 +119,7 @@ class RunTemplateBlock extends RunMain {
       }
     }
     if (ctx.MatchMessage() != null) {
-      value = resolveProcessorMessage(ctx.MatchMessage().getText().substring(2), value);
+      value = resolveProcessorMessage(ctx.MatchMessage().getText().substring(2), value).peek();
     }
     return value;
   }

@@ -140,19 +140,20 @@ public class RunMain extends TailspinParserBaseVisitor {
     return value;
   }
 
-  Object resolveProcessorMessage(String message, Object value) {
+  Queue<Object> resolveProcessorMessage(String message, Object value) {
+    Queue<Object> result;
     if (value instanceof List) {
       if (message.equals("length")) {
-        value = ((List<?>) value).size();
+        result = queueOf(((List<?>) value).size());
       } else {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
     } else if (value instanceof ProcessorInstance) {
-      value = ((ProcessorInstance) value).receiveMessage(message, scope.getIt());
+      result = ((ProcessorInstance) value).receiveMessage(message, scope.getIt());
     } else {
       throw new UnsupportedOperationException("Unimplemented processor type " + value.getClass().getSimpleName());
     }
-    return value;
+    return result;
   }
 
   Object resolveFieldDereferences(Object value, List<TerminalNode> terminalNodes) {
@@ -190,6 +191,9 @@ public class RunMain extends TailspinParserBaseVisitor {
           permutation.stream().map(i -> javaizeArrayIndex(i, array.size())).map(array::get);
     } else if (ctx.dereferenceValue() != null) {
       Object index = visitDereferenceValue(ctx.dereferenceValue());
+      if ((index instanceof Queue) && ((Queue<?>) index).size() == 1) {
+        index = ((Queue<?>) index).peek();
+      }
       if (index instanceof Integer) {
         dimensionResult = array.get(javaizeArrayIndex((Integer) index, array.size()));
       } else if (index instanceof List) {
@@ -456,6 +460,9 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Object visitCollector(TailspinParser.CollectorContext ctx) {
     if (ctx.dereferenceValue() != null) {
       Object originalCollector = visitDereferenceValue(ctx.dereferenceValue());
+      if ((originalCollector instanceof Queue) && ((Queue<?>) originalCollector).size() == 1) {
+        originalCollector = ((Queue<?>) originalCollector).peek();
+      }
       if (originalCollector instanceof Map) {
         @SuppressWarnings("unchecked")
         Map<String, Object> collector = new TreeMap<>((Map<String, Object>) originalCollector);
@@ -527,6 +534,10 @@ public class RunMain extends TailspinParserBaseVisitor {
             .run(new TransformScope(scope, identifier)).stream()
                 .map(Object::toString)
                 .collect(Collectors.joining());
+      } else if (interpolated instanceof Queue) {
+        return ((Queue<?>) interpolated).stream()
+                .map(Object::toString)
+                .collect(Collectors.joining());
       }
       return interpolated.toString();
     }
@@ -590,12 +601,16 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Integer visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
     if (ctx.dereferenceValue() != null) {
       String unaryOperator = ctx.AdditiveOperator() == null ? "" : ctx.AdditiveOperator().getText();
+      Object value = visitDereferenceValue(ctx.dereferenceValue());
+      if (value instanceof Queue && ((Queue<?>) value).size() == 1) {
+        value = ((Queue<?>) value).peek();
+      }
       switch (unaryOperator) {
         case "":
         case "+":
-          return (Integer) visitDereferenceValue(ctx.dereferenceValue());
+          return (Integer) value;
         case "-":
-          return -(Integer) visitDereferenceValue(ctx.dereferenceValue());
+          return -(Integer) value;
         default:
           throw new UnsupportedOperationException("Unknown unary operator " + unaryOperator);
       }
