@@ -22,11 +22,11 @@ class Templates implements Transform {
     if (block != null) {
       return runner.visitBlock(block);
     } else {
-      return matchTemplates(runner);
+      return matchTemplates(runner.createMatcherBlockRunner(scope.getIt()));
     }
   }
 
-  Queue<Object> matchTemplates(RunTemplateBlock runner) {
+  Queue<Object> matchTemplates(RunTemplateBlock.RunMatcherBlock runner) {
     Optional<MatchTemplate> match =
         matchTemplates.stream().filter(m -> runner.visitMatcher(m.matcher)).findFirst();
     return match.map(m -> runner.visitBlock(m.block)).orElse(new ArrayDeque<>());

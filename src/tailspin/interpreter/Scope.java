@@ -23,4 +23,6 @@ interface Scope {
   void setIt(Queue<Object> it);
 
   Queue<Object> getIt();
+
+  Scope getParentScope();
 }

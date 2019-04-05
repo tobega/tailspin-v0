@@ -20,7 +20,7 @@ class ProcessorDefinition extends Templates {
   }
 
   @Override
-  Queue<Object> matchTemplates(RunTemplateBlock runner) {
+  Queue<Object> matchTemplates(RunTemplateBlock.RunMatcherBlock runner) {
     throw new UnsupportedOperationException("Cannot send to templates in");
   }
 }

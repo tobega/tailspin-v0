@@ -270,25 +270,29 @@ class RunTemplateBlock extends RunMain {
     Queue<Object> qIt = visitValueChain(ctx.valueChain());
     Queue<Object> result = new ArrayDeque<>();
     qIt.forEach(it -> {
-      Scope matcherScope = newMatcherScope();
-      matcherScope.setIt(queueOf(it));
-      result.addAll(templates.matchTemplates(new RunMatcherBlock(templates, matcherScope)));
+      result.addAll(templates.matchTemplates(createMatcherBlockRunner(queueOf(it))));
     });
     return result;
+  }
+
+  RunMatcherBlock createMatcherBlockRunner(Queue<Object> it) {
+    Scope matcherScope = newMatcherScope();
+    matcherScope.setIt(it);
+    return new RunMatcherBlock(templates, matcherScope);
   }
 
   Scope newMatcherScope() {
     return new NestedScope(scope);
   }
 
-  private class RunMatcherBlock extends RunTemplateBlock {
+  class RunMatcherBlock extends RunTemplateBlock {
     RunMatcherBlock(Templates templates, Scope scope) {
       super(templates, scope);
     }
 
     @Override
     Scope newMatcherScope() {
-      return new NestedScope(RunTemplateBlock.this.scope);
+      return new NestedScope(scope.getParentScope());
     }
   }
 

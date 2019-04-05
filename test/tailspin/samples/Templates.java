@@ -1,6 +1,7 @@
 package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -114,6 +115,42 @@ class Templates {
 
     // Here the return values do get generated in the "correct" order
     assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void noBlockRunTemplatesInNestedScope() throws Exception {
+    String program =
+        "templates simple\n<1>def a: 'aA'\n 2 -> #\n<2> $a !\nend simple\n" + "1 -> simple -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
+  }
+
+  @Test
+  void templateCallsTemplatesNoNestedScope() throws Exception {
+    String program =
+        "templates simple\n1 -> #\n<1>def a: 'aA'\n 2 -> #\n<2> $a !\nend simple\n" + "1 -> simple -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
+  }
+
+  @Test
+  void templateCallsTemplatesTwiceNoNestedScope() throws Exception {
+    String program =
+        "templates simple\n1 -> #\n<1>def a: 'aA'\n 2 -> #\n<2> 3 -> # <3> $a !\nend simple\n" + "1 -> simple -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
   }
 
   @Test

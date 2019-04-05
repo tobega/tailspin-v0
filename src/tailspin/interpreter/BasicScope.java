@@ -74,4 +74,9 @@ public class BasicScope implements Scope {
   public void setIt(Queue<Object> it) {
     this.it = it;
   }
+
+  @Override
+  public Scope getParentScope() {
+    throw new UnsupportedOperationException("No parent scope");
+  }
 }
