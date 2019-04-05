@@ -115,6 +115,8 @@ InterpolateIdentifier: IDENTIFIER;
 
 InterpolateField: FieldDereference;
 
+InterpolateMessage: '::' IDENTIFIER;
+
 
 mode MATCHER;
 

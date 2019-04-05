@@ -565,6 +565,9 @@ public class RunMain extends TailspinParserBaseVisitor {
         value = resolveArrayDereference(sdc.arrayDereference(), array);
       }
     }
+    if (ctx.InterpolateMessage() != null) {
+      value = resolveProcessorMessage(ctx.InterpolateMessage().getSymbol().getText().substring(2), value);
+    }
     return value;
   }
 

@@ -122,7 +122,7 @@ stringInterpolate: interpolateEvaluate|interpolateDereferenceValue;
 
 interpolateEvaluate: StartStringEvaluate valueChain RightParen;
 
-interpolateDereferenceValue: StartStringInterpolate InterpolateIdentifier (InterpolateArray arrayDereference RightParen)? interpolateStructureDereference*  EndInterpolate;
+interpolateDereferenceValue: StartStringInterpolate InterpolateIdentifier (InterpolateArray arrayDereference RightParen)? interpolateStructureDereference*  InterpolateMessage? EndInterpolate;
 
 interpolateStructureDereference: InterpolateField+ (InterpolateArray arrayDereference RightParen)?;
 
