@@ -152,7 +152,7 @@ MatchMessage: '::' IDENTIFIER;
 
 MatchDereference: StartDereference (At IDENTIFIER? | IDENTIFIER);
 
-MatchArrayDereference: '(' -> pushMode(DEFAULT_MODE);
+MatchLeftParen: '(' -> pushMode(DEFAULT_MODE);
 
 MatchFieldDereference: FieldDereference;
 

@@ -140,6 +140,19 @@ class Matchers {
   }
 
   @Test
+  void rangeMatchExpression() throws Exception {
+    String program = "def mid: 3\n1..6 -> (<..($mid+1)> 'L'! <> 'H'!) -> stdout";
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("LLLLHH", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void rangeMatchDereferenceState() throws Exception {
     String program = "1..6 -> (3 -> @ $it -> # <..$@> 'L'! <> 'H'!) -> stdout";
     Tailspin runner =

@@ -155,7 +155,7 @@ EndArrayMatch
 StructureKey
 MatchMessage
 MatchDereference
-MatchArrayDereference
+MatchLeftParen
 MatchFieldDereference
 MatcherIgnoreWS
 Comment
@@ -248,7 +248,7 @@ EndArrayMatch
 StructureKey
 MatchMessage
 MatchDereference
-MatchArrayDereference
+MatchLeftParen
 MatchFieldDereference
 MatcherIgnoreWS
 Comment

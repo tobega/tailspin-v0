@@ -83,6 +83,9 @@ class RunTemplateBlock extends RunMain {
     if (ctx.matchDereferenceValue() != null) {
       return (Integer) visitMatchDereferenceValue(ctx.matchDereferenceValue());
     }
+    if (ctx.arithmeticExpression() != null) {
+      return visitArithmeticExpression(ctx.arithmeticExpression());
+    }
     throw new UnsupportedOperationException("Stumped at match arithmetic");
   }
 

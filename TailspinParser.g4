@@ -89,7 +89,7 @@ typeMatch: matchDereferenceValue           # objectEquals
   | stringLiteral                          # regexpMatch
   | StartStructureMatch (StructureKey matcher MatchComma?)* EndStructureMatch # structureMatch
   | InvertMatch condition                  # invertMatch
-  | StartArrayMatch EndArrayMatch (MatchArrayDereference arithmeticExpression? Range? arithmeticExpression? RightParen)?         # arrayMatch
+  | StartArrayMatch EndArrayMatch (MatchLeftParen arithmeticExpression? Range? arithmeticExpression? RightParen)?         # arrayMatch
 ;
 
 suchThat: BeginSuchThat source matcher RightParen;
@@ -98,13 +98,15 @@ lowerBound: matchArithmeticExpression InvertMatch?;
 
 upperBound: InvertMatch? matchArithmeticExpression;
 
-matchArithmeticExpression: matchIntegerLiteral | matchDereferenceValue;
+matchArithmeticExpression: matchIntegerLiteral
+  | matchDereferenceValue
+  | MatchLeftParen arithmeticExpression RightParen;
 
 matchIntegerLiteral: MatchAdditiveOperator? MatchInteger;
 
-matchDereferenceValue: MatchDereference (MatchArrayDereference arrayDereference RightParen)? matchStructureDereference* MatchMessage?;
+matchDereferenceValue: MatchDereference (MatchLeftParen arrayDereference RightParen)? matchStructureDereference* MatchMessage?;
 
-matchStructureDereference: MatchFieldDereference+ (MatchArrayDereference arrayDereference RightParen)?;
+matchStructureDereference: MatchFieldDereference+ (MatchLeftParen arrayDereference RightParen)?;
 
 rangeLiteral: arithmeticExpression Invert? Range Invert? arithmeticExpression (Colon arithmeticExpression)?;
 

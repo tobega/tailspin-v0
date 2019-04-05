@@ -30,7 +30,7 @@ public class TailspinLexer extends Lexer {
 		StartSubMatcher=51, EndMatcher=52, InvertMatch=53, BeginSuchThat=54, MatchInteger=55, 
 		MatchAdditiveOperator=56, RangeMatch=57, START_REGEXP=58, StartStructureMatch=59, 
 		EndStructureMatch=60, StartArrayMatch=61, EndArrayMatch=62, StructureKey=63, 
-		MatchMessage=64, MatchDereference=65, MatchArrayDereference=66, MatchFieldDereference=67, 
+		MatchMessage=64, MatchDereference=65, MatchLeftParen=66, MatchFieldDereference=67, 
 		MatcherIgnoreWS=68, Comment=69, ComposerEndDefinition=70, StartComposerMatch=71, 
 		EndComposerMatch=72, InvertComposerMatch=73, SequenceKey=74, Multiplier=75, 
 		START_REGEX=76, StartSkipRule=77, EndSkipRule=78, StartBuildArray=79, 
@@ -63,12 +63,12 @@ public class TailspinLexer extends Lexer {
 			"InvertMatch", "BeginSuchThat", "MatchInteger", "MatchAdditiveOperator", 
 			"RangeMatch", "START_REGEXP", "StartStructureMatch", "EndStructureMatch", 
 			"StartArrayMatch", "EndArrayMatch", "StructureKey", "MatchMessage", "MatchDereference", 
-			"MatchArrayDereference", "MatchFieldDereference", "MatcherIgnoreWS", 
-			"Comment", "ComposerEndDefinition", "StartComposerMatch", "EndComposerMatch", 
-			"InvertComposerMatch", "SequenceKey", "Multiplier", "START_REGEX", "StartSkipRule", 
-			"EndSkipRule", "StartBuildArray", "EndBuildArray", "StartBuildStructure", 
-			"EndBuildStructure", "KeySeparator", "ComposerId", "ComposerIgnoreWS", 
-			"REGEX_TEXT", "REGEX_CHAR", "END_REGEX"
+			"MatchLeftParen", "MatchFieldDereference", "MatcherIgnoreWS", "Comment", 
+			"ComposerEndDefinition", "StartComposerMatch", "EndComposerMatch", "InvertComposerMatch", 
+			"SequenceKey", "Multiplier", "START_REGEX", "StartSkipRule", "EndSkipRule", 
+			"StartBuildArray", "EndBuildArray", "StartBuildStructure", "EndBuildStructure", 
+			"KeySeparator", "ComposerId", "ComposerIgnoreWS", "REGEX_TEXT", "REGEX_CHAR", 
+			"END_REGEX"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -99,7 +99,7 @@ public class TailspinLexer extends Lexer {
 			"MatchComma", "StartSubMatcher", "EndMatcher", "InvertMatch", "BeginSuchThat", 
 			"MatchInteger", "MatchAdditiveOperator", "RangeMatch", "START_REGEXP", 
 			"StartStructureMatch", "EndStructureMatch", "StartArrayMatch", "EndArrayMatch", 
-			"StructureKey", "MatchMessage", "MatchDereference", "MatchArrayDereference", 
+			"StructureKey", "MatchMessage", "MatchDereference", "MatchLeftParen", 
 			"MatchFieldDereference", "MatcherIgnoreWS", "Comment", "ComposerEndDefinition", 
 			"StartComposerMatch", "EndComposerMatch", "InvertComposerMatch", "SequenceKey", 
 			"Multiplier", "START_REGEX", "StartSkipRule", "EndSkipRule", "StartBuildArray", 

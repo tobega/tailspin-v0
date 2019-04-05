@@ -218,6 +218,8 @@ executed for that current value.
   * `<2..5>` for "between 2 and 5 inclusive"
   * `<..3>` for "less than or equal to 3", or `<..~3>` for "less than 3"
   * `<10..>` for "greater than or equal to 10" , or `<10~..>` for "greater than 10"
+  * A value dereference can be a bound, e.g. `<$min..$max>`
+  * An arithmetic expression can be a bound if encased in parentheses, e.g. `<($a+4)..>`
 * String match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
 For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
 Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
