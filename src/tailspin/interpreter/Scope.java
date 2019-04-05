@@ -10,6 +10,8 @@ interface Scope {
 
   void defineValue(String identifier, Object value, boolean allowIt);
 
+  void clearValue(String identifier);
+
   BufferedReader getInput();
 
   OutputStream getOutput();

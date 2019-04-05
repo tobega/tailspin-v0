@@ -41,6 +41,11 @@ class NestedScope implements Scope {
   }
 
   @Override
+  public void clearValue(String identifier) {
+    definitions.remove(identifier);
+  }
+
+  @Override
   public BufferedReader getInput() {
     return parentScope.getInput();
   }

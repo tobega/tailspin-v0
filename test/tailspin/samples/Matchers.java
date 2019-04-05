@@ -348,6 +348,32 @@ class Matchers {
   }
 
   @Test
+  void suchThatMatchResetsIt() throws Exception {
+    String program = "[1,1] -> (<[]?($it(1)<$it(2)>)> $it ! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[1, 1]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void suchThatMatchInSuchThatMatchResetsIt() throws Exception {
+    String program = "[[1,1],2] -> (<[]?($it(1)<?($it(1)<$it(2)>)>)> $it ! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[[1, 1], 2]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void elseConditionFirst() throws Exception {
     String program = "8 -> (<8 | 1..3> 'yes'! <> 'no'!) -> stdout";
     Tailspin runner =

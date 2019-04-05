@@ -46,12 +46,14 @@ class RunTemplateBlock extends RunMain {
   @Override
   public Boolean visitSuchThat(SuchThatContext ctx) {
     // It has to be a single value here
-    scope.defineValue("it", scope.getIt().peek(), true);
+    Object outerIt = scope.getIt().peek();
+    scope.defineValue("it", outerIt, true);
     try {
       scope.setIt(visitSource(ctx.source()));
       return visitMatcher(ctx.matcher());
     } finally{
-      scope.setIt(queueOf(scope.resolveValue("it", true)));
+      scope.setIt(queueOf(outerIt));
+      scope.clearValue("it");
     }
   }
 
