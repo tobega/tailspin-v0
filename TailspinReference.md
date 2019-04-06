@@ -142,7 +142,7 @@ Slightly different things happen depending on what type of object is used as a c
  
 ### Templates
 A templates object consists of an multiplier _initial block_ and an multiplier sequence of [matchers](#matchers),
-each with a _block_.
+each with a _block_. A matcher block can be just the word `void`, which indicates that nothing should happen for this case.
 
 A block is simply a series of value chains that either dry up, with no value for the next stage;
 produce a value (or several) that gets emitted out of the template (by `!`); sends a value to a [sink](#sinks); or,

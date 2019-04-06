@@ -50,7 +50,7 @@ templatesBody: block matchTemplate*
 
 matchTemplate: matcher block;
 
-block: blockExpression+;
+block: (blockExpression+ | Void);
 
 blockExpression: blockStatement
   | stateAssignment
