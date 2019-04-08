@@ -152,6 +152,6 @@ compositionMatcher: StartComposerMatch InvertComposerMatch? ComposerId EndCompos
 
 compositionSkipRule: StartSkipRule compositionMatcher+ EndSkipRule;
 
-compositionKeyValue: SequenceKey compositionSkipRule* compositionComponent;
+compositionKeyValue: SequenceKey compositionSkipRule* compositionComponent ValueSeparator?;
 
 compositionComponent: compositionMatcher compositionSkipRule*;

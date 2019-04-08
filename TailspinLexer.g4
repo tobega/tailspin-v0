@@ -181,6 +181,8 @@ InvertComposerMatch: '~';
 
 SequenceKey: Key;
 
+ValueSeparator: Comma;
+
 Multiplier: '?' | '+' | '*';
 
 START_REGEX: '\'' -> pushMode(IN_REGEX);
