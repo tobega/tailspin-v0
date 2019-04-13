@@ -220,6 +220,7 @@ executed for that current value.
   * `<10..>` for "greater than or equal to 10" , or `<10~..>` for "greater than 10"
   * A value dereference can be a bound, e.g. `<$min..$max>`
   * An arithmetic expression can be a bound if encased in parentheses, e.g. `<($a+4)..>`
+  * Ranges can compare strings.
 * String match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
 For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
 Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).

@@ -131,25 +131,26 @@ class RunTemplateBlock extends RunMain {
       throw new AssertionError("Matcher called with several values");
     }
     Object oIt = qIt.peek();
-    if (!(oIt instanceof Integer)) return false;
-    Integer it = (Integer) oIt;
+    if (!(oIt instanceof Comparable)) return false;
+    @SuppressWarnings("unchecked")
+    Comparable<Object> it = (Comparable<Object>) oIt;
     if (ctx.lowerBound() != null) {
       Bound lowerBound = visitLowerBound(ctx.lowerBound());
-      if (it < lowerBound.value) return false;
-      if (!lowerBound.inclusive && it == lowerBound.value) return false;
+      if (it.compareTo(lowerBound.value) < 0) return false;
+      if (!lowerBound.inclusive && it.compareTo(lowerBound.value) == 0) return false;
     }
     if (ctx.upperBound() != null) {
       Bound upperBound = visitUpperBound(ctx.upperBound());
-      if (it > upperBound.value) return false;
-      if (!upperBound.inclusive && it == upperBound.value) return false;
+      if (it.compareTo(upperBound.value) > 0) return false;
+      if (!upperBound.inclusive && it.compareTo(upperBound.value) == 0) return false;
     }
     return true;
   }
 
   private static class Bound {
-    int value;
+    Object value;
     boolean inclusive;
-    Bound(int value, boolean inclusive) {
+    Bound(Object value, boolean inclusive) {
       this.value = value;
       this.inclusive = inclusive;
     }
@@ -157,12 +158,28 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Bound visitLowerBound(TailspinParser.LowerBoundContext ctx) {
-    return new Bound(visitMatchArithmeticExpression(ctx.matchArithmeticExpression()), ctx.InvertMatch() == null);
+    Object bound;
+    if (ctx.matchArithmeticExpression() != null) {
+      bound = visitMatchArithmeticExpression(ctx.matchArithmeticExpression());
+    } else if (ctx.stringLiteral() != null) {
+      bound = visitStringLiteral(ctx.stringLiteral());
+    } else {
+      throw new UnsupportedOperationException("Cannot extract comparison object " + ctx);
+    }
+    return new Bound(bound, ctx.InvertMatch() == null);
   }
 
   @Override
   public Bound visitUpperBound(TailspinParser.UpperBoundContext ctx) {
-    return new Bound(visitMatchArithmeticExpression(ctx.matchArithmeticExpression()), ctx.InvertMatch() == null);
+    Object bound;
+    if (ctx.matchArithmeticExpression() != null) {
+      bound = visitMatchArithmeticExpression(ctx.matchArithmeticExpression());
+    } else if (ctx.stringLiteral() != null) {
+      bound = visitStringLiteral(ctx.stringLiteral());
+    } else {
+      throw new UnsupportedOperationException("Cannot extract comparison object " + ctx);
+    }
+    return new Bound(bound, ctx.InvertMatch() == null);
   }
 
   @Override
@@ -269,9 +286,7 @@ class RunTemplateBlock extends RunMain {
   public Queue<Object> visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx) {
     Queue<Object> qIt = visitValueChain(ctx.valueChain());
     Queue<Object> result = new ArrayDeque<>();
-    qIt.forEach(it -> {
-      result.addAll(templates.matchTemplates(createMatcherBlockRunner(queueOf(it))));
-    });
+    qIt.forEach(it -> result.addAll(templates.matchTemplates(createMatcherBlockRunner(queueOf(it)))));
     return result;
   }
 

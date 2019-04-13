@@ -424,4 +424,17 @@ class Matchers {
 
     assertEquals("noyesno", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void stringRange() throws Exception {
+    String program = "['a', 'b', 'c', 'd', 'e', 'f']... -> (<..'b'> 'low' ! <'c'..~'e'> 'mid' ! <'e'..> 'high' !) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("lowlowmidmidhighhigh", output.toString(StandardCharsets.UTF_8));
+  }
 }
