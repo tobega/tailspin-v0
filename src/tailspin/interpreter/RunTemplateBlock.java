@@ -159,12 +159,15 @@ class RunTemplateBlock extends RunMain {
   @Override
   public Bound visitLowerBound(TailspinParser.LowerBoundContext ctx) {
     Object bound;
-    if (ctx.matchArithmeticExpression() != null) {
+    if (ctx.matchDereferenceValue() != null) {
+      bound = visitMatchDereferenceValue(ctx.matchDereferenceValue());
+    } else if (ctx.matchArithmeticExpression() != null) {
       bound = visitMatchArithmeticExpression(ctx.matchArithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else {
-      throw new UnsupportedOperationException("Cannot extract comparison object " + ctx);
+      throw new UnsupportedOperationException(
+          "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
     }
     return new Bound(bound, ctx.InvertMatch() == null);
   }
@@ -172,12 +175,15 @@ class RunTemplateBlock extends RunMain {
   @Override
   public Bound visitUpperBound(TailspinParser.UpperBoundContext ctx) {
     Object bound;
-    if (ctx.matchArithmeticExpression() != null) {
+    if (ctx.matchDereferenceValue() != null) {
+      bound = visitMatchDereferenceValue(ctx.matchDereferenceValue());
+    } else if (ctx.matchArithmeticExpression() != null) {
       bound = visitMatchArithmeticExpression(ctx.matchArithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else {
-      throw new UnsupportedOperationException("Cannot extract comparison object " + ctx);
+      throw new UnsupportedOperationException(
+          "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
     }
     return new Bound(bound, ctx.InvertMatch() == null);
   }

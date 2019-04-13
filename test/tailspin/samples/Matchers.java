@@ -437,4 +437,17 @@ class Matchers {
 
     assertEquals("lowlowmidmidhighhigh", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void stringRangeDereferenced() throws Exception {
+    String program = "def mid: 'c'\n['a', 'b', 'c', 'd', 'e']... -> (<..~$mid> 'low' ! <$mid~..> 'high' ! <> 'mid' !) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("lowlowmidhighhigh", output.toString(StandardCharsets.UTF_8));
+  }
 }

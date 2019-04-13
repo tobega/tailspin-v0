@@ -94,9 +94,9 @@ typeMatch: matchDereferenceValue           # objectEquals
 
 suchThat: BeginSuchThat source matcher RightParen;
 
-lowerBound: (matchArithmeticExpression|stringLiteral) InvertMatch?;
+lowerBound: (matchDereferenceValue|matchArithmeticExpression|stringLiteral) InvertMatch?;
 
-upperBound: InvertMatch? (matchArithmeticExpression|stringLiteral);
+upperBound: InvertMatch? (matchDereferenceValue|matchArithmeticExpression|stringLiteral);
 
 matchArithmeticExpression: matchIntegerLiteral
   | matchDereferenceValue
