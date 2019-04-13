@@ -779,17 +779,17 @@ public class TailspinParser extends Parser {
 	}
 
 	public static class DimensionDereferenceContext extends ParserRuleContext {
-		public NonZeroIntegerContext nonZeroInteger() {
-			return getRuleContext(NonZeroIntegerContext.class,0);
+		public DereferenceValueContext dereferenceValue() {
+			return getRuleContext(DereferenceValueContext.class,0);
+		}
+		public ArithmeticExpressionContext arithmeticExpression() {
+			return getRuleContext(ArithmeticExpressionContext.class,0);
 		}
 		public RangeLiteralContext rangeLiteral() {
 			return getRuleContext(RangeLiteralContext.class,0);
 		}
 		public ArrayLiteralContext arrayLiteral() {
 			return getRuleContext(ArrayLiteralContext.class,0);
-		}
-		public DereferenceValueContext dereferenceValue() {
-			return getRuleContext(DereferenceValueContext.class,0);
 		}
 		public DimensionDereferenceContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -813,28 +813,28 @@ public class TailspinParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(193);
-				nonZeroInteger();
+				dereferenceValue();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(194);
-				rangeLiteral();
+				arithmeticExpression(0);
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(195);
-				arrayLiteral();
+				rangeLiteral();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(196);
-				dereferenceValue();
+				arrayLiteral();
 				}
 				break;
 			}
@@ -4212,8 +4212,8 @@ public class TailspinParser extends Parser {
 		"\u00ba\3\2\2\2\u00b9\u00b4\3\2\2\2\u00b9\u00b5\3\2\2\2\u00ba\13\3\2\2"+
 		"\2\u00bb\u00c0\5\16\b\2\u00bc\u00bd\7\21\2\2\u00bd\u00bf\5\16\b\2\u00be"+
 		"\u00bc\3\2\2\2\u00bf\u00c2\3\2\2\2\u00c0\u00be\3\2\2\2\u00c0\u00c1\3\2"+
-		"\2\2\u00c1\r\3\2\2\2\u00c2\u00c0\3\2\2\2\u00c3\u00c8\5H%\2\u00c4\u00c8"+
-		"\5D#\2\u00c5\u00c8\5\20\t\2\u00c6\u00c8\5\b\5\2\u00c7\u00c3\3\2\2\2\u00c7"+
+		"\2\2\u00c1\r\3\2\2\2\u00c2\u00c0\3\2\2\2\u00c3\u00c8\5\b\5\2\u00c4\u00c8"+
+		"\5X-\2\u00c5\u00c8\5D#\2\u00c6\u00c8\5\20\t\2\u00c7\u00c3\3\2\2\2\u00c7"+
 		"\u00c4\3\2\2\2\u00c7\u00c5\3\2\2\2\u00c7\u00c6\3\2\2\2\u00c8\17\3\2\2"+
 		"\2\u00c9\u00ca\7\27\2\2\u00ca\u00d7\7\30\2\2\u00cb\u00cc\7\27\2\2\u00cc"+
 		"\u00d1\5\22\n\2\u00cd\u00ce\7\22\2\2\u00ce\u00d0\5\22\n\2\u00cf\u00cd"+

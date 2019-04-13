@@ -179,8 +179,8 @@ public class RunMain extends TailspinParserBaseVisitor {
       List<?> array) {
     DimensionDereferenceContext ctx = dimensionDereferences.get(currentDereference);
     Object dimensionResult;
-    if (ctx.nonZeroInteger() != null) {
-      int index = javaizeArrayIndex(visitNonZeroInteger(ctx.nonZeroInteger()), array.size());
+    if (ctx.arithmeticExpression() != null) {
+      int index = javaizeArrayIndex(visitArithmeticExpression(ctx.arithmeticExpression()), array.size());
       dimensionResult = array.get(index);
     } else if (ctx.rangeLiteral() != null) {
       dimensionResult = resolveArrayRangeDereference(ctx.rangeLiteral(), array);

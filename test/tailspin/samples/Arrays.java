@@ -433,4 +433,17 @@ class Arrays {
 
     assertEquals("[]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void arithmeticExpressionDereference() throws IOException {
+    String program = "def a: [1,2,3]\n 1 -> $a($it+1)  -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
 }

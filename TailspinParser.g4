@@ -28,7 +28,7 @@ structureDereference: FieldDereference* (FieldDereference | (FieldArrayDereferen
 
 arrayDereference: dimensionDereference (SemiColon dimensionDereference)*;
 
-dimensionDereference: nonZeroInteger|rangeLiteral|arrayLiteral|dereferenceValue;
+dimensionDereference: dereferenceValue|arithmeticExpression|rangeLiteral|arrayLiteral;
 
 arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valueProduction)* RightBracket;
 
