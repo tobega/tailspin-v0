@@ -322,7 +322,7 @@ class RunTemplateBlock extends RunMain {
     String stateContext = ctx.IDENTIFIER() == null ? "" : ctx.IDENTIFIER().getText();
     Queue<Object> value = visitValueChain(ctx.valueChain());
     if (value.size() != 1) {
-      throw new IllegalArgumentException("Attempt to set state to multiple values " + value.size());
+      throw new IllegalArgumentException("Attempt to set state to multiple values " + value);
     }
     scope.setState(stateContext, value.peek());
     return null;

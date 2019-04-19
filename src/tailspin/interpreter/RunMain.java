@@ -121,7 +121,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       try {
         value = resolveArrayDereference(ctx.arrayDereference(), (List<?>) value);
       } catch (RuntimeException e) {
-        throw new IllegalArgumentException("Failed array dereference of " + identifier, e);
+        throw new IllegalArgumentException("Failed array dereference: " + ctx.getText(), e);
       }
     }
     for (TailspinParser.StructureDereferenceContext sdc : ctx.structureDereference()) {
