@@ -375,19 +375,25 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Queue<Object> visitCallDefinedTransform(TailspinParser.CallDefinedTransformContext ctx) {
-    String name = ctx.IDENTIFIER().getText();
-    Map<String, Object> parameters = ctx.parameterValues() != null
-        ? visitParameterValues(ctx.parameterValues())
-        : Map.of();
-    Transform transform = (Transform) scope.resolveValue(name, false);
+    TransformCall transformCall = visitTransformCall(ctx.transformCall());
     Queue<Object> qIt = scope.getIt();
     Queue<Object> result = new ArrayDeque<>();
     qIt.forEach(
         it -> {
           scope.setIt(queueOf(it));
-          result.addAll(transform.run(new TransformScope(scope, name), parameters));
+          result.addAll(transformCall.execute(scope));
         });
     return result;
+  }
+
+  @Override
+  public TransformCall visitTransformCall(TailspinParser.TransformCallContext ctx) {
+    String name = ctx.IDENTIFIER().getText();
+    Map<String, Object> parameters = ctx.parameterValues() != null
+        ? visitParameterValues(ctx.parameterValues())
+        : Map.of();
+    Transform transform = (Transform) scope.resolveValue(name, false);
+    return new TransformCall(name, transform, parameters);
   }
 
   @Override
@@ -403,11 +409,17 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public KeyValue visitParameterValue(TailspinParser.ParameterValueContext ctx) {
     String key = ctx.Key().getText().replace(":", "");
-    Queue<Object> valueQueue = visitValueChain(ctx.valueChain());
-    if (valueQueue.size() != 1) {
-      throw new AssertionError("Invalid multiple value " + valueQueue.size());
+    if (ctx.valueChain() != null) {
+      Queue<Object> valueQueue = visitValueChain(ctx.valueChain());
+      if (valueQueue.size() != 1) {
+        throw new AssertionError("Invalid multiple value " + valueQueue.size());
+      }
+      return new KeyValue(key, valueQueue.peek());
     }
-    return new KeyValue(key, valueQueue.peek());
+    if (ctx.transformCall() != null) {
+      return new KeyValue(key, visitTransformCall(ctx.transformCall()));
+    }
+    throw new IllegalArgumentException("Unknown parameter value " + ctx.getText());
   }
 
   @Override
@@ -527,7 +539,12 @@ public class RunMain extends TailspinParserBaseVisitor {
     its.forEach(
         it -> {
           scope.setIt(queueOf(it));
-          result.addAll(visitSource(ctx.source()));
+          Queue<Object> source = visitSource(ctx.source());
+          if (source.peek() instanceof TransformCall) {
+            result.addAll(((TransformCall) source.peek()).execute(scope));
+          } else {
+            result.addAll(source);
+          }
         });
     return result;
   }

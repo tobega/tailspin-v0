@@ -322,4 +322,19 @@ class Templates {
 
     assertEquals("lelelegtgtgt", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void higherOrderFunction() throws Exception {
+    String program = "templates low <..3> 1 ! <> 0 ! end low\n"
+        + "templates comp@{discriminator:} $it -> $discriminator -> # <1> 'yes' ! <> 'no' ! end comp\n"
+        + "1..6 -> comp@{discriminator: low} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yesyesyesnonono", output.toString(StandardCharsets.UTF_8));
+  }
 }

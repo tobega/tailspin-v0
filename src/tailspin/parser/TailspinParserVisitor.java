@@ -140,6 +140,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#transformCall}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTransformCall(TailspinParser.TransformCallContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#parameterValues}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

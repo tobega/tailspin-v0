@@ -42,13 +42,15 @@ keyValue: Key valueProduction;
 
 templates: source                        # literalTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
-  | IDENTIFIER (At parameterValues)?          # callDefinedTransform
+  | transformCall                        # callDefinedTransform
   | LeftBracket IDENTIFIER RightBracket LeftParen templatesBody RightParen # arrayTemplates
 ;
 
+transformCall: IDENTIFIER (At parameterValues)?;
+
 parameterValues: LeftBrace (parameterValue Comma?)+ RightBrace;
 
-parameterValue: Key valueChain;
+parameterValue: Key (valueChain|transformCall);
 
 templatesBody: block matchTemplate*
   | matchTemplate+
