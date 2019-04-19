@@ -56,7 +56,7 @@ Decimal numbers will probably have to be typed by number of significant digits a
 
 ### Range literal
 A range literal produces a [stream](#streams) of numbers. They are specified by a start, an end and
-an multiplier increment, e.g. `1..10` will give the numbers 1 to 10 inclusive and `10..1:-1` does the same but backwards.
+an optional increment, e.g. `1..10` will give the numbers 1 to 10 inclusive and `10..1:-1` does the same but backwards.
 To exclude the bounds, add a tilde between the numeric bound and the range operator `..`, so `1~..5:2` will give `3 5`,
 while `1..~5:2` will give `1 3`.
 
@@ -141,7 +141,7 @@ Slightly different things happen depending on what type of object is used as a c
  * An array: append the stream to the end of the array.
  
 ### Templates
-A templates object consists of an multiplier _initial block_ and an multiplier sequence of [matchers](#matchers),
+A templates object consists of an optional _initial block_ and an optional sequence of [matchers](#matchers),
 each with a _block_. A matcher block can be just the word `void`, which indicates that nothing should happen for this case.
 
 A block is simply a series of value chains that either dry up, with no value for the next stage;
@@ -156,8 +156,6 @@ _Current limitations_: You cannot have an empty match block nor an empty templat
 
 _Possible future directions_: There may be some default behaviour applied if no matching matcher
 is found, perhaps to just deconstruct the object and sent its children to the matchers in turn.
-A special token may be introduced to specifically indicate that output is squashed,
-perhaps a [sink](#sinks) called `void`.
 
 #### Defined templates
 Templates can be defined with an identifier as a top-level statement or inside another templates object.
@@ -168,6 +166,18 @@ templates add1
   $it + 1
 end add1
 ```
+
+Defined templates can have parameters that vary the way they execute. Parameters are defined just after the identifier
+by an at-sign and a list of keys inside braces (similar to a structure literal), and are dereferenced as defined values, e.g.
+```
+templates add@{addend:}
+  $it + $addend
+end add
+```
+
+To call templates with parameters, set the values after the identifier by an at-sign and a [structure literal](#structure-literal)
+where the keys in the structure must match the defined parameters, e.g. with the above definition
+`3 -> add@{addend: 4} -> stdout` will print `7`.
 
 #### Inline templates
 Templates can be defined inline by just wrapping a templates body in parentheses, e.g.
@@ -202,7 +212,7 @@ Other composition matchers are the ones defined in the composer as sub-patterns.
 
 There are also built-in composition matchers like `<INT>` which parses an integer and `<WS>` for a sequence of whitespace characters.
 
-A composition matcher can have a qualifier after it, `?` if it is multiplier.
+A composition matcher can have a qualifier after it, `?` if it is optional.
 
 A composition matcher can be negated by a tilde just inside the bracket, e.g. `<~WS>`, which will match everything up until the next matching pattern.
 

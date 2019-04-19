@@ -1,7 +1,7 @@
 package tailspin.interpreter;
 
 class TransformScope extends NestedScope {
-  private final String scopeContext;
+  final String scopeContext;
   private Object state;
 
   TransformScope(Scope parentScope, String scopeContext) {

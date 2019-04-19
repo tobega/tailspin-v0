@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.util.Map;
 import java.util.Queue;
 
 class ProcessorInstance {
@@ -13,6 +14,6 @@ class ProcessorInstance {
     Transform transform = (Transform) scope.resolveValue(message, false);
     TransformScope transformScope = new TransformScope(scope, message);
     transformScope.setIt(it);
-    return transform.run(transformScope);
+    return transform.run(transformScope, Map.of());
   }
 }

@@ -6,10 +6,12 @@ program: statement (statement)* EOF;
 
 statement: Def Key valueChain                   # definition
   | valueChain To sink                                   # valueChainToSink
-  | StartTemplatesDefinition IDENTIFIER templatesBody EndDefinition IDENTIFIER # templatesDefinition
+  | StartTemplatesDefinition IDENTIFIER parameterDefinitions? templatesBody EndDefinition IDENTIFIER # templatesDefinition
   | StartProcessorDefinition IDENTIFIER block EndDefinition IDENTIFIER # processorDefinition
   | StartComposerDefinition ComposerId composerBody ComposerEndDefinition IDENTIFIER # composerDefinition
 ;
+
+parameterDefinitions: At LeftBrace (Key Comma?)+ RightBrace;
 
 source: Stdin
   | dereferenceValue
@@ -40,9 +42,13 @@ keyValue: Key valueProduction;
 
 templates: source                        # literalTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
-  | IDENTIFIER                           # callDefinedTransform
+  | IDENTIFIER (At parameterValues)?          # callDefinedTransform
   | LeftBracket IDENTIFIER RightBracket LeftParen templatesBody RightParen # arrayTemplates
 ;
+
+parameterValues: LeftBrace (parameterValue Comma?)+ RightBrace;
+
+parameterValue: Key valueChain;
 
 templatesBody: block matchTemplate*
   | matchTemplate+

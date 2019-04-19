@@ -28,7 +28,7 @@ class Composer implements Transform {
   }
 
   @Override
-  public Queue<Object> run(TransformScope scope) {
+  public Queue<Object> run(TransformScope scope, Map<String, Object> parameters) {
     ArrayDeque<Object> result = new ArrayDeque<>();
     String s = (String) scope.getIt().peek();
     for (CompositionSpec spec : specs) {

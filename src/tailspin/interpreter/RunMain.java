@@ -292,7 +292,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     qIt.forEach(
         it -> {
           scope.setIt(queueOf(it));
-          result.addAll(templates.run(new TransformScope(scope, "")));
+          result.addAll(templates.run(new TransformScope(scope, ""), Map.of()));
         });
     return result;
   }
@@ -317,7 +317,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       TransformScope itemScope = new TransformScope(scope, "");
       itemScope.defineValue(loopVariable, i + 1, false);
       itemScope.setIt(queueOf(it.get(i)));
-      result.addAll(templates.run(itemScope));
+      result.addAll(templates.run(itemScope, Map.of()));
     }
     return result;
   }
@@ -344,8 +344,21 @@ public class RunMain extends TailspinParserBaseVisitor {
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
     }
     Templates templates = visitTemplatesBody(ctx.templatesBody());
+    if (ctx.parameterDefinitions() != null) {
+      List<ExpectedParameter> parameters = visitParameterDefinitions(ctx.parameterDefinitions());
+      templates.expectParameters(parameters);
+    }
     scope.defineValue(name, templates, false);
     return null;
+  }
+
+  @Override
+  public List<ExpectedParameter> visitParameterDefinitions(TailspinParser.ParameterDefinitionsContext ctx) {
+    List<ExpectedParameter> parameters = new ArrayList<>();
+    for (TerminalNode key : ctx.Key()) {
+      parameters.add(new ExpectedParameter(key.getText().replace(":", "")));
+    }
+    return parameters;
   }
 
   @Override
@@ -363,15 +376,38 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Queue<Object> visitCallDefinedTransform(TailspinParser.CallDefinedTransformContext ctx) {
     String name = ctx.IDENTIFIER().getText();
+    Map<String, Object> parameters = ctx.parameterValues() != null
+        ? visitParameterValues(ctx.parameterValues())
+        : Map.of();
     Transform transform = (Transform) scope.resolveValue(name, false);
     Queue<Object> qIt = scope.getIt();
     Queue<Object> result = new ArrayDeque<>();
     qIt.forEach(
         it -> {
           scope.setIt(queueOf(it));
-          result.addAll(transform.run(new TransformScope(scope, name)));
+          result.addAll(transform.run(new TransformScope(scope, name), parameters));
         });
     return result;
+  }
+
+  @Override
+  public Map<String, Object> visitParameterValues(TailspinParser.ParameterValuesContext ctx) {
+    Map<String, Object> parameters = new HashMap<>();
+    for(TailspinParser.ParameterValueContext parameterValueContext : ctx.parameterValue()) {
+      KeyValue keyValue = visitParameterValue(parameterValueContext);
+      parameters.put(keyValue.getKey(), keyValue.getValue());
+    }
+    return parameters;
+  }
+
+  @Override
+  public KeyValue visitParameterValue(TailspinParser.ParameterValueContext ctx) {
+    String key = ctx.Key().getText().replace(":", "");
+    Queue<Object> valueQueue = visitValueChain(ctx.valueChain());
+    if (valueQueue.size() != 1) {
+      throw new AssertionError("Invalid multiple value " + valueQueue.size());
+    }
+    return new KeyValue(key, valueQueue.peek());
   }
 
   @Override
@@ -531,7 +567,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       Object interpolated = visitInterpolateDereferenceValue(ctx.interpolateDereferenceValue());
       if (interpolated instanceof Templates) {
         return ((Templates) interpolated)
-            .run(new TransformScope(scope, identifier)).stream()
+            .run(new TransformScope(scope, identifier), Map.of()).stream()
                 .map(Object::toString)
                 .collect(Collectors.joining());
       } else if (interpolated instanceof Queue) {

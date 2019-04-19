@@ -308,4 +308,18 @@ class Templates {
 
     assertEquals("Hello Hello ", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void parameter() throws Exception {
+    String program = "templates comp@{pivot:} <..$pivot> 'le' ! <> 'gt' ! end comp\n"
+        + "1..6 -> comp@{pivot: 3} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("lelelegtgtgt", output.toString(StandardCharsets.UTF_8));
+  }
 }
