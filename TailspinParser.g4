@@ -98,7 +98,7 @@ typeMatch: matchDereferenceValue           # objectEquals
   | StartArrayMatch EndArrayMatch (MatchLeftParen arithmeticExpression? Range? arithmeticExpression? RightParen)?         # arrayMatch
 ;
 
-suchThat: BeginSuchThat source matcher RightParen;
+suchThat: BeginSuchThat valueChain matcher RightParen;
 
 lowerBound: (matchDereferenceValue|matchArithmeticExpression|stringLiteral) InvertMatch?;
 

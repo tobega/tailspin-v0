@@ -251,6 +251,8 @@ use a number of such-that conditions either after or instead of the main conditi
 * Array where first and second elements are equal: `<[]?($it(1)<$it(2)>)>`
 * Structure where the elements obey the relation a <= b <= c: `<?($it.a<..$it.b>)?($it.b<..$it.c>)>`
 
+Such-that conditions can also be applied to transforms of the value. Note that those transforms must yield a single value for matching.
+
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by
 repeating each step of the chain by setting __each__ of the stream values as the _current value_ in turn.

@@ -2584,8 +2584,8 @@ public class TailspinParser extends Parser {
 
 	public static class SuchThatContext extends ParserRuleContext {
 		public TerminalNode BeginSuchThat() { return getToken(TailspinParser.BeginSuchThat, 0); }
-		public SourceContext source() {
-			return getRuleContext(SourceContext.class,0);
+		public ValueChainContext valueChain() {
+			return getRuleContext(ValueChainContext.class,0);
 		}
 		public MatcherContext matcher() {
 			return getRuleContext(MatcherContext.class,0);
@@ -2611,7 +2611,7 @@ public class TailspinParser extends Parser {
 			setState(432);
 			match(BeginSuchThat);
 			setState(433);
-			source();
+			valueChain();
 			setState(434);
 			matcher();
 			setState(435);
@@ -4521,7 +4521,7 @@ public class TailspinParser extends Parser {
 		"\u01af\7\26\2\2\u01ae\u01a3\3\2\2\2\u01ae\u01af\3\2\2\2\u01af\u01b1\3"+
 		"\2\2\2\u01b0\u0189\3\2\2\2\u01b0\u018a\3\2\2\2\u01b0\u018c\3\2\2\2\u01b0"+
 		"\u0192\3\2\2\2\u01b0\u0193\3\2\2\2\u01b0\u019f\3\2\2\2\u01b0\u01a1\3\2"+
-		"\2\2\u01b1;\3\2\2\2\u01b2\u01b3\79\2\2\u01b3\u01b4\5\b\5\2\u01b4\u01b5"+
+		"\2\2\u01b1;\3\2\2\2\u01b2\u01b3\79\2\2\u01b3\u01b4\5\60\31\2\u01b4\u01b5"+
 		"\5\66\34\2\u01b5\u01b6\7\26\2\2\u01b6=\3\2\2\2\u01b7\u01bb\5F$\2\u01b8"+
 		"\u01bb\5B\"\2\u01b9\u01bb\5P)\2\u01ba\u01b7\3\2\2\2\u01ba\u01b8\3\2\2"+
 		"\2\u01ba\u01b9\3\2\2\2\u01bb\u01bd\3\2\2\2\u01bc\u01be\78\2\2\u01bd\u01bc"+

@@ -49,7 +49,7 @@ class RunTemplateBlock extends RunMain {
     Object outerIt = scope.getIt().peek();
     scope.defineValue("it", outerIt, true);
     try {
-      scope.setIt(visitSource(ctx.source()));
+      scope.setIt(visitValueChain(ctx.valueChain()));
       return visitMatcher(ctx.matcher());
     } finally{
       scope.setIt(queueOf(outerIt));
@@ -198,7 +198,7 @@ class RunTemplateBlock extends RunMain {
     if (!(oIt instanceof String)) return false;
     String it = (String) oIt;
     String pattern = visitStringLiteral(ctx.stringLiteral());
-    // TODO: this coud be good to save in compiled form
+    // TODO: this could be good to save in compiled form
     Pattern compiled =
         Pattern.compile(
             "\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ);

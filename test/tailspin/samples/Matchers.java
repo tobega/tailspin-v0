@@ -450,4 +450,18 @@ class Matchers {
 
     assertEquals("lowlowmidhighhigh", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void suchThatValueChain() throws Exception {
+    String program = "templates isLow <..3> 1 ! <> 0 ! end isLow\n"
+        + "1..6 -> (<?($it -> isLow <1>)> 'yes'! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yesyesyesnonono", output.toString(StandardCharsets.UTF_8));
+  }
 }
