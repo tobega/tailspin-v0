@@ -337,4 +337,18 @@ class Templates {
 
     assertEquals("yesyesyesnonono", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void streamedParameter() throws Exception {
+    String program = "templates comp@{pivot:} 4 -> # <..$pivot> 'le' ! <> 'gt' ! end comp\n"
+        + "1..6 -> comp@{pivot: $it} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("gtgtgtlelele", output.toString(StandardCharsets.UTF_8));
+  }
 }

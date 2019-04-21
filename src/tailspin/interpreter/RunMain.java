@@ -375,12 +375,12 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Queue<Object> visitCallDefinedTransform(TailspinParser.CallDefinedTransformContext ctx) {
-    TransformCall transformCall = visitTransformCall(ctx.transformCall());
     Queue<Object> qIt = scope.getIt();
     Queue<Object> result = new ArrayDeque<>();
     qIt.forEach(
         it -> {
           scope.setIt(queueOf(it));
+          TransformCall transformCall = visitTransformCall(ctx.transformCall());
           result.addAll(transformCall.execute(scope));
         });
     return result;
