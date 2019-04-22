@@ -169,7 +169,7 @@ class Structures {
 
   @Test
   void freeKeyedValue() throws IOException {
-    String program = "a: 1 -> stdout";
+    String program = "(a: 1) -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

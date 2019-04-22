@@ -16,11 +16,11 @@ parameterDefinitions: At LeftBrace (Key Comma?)+ RightBrace;
 source: Stdin
   | dereferenceValue
   | stringLiteral
-  | arithmeticExpression
   | rangeLiteral
   | arrayLiteral
   | structureLiteral
-  | keyValue
+  | LeftParen valueChain RightParen
+  | arithmeticExpression
 ;
 
 dereferenceValue: Dereference structureDereference*  Message?
@@ -72,9 +72,8 @@ sendToTemplates: valueChain To TemplateMatch;
 stateAssignment: valueChain To At IDENTIFIER?;
 
 valueChain: source
-  | LeftParen source RightParen
   | source transform
-  | LeftParen source RightParen transform
+  | keyValue
 ;
 
 transform: To templates transform?
@@ -137,7 +136,7 @@ interpolateStructureDereference: InterpolateField+ (InterpolateArray arrayDerefe
 sink: Stdout | Void;
 
 arithmeticExpression: integerLiteral
-  | LeftParen arithmeticExpression RightParen
+  | LeftParen valueChain RightParen
   | AdditiveOperator? dereferenceValue
   | arithmeticExpression MultiplicativeOperator arithmeticExpression
   | arithmeticExpression AdditiveOperator arithmeticExpression

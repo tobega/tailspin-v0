@@ -282,4 +282,30 @@ class Numbers {
 
     assertEquals("4", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void valueChainInExpression() throws IOException {
+    String program = "templates add $it + 1 ! end add\n 5 - (2 -> add) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void valueChainStartsExpression() throws IOException {
+    String program = "templates add $it + 1 ! end add\n (5 -> add) - 2 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+  }
 }

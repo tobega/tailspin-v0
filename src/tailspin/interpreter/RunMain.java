@@ -45,6 +45,9 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Queue<Object> visitValueChain(TailspinParser.ValueChainContext ctx) {
+    if (ctx.keyValue() != null) {
+      return queueOf(visitKeyValue(ctx.keyValue()));
+    }
     Queue<Object> oldIt = scope.getIt();
     Queue<Object> value = visitSource(ctx.source());
     if (ctx.transform() != null) {
@@ -81,8 +84,8 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.Stdin() != null) {
       return queueOf(scope.getInput().lines());
     }
-    if (ctx.keyValue() != null) {
-      return queueOf(visitKeyValue(ctx.keyValue()));
+    if (ctx.LeftParen() != null) {
+      return visitValueChain(ctx.valueChain());
     }
     throw new UnsupportedOperationException(ctx.toString());
   }
@@ -669,7 +672,11 @@ public class RunMain extends TailspinParserBaseVisitor {
       }
     }
     if (ctx.LeftParen() != null) {
-      return visitArithmeticExpression(ctx.arithmeticExpression(0));
+      Queue<Object> values = visitValueChain(ctx.valueChain());
+      if (values.size() != 1) {
+        throw new UnsupportedOperationException("Several values at " + ctx.valueChain().getText());
+      }
+      return (Integer) values.peek();
     }
     if (ctx.AdditiveOperator() != null) {
       Integer left = (Integer) visit(ctx.arithmeticExpression(0));
