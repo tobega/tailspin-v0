@@ -9,8 +9,8 @@ _Current limitations_: The current implementation cannot handle very deep recurs
 ## Basic structure
 A typical tailspin statement starts with a [source](#sources) for a value,
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
-(a.k.a a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you just
-leave out the sink to emit the resulting value. The current value, referred to as `$it`, at each
+(a.k.a a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you can append an
+exclamation point `!` to emit the resulting value. The current value, referred to as `$it`, at each
 stage is simply the value produced by the stage before. At the start of a top-level statement,
 `$it` is undefined.
 
@@ -215,6 +215,9 @@ There are also built-in composition matchers like `<INT>` which parses an intege
 A composition matcher can have a qualifier after it, `?` if it is optional.
 
 A composition matcher can be negated by a tilde just inside the bracket, e.g. `<~WS>`, which will match everything up until the next matching pattern.
+
+A skipped value may be captured by prefixing the matcher with `def _identifier_:`, e.g. `(def val: <INT>)` will not output the parsed integer at that location
+but captures it as `val`. This value may be output later as `$val`.
 
 ## Matchers
 A matcher is a condition enclosed by angle brackets. A sequence of matchers is evaluated from the

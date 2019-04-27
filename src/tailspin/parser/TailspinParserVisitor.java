@@ -423,6 +423,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCompositionSkipRule(TailspinParser.CompositionSkipRuleContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#compositionCapture}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompositionCapture(TailspinParser.CompositionCaptureContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#compositionKeyValue}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

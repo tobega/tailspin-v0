@@ -201,6 +201,10 @@ EndBuildStructure: '}';
 
 KeySeparator: ':';
 
+ComposerDef: 'def';
+
+ComposeDereference: StartDereference (At IDENTIFIER? | IDENTIFIER);
+
 ComposerId: IDENTIFIER;
 
 ComposerIgnoreWS: WS -> skip;

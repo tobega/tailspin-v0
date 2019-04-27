@@ -826,8 +826,18 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public CompositionSpec visitCompositionSkipRule(TailspinParser.CompositionSkipRuleContext ctx) {
-    return new Composer.SkipComposition(ctx.compositionMatcher().stream()
-        .map(this::visitCompositionMatcher).collect(Collectors.toList()));
+    return new Composer.SkipComposition(ctx.compositionCapture().stream()
+        .map(this::visitCompositionCapture).collect(Collectors.toList()));
+  }
+
+  @Override
+  public CompositionSpec visitCompositionCapture(TailspinParser.CompositionCaptureContext ctx) {
+    CompositionSpec value = visitCompositionMatcher(ctx.compositionMatcher());
+    if (ctx.SequenceKey() != null) {
+      String identifier = ctx.SequenceKey().getText().replace(":", "");
+      value = new Composer.CaptureComposition(identifier, value);
+    }
+    return value;
   }
 
   @Override
@@ -847,6 +857,9 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else if (ctx.REGEX_TEXT() != null) {
       String regex = ctx.REGEX_TEXT().getText();
       compositionSpec = new Composer.RegexComposition(regex, ctx.InvertComposerMatch() != null);
+    } else if (ctx.ComposeDereference() != null) {
+      String identifier = ctx.ComposeDereference().getText().substring(1);
+      compositionSpec = new Composer.DereferenceComposition(identifier);
     } else {
       throw new UnsupportedOperationException("Unknown type of composition matcher");
     }

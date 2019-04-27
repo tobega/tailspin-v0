@@ -26,7 +26,11 @@ public class BasicScope implements Scope {
     if ("it".equals(identifier)) {
       throw new IllegalArgumentException("Attempt to get it as an identifier");
     }
-    return definitions.get(identifier);
+    Object value = definitions.get(identifier);
+    if (value == null) {
+      throw new NullPointerException(identifier + " is not defined");
+    }
+    return value;
   }
 
   @Override

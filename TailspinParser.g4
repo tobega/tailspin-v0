@@ -155,9 +155,12 @@ compositionMatcher: StartComposerMatch InvertComposerMatch? ComposerId EndCompos
   | StartComposerMatch InvertComposerMatch? START_REGEX REGEX_TEXT END_REGEX EndComposerMatch Multiplier?
   | StartBuildArray compositionSequence EndBuildArray
   | StartBuildStructure compositionSkipRule* compositionKeyValue+ EndBuildStructure
+  | ComposeDereference
 ;
 
-compositionSkipRule: StartSkipRule compositionMatcher+ EndSkipRule;
+compositionSkipRule: StartSkipRule compositionCapture+ EndSkipRule;
+
+compositionCapture: (ComposerDef SequenceKey)? compositionMatcher;
 
 compositionKeyValue: SequenceKey compositionSkipRule* compositionComponent ValueSeparator?;
 

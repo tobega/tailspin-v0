@@ -22,7 +22,6 @@ class KeyValueSubComposer implements SubComposer {
       s = subComposer.nibble(s);
       satisfied &= subComposer.isSatisfied();
       if (subComposer.isSatisfied()) {
-        @SuppressWarnings("unchecked")
         Queue<Object> values = subComposer.getValues();
         if (values.size() > 1) {
           throw new IllegalStateException("A keyed value can only have one value, not " + values);
@@ -39,8 +38,8 @@ class KeyValueSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<KeyValue> getValues() {
-    Queue<KeyValue> result = new ArrayDeque<>();
+  public Queue<Object> getValues() {
+    Queue<Object> result = new ArrayDeque<>();
     result.add(new KeyValue(key, value));
     value = null;
     satisfied = false;

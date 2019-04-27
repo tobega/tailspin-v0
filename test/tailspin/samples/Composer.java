@@ -343,4 +343,37 @@ class Composer {
 
     assertEquals("{x=1, y=2}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void dereferenceValue() throws IOException {
+    String program = "def val: 3\n"
+        + "composer coords\n"
+        + "  { x: $val, y: <INT> }\n"
+        + "end coords\n"
+        + "'5' -> coords -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{x=3, y=5}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void captureValue() throws IOException {
+    String program = "composer coords\n"
+        + "(def val: <INT>) { x: $val }\n"
+        + "end coords\n"
+        + "'3' -> coords -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
 }

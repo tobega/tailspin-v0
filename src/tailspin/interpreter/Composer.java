@@ -32,7 +32,7 @@ class Composer implements Transform {
     ArrayDeque<Object> result = new ArrayDeque<>();
     String s = (String) scope.getIt().peek();
     for (CompositionSpec spec : specs) {
-      SubComposer subComposer = resolveSpec(spec);
+      SubComposer subComposer = resolveSpec(spec, scope);
       s = subComposer.nibble(s);
       if (!subComposer.isSatisfied()) {
         throw new IllegalStateException("No composer match at '" + s + "'");
@@ -45,12 +45,12 @@ class Composer implements Transform {
     return result;
   }
 
-  private SubComposer resolveSpec(CompositionSpec spec) {
+  private SubComposer resolveSpec(CompositionSpec spec, Scope scope) {
     if (spec instanceof NamedComposition) {
       NamedComposition namedSpec = (NamedComposition) spec;
       String name = namedSpec.namedPattern;
       if (definedSequences.containsKey(name)) {
-        return new SequenceSubComposer(resolveSpecs(definedSequences.get(name)));
+        return new SequenceSubComposer(resolveSpecs(definedSequences.get(name), scope));
       }
       return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name),
           namedSpec.invert);
@@ -61,32 +61,40 @@ class Composer implements Transform {
           regexSpec.invert);
     }
     if (spec instanceof SkipComposition) {
-      return new SkipSubComposer(resolveSpecs(((SkipComposition) spec).skipSpecs));
+      return new SkipSubComposer(resolveSpecs(((SkipComposition) spec).skipSpecs, scope));
     }
     if (spec instanceof ArrayComposition) {
-      return new ArraySubComposer(resolveSpecs(((ArrayComposition) spec).itemSpecs));
+      return new ArraySubComposer(resolveSpecs(((ArrayComposition) spec).itemSpecs, scope));
     }
     if (spec instanceof StructureComposition) {
-      return new StructureSubComposer(resolveSpecs(((StructureComposition) spec).contents));
+      return new StructureSubComposer(resolveSpecs(((StructureComposition) spec).contents, scope));
     }
     if (spec instanceof KeyValueComposition) {
       KeyValueComposition keyValueSpec = (KeyValueComposition) spec;
-      return new KeyValueSubComposer(keyValueSpec.key, resolveSpecs(keyValueSpec.valueMatch));
+      return new KeyValueSubComposer(keyValueSpec.key, resolveSpecs(keyValueSpec.valueMatch, scope));
     }
     if (spec instanceof OptionalComposition) {
-      return new OptionalSubComposer(resolveSpec(((OptionalComposition) spec).compositionSpec));
+      return new OptionalSubComposer(resolveSpec(((OptionalComposition) spec).compositionSpec, scope));
     }
     if (spec instanceof OneOrMoreComposition) {
-      return new OneOrMoreSubComposer(resolveSpec(((OneOrMoreComposition) spec).compositionSpec));
+      return new OneOrMoreSubComposer(resolveSpec(((OneOrMoreComposition) spec).compositionSpec, scope));
     }
     if (spec instanceof AnyComposition) {
-      return new AnySubComposer(resolveSpec(((AnyComposition) spec).compositionSpec));
+      return new AnySubComposer(resolveSpec(((AnyComposition) spec).compositionSpec, scope));
+    }
+    if (spec instanceof DereferenceComposition) {
+      return new DereferenceSubComposer(((DereferenceComposition) spec).identifier, scope);
+    }
+    if (spec instanceof CaptureComposition) {
+      CaptureComposition captureComposition = (CaptureComposition) spec;
+      return new CaptureSubComposer(captureComposition.identifier, scope,
+          resolveSpec(captureComposition.compositionSpec, scope));
     }
     throw new UnsupportedOperationException("Unknown composition spec " + spec.getClass().getSimpleName());
   }
 
-  private List<SubComposer> resolveSpecs(List<CompositionSpec> specs) {
-    return specs.stream().map(this::resolveSpec).collect(
+  private List<SubComposer> resolveSpecs(List<CompositionSpec> specs, Scope scope) {
+    return specs.stream().map(spec -> resolveSpec(spec, scope)).collect(
         Collectors.toList());
   }
 
@@ -167,6 +175,24 @@ class Composer implements Transform {
     KeyValueComposition(String key, List<CompositionSpec> valueMatch) {
       this.key = key;
       this.valueMatch = valueMatch;
+    }
+  }
+
+  static class DereferenceComposition implements CompositionSpec {
+    private final String identifier;
+
+    DereferenceComposition(String identifier) {
+      this.identifier = identifier;
+    }
+  }
+
+  static class CaptureComposition implements CompositionSpec {
+    private final String identifier;
+    private final CompositionSpec compositionSpec;
+
+    CaptureComposition(String identifier, CompositionSpec compositionSpec) {
+      this.identifier = identifier;
+      this.compositionSpec = compositionSpec;
     }
   }
 }
