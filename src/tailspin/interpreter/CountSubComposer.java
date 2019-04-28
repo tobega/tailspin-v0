@@ -10,6 +10,7 @@ public class CountSubComposer implements SubComposer {
   private final String identifier;
   private final Scope scope;
   private Queue<Object> values;
+  private int required;
 
   public CountSubComposer(SubComposer subComposer, Integer count, String identifier, Scope scope) {
     this.subComposer = subComposer;
@@ -20,8 +21,13 @@ public class CountSubComposer implements SubComposer {
 
   @Override
   public String nibble(String s) {
+    if (count == null) {
+      required = (Integer) scope.resolveValue(identifier, false);
+    } else {
+      required = count;
+    }
     values = new ArrayDeque<>();
-    while (!s.isEmpty()) {
+    for (int i = 0; !s.isEmpty() && i < required; i++) {
       s = subComposer.nibble(s);
       if (subComposer.isSatisfied()) {
         values.addAll(subComposer.getValues());
@@ -41,10 +47,6 @@ public class CountSubComposer implements SubComposer {
 
   @Override
   public boolean isSatisfied() {
-    Integer required = count;
-    if (required == null) {
-      required = (Integer) scope.resolveValue(identifier, false);
-    }
     return values.size() == required;
   }
 }

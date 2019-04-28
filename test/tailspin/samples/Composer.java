@@ -425,6 +425,23 @@ class Composer {
   }
 
   @Test
+  void exactAmountNotGreedy() throws IOException {
+    String program = "composer words\n"
+        + "{ first: [<word>=2], last: <word> }\n"
+        + "word: <~WS> (<WS>?)\n"
+        + "end words\n"
+        + "'Hello wild World!' -> words -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{first=[Hello, wild], last=World!}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void exactAmountDereference() throws IOException {
     String program = "def count: 2\n"
         + "composer words\n"
