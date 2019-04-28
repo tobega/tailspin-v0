@@ -45,12 +45,41 @@ class Composer implements Transform {
     return result;
   }
 
+  private class PendingSequenceSubComposer implements SubComposer {
+    private final List<CompositionSpec> compositionSpecs;
+    private final Scope scope;
+    SequenceSubComposer sequenceSubComposer;
+
+    PendingSequenceSubComposer(List<CompositionSpec> compositionSpecs, Scope scope) {
+      this.compositionSpecs = compositionSpecs;
+      this.scope = scope;
+    }
+
+    @Override
+    public String nibble(String s) {
+      sequenceSubComposer = new SequenceSubComposer(resolveSpecs(compositionSpecs, new NestedScope(scope)));
+      return sequenceSubComposer.nibble(s);
+    }
+
+    @Override
+    public Queue<Object> getValues() {
+      Queue<Object> values = sequenceSubComposer.getValues();
+      sequenceSubComposer = null;
+      return values;
+    }
+
+    @Override
+    public boolean isSatisfied() {
+      return sequenceSubComposer.isSatisfied();
+    }
+  }
+
   private SubComposer resolveSpec(CompositionSpec spec, Scope scope) {
     if (spec instanceof NamedComposition) {
       NamedComposition namedSpec = (NamedComposition) spec;
       String name = namedSpec.namedPattern;
       if (definedSequences.containsKey(name)) {
-        return new SequenceSubComposer(resolveSpecs(definedSequences.get(name), scope));
+        return new PendingSequenceSubComposer(definedSequences.get(name), scope);
       }
       return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name),
           namedSpec.invert);

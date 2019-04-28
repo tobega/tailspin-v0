@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Queue;
 
 public class SequenceSubComposer implements SubComposer {
-
   private final List<SubComposer> subComposers;
   private Queue<Object> value;
   private boolean satisfied = false;
