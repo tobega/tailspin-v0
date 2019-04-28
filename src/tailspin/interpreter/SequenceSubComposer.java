@@ -16,6 +16,7 @@ public class SequenceSubComposer implements SubComposer {
 
   @Override
   public String nibble(String s) {
+    String originalS = s;
     value = new ArrayDeque<>();
     satisfied = true;
     for (SubComposer subComposer : subComposers) {
@@ -23,6 +24,8 @@ public class SequenceSubComposer implements SubComposer {
       satisfied &= subComposer.isSatisfied();
       if (subComposer.isSatisfied()) {
         value.addAll(subComposer.getValues());
+      } else {
+        return originalS;
       }
     }
     return s;
