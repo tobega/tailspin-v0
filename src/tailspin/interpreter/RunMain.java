@@ -863,13 +863,23 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else {
       throw new UnsupportedOperationException("Unknown type of composition matcher");
     }
-    if (ctx.Multiplier() == null) return compositionSpec;
-    switch (ctx.Multiplier().getText()) {
-      case "?": return new Composer.OptionalComposition(compositionSpec);
-      case "+": return new Composer.OneOrMoreComposition(compositionSpec);
-      case "*": return new Composer.AnyComposition(compositionSpec);
-      default: throw new UnsupportedOperationException("Unknown multiplier " + ctx.Multiplier().getText());
+    if (ctx.multiplier() == null) return compositionSpec;
+    return resolveMultiplier(ctx.multiplier(), compositionSpec);
+  }
+
+  private CompositionSpec resolveMultiplier(TailspinParser.MultiplierContext ctx,
+      CompositionSpec compositionSpec) {
+    if (ctx.Multiplier() != null) {
+      switch (ctx.Multiplier().getText()) {
+        case "?": return new Composer.OptionalComposition(compositionSpec);
+        case "+": return new Composer.OneOrMoreComposition(compositionSpec);
+        case "*": return new Composer.AnyComposition(compositionSpec);
+        default: throw new UnsupportedOperationException("Unknown multiplier " + ctx.Multiplier().getText());
+      }
     }
+    if (ctx.CountMultiplier() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
+    Integer amount = Integer.valueOf(ctx.ComposeInteger().getText());
+    return new Composer.CountComposition(compositionSpec, amount);
   }
 
   @Override

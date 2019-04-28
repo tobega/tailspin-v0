@@ -376,4 +376,51 @@ class Composer {
 
     assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void exactAmount() throws IOException {
+    String program = "composer words\n"
+        + "<word>=2\n"
+        + "word: <~WS> (<WS>?)\n"
+        + "end words\n"
+        + "'Hello World!' -> words -> ':$it;:' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals(":Hello::World!:", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void exactAmountThrowsOnFewer() throws IOException {
+    String program = "composer words\n"
+        + "<word>=2\n"
+        + "word: <~WS> (<WS>?)\n"
+        + "end words\n"
+        + "'Hello!' -> words -> ':$it;:' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
+  }
+
+  @Test
+  void exactAmountThrowsOnMore() throws IOException {
+    String program = "composer words\n"
+        + "<word>=2\n"
+        + "word: <~WS> (<WS>?)\n"
+        + "end words\n"
+        + "'Hello wild World!' -> words -> ':$it;:' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
+  }
 }

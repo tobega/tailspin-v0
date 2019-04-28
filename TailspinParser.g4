@@ -151,11 +151,15 @@ definedCompositionSequence: SequenceKey compositionSequence
 compositionSequence: compositionSkipRule* compositionComponent+
 ;
 
-compositionMatcher: StartComposerMatch InvertComposerMatch? ComposerId EndComposerMatch Multiplier?
-  | StartComposerMatch InvertComposerMatch? START_REGEX REGEX_TEXT END_REGEX EndComposerMatch Multiplier?
+compositionMatcher: StartComposerMatch InvertComposerMatch? ComposerId EndComposerMatch multiplier?
+  | StartComposerMatch InvertComposerMatch? START_REGEX REGEX_TEXT END_REGEX EndComposerMatch multiplier?
   | StartBuildArray compositionSequence EndBuildArray
   | StartBuildStructure compositionSkipRule* compositionKeyValue+ EndBuildStructure
   | ComposeDereference
+;
+
+multiplier: Multiplier
+  | CountMultiplier ComposeInteger
 ;
 
 compositionSkipRule: StartSkipRule compositionCapture+ EndSkipRule;

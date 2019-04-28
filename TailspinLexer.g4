@@ -185,6 +185,10 @@ ValueSeparator: Comma;
 
 Multiplier: '?' | '+' | '*';
 
+CountMultiplier: '=';
+
+ComposeInteger: PositiveInteger;
+
 START_REGEX: '\'' -> pushMode(IN_REGEX);
 
 StartSkipRule: '(';

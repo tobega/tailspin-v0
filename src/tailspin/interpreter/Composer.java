@@ -90,6 +90,10 @@ class Composer implements Transform {
       return new CaptureSubComposer(captureComposition.identifier, scope,
           resolveSpec(captureComposition.compositionSpec, scope));
     }
+    if (spec instanceof CountComposition) {
+      CountComposition countSpec = (CountComposition) spec;
+      return new CountSubComposer(resolveSpec(countSpec.compositionSpec, scope), countSpec.count);
+    }
     throw new UnsupportedOperationException("Unknown composition spec " + spec.getClass().getSimpleName());
   }
 
@@ -193,6 +197,16 @@ class Composer implements Transform {
     CaptureComposition(String identifier, CompositionSpec compositionSpec) {
       this.identifier = identifier;
       this.compositionSpec = compositionSpec;
+    }
+  }
+
+  static class CountComposition implements CompositionSpec {
+    private final CompositionSpec compositionSpec;
+    private final Integer count;
+
+    CountComposition(CompositionSpec compositionSpec, Integer count) {
+      this.compositionSpec = compositionSpec;
+      this.count = count;
     }
   }
 }

@@ -212,7 +212,11 @@ Other composition matchers are the ones defined in the composer as sub-patterns.
 
 There are also built-in composition matchers like `<INT>` which parses an integer and `<WS>` for a sequence of whitespace characters.
 
-A composition matcher can have a qualifier after it, `?` if it is optional.
+A composition matcher can have a multiplier qualifier after it:
+ * `?` if it is optional, once or no times.
+ * `*` if it can be repeated any number of times.
+ * `+` for one or more times.
+ * `=` followed by an exact count, e.g. `=2` for twice.
 
 A composition matcher can be negated by a tilde just inside the bracket, e.g. `<~WS>`, which will match everything up until the next matching pattern.
 
