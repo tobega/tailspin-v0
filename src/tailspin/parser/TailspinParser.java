@@ -4221,6 +4221,7 @@ public class TailspinParser extends Parser {
 		public TerminalNode Multiplier() { return getToken(TailspinParser.Multiplier, 0); }
 		public TerminalNode CountMultiplier() { return getToken(TailspinParser.CountMultiplier, 0); }
 		public TerminalNode ComposeInteger() { return getToken(TailspinParser.ComposeInteger, 0); }
+		public TerminalNode ComposeDereference() { return getToken(TailspinParser.ComposeDereference, 0); }
 		public MultiplierContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -4235,6 +4236,7 @@ public class TailspinParser extends Parser {
 	public final MultiplierContext multiplier() throws RecognitionException {
 		MultiplierContext _localctx = new MultiplierContext(_ctx, getState());
 		enterRule(_localctx, 104, RULE_multiplier);
+		int _la;
 		try {
 			setState(660);
 			_errHandler.sync(this);
@@ -4252,7 +4254,15 @@ public class TailspinParser extends Parser {
 				setState(658);
 				match(CountMultiplier);
 				setState(659);
-				match(ComposeInteger);
+				_la = _input.LA(1);
+				if ( !(_la==ComposeInteger || _la==ComposeDereference) ) {
+				_errHandler.recoverInline(this);
+				}
+				else {
+					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+					_errHandler.reportMatch(this);
+					consume();
+				}
 				}
 				break;
 			default:
@@ -4580,11 +4590,11 @@ public class TailspinParser extends Parser {
 		"\u029c\3\67\3\67\38\38\58\u02a3\n8\38\38\39\39\79\u02a9\n9\f9\169\u02ac"+
 		"\139\39\39\59\u02b0\n9\3:\3:\7:\u02b4\n:\f:\16:\u02b7\13:\3:\2\3`;\2\4"+
 		"\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNP"+
-		"RTVXZ\\^`bdfhjlnpr\2\5\4\2\34\34\66\66\4\2((==\4\2\4\4\6\6\2\u02fb\2t"+
-		"\3\2\2\2\4\u0099\3\2\2\2\6\u009b\3\2\2\2\b\u00b2\3\2\2\2\n\u00ca\3\2\2"+
-		"\2\f\u00cf\3\2\2\2\16\u00d9\3\2\2\2\20\u00e5\3\2\2\2\22\u00f4\3\2\2\2"+
-		"\24\u00f8\3\2\2\2\26\u00fa\3\2\2\2\30\u0106\3\2\2\2\32\u0116\3\2\2\2\34"+
-		"\u0118\3\2\2\2\36\u011d\3\2\2\2 \u0128\3\2\2\2\"\u0139\3\2\2\2$\u013b"+
+		"RTVXZ\\^`bdfhjlnpr\2\6\4\2\34\34\66\66\4\2((==\4\2\4\4\6\6\4\2QQ[[\2\u02fb"+
+		"\2t\3\2\2\2\4\u0099\3\2\2\2\6\u009b\3\2\2\2\b\u00b2\3\2\2\2\n\u00ca\3"+
+		"\2\2\2\f\u00cf\3\2\2\2\16\u00d9\3\2\2\2\20\u00e5\3\2\2\2\22\u00f4\3\2"+
+		"\2\2\24\u00f8\3\2\2\2\26\u00fa\3\2\2\2\30\u0106\3\2\2\2\32\u0116\3\2\2"+
+		"\2\34\u0118\3\2\2\2\36\u011d\3\2\2\2 \u0128\3\2\2\2\"\u0139\3\2\2\2$\u013b"+
 		"\3\2\2\2&\u0144\3\2\2\2(\u014a\3\2\2\2*\u014c\3\2\2\2,\u014f\3\2\2\2."+
 		"\u0151\3\2\2\2\60\u0155\3\2\2\2\62\u0160\3\2\2\2\64\u0171\3\2\2\2\66\u0177"+
 		"\3\2\2\28\u0179\3\2\2\2:\u0185\3\2\2\2<\u01b4\3\2\2\2>\u01b6\3\2\2\2@"+
@@ -4776,7 +4786,7 @@ public class TailspinParser extends Parser {
 		"\2\2\u028d\u028e\3\2\2\2\u028e\u028f\7X\2\2\u028f\u0292\3\2\2\2\u0290"+
 		"\u0292\7[\2\2\u0291\u026a\3\2\2\2\u0291\u0273\3\2\2\2\u0291\u027e\3\2"+
 		"\2\2\u0291\u0282\3\2\2\2\u0291\u0290\3\2\2\2\u0292i\3\2\2\2\u0293\u0297"+
-		"\7O\2\2\u0294\u0295\7P\2\2\u0295\u0297\7Q\2\2\u0296\u0293\3\2\2\2\u0296"+
+		"\7O\2\2\u0294\u0295\7P\2\2\u0295\u0297\t\5\2\2\u0296\u0293\3\2\2\2\u0296"+
 		"\u0294\3\2\2\2\u0297k\3\2\2\2\u0298\u029a\7S\2\2\u0299\u029b\5n8\2\u029a"+
 		"\u0299\3\2\2\2\u029b\u029c\3\2\2\2\u029c\u029a\3\2\2\2\u029c\u029d\3\2"+
 		"\2\2\u029d\u029e\3\2\2\2\u029e\u029f\7T\2\2\u029fm\3\2\2\2\u02a0\u02a1"+

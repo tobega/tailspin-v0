@@ -7,11 +7,15 @@ public class CountSubComposer implements SubComposer {
 
   private final SubComposer subComposer;
   private final Integer count;
+  private final String identifier;
+  private final Scope scope;
   private Queue<Object> values;
 
-  public CountSubComposer(SubComposer subComposer, Integer count) {
+  public CountSubComposer(SubComposer subComposer, Integer count, String identifier, Scope scope) {
     this.subComposer = subComposer;
     this.count = count;
+    this.identifier = identifier;
+    this.scope = scope;
   }
 
   @Override
@@ -37,6 +41,10 @@ public class CountSubComposer implements SubComposer {
 
   @Override
   public boolean isSatisfied() {
-    return values.size() == count;
+    Integer required = count;
+    if (required == null) {
+      required = (Integer) scope.resolveValue(identifier, false);
+    }
+    return values.size() == required;
   }
 }

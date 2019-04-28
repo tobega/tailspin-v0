@@ -159,7 +159,7 @@ compositionMatcher: StartComposerMatch InvertComposerMatch? ComposerId EndCompos
 ;
 
 multiplier: Multiplier
-  | CountMultiplier ComposeInteger
+  | CountMultiplier (ComposeInteger|ComposeDereference)
 ;
 
 compositionSkipRule: StartSkipRule compositionCapture+ EndSkipRule;

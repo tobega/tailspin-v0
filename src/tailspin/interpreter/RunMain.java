@@ -878,8 +878,9 @@ public class RunMain extends TailspinParserBaseVisitor {
       }
     }
     if (ctx.CountMultiplier() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
-    Integer amount = Integer.valueOf(ctx.ComposeInteger().getText());
-    return new Composer.CountComposition(compositionSpec, amount);
+    Integer amount = ctx.ComposeInteger() == null ? null : Integer.valueOf(ctx.ComposeInteger().getText());
+    String identifier = ctx.ComposeDereference() == null ? null : ctx.ComposeDereference().getText().substring(1);
+    return new Composer.CountComposition(compositionSpec, amount, identifier);
   }
 
   @Override
