@@ -105,9 +105,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Object visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
     String identifier =
-        ctx.Dereference() != null
-            ? ctx.Dereference().getText().substring(1)
-            : ctx.StartArrayDereference().getText().substring(1).replace("(", "");
+        (ctx.At() != null  ? ctx.At().getText() : "")
+        + (ctx.IDENTIFIER() != null ? ctx.IDENTIFIER().getText() : "");
     Object value;
     if (identifier.equals("it")) {
       Queue<Object> itQ = scope.getIt();
@@ -128,17 +127,13 @@ public class RunMain extends TailspinParserBaseVisitor {
       }
     }
     for (TailspinParser.StructureDereferenceContext sdc : ctx.structureDereference()) {
-      List<TerminalNode> fieldDereferences = new ArrayList<>(sdc.FieldDereference());
-      if (sdc.FieldArrayDereference() != null) {
-        fieldDereferences.add(sdc.FieldArrayDereference());
-      }
-      value = resolveFieldDereferences(value, fieldDereferences);
+      value = resolveFieldDereference(value, sdc.IDENTIFIER().getText());
       if (sdc.arrayDereference() != null) {
         value = resolveArrayDereference(sdc.arrayDereference(), (List<?>) value);
       }
     }
-    if (ctx.Message() != null) {
-      value = resolveProcessorMessage(ctx.Message().getSymbol().getText().substring(2), value);
+    if (ctx.message() != null) {
+      value = resolveProcessorMessage(ctx.message().IDENTIFIER().getText(), value);
     }
     return value;
   }
@@ -159,16 +154,13 @@ public class RunMain extends TailspinParserBaseVisitor {
     return result;
   }
 
-  Object resolveFieldDereferences(Object value, List<TerminalNode> terminalNodes) {
-    for (TerminalNode fieldDereference : terminalNodes) {
-      String fieldIdentifier = fieldDereference.getText().substring(1).replace("(", "");
-      if (value == null) {
-        throw new NullPointerException("Cannot dereference " + fieldIdentifier);
-      }
-      @SuppressWarnings("unchecked")
-      Map<String, Object> structure = (Map<String, Object>) value;
-      value = structure.get(fieldIdentifier);
+  Object resolveFieldDereference(Object value, String fieldIdentifier) {
+    if (value == null) {
+      throw new NullPointerException("Cannot dereference " + fieldIdentifier);
     }
+    @SuppressWarnings("unchecked")
+    Map<String, Object> structure = (Map<String, Object>) value;
+    value = structure.get(fieldIdentifier);
     return value;
   }
 
@@ -347,6 +339,7 @@ public class RunMain extends TailspinParserBaseVisitor {
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
     }
     Templates templates = visitTemplatesBody(ctx.templatesBody());
+    templates.setScopeContext(name);
     if (ctx.parameterDefinitions() != null) {
       List<ExpectedParameter> parameters = visitParameterDefinitions(ctx.parameterDefinitions());
       templates.expectParameters(parameters);
@@ -358,8 +351,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public List<ExpectedParameter> visitParameterDefinitions(TailspinParser.ParameterDefinitionsContext ctx) {
     List<ExpectedParameter> parameters = new ArrayList<>();
-    for (TerminalNode key : ctx.Key()) {
-      parameters.add(new ExpectedParameter(key.getText().replace(":", "")));
+    for (TerminalNode key : ctx.IDENTIFIER()) {
+      parameters.add(new ExpectedParameter(key.getText()));
     }
     return parameters;
   }
@@ -411,7 +404,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public KeyValue visitParameterValue(TailspinParser.ParameterValueContext ctx) {
-    String key = ctx.Key().getText().replace(":", "");
+    String key = ctx.IDENTIFIER().getText();
     if (ctx.valueChain() != null) {
       Queue<Object> valueQueue = visitValueChain(ctx.valueChain());
       if (valueQueue.size() != 1) {
@@ -554,7 +547,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
-    String identifier = ctx.Key().getText().replace(":", "");
+    String identifier = ctx.IDENTIFIER().getText();
     Queue<Object> valueChainResult = visitValueChain(ctx.valueChain());
     if (valueChainResult.size() != 1) {
       throw new IllegalArgumentException(
@@ -582,12 +575,12 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public String visitStringInterpolate(TailspinParser.StringInterpolateContext ctx) {
-    if (ctx.interpolateDereferenceValue() != null) {
-      String identifier = ctx.interpolateDereferenceValue().InterpolateIdentifier().getText();
-      Object interpolated = visitInterpolateDereferenceValue(ctx.interpolateDereferenceValue());
+    if (ctx.dereferenceValue() != null) {
+      Object interpolated = visitDereferenceValue(ctx.dereferenceValue());
       if (interpolated instanceof Templates) {
-        return ((Templates) interpolated)
-            .run(new TransformScope(scope, identifier), Map.of()).stream()
+        Templates templates = (Templates) interpolated;
+        return templates
+            .run(new TransformScope(scope, templates.getScopeName()), Map.of()).stream()
                 .map(Object::toString)
                 .collect(Collectors.joining());
       } else if (interpolated instanceof Queue) {
@@ -602,40 +595,6 @@ public class RunMain extends TailspinParserBaseVisitor {
       return valueQueue.stream().map(Object::toString).collect(Collectors.joining());
     }
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Object visitInterpolateDereferenceValue(
-      TailspinParser.InterpolateDereferenceValueContext ctx) {
-    String identifier = ctx.InterpolateIdentifier().getText();
-    Object value;
-    if (identifier.equals("it")) {
-      Queue<Object> itQ = scope.getIt();
-      if (itQ.size() != 1) {
-        throw new AssertionError("Invalid it dereference " + itQ.size());
-      }
-      value = itQ.peek();
-    } else if (identifier.startsWith(":")) {
-      value = scope.getState(identifier.substring(1));
-    } else {
-      value = scope.resolveValue(identifier, false);
-    }
-    if (ctx.arrayDereference() != null) {
-      List<?> array = (List<?>) value;
-      value = resolveArrayDereference(ctx.arrayDereference(), array);
-    }
-    for (TailspinParser.InterpolateStructureDereferenceContext sdc :
-        ctx.interpolateStructureDereference()) {
-      value = resolveFieldDereferences(value, sdc.InterpolateField());
-      if (sdc.arrayDereference() != null) {
-        List<?> array = (List<?>) value;
-        value = resolveArrayDereference(sdc.arrayDereference(), array);
-      }
-    }
-    if (ctx.InterpolateMessage() != null) {
-      value = resolveProcessorMessage(ctx.InterpolateMessage().getSymbol().getText().substring(2), value);
-    }
-    return value;
   }
 
   @Override
@@ -776,7 +735,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public KeyValue visitKeyValue(TailspinParser.KeyValueContext ctx) {
-    String key = ctx.Key().getText().replace(":", "");
+    String key = ctx.IDENTIFIER().getText();
     Queue<Object> valueQueue = visitValueProduction(ctx.valueProduction());
     if (valueQueue.size() != 1) {
       throw new AssertionError("Invalid multiple value " + valueQueue.size());

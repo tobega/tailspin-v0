@@ -13,6 +13,7 @@ class Templates implements Transform {
   private final TailspinParser.BlockContext block;
   private final List<MatchTemplate> matchTemplates;
   private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
+  private String scopeName = "";
 
   Templates(/*@Nullable*/ TailspinParser.BlockContext block, List<MatchTemplate> matchTemplates) {
     this.block = block;
@@ -49,5 +50,13 @@ class Templates implements Transform {
 
   void expectParameters(List<ExpectedParameter> parameters) {
     expectedParameters.addAll(parameters);
+  }
+
+  String getScopeName() {
+    return scopeName;
+  }
+
+  public void setScopeContext(String name) {
+    scopeName = name;
   }
 }

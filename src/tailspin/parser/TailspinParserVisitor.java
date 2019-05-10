@@ -88,6 +88,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDimensionDereference(TailspinParser.DimensionDereferenceContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#message}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMessage(TailspinParser.MessageContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#arrayLiteral}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -303,30 +309,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitUpperBound(TailspinParser.UpperBoundContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#matchArithmeticExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMatchArithmeticExpression(TailspinParser.MatchArithmeticExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TailspinParser#matchIntegerLiteral}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMatchIntegerLiteral(TailspinParser.MatchIntegerLiteralContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TailspinParser#matchDereferenceValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMatchDereferenceValue(TailspinParser.MatchDereferenceValueContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TailspinParser#matchStructureDereference}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMatchStructureDereference(TailspinParser.MatchStructureDereferenceContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link TailspinParser#rangeLiteral}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -368,18 +350,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitInterpolateEvaluate(TailspinParser.InterpolateEvaluateContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TailspinParser#interpolateDereferenceValue}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInterpolateDereferenceValue(TailspinParser.InterpolateDereferenceValueContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TailspinParser#interpolateStructureDereference}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInterpolateStructureDereference(TailspinParser.InterpolateStructureDereferenceContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#sink}.
 	 * @param ctx the parse tree

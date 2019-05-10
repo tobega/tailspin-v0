@@ -1,7 +1,7 @@
 lexer grammar TailspinLexer;
 
-@lexer::members {
-  boolean inStringDereference = false;
+@members {
+  int stringInterpolate = 0;
 }
 
 StartComment: '//' -> skip, pushMode(COMMENT_MODE);
@@ -14,23 +14,19 @@ Void: 'void';
 
 Def: 'def' [ \r\t\n];
 
-Dereference: StartDereference (At IDENTIFIER? | IDENTIFIER);
-
-StartArrayDereference: Dereference LeftParen -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
-
-FieldDereference: '.' IDENTIFIER;
-
-FieldArrayDereference: '.' IDENTIFIER LeftParen -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
-
 To: '->';
 
 ResultMarker: '!';
 
 At: '@';
 
-Message: '::' IDENTIFIER;
-
 Colon: ':';
+
+DoubleColon: '::';
+
+Dot: '.';
+
+EndStringInterpolate: ';' {stringInterpolate > 0}? {stringInterpolate--;} -> popMode;
 
 SemiColon: ';';
 
@@ -52,9 +48,7 @@ LeftBrace: '{';
 
 RightBrace: '}';
 
-Key: IDENTIFIER Colon;
-
-StartMatcher: '<' -> pushMode(MATCHER);
+StartMatcher: '<';
 
 StartTemplatesDefinition: 'templates';
 
@@ -92,75 +86,11 @@ fragment IDENTIFIER_PART: IDENTIFIER_START
 WS : [ \r\t\n]+ -> skip ;
 
 
-mode IN_STRING;
-
-StartStringEvaluate: '$(' -> pushMode(DEFAULT_MODE);
-
-StartStringInterpolate: '$' -> pushMode(INTERPOLATE);
-
-STRING_TEXT: STRING_CHAR+;
-
-fragment STRING_CHAR: '\'\'' | '$$' | ~['$];
-
-END_STRING: '\'' -> popMode;
-
-
-mode INTERPOLATE;
-
-EndInterpolate: ';' -> popMode;
-
-InterpolateArray: '(' -> pushMode(DEFAULT_MODE);
-
-InterpolateIdentifier: IDENTIFIER;
-
-InterpolateField: FieldDereference;
-
-InterpolateMessage: '::' IDENTIFIER;
-
-
-mode MATCHER;
-
 Else: '|';
 
-MatchComma: ',';
-
-StartSubMatcher: '<' -> pushMode(MATCHER);
-
-EndMatcher: '>' -> popMode;
-
-InvertMatch: '~';
+EndMatcher: '>';
 
 BeginSuchThat: '?(' -> pushMode(DEFAULT_MODE);
-
-MatchInteger: Zero | PositiveInteger;
-
-MatchAdditiveOperator: '+' | '-';
-
-RangeMatch: Range;
-
-START_REGEXP: '\'' -> pushMode(IN_STRING);
-
-StartStructureMatch: LeftBrace;
-
-EndStructureMatch: RightBrace;
-
-StartArrayMatch: LeftBracket;
-
-EndArrayMatch: RightBracket;
-
-StructureKey: Key;
-
-MatchMessage: '::' IDENTIFIER;
-
-MatchDereference: StartDereference (At IDENTIFIER? | IDENTIFIER);
-
-MatchLeftParen: '(' -> pushMode(DEFAULT_MODE);
-
-MatchFieldDereference: FieldDereference;
-
-
-MatcherIgnoreWS: WS -> skip;
-
 
 
 mode COMMENT_MODE;
@@ -179,7 +109,7 @@ EndComposerMatch: '>';
 
 InvertComposerMatch: '~';
 
-SequenceKey: Key;
+SequenceKey: IDENTIFIER Colon;
 
 ValueSeparator: Comma;
 
@@ -221,3 +151,16 @@ REGEX_TEXT: REGEX_CHAR+;
 fragment REGEX_CHAR: '\'\'' | ~['];
 
 END_REGEX: '\'' -> popMode;
+
+
+mode IN_STRING;
+
+StartStringEvaluate: '$(' -> pushMode(DEFAULT_MODE);
+
+StartStringInterpolate: '$' { stringInterpolate++; } -> pushMode(DEFAULT_MODE), type(StartDereference);
+
+STRING_TEXT: STRING_CHAR+;
+
+fragment STRING_CHAR: '\'\'' | '$$' | ~['$];
+
+END_STRING: '\'' -> popMode;

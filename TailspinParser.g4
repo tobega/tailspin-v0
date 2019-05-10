@@ -4,14 +4,14 @@ options { tokenVocab = TailspinLexer; }
 
 program: statement (statement)* EOF;
 
-statement: Def Key valueChain                   # definition
+statement: Def IDENTIFIER Colon valueChain                   # definition
   | valueChain To sink                                   # valueChainToSink
   | StartTemplatesDefinition IDENTIFIER parameterDefinitions? templatesBody EndDefinition IDENTIFIER # templatesDefinition
   | StartProcessorDefinition IDENTIFIER block EndDefinition IDENTIFIER # processorDefinition
   | StartComposerDefinition ComposerId composerBody ComposerEndDefinition IDENTIFIER # composerDefinition
 ;
 
-parameterDefinitions: At LeftBrace (Key Comma?)+ RightBrace;
+parameterDefinitions: At LeftBrace (IDENTIFIER Colon Comma?)+ RightBrace;
 
 source: Stdin
   | dereferenceValue
@@ -23,14 +23,16 @@ source: Stdin
   | arithmeticExpression
 ;
 
-dereferenceValue: Dereference structureDereference*  Message?
-  | StartArrayDereference arrayDereference RightParen structureDereference*  Message?;
+dereferenceValue: StartDereference (At IDENTIFIER? | IDENTIFIER) (LeftParen arrayDereference RightParen)? structureDereference*  message?
+;
 
-structureDereference: FieldDereference* (FieldDereference | (FieldArrayDereference arrayDereference RightParen));
+structureDereference: Dot IDENTIFIER (LeftParen arrayDereference RightParen)?;
 
 arrayDereference: dimensionDereference (SemiColon dimensionDereference)*;
 
 dimensionDereference: dereferenceValue|arithmeticExpression|rangeLiteral|arrayLiteral;
+
+message: DoubleColon IDENTIFIER;
 
 arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valueProduction)* RightBracket;
 
@@ -38,7 +40,7 @@ valueProduction: sendToTemplates | valueChain;
 
 structureLiteral: LeftBrace (keyValue Comma?)* RightBrace;
 
-keyValue: Key valueProduction;
+keyValue: IDENTIFIER Colon valueProduction;
 
 templates: source                        # literalTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
@@ -50,7 +52,7 @@ transformCall: IDENTIFIER (At parameterValues)?;
 
 parameterValues: LeftBrace (parameterValue Comma?)+ RightBrace;
 
-parameterValue: Key (valueChain|transformCall);
+parameterValue: IDENTIFIER Colon (valueChain|transformCall);
 
 templatesBody: block matchTemplate*
   | matchTemplate+
@@ -86,34 +88,24 @@ collector: dereferenceValue
   | structureLiteral
 ;
 
-matcher: (StartMatcher|StartSubMatcher) condition (Else condition)* EndMatcher;
+matcher: StartMatcher condition (Else condition)* EndMatcher;
 
 condition: typeMatch? suchThat*;
 
-typeMatch: matchDereferenceValue           # objectEquals
-  | matchArithmeticExpression              # integerEquals
-  | lowerBound? RangeMatch upperBound?     # rangeMatch
+typeMatch: dereferenceValue           # objectEquals
+  | arithmeticExpression              # integerEquals
+  | lowerBound? Range upperBound?     # rangeMatch
   | stringLiteral                          # regexpMatch
-  | StartStructureMatch (StructureKey matcher MatchComma?)* EndStructureMatch # structureMatch
-  | InvertMatch condition                  # invertMatch
-  | StartArrayMatch EndArrayMatch (MatchLeftParen arithmeticExpression? Range? arithmeticExpression? RightParen)?         # arrayMatch
+  | LeftBrace (IDENTIFIER Colon matcher Comma?)* RightBrace # structureMatch
+  | Invert condition                  # invertMatch
+  | LeftBracket RightBracket (LeftParen arithmeticExpression? Range? arithmeticExpression? RightParen)?         # arrayMatch
 ;
 
 suchThat: BeginSuchThat valueChain matcher RightParen;
 
-lowerBound: (matchDereferenceValue|matchArithmeticExpression|stringLiteral) InvertMatch?;
+lowerBound: (dereferenceValue|arithmeticExpression|stringLiteral) Invert?;
 
-upperBound: InvertMatch? (matchDereferenceValue|matchArithmeticExpression|stringLiteral);
-
-matchArithmeticExpression: matchIntegerLiteral
-  | matchDereferenceValue
-  | MatchLeftParen arithmeticExpression RightParen;
-
-matchIntegerLiteral: MatchAdditiveOperator? MatchInteger;
-
-matchDereferenceValue: MatchDereference (MatchLeftParen arrayDereference RightParen)? matchStructureDereference* MatchMessage?;
-
-matchStructureDereference: MatchFieldDereference+ (MatchLeftParen arrayDereference RightParen)?;
+upperBound: Invert? (dereferenceValue|arithmeticExpression|stringLiteral);
 
 rangeLiteral: arithmeticExpression Invert? Range Invert? arithmeticExpression (Colon arithmeticExpression)?;
 
@@ -121,17 +113,13 @@ integerLiteral: Zero | nonZeroInteger;
 
 nonZeroInteger: AdditiveOperator? PositiveInteger;
 
-stringLiteral: (START_STRING|START_REGEXP) stringContent* END_STRING;
+stringLiteral: START_STRING stringContent* END_STRING;
 
 stringContent: stringInterpolate | STRING_TEXT;
 
-stringInterpolate: interpolateEvaluate|interpolateDereferenceValue;
+stringInterpolate: interpolateEvaluate|(dereferenceValue EndStringInterpolate);
 
 interpolateEvaluate: StartStringEvaluate valueChain RightParen;
-
-interpolateDereferenceValue: StartStringInterpolate InterpolateIdentifier (InterpolateArray arrayDereference RightParen)? interpolateStructureDereference*  InterpolateMessage? EndInterpolate;
-
-interpolateStructureDereference: InterpolateField+ (InterpolateArray arrayDereference RightParen)?;
 
 sink: Stdout | Void;
 

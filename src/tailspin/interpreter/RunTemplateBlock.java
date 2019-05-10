@@ -59,7 +59,7 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitObjectEquals(TailspinParser.ObjectEqualsContext ctx) {
-    Object expected = visitMatchDereferenceValue(ctx.matchDereferenceValue());
+    Object expected = visitDereferenceValue(ctx.dereferenceValue());
     Queue<Object> it = scope.getIt();
     if (it.size() != 1) {
       throw new AssertionError("Matcher called with several values");
@@ -69,59 +69,12 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
-    Integer expected = visitMatchArithmeticExpression(ctx.matchArithmeticExpression());
+    Integer expected = visitArithmeticExpression(ctx.arithmeticExpression());
     Queue<Object> it = scope.getIt();
     if (it.size() != 1) {
       throw new AssertionError("Matcher called with several values");
     }
     return expected.equals(it.peek());
-  }
-
-  @Override
-  public Integer visitMatchArithmeticExpression(TailspinParser.MatchArithmeticExpressionContext ctx) {
-    if (ctx.matchIntegerLiteral() != null) {
-      return visitMatchIntegerLiteral(ctx.matchIntegerLiteral());
-    }
-    if (ctx.matchDereferenceValue() != null) {
-      return (Integer) visitMatchDereferenceValue(ctx.matchDereferenceValue());
-    }
-    if (ctx.arithmeticExpression() != null) {
-      return visitArithmeticExpression(ctx.arithmeticExpression());
-    }
-    throw new UnsupportedOperationException("Stumped at match arithmetic");
-  }
-
-  @Override
-  public Integer visitMatchIntegerLiteral(TailspinParser.MatchIntegerLiteralContext ctx) {
-    Integer value = Integer.valueOf(ctx.MatchInteger().getText());
-    if (ctx.MatchAdditiveOperator() != null && ctx.MatchAdditiveOperator().getText().equals("-")) {
-      value = - value;
-    }
-    return value;
-  }
-
-  @Override
-  public Object visitMatchDereferenceValue(TailspinParser.MatchDereferenceValueContext ctx) {
-    String identifier = ctx.MatchDereference().getText().substring(1);
-    Object value;
-    if (identifier.startsWith("@")) {
-      value = scope.getState(identifier.substring(1));
-    } else {
-      value = scope.resolveValue(identifier, true);
-    }
-    if (ctx.arrayDereference() != null) {
-      value = resolveArrayDereference(ctx.arrayDereference(), (List<?>) value);
-    }
-    for (TailspinParser.MatchStructureDereferenceContext sdc : ctx.matchStructureDereference()) {
-      value = resolveFieldDereferences(value, sdc.MatchFieldDereference());
-      if (sdc.arrayDereference() != null) {
-        value = resolveArrayDereference(sdc.arrayDereference(), (List<?>) value);
-      }
-    }
-    if (ctx.MatchMessage() != null) {
-      value = resolveProcessorMessage(ctx.MatchMessage().getText().substring(2), value).peek();
-    }
-    return value;
   }
 
   @Override
@@ -159,33 +112,45 @@ class RunTemplateBlock extends RunMain {
   @Override
   public Bound visitLowerBound(TailspinParser.LowerBoundContext ctx) {
     Object bound;
-    if (ctx.matchDereferenceValue() != null) {
-      bound = visitMatchDereferenceValue(ctx.matchDereferenceValue());
-    } else if (ctx.matchArithmeticExpression() != null) {
-      bound = visitMatchArithmeticExpression(ctx.matchArithmeticExpression());
+    if (ctx.dereferenceValue() != null) {
+      bound = visitDereferenceValue(ctx.dereferenceValue());
+    } else if (ctx.arithmeticExpression() != null) {
+      bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
     }
-    return new Bound(bound, ctx.InvertMatch() == null);
+    if (bound instanceof Queue) {
+      if (((Queue)bound).size() != 1) {
+        throw new AssertionError("Lower bound with several values");
+      }
+      bound = ((Queue)bound).peek();
+    }
+    return new Bound(bound, ctx.Invert() == null);
   }
 
   @Override
   public Bound visitUpperBound(TailspinParser.UpperBoundContext ctx) {
     Object bound;
-    if (ctx.matchDereferenceValue() != null) {
-      bound = visitMatchDereferenceValue(ctx.matchDereferenceValue());
-    } else if (ctx.matchArithmeticExpression() != null) {
-      bound = visitMatchArithmeticExpression(ctx.matchArithmeticExpression());
+    if (ctx.dereferenceValue() != null) {
+      bound = visitDereferenceValue(ctx.dereferenceValue());
+    } else if (ctx.arithmeticExpression() != null) {
+      bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
     }
-    return new Bound(bound, ctx.InvertMatch() == null);
+    if (bound instanceof Queue) {
+      if (((Queue)bound).size() != 1) {
+        throw new AssertionError("Upper bound with several values");
+      }
+      bound = ((Queue)bound).peek();
+    }
+    return new Bound(bound, ctx.Invert() == null);
   }
 
   @Override
@@ -213,14 +178,14 @@ class RunTemplateBlock extends RunMain {
     }
     Object oIt = qIt.peek();
     if (!(oIt instanceof Map)) return false;
-    if (ctx.StructureKey().isEmpty()) {
+    if (ctx.IDENTIFIER().isEmpty()) {
       return true;
     }
     boolean stillPossible = true;
     @SuppressWarnings("unchecked")
     Map<String, Object> it = (Map<String, Object>) oIt;
-    for (int i = 0; i < ctx.StructureKey().size(); i++) {
-      String key = ctx.StructureKey(i).getText().replace(":", "");
+    for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
+      String key = ctx.IDENTIFIER(i).getText();
       if (!it.containsKey(key)) {
         stillPossible = false;
         break;
