@@ -18,23 +18,23 @@ class NestedScope implements Scope {
   }
 
   @Override
-  public Object resolveValue(String identifier, boolean allowIt) {
-    if (!allowIt && "it".equals(identifier)) {
+  public Object resolveValue(String identifier) {
+    if ("it".equals(identifier)) {
       throw new IllegalArgumentException("Attempt to get it as an identifier");
     }
     Object value = definitions.get(identifier);
     if (value == null) {
-      return parentScope.resolveValue(identifier, false);
+      return parentScope.resolveValue(identifier);
     }
     return value;
   }
 
   @Override
-  public void defineValue(String identifier, Object value, boolean allowIt) {
-    if (!allowIt && "it".equals(identifier)) {
+  public void defineValue(String identifier, Object value) {
+    if ("it".equals(identifier)) {
       throw new IllegalArgumentException("Attempt to set it as an identifier");
     }
-    if (definitions.containsKey(identifier) && !allowIt) {
+    if (definitions.containsKey(identifier)) {
       throw new IllegalStateException("Attempt to redefine " + identifier);
     }
     definitions.put(identifier, value);

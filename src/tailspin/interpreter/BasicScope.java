@@ -22,7 +22,7 @@ public class BasicScope implements Scope {
   }
 
   @Override
-  public Object resolveValue(String identifier, boolean allowIt) {
+  public Object resolveValue(String identifier) {
     if ("it".equals(identifier)) {
       throw new IllegalArgumentException("Attempt to get it as an identifier");
     }
@@ -34,7 +34,7 @@ public class BasicScope implements Scope {
   }
 
   @Override
-  public void defineValue(String identifier, Object value, boolean allowIt) {
+  public void defineValue(String identifier, Object value) {
     if ("it".equals(identifier)) {
       throw new IllegalArgumentException("Attempt to set it as an identifier");
     }

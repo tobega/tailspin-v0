@@ -26,7 +26,7 @@ class Templates implements Transform {
     for (ExpectedParameter expectedParameter : expectedParameters) {
       if (parameters.containsKey(expectedParameter.name)) {
         foundParameters++;
-        scope.defineValue(expectedParameter.name, parameters.get(expectedParameter.name), false);
+        scope.defineValue(expectedParameter.name, parameters.get(expectedParameter.name));
       } else {
         throw new IllegalArgumentException("Missing parameter " + expectedParameter.name + " to " + scope.scopeContext);
       }
@@ -44,8 +44,15 @@ class Templates implements Transform {
 
   Queue<Object> matchTemplates(RunTemplateBlock.RunMatcherBlock runner) {
     Optional<MatchTemplate> match =
-        matchTemplates.stream().filter(m -> runner.visitMatcher(m.matcher)).findFirst();
+        matchTemplates.stream().filter(m -> runner.visitMatcher(m.matcher).matches(oneValue(runner.scope.getIt()), runner)).findFirst();
     return match.map(m -> runner.visitBlock(m.block)).orElse(new ArrayDeque<>());
+  }
+
+  private Object oneValue(Queue<Object> itStream) {
+    if (itStream.size() != 1) {
+      throw new AssertionError("Matcher called with several values");
+    }
+    return itStream.peek();
   }
 
   void expectParameters(List<ExpectedParameter> parameters) {

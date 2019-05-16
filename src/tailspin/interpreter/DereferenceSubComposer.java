@@ -20,7 +20,7 @@ class DereferenceSubComposer implements SubComposer {
   @Override
   public Queue<Object> getValues() {
     Queue<Object> result = new ArrayDeque<>();
-    result.add(scope.resolveValue(identifier, false));
+    result.add(scope.resolveValue(identifier));
     return result;
   }
 

@@ -6,14 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.regex.Pattern;
+import tailspin.ast.Matcher;
+import tailspin.ast.SuchThatMatch;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ArrayMatchContext;
-import tailspin.parser.TailspinParser.ConditionContext;
 import tailspin.parser.TailspinParser.MatcherContext;
 import tailspin.parser.TailspinParser.SuchThatContext;
 
-class RunTemplateBlock extends RunMain {
+public class RunTemplateBlock extends RunMain {
   private final Templates templates;
+  public Object toMatch = null;
 
   RunTemplateBlock(Templates templates, Scope scope) {
     super(scope);
@@ -21,13 +23,8 @@ class RunTemplateBlock extends RunMain {
   }
 
   @Override
-  public Boolean visitMatcher(MatcherContext ctx) {
-    for (ConditionContext condition : ctx.condition()) {
-      if (visitCondition(condition)) {
-        return true;
-      }
-    }
-    return false;
+  public Matcher visitMatcher(MatcherContext ctx) {
+    return new Matcher(ctx.condition());
   }
 
   @Override
@@ -37,56 +34,35 @@ class RunTemplateBlock extends RunMain {
     }
     if (ctx.suchThat() != null) {
       for (SuchThatContext suchThat : ctx.suchThat()) {
-        if (!visitSuchThat(suchThat)) return false;
+        SuchThatMatch suchThatMatch = visitSuchThat(suchThat);
+        if (!suchThatMatch.resolveValue(this)) return false;
       }
     }
     return true;
   }
 
   @Override
-  public Boolean visitSuchThat(SuchThatContext ctx) {
-    // It has to be a single value here
-    Object outerIt = scope.getIt().peek();
-    scope.defineValue("it", outerIt, true);
-    try {
-      scope.setIt(visitValueChain(ctx.valueChain()));
-      return visitMatcher(ctx.matcher());
-    } finally{
-      scope.setIt(queueOf(outerIt));
-      scope.clearValue("it");
-    }
+  public SuchThatMatch visitSuchThat(SuchThatContext ctx) {
+    return new SuchThatMatch(ctx.valueChain(), visitMatcher(ctx.matcher()));
   }
 
   @Override
   public Boolean visitObjectEquals(TailspinParser.ObjectEqualsContext ctx) {
     Object expected = visitDereferenceValue(ctx.dereferenceValue());
-    Queue<Object> it = scope.getIt();
-    if (it.size() != 1) {
-      throw new AssertionError("Matcher called with several values");
-    }
-    return expected.equals(it.peek());
+    return expected.equals(toMatch);
   }
 
   @Override
   public Boolean visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
     Integer expected = visitArithmeticExpression(ctx.arithmeticExpression());
-    Queue<Object> it = scope.getIt();
-    if (it.size() != 1) {
-      throw new AssertionError("Matcher called with several values");
-    }
-    return expected.equals(it.peek());
+    return expected.equals(toMatch);
   }
 
   @Override
   public Boolean visitRangeMatch(TailspinParser.RangeMatchContext ctx) {
-    Queue<Object> qIt = scope.getIt();
-    if (qIt.size() != 1) {
-      throw new AssertionError("Matcher called with several values");
-    }
-    Object oIt = qIt.peek();
-    if (!(oIt instanceof Comparable)) return false;
+    if (!(toMatch instanceof Comparable)) return false;
     @SuppressWarnings("unchecked")
-    Comparable<Object> it = (Comparable<Object>) oIt;
+    Comparable<Object> it = (Comparable<Object>) toMatch;
     if (ctx.lowerBound() != null) {
       Bound lowerBound = visitLowerBound(ctx.lowerBound());
       if (it.compareTo(lowerBound.value) < 0) return false;
@@ -155,13 +131,8 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
-    Queue<Object> qIt = scope.getIt();
-    if (qIt.size() != 1) {
-      throw new AssertionError("Matcher called with several values");
-    }
-    Object oIt = qIt.peek();
-    if (!(oIt instanceof String)) return false;
-    String it = (String) oIt;
+    if (!(toMatch instanceof String)) return false;
+    String it = (String) toMatch;
     String pattern = visitStringLiteral(ctx.stringLiteral());
     // TODO: this could be good to save in compiled form
     Pattern compiled =
@@ -172,32 +143,33 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
-    Queue<Object> qIt = scope.getIt();
-    if (qIt.size() != 1) {
+    Queue<Object> originalIt = scope.getIt();
+    if (originalIt.size() != 1) {
       throw new AssertionError("Matcher called with several values");
     }
-    Object oIt = qIt.peek();
-    if (!(oIt instanceof Map)) return false;
+    if (!(toMatch instanceof Map)) return false;
     if (ctx.IDENTIFIER().isEmpty()) {
       return true;
     }
     boolean stillPossible = true;
     @SuppressWarnings("unchecked")
-    Map<String, Object> it = (Map<String, Object>) oIt;
+    Map<String, Object> it = (Map<String, Object>) toMatch;
     for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
       String key = ctx.IDENTIFIER(i).getText();
       if (!it.containsKey(key)) {
         stillPossible = false;
         break;
       }
-      scope.setIt(queueOf(it.get(key)));
-      TailspinParser.MatcherContext matcher = ctx.matcher(i);
-      if (!visitMatcher(matcher)) {
+      Object value = it.get(key);
+      scope.setIt(queueOf(value));
+      TailspinParser.MatcherContext matcherCtx = ctx.matcher(i);
+      Matcher matcher = visitMatcher(matcherCtx);
+      if (!matcher.matches(value, this)) {
         stillPossible = false;
         break;
       }
     }
-    scope.setIt(qIt);
+    scope.setIt(originalIt);
     return stillPossible;
   }
 
@@ -208,13 +180,8 @@ class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitArrayMatch(ArrayMatchContext ctx) {
-    Queue<Object> qIt = scope.getIt();
-    if (qIt.size() != 1) {
-      throw new AssertionError("Matcher called with several values");
-    }
-    Object oIt = qIt.peek();
-    if (!(oIt instanceof List)) return false;
-    List<?> it = (List<?>) oIt;
+    if (!(toMatch instanceof List)) return false;
+    List<?> it = (List<?>) toMatch;
     if (ctx.Range() != null) {
       int rangeTokenIndex = ctx.Range().getSymbol().getTokenIndex();
       if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() < rangeTokenIndex) {

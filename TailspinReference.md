@@ -260,6 +260,9 @@ use a number of such-that conditions either after or instead of the main conditi
 
 Such-that conditions can also be applied to transforms of the value. Note that those transforms must yield a single value for matching.
 
+Note that a such-that conditions shifts the focus so that `$it` becomes the thing being matched. This makes no difference at
+the top level but matters in nested such-thats.
+
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by
 repeating each step of the chain by setting __each__ of the stream values as the _current value_ in turn.

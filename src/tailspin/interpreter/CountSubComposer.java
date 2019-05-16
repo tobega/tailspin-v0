@@ -22,7 +22,7 @@ public class CountSubComposer implements SubComposer {
   @Override
   public String nibble(String s) {
     if (count == null) {
-      required = (Integer) scope.resolveValue(identifier, false);
+      required = (Integer) scope.resolveValue(identifier);
     } else {
       required = count;
     }

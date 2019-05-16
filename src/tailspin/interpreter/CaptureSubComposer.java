@@ -25,7 +25,7 @@ public class CaptureSubComposer implements SubComposer {
         throw new IllegalArgumentException(
             "Attempt to define symbol " + identifier + " with " + result.size() + " values");
       }
-      scope.defineValue(identifier, result.peek(), false);
+      scope.defineValue(identifier, result.peek());
     }
     return s;
   }

@@ -11,7 +11,7 @@ class ProcessorInstance {
   }
 
   Queue<Object> receiveMessage(String message, Queue<Object> it) {
-    Transform transform = (Transform) scope.resolveValue(message, false);
+    Transform transform = (Transform) scope.resolveValue(message);
     TransformScope transformScope = new TransformScope(scope, message);
     transformScope.setIt(it);
     return transform.run(transformScope, Map.of());

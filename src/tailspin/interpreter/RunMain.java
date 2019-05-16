@@ -23,7 +23,7 @@ import tailspin.parser.TailspinParser.ValueProductionContext;
 import tailspin.parser.TailspinParserBaseVisitor;
 
 public class RunMain extends TailspinParserBaseVisitor {
-  final Scope scope;
+  public final Scope scope;
 
   public RunMain(Scope scope) {
     this.scope = scope;
@@ -117,7 +117,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else if (identifier.startsWith("@")) {
       value = scope.getState(identifier.substring(1));
     } else {
-      value = scope.resolveValue(identifier, false);
+      value = scope.resolveValue(identifier);
     }
     if (ctx.arrayDereference() != null) {
       try {
@@ -310,7 +310,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     Queue<Object> result = new ArrayDeque<>();
     for (int i = 0; i < it.size(); i++) {
       TransformScope itemScope = new TransformScope(scope, "");
-      itemScope.defineValue(loopVariable, i + 1, false);
+      itemScope.defineValue(loopVariable, i + 1);
       itemScope.setIt(queueOf(it.get(i)));
       result.addAll(templates.run(itemScope, Map.of()));
     }
@@ -344,7 +344,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       List<ExpectedParameter> parameters = visitParameterDefinitions(ctx.parameterDefinitions());
       templates.expectParameters(parameters);
     }
-    scope.defineValue(name, templates, false);
+    scope.defineValue(name, templates);
     return null;
   }
 
@@ -365,7 +365,7 @@ public class RunMain extends TailspinParserBaseVisitor {
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
     }
     ProcessorDefinition processor = new ProcessorDefinition(ctx.block());
-    scope.defineValue(name, processor, false);
+    scope.defineValue(name, processor);
     return null;
   }
 
@@ -388,7 +388,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     Map<String, Object> parameters = ctx.parameterValues() != null
         ? visitParameterValues(ctx.parameterValues())
         : Map.of();
-    Transform transform = (Transform) scope.resolveValue(name, false);
+    Transform transform = (Transform) scope.resolveValue(name);
     return new TransformCall(name, transform, parameters);
   }
 
@@ -553,7 +553,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       throw new IllegalArgumentException(
           "Attempt to define symbol " + identifier + " with " + valueChainResult.size() + " values");
     }
-    scope.defineValue(identifier, valueChainResult.peek(), false);
+    scope.defineValue(identifier, valueChainResult.peek());
     return null;
   }
 
@@ -751,7 +751,7 @@ public class RunMain extends TailspinParserBaseVisitor {
           "Mismatched end " + ctx.IDENTIFIER().getText() + " for parser " + name);
     }
     Composer composer = visitComposerBody(ctx.composerBody());
-    scope.defineValue(name, composer, false);
+    scope.defineValue(name, composer);
     return null;
   }
 
