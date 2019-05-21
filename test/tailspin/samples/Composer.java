@@ -93,6 +93,23 @@ class Composer {
   }
 
   @Test
+  void composeMultilineSequence() throws IOException {
+    String program = "composer words\n"
+        + "<word>*"
+        + "word: <~WS> (<WS>?)\n"
+        + "end words\n"
+        + "'one two\n\nthree\nfour five six' -> words -> '$it; ' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("one two three four five six ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void ignoreStuff() throws IOException {
     String program = "composer int\n"
         + "(<'Value: '>) <INT>\n"
