@@ -4,14 +4,14 @@ options { tokenVocab = TailspinLexer; }
 
 program: statement (statement)* EOF;
 
-statement: Def IDENTIFIER Colon valueChain                   # definition
+statement: Def Key valueChain                   # definition
   | valueChain To sink                                   # valueChainToSink
   | StartTemplatesDefinition IDENTIFIER parameterDefinitions? templatesBody EndDefinition IDENTIFIER # templatesDefinition
   | StartProcessorDefinition IDENTIFIER block EndDefinition IDENTIFIER # processorDefinition
   | StartComposerDefinition ComposerId composerBody ComposerEndDefinition IDENTIFIER # composerDefinition
 ;
 
-parameterDefinitions: At LeftBrace (IDENTIFIER Colon Comma?)+ RightBrace;
+parameterDefinitions: At LeftBrace (Key Comma?)+ RightBrace;
 
 source: Stdin
   | dereferenceValue
@@ -23,16 +23,16 @@ source: Stdin
   | arithmeticExpression
 ;
 
-dereferenceValue: StartDereference (At IDENTIFIER? | IDENTIFIER) (LeftParen arrayDereference RightParen)? structureDereference*  message?
+dereferenceValue: Dereference (LeftParen arrayDereference RightParen)? structureDereference*  message?
 ;
 
-structureDereference: Dot IDENTIFIER (LeftParen arrayDereference RightParen)?;
+structureDereference: FieldDereference (LeftParen arrayDereference RightParen)?;
 
 arrayDereference: dimensionDereference (SemiColon dimensionDereference)*;
 
 dimensionDereference: dereferenceValue|arithmeticExpression|rangeLiteral|arrayLiteral;
 
-message: DoubleColon IDENTIFIER;
+message: Message;
 
 arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valueProduction)* RightBracket;
 
@@ -40,7 +40,7 @@ valueProduction: sendToTemplates | valueChain;
 
 structureLiteral: LeftBrace (keyValue Comma?)* RightBrace;
 
-keyValue: IDENTIFIER Colon valueProduction;
+keyValue: Key valueProduction;
 
 templates: source                        # literalTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
@@ -52,7 +52,7 @@ transformCall: IDENTIFIER (At parameterValues)?;
 
 parameterValues: LeftBrace (parameterValue Comma?)+ RightBrace;
 
-parameterValue: IDENTIFIER Colon (valueChain|transformCall);
+parameterValue: Key (valueChain|transformCall);
 
 templatesBody: block matchTemplate*
   | matchTemplate+
@@ -71,7 +71,7 @@ blockExpression: blockStatement
 resultValue: valueChain ResultMarker;
 blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
-stateAssignment: valueChain To At IDENTIFIER?;
+stateAssignment: valueChain To (At|NamedAt);
 
 valueChain: source
   | source transform
@@ -96,7 +96,7 @@ typeMatch: dereferenceValue           # objectEquals
   | arithmeticExpression              # integerEquals
   | lowerBound? Range upperBound?     # rangeMatch
   | stringLiteral                          # regexpMatch
-  | LeftBrace (IDENTIFIER Colon matcher Comma?)* RightBrace # structureMatch
+  | LeftBrace (Key matcher Comma?)* RightBrace # structureMatch
   | Invert condition                  # invertMatch
   | LeftBracket RightBracket (LeftParen arithmeticExpression? Range? arithmeticExpression? RightParen)?         # arrayMatch
 ;

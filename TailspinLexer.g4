@@ -20,11 +20,15 @@ ResultMarker: '!';
 
 At: '@';
 
+NamedAt: '@' IDENTIFIER;
+
 Colon: ':';
 
-DoubleColon: '::';
+Key: IDENTIFIER ':';
 
-Dot: '.';
+Message: '::' IDENTIFIER;
+
+FieldDereference: '.' IDENTIFIER;
 
 EndStringInterpolate: ';' {stringInterpolate > 0}? {stringInterpolate--;} -> popMode;
 
@@ -60,7 +64,7 @@ EndDefinition: 'end';
 
 TemplateMatch: '#';
 
-StartDereference: '$';
+Dereference: '$' At? IDENTIFIER?;
 
 Range: '..';
 
@@ -109,7 +113,7 @@ EndComposerMatch: '>';
 
 InvertComposerMatch: '~';
 
-SequenceKey: IDENTIFIER Colon;
+SequenceKey: Key;
 
 ValueSeparator: Comma;
 
@@ -137,7 +141,7 @@ KeySeparator: ':';
 
 ComposerDef: 'def';
 
-ComposeDereference: StartDereference (At IDENTIFIER? | IDENTIFIER);
+ComposeDereference: '$' (At IDENTIFIER? | IDENTIFIER);
 
 ComposerId: IDENTIFIER;
 
@@ -157,7 +161,7 @@ mode IN_STRING;
 
 StartStringEvaluate: '$(' -> pushMode(DEFAULT_MODE);
 
-StartStringInterpolate: '$' { stringInterpolate++; } -> pushMode(DEFAULT_MODE), type(StartDereference);
+StartStringInterpolate: Dereference { stringInterpolate++; } -> pushMode(DEFAULT_MODE), type(Dereference);
 
 STRING_TEXT: STRING_CHAR+;
 

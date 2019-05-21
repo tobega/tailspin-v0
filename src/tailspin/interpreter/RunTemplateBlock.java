@@ -148,14 +148,14 @@ public class RunTemplateBlock extends RunMain {
       throw new AssertionError("Matcher called with several values");
     }
     if (!(toMatch instanceof Map)) return false;
-    if (ctx.IDENTIFIER().isEmpty()) {
+    if (ctx.Key().isEmpty()) {
       return true;
     }
     boolean stillPossible = true;
     @SuppressWarnings("unchecked")
     Map<String, Object> it = (Map<String, Object>) toMatch;
-    for (int i = 0; i < ctx.IDENTIFIER().size(); i++) {
-      String key = ctx.IDENTIFIER(i).getText();
+    for (int i = 0; i < ctx.Key().size(); i++) {
+      String key = ctx.Key(i).getText().replace(":", "");
       if (!it.containsKey(key)) {
         stillPossible = false;
         break;
@@ -251,7 +251,7 @@ public class RunTemplateBlock extends RunMain {
 
   @Override
   public Object visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
-    String stateContext = ctx.IDENTIFIER() == null ? "" : ctx.IDENTIFIER().getText();
+    String stateContext = ctx.NamedAt() == null ? "" : ctx.NamedAt().getText().substring(1);
     Queue<Object> value = visitValueChain(ctx.valueChain());
     if (value.size() != 1) {
       throw new IllegalArgumentException("Attempt to set state to multiple values " + value);

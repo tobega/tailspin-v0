@@ -104,9 +104,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
-    String identifier =
-        (ctx.At() != null  ? ctx.At().getText() : "")
-        + (ctx.IDENTIFIER() != null ? ctx.IDENTIFIER().getText() : "");
+    String identifier = ctx.Dereference().getText().substring(1);
     Object value;
     if (identifier.equals("it")) {
       Queue<Object> itQ = scope.getIt();
@@ -127,13 +125,13 @@ public class RunMain extends TailspinParserBaseVisitor {
       }
     }
     for (TailspinParser.StructureDereferenceContext sdc : ctx.structureDereference()) {
-      value = resolveFieldDereference(value, sdc.IDENTIFIER().getText());
+      value = resolveFieldDereference(value, sdc.FieldDereference().getText().substring(1));
       if (sdc.arrayDereference() != null) {
         value = resolveArrayDereference(sdc.arrayDereference(), (List<?>) value);
       }
     }
     if (ctx.message() != null) {
-      value = resolveProcessorMessage(ctx.message().IDENTIFIER().getText(), value);
+      value = resolveProcessorMessage(ctx.message().Message().getText().substring(2), value);
     }
     return value;
   }
@@ -351,8 +349,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public List<ExpectedParameter> visitParameterDefinitions(TailspinParser.ParameterDefinitionsContext ctx) {
     List<ExpectedParameter> parameters = new ArrayList<>();
-    for (TerminalNode key : ctx.IDENTIFIER()) {
-      parameters.add(new ExpectedParameter(key.getText()));
+    for (TerminalNode key : ctx.Key()) {
+      parameters.add(new ExpectedParameter(key.getText().replace(":", "")));
     }
     return parameters;
   }
@@ -404,7 +402,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public KeyValue visitParameterValue(TailspinParser.ParameterValueContext ctx) {
-    String key = ctx.IDENTIFIER().getText();
+    String key = ctx.Key().getText().replace(":", "");
     if (ctx.valueChain() != null) {
       Queue<Object> valueQueue = visitValueChain(ctx.valueChain());
       if (valueQueue.size() != 1) {
@@ -547,7 +545,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
-    String identifier = ctx.IDENTIFIER().getText();
+    String identifier = ctx.Key().getText().replace(":", "");
     Queue<Object> valueChainResult = visitValueChain(ctx.valueChain());
     if (valueChainResult.size() != 1) {
       throw new IllegalArgumentException(
@@ -735,7 +733,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public KeyValue visitKeyValue(TailspinParser.KeyValueContext ctx) {
-    String key = ctx.IDENTIFIER().getText();
+    String key = ctx.Key().getText().replace(":", "");
     Queue<Object> valueQueue = visitValueProduction(ctx.valueProduction());
     if (valueQueue.size() != 1) {
       throw new AssertionError("Invalid multiple value " + valueQueue.size());
