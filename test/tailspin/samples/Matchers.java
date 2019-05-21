@@ -62,6 +62,19 @@ class Matchers {
   }
 
   @Test
+  void interpolatedRegexpMatch() throws Exception {
+    String program = "def aiches: '[Hh]'\n 'Hello' -> (<'Hell'> 'no!'! <'$aiches;el.*'> 'yes' ! <> 'no'!) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void structureMatchIsAStructure() throws Exception {
     String program = "{ a: 1 } -> (<1> 'no!' ! <{}> 'yes'! <> 'no'!) -> stdout";
     Tailspin runner =

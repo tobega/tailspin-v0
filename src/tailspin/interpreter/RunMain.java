@@ -136,7 +136,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     return value;
   }
 
-  Queue<Object> resolveProcessorMessage(String message, Object value) {
+  private Queue<Object> resolveProcessorMessage(String message, Object value) {
     Queue<Object> result;
     if (value instanceof List) {
       if (message.equals("length")) {
@@ -152,7 +152,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     return result;
   }
 
-  Object resolveFieldDereference(Object value, String fieldIdentifier) {
+  private Object resolveFieldDereference(Object value, String fieldIdentifier) {
     if (value == null) {
       throw new NullPointerException("Cannot dereference " + fieldIdentifier);
     }
@@ -162,7 +162,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     return value;
   }
 
-  Object resolveArrayDereference(TailspinParser.ArrayDereferenceContext ctx, List<?> array) {
+  private Object resolveArrayDereference(TailspinParser.ArrayDereferenceContext ctx, List<?> array) {
     return  resolveDimensionDereference(ctx.dimensionDereference(), 0, array);
   }
 
@@ -604,7 +604,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Integer visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx) {
     Integer value = Integer.valueOf(ctx.PositiveInteger().getText());
-    if (ctx.AdditiveOperator() != null && ctx.AdditiveOperator().getText().equals("-")) {
+    if (ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-")) {
       value = - value;
     }
     return value;
@@ -613,7 +613,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Integer visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
     if (ctx.dereferenceValue() != null) {
-      String unaryOperator = ctx.AdditiveOperator() == null ? "" : ctx.AdditiveOperator().getText();
+      String unaryOperator = ctx.additiveOperator() == null ? "" : ctx.additiveOperator().getText();
       Object value = visitDereferenceValue(ctx.dereferenceValue());
       if (value instanceof Queue && ((Queue<?>) value).size() == 1) {
         value = ((Queue<?>) value).peek();
@@ -635,10 +635,10 @@ public class RunMain extends TailspinParserBaseVisitor {
       }
       return (Integer) values.peek();
     }
-    if (ctx.AdditiveOperator() != null) {
+    if (ctx.additiveOperator() != null) {
       Integer left = (Integer) visit(ctx.arithmeticExpression(0));
       Integer right = (Integer) visit(ctx.arithmeticExpression(1));
-      String operation = ctx.AdditiveOperator().getText();
+      String operation = ctx.additiveOperator().getText();
       switch (operation) {
         case "+":
           return left + right;
@@ -646,10 +646,10 @@ public class RunMain extends TailspinParserBaseVisitor {
           return left - right;
       }
     }
-    if (ctx.MultiplicativeOperator() != null) {
+    if (ctx.multiplicativeOperator() != null) {
       Integer left = (Integer) visit(ctx.arithmeticExpression(0));
       Integer right = Math.abs((Integer) visit(ctx.arithmeticExpression(1)));
-      String operation = ctx.MultiplicativeOperator().getText();
+      String operation = ctx.multiplicativeOperator().getText();
       switch (operation) {
         case "*":
           return left * right;
@@ -743,10 +743,10 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitComposerDefinition(TailspinParser.ComposerDefinitionContext ctx) {
-    String name = ctx.ComposerId().getText();
-    if (!name.equals(ctx.IDENTIFIER().getText())) {
+    String name = ctx.IDENTIFIER(0).getText();
+    if (!name.equals(ctx.IDENTIFIER(1).getText())) {
       throw new IllegalStateException(
-          "Mismatched end " + ctx.IDENTIFIER().getText() + " for parser " + name);
+          "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for parser " + name);
     }
     Composer composer = visitComposerBody(ctx.composerBody());
     scope.defineValue(name, composer);
@@ -757,7 +757,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Composer visitComposerBody(TailspinParser.ComposerBodyContext ctx) {
     Map<String, List<CompositionSpec>> definedSequences = new HashMap<>();
     for (DefinedCompositionSequenceContext definition : ctx.definedCompositionSequence()) {
-      String key = definition.SequenceKey().getText().replace(":", "");
+      String key = definition.Key().getText().replace(":", "");
       definedSequences.put(key, visitCompositionSequence(definition.compositionSequence()));
     }
     return new Composer(visitCompositionSequence(ctx.compositionSequence()), definedSequences);
@@ -790,8 +790,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public CompositionSpec visitCompositionCapture(TailspinParser.CompositionCaptureContext ctx) {
     CompositionSpec value = visitCompositionMatcher(ctx.compositionMatcher());
-    if (ctx.SequenceKey() != null) {
-      String identifier = ctx.SequenceKey().getText().replace(":", "");
+    if (ctx.Key() != null) {
+      String identifier = ctx.Key().getText().replace(":", "");
       value = new Composer.CaptureComposition(identifier, value);
     }
     return value;
@@ -801,21 +801,21 @@ public class RunMain extends TailspinParserBaseVisitor {
   public CompositionSpec visitCompositionMatcher(
       TailspinParser.CompositionMatcherContext ctx) {
     CompositionSpec compositionSpec;
-    if (ctx.StartBuildArray() != null) {
+    if (ctx.LeftBracket() != null) {
       compositionSpec = new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()));
-    } else if (ctx.StartBuildStructure() != null) {
+    } else if (ctx.LeftBrace() != null) {
       List<CompositionSpec> contents = new ArrayList<>();
       ctx.compositionSkipRule().forEach(s -> contents.add(visitCompositionSkipRule(s)));
       ctx.compositionKeyValue().forEach(k -> contents.add(visitCompositionKeyValue(k)));
       compositionSpec = new Composer.StructureComposition(contents);
-    } else if (ctx.ComposerId() != null) {
-      String matchRule = ctx.ComposerId().getText();
-      compositionSpec = new Composer.NamedComposition(matchRule, ctx.InvertComposerMatch() != null);
-    } else if (ctx.REGEX_TEXT() != null) {
-      String regex = ctx.REGEX_TEXT().getText();
-      compositionSpec = new Composer.RegexComposition(regex, ctx.InvertComposerMatch() != null);
-    } else if (ctx.ComposeDereference() != null) {
-      String identifier = ctx.ComposeDereference().getText().substring(1);
+    } else if (ctx.IDENTIFIER() != null) {
+      String matchRule = ctx.IDENTIFIER().getText();
+      compositionSpec = new Composer.NamedComposition(matchRule, ctx.Invert() != null);
+    } else if (ctx.stringLiteral() != null) {
+      String regex = visitStringLiteral(ctx.stringLiteral());
+      compositionSpec = new Composer.RegexComposition(regex, ctx.Invert() != null);
+    } else if (ctx.Dereference() != null) {
+      String identifier = ctx.Dereference().getText().substring(1);
       compositionSpec = new Composer.DereferenceComposition(identifier);
     } else {
       throw new UnsupportedOperationException("Unknown type of composition matcher");
@@ -826,23 +826,20 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   private CompositionSpec resolveMultiplier(TailspinParser.MultiplierContext ctx,
       CompositionSpec compositionSpec) {
-    if (ctx.Multiplier() != null) {
-      switch (ctx.Multiplier().getText()) {
-        case "?": return new Composer.OptionalComposition(compositionSpec);
-        case "+": return new Composer.OneOrMoreComposition(compositionSpec);
-        case "*": return new Composer.AnyComposition(compositionSpec);
-        default: throw new UnsupportedOperationException("Unknown multiplier " + ctx.Multiplier().getText());
-      }
+    switch (ctx.getText()) {
+      case "?": return new Composer.OptionalComposition(compositionSpec);
+      case "+": return new Composer.OneOrMoreComposition(compositionSpec);
+      case "*": return new Composer.AnyComposition(compositionSpec);
     }
-    if (ctx.CountMultiplier() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
-    Integer amount = ctx.ComposeInteger() == null ? null : Integer.valueOf(ctx.ComposeInteger().getText());
-    String identifier = ctx.ComposeDereference() == null ? null : ctx.ComposeDereference().getText().substring(1);
+    if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
+    Integer amount = ctx.PositiveInteger() == null ? null : Integer.valueOf(ctx.PositiveInteger().getText());
+    String identifier = ctx.Dereference() == null ? null : ctx.Dereference().getText().substring(1);
     return new Composer.CountComposition(compositionSpec, amount, identifier);
   }
 
   @Override
   public CompositionSpec visitCompositionKeyValue(TailspinParser.CompositionKeyValueContext ctx) {
-    String key = ctx.SequenceKey().getText().replace(":", "");
+    String key = ctx.Key().getText().replace(":", "");
     List<CompositionSpec> valueMatch = new ArrayList<>();
     ctx.compositionSkipRule().forEach(s -> valueMatch.add(visitCompositionSkipRule(s)));
     valueMatch.addAll(visitCompositionComponent(ctx.compositionComponent()));

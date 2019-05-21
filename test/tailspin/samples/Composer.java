@@ -60,6 +60,23 @@ class Composer {
   }
 
   @Test
+  void interpolateComposeRegex() throws IOException {
+    String program = "def any: '.*'\n"
+        + "composer all\n"
+        + "<'$any;'>\n"
+        + "end all\n"
+        + "'Any text' -> all -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("Any text", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void composeSequence() throws IOException {
     String program = "composer ab\n"
         + "<'a'> <'b'>\n"

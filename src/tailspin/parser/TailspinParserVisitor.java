@@ -363,6 +363,18 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#additiveOperator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAdditiveOperator(TailspinParser.AdditiveOperatorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#multiplicativeOperator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiplicativeOperator(TailspinParser.MultiplicativeOperatorContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#composerBody}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

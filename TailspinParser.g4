@@ -8,7 +8,7 @@ statement: Def Key valueChain                   # definition
   | valueChain To sink                                   # valueChainToSink
   | StartTemplatesDefinition IDENTIFIER parameterDefinitions? templatesBody EndDefinition IDENTIFIER # templatesDefinition
   | StartProcessorDefinition IDENTIFIER block EndDefinition IDENTIFIER # processorDefinition
-  | StartComposerDefinition ComposerId composerBody ComposerEndDefinition IDENTIFIER # composerDefinition
+  | StartComposerDefinition IDENTIFIER composerBody EndDefinition IDENTIFIER # composerDefinition
 ;
 
 parameterDefinitions: At LeftBrace (Key Comma?)+ RightBrace;
@@ -111,7 +111,7 @@ rangeLiteral: arithmeticExpression Invert? Range Invert? arithmeticExpression (C
 
 integerLiteral: Zero | nonZeroInteger;
 
-nonZeroInteger: AdditiveOperator? PositiveInteger;
+nonZeroInteger: additiveOperator? PositiveInteger;
 
 stringLiteral: START_STRING stringContent* END_STRING;
 
@@ -125,35 +125,39 @@ sink: Stdout | Void;
 
 arithmeticExpression: integerLiteral
   | LeftParen valueChain RightParen
-  | AdditiveOperator? dereferenceValue
-  | arithmeticExpression MultiplicativeOperator arithmeticExpression
-  | arithmeticExpression AdditiveOperator arithmeticExpression
+  | additiveOperator? dereferenceValue
+  | arithmeticExpression multiplicativeOperator arithmeticExpression
+  | arithmeticExpression additiveOperator arithmeticExpression
 ;
+
+additiveOperator: Plus | Minus;
+
+multiplicativeOperator: Star | Slash | Mod;
 
 composerBody: compositionSequence definedCompositionSequence*
 ;
 
-definedCompositionSequence: SequenceKey compositionSequence
+definedCompositionSequence: Key compositionSequence
 ;
 
 compositionSequence: compositionSkipRule* compositionComponent+
 ;
 
-compositionMatcher: StartComposerMatch InvertComposerMatch? ComposerId EndComposerMatch multiplier?
-  | StartComposerMatch InvertComposerMatch? START_REGEX REGEX_TEXT END_REGEX EndComposerMatch multiplier?
-  | StartBuildArray compositionSequence EndBuildArray
-  | StartBuildStructure compositionSkipRule* compositionKeyValue+ EndBuildStructure
-  | ComposeDereference
+compositionMatcher: StartMatcher Invert? IDENTIFIER EndMatcher multiplier?
+  | StartMatcher Invert? stringLiteral EndMatcher multiplier?
+  | LeftBracket compositionSequence RightBracket
+  | LeftBrace compositionSkipRule* compositionKeyValue+ RightBrace
+  | Dereference
 ;
 
-multiplier: Multiplier
-  | CountMultiplier (ComposeInteger|ComposeDereference)
+multiplier: Plus | Star | Question
+  | Equal (PositiveInteger|Dereference)
 ;
 
-compositionSkipRule: StartSkipRule compositionCapture+ EndSkipRule;
+compositionSkipRule: LeftParen compositionCapture+ RightParen;
 
-compositionCapture: (ComposerDef SequenceKey)? compositionMatcher;
+compositionCapture: (Def Key)? compositionMatcher;
 
-compositionKeyValue: SequenceKey compositionSkipRule* compositionComponent ValueSeparator?;
+compositionKeyValue: Key compositionSkipRule* compositionComponent Comma?;
 
 compositionComponent: compositionMatcher compositionSkipRule*;

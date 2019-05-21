@@ -56,7 +56,7 @@ StartMatcher: '<';
 
 StartTemplatesDefinition: 'templates';
 
-StartComposerDefinition: 'composer' -> pushMode(COMPOSER);
+StartComposerDefinition: 'composer' ;
 
 StartProcessorDefinition: 'processor';
 
@@ -68,9 +68,19 @@ Dereference: '$' At? IDENTIFIER?;
 
 Range: '..';
 
-AdditiveOperator: '+' | '-';
+Plus: '+';
 
-MultiplicativeOperator: '*' | '/' | 'mod';
+Minus: '-';
+
+Star: '*';
+
+Slash: '/';
+
+Mod: 'mod';
+
+Question: '?';
+
+Equal: '=';
 
 Zero: '0';
 
@@ -100,52 +110,6 @@ BeginSuchThat: '?(' -> pushMode(DEFAULT_MODE);
 mode COMMENT_MODE;
 
 Comment: ~('\n')* ('\n'|EOF) -> skip, popMode;
-
-
-
-mode COMPOSER;
-
-ComposerEndDefinition: 'end' -> popMode;
-
-StartComposerMatch: '<';
-
-EndComposerMatch: '>';
-
-InvertComposerMatch: '~';
-
-SequenceKey: Key;
-
-ValueSeparator: Comma;
-
-Multiplier: '?' | '+' | '*';
-
-CountMultiplier: '=';
-
-ComposeInteger: PositiveInteger;
-
-START_REGEX: '\'' -> pushMode(IN_REGEX);
-
-StartSkipRule: '(';
-
-EndSkipRule: ')';
-
-StartBuildArray: '[';
-
-EndBuildArray: ']';
-
-StartBuildStructure: '{';
-
-EndBuildStructure: '}';
-
-KeySeparator: ':';
-
-ComposerDef: 'def';
-
-ComposeDereference: '$' (At IDENTIFIER? | IDENTIFIER);
-
-ComposerId: IDENTIFIER;
-
-ComposerIgnoreWS: WS -> skip;
 
 
 mode IN_REGEX;
