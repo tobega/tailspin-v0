@@ -8,7 +8,7 @@ import java.util.Queue;
 import java.util.regex.Pattern;
 import tailspin.ast.Bound;
 import tailspin.ast.Matcher;
-import tailspin.ast.Range;
+import tailspin.ast.RangeMatch;
 import tailspin.ast.SuchThatMatch;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ArrayMatchContext;
@@ -67,7 +67,7 @@ public class RunTemplateBlock extends RunMain {
     Comparable<Object> it = (Comparable<Object>) toMatch;
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
-    return new Range(lowerBound, upperBound).contains(it);
+    return new RangeMatch(lowerBound, upperBound).contains(it);
   }
 
   @Override

@@ -151,7 +151,7 @@ compositionMatcher: StartMatcher Invert? IDENTIFIER EndMatcher multiplier?
 ;
 
 multiplier: Plus | Star | Question
-  | Equal (PositiveInteger|Dereference|rangeLiteral)
+  | Equal (PositiveInteger|Dereference)
 ;
 
 compositionSkipRule: LeftParen compositionCapture+ RightParen;

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.ast.Bound;
-import tailspin.ast.Range;
+import tailspin.ast.RangeGenerator;
 import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
@@ -240,7 +240,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   private Stream<Object> resolveArrayRangeDereference(
-      Range range, List<?> array) {
+      RangeGenerator range, List<?> array) {
     return range.stream((Integer i) -> javaizeArrayIndex(i, array.size()))
         .map(array::get);
   }
@@ -652,7 +652,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Range visitRangeLiteral(TailspinParser.RangeLiteralContext ctx) {
+  public RangeGenerator visitRangeLiteral(TailspinParser.RangeLiteralContext ctx) {
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
     Integer increment =
@@ -664,7 +664,7 @@ public class RunMain extends TailspinParserBaseVisitor {
               + ":"
               + ctx.stop.getCharPositionInLine());
     }
-    return new Range(lowerBound, upperBound, increment);
+    return new RangeGenerator(lowerBound, upperBound, increment);
   }
 
   @Override
@@ -849,10 +849,6 @@ public class RunMain extends TailspinParserBaseVisitor {
       case "*": return new Composer.AnyComposition(compositionSpec);
     }
     if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
-    if (ctx.rangeLiteral() != null) {
-      Range range = visitRangeLiteral(ctx.rangeLiteral());
-
-    }
     Integer amount = ctx.PositiveInteger() == null ? null : Integer.valueOf(ctx.PositiveInteger().getText());
     String identifier = ctx.Dereference() == null ? null : ctx.Dereference().getText().substring(1);
     return new Composer.CountComposition(compositionSpec, amount, identifier);
