@@ -13,6 +13,8 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import tailspin.ast.Bound;
+import tailspin.ast.Range;
 import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
@@ -73,7 +75,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       return queueOf(visitArithmeticExpression(ctx.arithmeticExpression()));
     }
     if (ctx.rangeLiteral() != null) {
-      return queueOf(visitRangeLiteral(ctx.rangeLiteral()));
+      return queueOf(visitRangeLiteral(ctx.rangeLiteral()).stream());
     }
     if (ctx.arrayLiteral() != null) {
       return queueOf(visitArrayLiteral(ctx.arrayLiteral()));
@@ -176,7 +178,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       int index = javaizeArrayIndex(visitArithmeticExpression(ctx.arithmeticExpression()), array.size());
       dimensionResult = array.get(index);
     } else if (ctx.rangeLiteral() != null) {
-      dimensionResult = resolveArrayRangeDereference(ctx.rangeLiteral(), array);
+      dimensionResult = resolveArrayRangeDereference(visitRangeLiteral(ctx.rangeLiteral()), array);
     } else if (ctx.arrayLiteral() != null) {
       @SuppressWarnings("unchecked")
       List<Integer> permutation = (List<Integer>) visitArrayLiteral(ctx.arrayLiteral());
@@ -238,25 +240,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   private Stream<Object> resolveArrayRangeDereference(
-      TailspinParser.RangeLiteralContext ctx, List<?> array) {
-    int start = javaizeArrayIndex((Integer) visit(ctx.arithmeticExpression(0)), array.size());
-    int end = javaizeArrayIndex((Integer) visit(ctx.arithmeticExpression(1)), array.size());
-    int increment =
-        ctx.arithmeticExpression(2) == null ? 1 : (Integer) visit(ctx.arithmeticExpression(2));
-    if (increment == 0) {
-      throw new IllegalArgumentException(
-          "Cannot produce range with zero increment at "
-              + ctx.stop.getLine()
-              + ":"
-              + ctx.stop.getCharPositionInLine());
-    }
-    if (start < 0) {
-      return Stream.empty();
-    }
-    return Stream.iterate(
-            start,
-            i -> (increment > 0 && i <= end) || (increment < 0 && i >= end),
-            i -> i + increment)
+      Range range, List<?> array) {
+    return range.stream((Integer i) -> javaizeArrayIndex(i, array.size()))
         .map(array::get);
   }
 
@@ -667,31 +652,63 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Stream<Integer> visitRangeLiteral(TailspinParser.RangeLiteralContext ctx) {
-    Integer start = (Integer) visit(ctx.arithmeticExpression(0));
-    Integer end = (Integer) visit(ctx.arithmeticExpression(1));
+  public Range visitRangeLiteral(TailspinParser.RangeLiteralContext ctx) {
+    Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
+    Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
     Integer increment =
-        ctx.arithmeticExpression(2) == null ? 1 : (Integer) visit(ctx.arithmeticExpression(2));
-    if (increment == 0) {
+        ctx.arithmeticExpression() == null ? null : (Integer) visit(ctx.arithmeticExpression());
+    if (increment != null && increment == 0) {
       throw new IllegalArgumentException(
           "Cannot produce range with zero increment at "
               + ctx.stop.getLine()
               + ":"
               + ctx.stop.getCharPositionInLine());
     }
-    int rangeTokenIndex = ctx.Range().getSymbol().getTokenIndex();
-    boolean[] closedInterval = {true, true};
-    for (TerminalNode invert : ctx.Invert()) {
-      if (invert.getSymbol().getTokenIndex() < rangeTokenIndex) {
-        closedInterval[0] = false;
-      } else {
-        closedInterval[1] = false;
-      }
+    return new Range(lowerBound, upperBound, increment);
+  }
+
+  @Override
+  public Bound visitLowerBound(TailspinParser.LowerBoundContext ctx) {
+    Object bound;
+    if (ctx.dereferenceValue() != null) {
+      bound = visitDereferenceValue(ctx.dereferenceValue());
+    } else if (ctx.arithmeticExpression() != null) {
+      bound = visitArithmeticExpression(ctx.arithmeticExpression());
+    } else if (ctx.stringLiteral() != null) {
+      bound = visitStringLiteral(ctx.stringLiteral());
+    } else {
+      throw new UnsupportedOperationException(
+          "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
     }
-    return Stream.iterate(
-        closedInterval[0] ? start : start + increment,
-        i -> (increment > 0 && i < end) || (increment < 0 && i > end) || (closedInterval[1] && i.equals(end)),
-        i -> i + increment);
+    if (bound instanceof Queue) {
+      if (((Queue)bound).size() != 1) {
+        throw new AssertionError("Lower bound with several values");
+      }
+      bound = ((Queue)bound).peek();
+    }
+    return new Bound(bound, ctx.Invert() == null);
+  }
+
+  @Override
+  public Bound visitUpperBound(TailspinParser.UpperBoundContext ctx) {
+    Object bound;
+    if (ctx.dereferenceValue() != null) {
+      bound = visitDereferenceValue(ctx.dereferenceValue());
+    } else if (ctx.arithmeticExpression() != null) {
+      bound = visitArithmeticExpression(ctx.arithmeticExpression());
+    } else if (ctx.stringLiteral() != null) {
+      bound = visitStringLiteral(ctx.stringLiteral());
+    } else {
+      throw new UnsupportedOperationException(
+          "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
+    }
+    if (bound instanceof Queue) {
+      if (((Queue)bound).size() != 1) {
+        throw new AssertionError("Upper bound with several values");
+      }
+      bound = ((Queue)bound).peek();
+    }
+    return new Bound(bound, ctx.Invert() == null);
   }
 
   @Override
@@ -832,6 +849,10 @@ public class RunMain extends TailspinParserBaseVisitor {
       case "*": return new Composer.AnyComposition(compositionSpec);
     }
     if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
+    if (ctx.rangeLiteral() != null) {
+      Range range = visitRangeLiteral(ctx.rangeLiteral());
+
+    }
     Integer amount = ctx.PositiveInteger() == null ? null : Integer.valueOf(ctx.PositiveInteger().getText());
     String identifier = ctx.Dereference() == null ? null : ctx.Dereference().getText().substring(1);
     return new Composer.CountComposition(compositionSpec, amount, identifier);

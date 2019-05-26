@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.regex.Pattern;
+import tailspin.ast.Bound;
 import tailspin.ast.Matcher;
+import tailspin.ast.Range;
 import tailspin.ast.SuchThatMatch;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ArrayMatchContext;
@@ -63,70 +65,9 @@ public class RunTemplateBlock extends RunMain {
     if (!(toMatch instanceof Comparable)) return false;
     @SuppressWarnings("unchecked")
     Comparable<Object> it = (Comparable<Object>) toMatch;
-    if (ctx.lowerBound() != null) {
-      Bound lowerBound = visitLowerBound(ctx.lowerBound());
-      if (it.compareTo(lowerBound.value) < 0) return false;
-      if (!lowerBound.inclusive && it.compareTo(lowerBound.value) == 0) return false;
-    }
-    if (ctx.upperBound() != null) {
-      Bound upperBound = visitUpperBound(ctx.upperBound());
-      if (it.compareTo(upperBound.value) > 0) return false;
-      if (!upperBound.inclusive && it.compareTo(upperBound.value) == 0) return false;
-    }
-    return true;
-  }
-
-  private static class Bound {
-    Object value;
-    boolean inclusive;
-    Bound(Object value, boolean inclusive) {
-      this.value = value;
-      this.inclusive = inclusive;
-    }
-  }
-
-  @Override
-  public Bound visitLowerBound(TailspinParser.LowerBoundContext ctx) {
-    Object bound;
-    if (ctx.dereferenceValue() != null) {
-      bound = visitDereferenceValue(ctx.dereferenceValue());
-    } else if (ctx.arithmeticExpression() != null) {
-      bound = visitArithmeticExpression(ctx.arithmeticExpression());
-    } else if (ctx.stringLiteral() != null) {
-      bound = visitStringLiteral(ctx.stringLiteral());
-    } else {
-      throw new UnsupportedOperationException(
-          "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
-    }
-    if (bound instanceof Queue) {
-      if (((Queue)bound).size() != 1) {
-        throw new AssertionError("Lower bound with several values");
-      }
-      bound = ((Queue)bound).peek();
-    }
-    return new Bound(bound, ctx.Invert() == null);
-  }
-
-  @Override
-  public Bound visitUpperBound(TailspinParser.UpperBoundContext ctx) {
-    Object bound;
-    if (ctx.dereferenceValue() != null) {
-      bound = visitDereferenceValue(ctx.dereferenceValue());
-    } else if (ctx.arithmeticExpression() != null) {
-      bound = visitArithmeticExpression(ctx.arithmeticExpression());
-    } else if (ctx.stringLiteral() != null) {
-      bound = visitStringLiteral(ctx.stringLiteral());
-    } else {
-      throw new UnsupportedOperationException(
-          "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
-    }
-    if (bound instanceof Queue) {
-      if (((Queue)bound).size() != 1) {
-        throw new AssertionError("Upper bound with several values");
-      }
-      bound = ((Queue)bound).peek();
-    }
-    return new Bound(bound, ctx.Invert() == null);
+    Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
+    Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
+    return new Range(lowerBound, upperBound).contains(it);
   }
 
   @Override

@@ -107,7 +107,7 @@ lowerBound: (dereferenceValue|arithmeticExpression|stringLiteral) Invert?;
 
 upperBound: Invert? (dereferenceValue|arithmeticExpression|stringLiteral);
 
-rangeLiteral: arithmeticExpression Invert? Range Invert? arithmeticExpression (Colon arithmeticExpression)?;
+rangeLiteral: lowerBound? Range upperBound? (Colon arithmeticExpression)?;
 
 integerLiteral: Zero | nonZeroInteger;
 
@@ -151,7 +151,7 @@ compositionMatcher: StartMatcher Invert? IDENTIFIER EndMatcher multiplier?
 ;
 
 multiplier: Plus | Star | Question
-  | Equal (PositiveInteger|Dereference)
+  | Equal (PositiveInteger|Dereference|rangeLiteral)
 ;
 
 compositionSkipRule: LeftParen compositionCapture+ RightParen;
