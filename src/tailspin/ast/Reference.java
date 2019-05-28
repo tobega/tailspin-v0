@@ -9,6 +9,8 @@ import tailspin.interpreter.Scope;
 
 public abstract class Reference {
   public abstract Object getValue(Scope scope);
+  abstract boolean isMutable();
+  public abstract void setValue(Object value, Scope scope);
 
   public Reference field(String fieldIdentifier) {
     return new FieldReference(this, fieldIdentifier);
@@ -31,6 +33,16 @@ public abstract class Reference {
       }
       return itQ.peek();
     }
+
+    @Override
+    boolean isMutable() {
+      return false;
+    }
+
+    @Override
+    public void setValue(Object value, Scope scope) {
+      throw new UnsupportedOperationException("'it' is not mutable");
+    }
   };
 
   public static Reference named(String identifier) {
@@ -52,6 +64,16 @@ public abstract class Reference {
     public Object getValue(Scope scope) {
       return scope.resolveValue(identifier);
     }
+
+    @Override
+    boolean isMutable() {
+      return false;
+    }
+
+    @Override
+    public void setValue(Object value, Scope scope) {
+      throw new UnsupportedOperationException(identifier + " is not mutable");
+    }
   }
 
   private static class StateReference extends Reference {
@@ -64,6 +86,16 @@ public abstract class Reference {
     @Override
     public Object getValue(Scope scope) {
       return scope.getState(stateContext);
+    }
+
+    @Override
+    boolean isMutable() {
+      return true;
+    }
+
+    @Override
+    public void setValue(Object value, Scope scope) {
+      scope.setState(stateContext, value);
     }
   }
 
@@ -82,6 +114,21 @@ public abstract class Reference {
       Map<String, Object> structure = (Map<String, Object>) parent.getValue(scope);
       return structure.get(fieldIdentifier);
     }
+
+    @Override
+    boolean isMutable() {
+      return parent.isMutable();
+    }
+
+    @Override
+    public void setValue(Object value, Scope scope) {
+      if (!isMutable()) {
+        throw new UnsupportedOperationException("Not mutable");
+      }
+      @SuppressWarnings("unchecked")
+      Map<String, Object> structure = (Map<String, Object>) parent.getValue(scope);
+      structure.put(fieldIdentifier, value);
+    }
   }
 
   private static class ArrayReference extends Reference {
@@ -97,6 +144,16 @@ public abstract class Reference {
     public Object getValue(Scope scope) {
       List<?> array = (List<?>) parent.getValue(scope);
       return resolveDimensionDereference(0, array);
+    }
+
+    @Override
+    boolean isMutable() {
+      return parent.isMutable();
+    }
+
+    @Override
+    public void setValue(Object value, Scope scope) {
+      throw new UnsupportedOperationException("Not implemented yet");
     }
 
     private Object resolveDimensionDereference(int currentDereference, List<?> array) {

@@ -110,6 +110,7 @@ for all of the values of a stream `$it` before the next step is evaluated. This 
 A templates object has modifiable local temporary state, valid for the processing of one input value,
 which can be modified by the special sink `@` and dereferenced as `$@`. Optionally, or to access
 a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
+The local state is also deeply modifiable so you could change just a field of the state object, e.g. `@.field` or `@name.field`
 
 Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
 result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues
@@ -314,6 +315,8 @@ To send the keyed value through a transform, put it in parentheses, so `(a: 1) -
 ## Processors
 A processor is an object that is more complex than simply data. It would normally have some
 state that could possibly change. To interact with processors, you send [messages](#messages) to them.
+
+Internally in the processor, state is accessed like the local state of templates, but with the processor name.
 
 A processor definition looks similar to a templates object but the definition starts with the word `processor` instead.
 Also, there are no match templates. The initial block is used to define state and values for the processor instance

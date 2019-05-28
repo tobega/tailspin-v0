@@ -124,7 +124,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     return value;
   }
 
-  private Reference resolveReference(TailspinParser.ReferenceContext ctx, Reference reference) {
+  Reference resolveReference(TailspinParser.ReferenceContext ctx, Reference reference) {
     if (ctx.arrayReference() != null) {
       try {
         reference = resolveArrayDereference(ctx.arrayReference(), reference);
@@ -169,6 +169,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       } else if (dimCtx.rangeLiteral() != null) {
         dimensions.add(visitRangeLiteral(dimCtx.rangeLiteral()));
       } else if (dimCtx.arrayLiteral() != null) {
+        @SuppressWarnings("unchecked")
         List<Integer> permutation = (List<Integer>) visitArrayLiteral(dimCtx.arrayLiteral());
         dimensions.add(permutation);
       } else if (dimCtx.dereferenceValue() != null) {

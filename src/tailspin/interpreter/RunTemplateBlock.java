@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import tailspin.ast.Bound;
 import tailspin.ast.Matcher;
 import tailspin.ast.RangeMatch;
+import tailspin.ast.Reference;
 import tailspin.ast.SuchThatMatch;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ArrayMatchContext;
@@ -193,11 +194,12 @@ public class RunTemplateBlock extends RunMain {
   @Override
   public Object visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
     String stateContext = ctx.NamedAt() == null ? "" : ctx.NamedAt().getText().substring(1);
+    Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
     Queue<Object> value = visitValueChain(ctx.valueChain());
     if (value.size() != 1) {
       throw new IllegalArgumentException("Attempt to set state to multiple values " + value);
     }
-    scope.setState(stateContext, value.peek());
+    reference.setValue(value.peek(), scope);
     return null;
   }
 
