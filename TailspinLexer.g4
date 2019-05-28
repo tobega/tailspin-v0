@@ -28,7 +28,7 @@ Key: IDENTIFIER ':';
 
 Message: '::' IDENTIFIER;
 
-FieldDereference: '.' IDENTIFIER;
+FieldReference: '.' IDENTIFIER;
 
 EndStringInterpolate: ';' {stringInterpolate > 0}? {stringInterpolate--;} -> popMode;
 

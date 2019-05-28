@@ -70,23 +70,29 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDereferenceValue(TailspinParser.DereferenceValueContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#structureDereference}.
+	 * Visit a parse tree produced by {@link TailspinParser#reference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStructureDereference(TailspinParser.StructureDereferenceContext ctx);
+	T visitReference(TailspinParser.ReferenceContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#arrayDereference}.
+	 * Visit a parse tree produced by {@link TailspinParser#structureReference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitArrayDereference(TailspinParser.ArrayDereferenceContext ctx);
+	T visitStructureReference(TailspinParser.StructureReferenceContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#dimensionDereference}.
+	 * Visit a parse tree produced by {@link TailspinParser#arrayReference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitDimensionDereference(TailspinParser.DimensionDereferenceContext ctx);
+	T visitArrayReference(TailspinParser.ArrayReferenceContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#dimensionReference}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDimensionReference(TailspinParser.DimensionReferenceContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#message}.
 	 * @param ctx the parse tree

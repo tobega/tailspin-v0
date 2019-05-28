@@ -23,14 +23,15 @@ source: Stdin
   | arithmeticExpression
 ;
 
-dereferenceValue: Dereference (LeftParen arrayDereference RightParen)? structureDereference*  message?
-;
+dereferenceValue: Dereference reference message?;
 
-structureDereference: FieldDereference (LeftParen arrayDereference RightParen)?;
+reference: (LeftParen arrayReference RightParen)? structureReference*;
 
-arrayDereference: dimensionDereference (SemiColon dimensionDereference)*;
+structureReference: FieldReference (LeftParen arrayReference RightParen)?;
 
-dimensionDereference: dereferenceValue|arithmeticExpression|rangeLiteral|arrayLiteral;
+arrayReference: dimensionReference (SemiColon dimensionReference)*;
+
+dimensionReference: dereferenceValue|arithmeticExpression|rangeLiteral|arrayLiteral;
 
 message: Message;
 
@@ -71,7 +72,7 @@ blockExpression: blockStatement
 resultValue: valueChain ResultMarker;
 blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
-stateAssignment: valueChain To (At|NamedAt);
+stateAssignment: valueChain To (At|NamedAt) reference;
 
 valueChain: source
   | source transform

@@ -351,4 +351,19 @@ class Templates {
 
     assertEquals("gtgtgtlelele", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void templatesStateMutateField() throws Exception {
+    String program =
+        "templates state\n{ a: 0, b: 0} -> @\n$it -> @.b\n$@ !\nend state\n" + "1 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    // Here the return values do get generated in the "correct" order
+    assertEquals("{a=0, b=1}", output.toString(StandardCharsets.UTF_8));
+  }
 }

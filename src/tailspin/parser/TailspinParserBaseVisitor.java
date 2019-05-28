@@ -80,21 +80,28 @@ public class TailspinParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> im
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStructureDereference(TailspinParser.StructureDereferenceContext ctx) { return visitChildren(ctx); }
+	@Override public T visitReference(TailspinParser.ReferenceContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitArrayDereference(TailspinParser.ArrayDereferenceContext ctx) { return visitChildren(ctx); }
+	@Override public T visitStructureReference(TailspinParser.StructureReferenceContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitDimensionDereference(TailspinParser.DimensionDereferenceContext ctx) { return visitChildren(ctx); }
+	@Override public T visitArrayReference(TailspinParser.ArrayReferenceContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitDimensionReference(TailspinParser.DimensionReferenceContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

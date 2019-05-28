@@ -19,7 +19,7 @@ import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
 import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
-import tailspin.parser.TailspinParser.DimensionDereferenceContext;
+import tailspin.parser.TailspinParser.DimensionReferenceContext;
 import tailspin.parser.TailspinParser.SendToTemplatesContext;
 import tailspin.parser.TailspinParser.ValueProductionContext;
 import tailspin.parser.TailspinParserBaseVisitor;
@@ -119,21 +119,26 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else {
       value = scope.resolveValue(identifier);
     }
-    if (ctx.arrayDereference() != null) {
+    value = resolveReference(ctx.reference(), value);
+    if (ctx.message() != null) {
+      value = resolveProcessorMessage(ctx.message().Message().getText().substring(2), value);
+    }
+    return value;
+  }
+
+  private Object resolveReference(TailspinParser.ReferenceContext ctx, Object value) {
+    if (ctx.arrayReference() != null) {
       try {
-        value = resolveArrayDereference(ctx.arrayDereference(), (List<?>) value);
+        value = resolveArrayDereference(ctx.arrayReference(), (List<?>) value);
       } catch (RuntimeException e) {
         throw new IllegalArgumentException("Failed array dereference: " + ctx.getText(), e);
       }
     }
-    for (TailspinParser.StructureDereferenceContext sdc : ctx.structureDereference()) {
-      value = resolveFieldDereference(value, sdc.FieldDereference().getText().substring(1));
-      if (sdc.arrayDereference() != null) {
-        value = resolveArrayDereference(sdc.arrayDereference(), (List<?>) value);
+    for (TailspinParser.StructureReferenceContext sdc : ctx.structureReference()) {
+      value = resolveFieldDereference(value, sdc.FieldReference().getText().substring(1));
+      if (sdc.arrayReference() != null) {
+        value = resolveArrayDereference(sdc.arrayReference(), (List<?>) value);
       }
-    }
-    if (ctx.message() != null) {
-      value = resolveProcessorMessage(ctx.message().Message().getText().substring(2), value);
     }
     return value;
   }
@@ -164,15 +169,15 @@ public class RunMain extends TailspinParserBaseVisitor {
     return value;
   }
 
-  private Object resolveArrayDereference(TailspinParser.ArrayDereferenceContext ctx, List<?> array) {
-    return  resolveDimensionDereference(ctx.dimensionDereference(), 0, array);
+  private Object resolveArrayDereference(TailspinParser.ArrayReferenceContext ctx, List<?> array) {
+    return  resolveDimensionDereference(ctx.dimensionReference(), 0, array);
   }
 
   private Object resolveDimensionDereference(
-      List<TailspinParser.DimensionDereferenceContext> dimensionDereferences,
+      List<TailspinParser.DimensionReferenceContext> dimensionDereferences,
       int currentDereference,
       List<?> array) {
-    DimensionDereferenceContext ctx = dimensionDereferences.get(currentDereference);
+    DimensionReferenceContext ctx = dimensionDereferences.get(currentDereference);
     Object dimensionResult;
     if (ctx.arithmeticExpression() != null) {
       int index = javaizeArrayIndex(visitArithmeticExpression(ctx.arithmeticExpression()), array.size());

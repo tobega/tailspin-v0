@@ -18,7 +18,7 @@ public class TailspinLexer extends Lexer {
 		new PredictionContextCache();
 	public static final int
 		StartComment=1, Stdout=2, Stdin=3, Void=4, Def=5, To=6, ResultMarker=7, 
-		At=8, NamedAt=9, Colon=10, Key=11, Message=12, FieldDereference=13, EndStringInterpolate=14, 
+		At=8, NamedAt=9, Colon=10, Key=11, Message=12, FieldReference=13, EndStringInterpolate=14, 
 		SemiColon=15, Comma=16, Deconstructor=17, Invert=18, LeftParen=19, RightParen=20, 
 		LeftBracket=21, RightBracket=22, LeftBrace=23, RightBrace=24, StartMatcher=25, 
 		StartTemplatesDefinition=26, StartComposerDefinition=27, StartProcessorDefinition=28, 
@@ -40,7 +40,7 @@ public class TailspinLexer extends Lexer {
 	private static String[] makeRuleNames() {
 		return new String[] {
 			"StartComment", "Stdout", "Stdin", "Void", "Def", "To", "ResultMarker", 
-			"At", "NamedAt", "Colon", "Key", "Message", "FieldDereference", "EndStringInterpolate", 
+			"At", "NamedAt", "Colon", "Key", "Message", "FieldReference", "EndStringInterpolate", 
 			"SemiColon", "Comma", "Deconstructor", "Invert", "LeftParen", "RightParen", 
 			"LeftBracket", "RightBracket", "LeftBrace", "RightBrace", "StartMatcher", 
 			"StartTemplatesDefinition", "StartComposerDefinition", "StartProcessorDefinition", 
@@ -68,7 +68,7 @@ public class TailspinLexer extends Lexer {
 	private static String[] makeSymbolicNames() {
 		return new String[] {
 			null, "StartComment", "Stdout", "Stdin", "Void", "Def", "To", "ResultMarker", 
-			"At", "NamedAt", "Colon", "Key", "Message", "FieldDereference", "EndStringInterpolate", 
+			"At", "NamedAt", "Colon", "Key", "Message", "FieldReference", "EndStringInterpolate", 
 			"SemiColon", "Comma", "Deconstructor", "Invert", "LeftParen", "RightParen", 
 			"LeftBracket", "RightBracket", "LeftBrace", "RightBrace", "StartMatcher", 
 			"StartTemplatesDefinition", "StartComposerDefinition", "StartProcessorDefinition", 
