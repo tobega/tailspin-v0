@@ -116,29 +116,29 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else {
       reference = Reference.named(identifier);
     }
+    reference = resolveReference(ctx.reference(), reference);
     Object value = reference.getValue(scope);
-    value = resolveReference(ctx.reference(), value);
     if (ctx.message() != null) {
       value = resolveProcessorMessage(ctx.message().Message().getText().substring(2), value);
     }
     return value;
   }
 
-  private Object resolveReference(TailspinParser.ReferenceContext ctx, Object value) {
+  private Reference resolveReference(TailspinParser.ReferenceContext ctx, Reference reference) {
     if (ctx.arrayReference() != null) {
       try {
-        value = resolveArrayDereference(ctx.arrayReference(), (List<?>) value);
+        reference = resolveArrayDereference(ctx.arrayReference(), reference);
       } catch (RuntimeException e) {
         throw new IllegalArgumentException("Failed array dereference: " + ctx.getText(), e);
       }
     }
     for (TailspinParser.StructureReferenceContext sdc : ctx.structureReference()) {
-      value = resolveFieldDereference(value, sdc.FieldReference().getText().substring(1));
+      reference = resolveFieldDereference(reference, sdc.FieldReference().getText().substring(1));
       if (sdc.arrayReference() != null) {
-        value = resolveArrayDereference(sdc.arrayReference(), (List<?>) value);
+        reference = resolveArrayDereference(sdc.arrayReference(), reference);
       }
     }
-    return value;
+    return reference;
   }
 
   private Queue<Object> resolveProcessorMessage(String message, Object value) {
@@ -157,95 +157,49 @@ public class RunMain extends TailspinParserBaseVisitor {
     return result;
   }
 
-  private Object resolveFieldDereference(Object value, String fieldIdentifier) {
-    if (value == null) {
-      throw new NullPointerException("Cannot dereference " + fieldIdentifier);
-    }
-    @SuppressWarnings("unchecked")
-    Map<String, Object> structure = (Map<String, Object>) value;
-    value = structure.get(fieldIdentifier);
-    return value;
+  private Reference resolveFieldDereference(Reference reference, String fieldIdentifier) {
+    return reference.field(fieldIdentifier);
   }
 
-  private Object resolveArrayDereference(TailspinParser.ArrayReferenceContext ctx, List<?> array) {
-    return  resolveDimensionDereference(ctx.dimensionReference(), 0, array);
-  }
-
-  private Object resolveDimensionDereference(
-      List<TailspinParser.DimensionReferenceContext> dimensionDereferences,
-      int currentDereference,
-      List<?> array) {
-    DimensionReferenceContext ctx = dimensionDereferences.get(currentDereference);
-    Object dimensionResult;
-    if (ctx.arithmeticExpression() != null) {
-      int index = javaizeArrayIndex(visitArithmeticExpression(ctx.arithmeticExpression()), array.size());
-      dimensionResult = array.get(index);
-    } else if (ctx.rangeLiteral() != null) {
-      dimensionResult = resolveArrayRangeDereference(visitRangeLiteral(ctx.rangeLiteral()), array);
-    } else if (ctx.arrayLiteral() != null) {
-      @SuppressWarnings("unchecked")
-      List<Integer> permutation = (List<Integer>) visitArrayLiteral(ctx.arrayLiteral());
-      dimensionResult =
-          permutation.stream().map(i -> javaizeArrayIndex(i, array.size())).map(array::get);
-    } else if (ctx.dereferenceValue() != null) {
-      Object index = visitDereferenceValue(ctx.dereferenceValue());
-      if ((index instanceof Queue) && ((Queue<?>) index).size() == 1) {
-        index = ((Queue<?>) index).peek();
-      }
-      if (index instanceof Integer) {
-        dimensionResult = array.get(javaizeArrayIndex((Integer) index, array.size()));
-      } else if (index instanceof List) {
-        @SuppressWarnings("unchecked")
-        List<Integer> permutation = (List) index;
-        dimensionResult =
-            permutation.stream().map(i -> javaizeArrayIndex(i, array.size())).map(array::get);
+  private Reference resolveArrayDereference(TailspinParser.ArrayReferenceContext ctx, Reference reference) {
+    List<Object> dimensions = new ArrayList<>();
+    for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
+      if (dimCtx.arithmeticExpression() != null) {
+        dimensions.add(visitArithmeticExpression(dimCtx.arithmeticExpression()));
+      } else if (dimCtx.rangeLiteral() != null) {
+        dimensions.add(visitRangeLiteral(dimCtx.rangeLiteral()));
+      } else if (dimCtx.arrayLiteral() != null) {
+        List<Integer> permutation = (List<Integer>) visitArrayLiteral(dimCtx.arrayLiteral());
+        dimensions.add(permutation);
+      } else if (dimCtx.dereferenceValue() != null) {
+        Object index = visitDereferenceValue(dimCtx.dereferenceValue());
+        if ((index instanceof Queue) && ((Queue<?>) index).size() == 1) {
+          index = ((Queue<?>) index).peek();
+        }
+        if (index instanceof Integer) {
+          dimensions.add(index);
+        } else if (index instanceof List) {
+          @SuppressWarnings("unchecked")
+          List<Integer> permutation = (List) index;
+          dimensions.add(permutation);
+        } else {
+          throw new UnsupportedOperationException(
+              "Unable to dereference array by "
+                  + index.getClass().getName()
+                  + " at "
+                  + dimCtx.getStart().getLine()
+                  + ":"
+                  + dimCtx.getStart().getCharPositionInLine() + " " + dimCtx.getText());
+        }
       } else {
         throw new UnsupportedOperationException(
-            "Unable to dereference array by "
-                + index.getClass().getName()
-                + " at "
+            "Unknown way to dereference array at "
                 + ctx.getStart().getLine()
                 + ":"
-                + ctx.getStart().getCharPositionInLine());
-      }
-    } else {
-      throw new UnsupportedOperationException(
-          "Unknown way to dereference array at "
-              + ctx.getStart().getLine()
-              + ":"
-              + ctx.getStart().getCharPositionInLine());
-    }
-    if (currentDereference == dimensionDereferences.size() - 1) {
-      if (dimensionResult instanceof Stream) {
-        return ((Stream<?>) dimensionResult).collect(Collectors.toList());
-      } else {
-        return dimensionResult;
+                + ctx.getStart().getCharPositionInLine() + " " + ctx.getText());
       }
     }
-    if (dimensionResult instanceof Stream) {
-      @SuppressWarnings("unchecked")
-      Stream<List<Object>> results = (Stream<List<Object>>) dimensionResult;
-      return results
-          .map(a -> resolveDimensionDereference(dimensionDereferences, currentDereference + 1, a))
-          .collect(Collectors.toList());
-    } else {
-      return resolveDimensionDereference(
-          dimensionDereferences, currentDereference + 1, (List<?>) dimensionResult);
-    }
-  }
-
-  private int javaizeArrayIndex(int index, int size) {
-    if (index < 0) {
-      return index + size;
-    } else {
-      return index - 1;
-    }
-  }
-
-  private Stream<Object> resolveArrayRangeDereference(
-      RangeGenerator range, List<?> array) {
-    return range.stream((Integer i) -> javaizeArrayIndex(i, array.size()))
-        .map(array::get);
+    return reference.array(dimensions);
   }
 
   @Override
