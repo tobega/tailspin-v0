@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.ast.Bound;
 import tailspin.ast.RangeGenerator;
+import tailspin.ast.Reference;
 import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
@@ -107,18 +108,15 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Object visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
     String identifier = ctx.Dereference().getText().substring(1);
-    Object value;
+    Reference reference;
     if (identifier.equals("it")) {
-      Queue<Object> itQ = scope.getIt();
-      if (itQ.size() != 1) {
-        throw new AssertionError("Invalid it dereference " + itQ.size());
-      }
-      value = itQ.peek();
+      reference = Reference.it();
     } else if (identifier.startsWith("@")) {
-      value = scope.getState(identifier.substring(1));
+      reference = Reference.state(identifier.substring(1));
     } else {
-      value = scope.resolveValue(identifier);
+      reference = Reference.named(identifier);
     }
+    Object value = reference.getValue(scope);
     value = resolveReference(ctx.reference(), value);
     if (ctx.message() != null) {
       value = resolveProcessorMessage(ctx.message().Message().getText().substring(2), value);
