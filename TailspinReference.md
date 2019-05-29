@@ -111,6 +111,8 @@ A templates object has modifiable local temporary state, valid for the processin
 which can be modified by the special sink `@` and dereferenced as `$@`. Optionally, or to access
 a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
 The local state is also deeply modifiable so you could change just a field of the state object, e.g. `@.field` or `@name.field`
+A modifiable local state reference can also function as a collector for the [merge operator](#merge-operator), which then
+mutates the state. Note the difference between `-> ...@` which mutates and `-> ...$@` which enhances a copy.
 
 Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
 result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues

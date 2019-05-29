@@ -364,32 +364,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.collector() != null) {
       Queue<Object> it = scope.getIt();
       Object collector = visitCollector(ctx.collector());
-      if (collector instanceof Map) {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> collectorMap = (Map<String, Object>) collector;
-        it.forEach(
-            m -> {
-              if (m instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> itMap = (Map<String, Object>) m;
-                collectorMap.putAll(itMap);
-              } else {
-                @SuppressWarnings("unchecked")
-                Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) m;
-                collectorMap.put(itEntry.getKey(), itEntry.getValue());
-              }
-            });
-      } else if (collector instanceof StringBuilder) {
-        StringBuilder sbCollector = (StringBuilder) collector;
-        it.forEach(s -> sbCollector.append(s.toString()));
-        collector = sbCollector.toString();
-      } else if (collector instanceof List) {
-        @SuppressWarnings("unchecked")
-        List<Object> collectorList = (List<Object>) collector;
-        collectorList.addAll(it);
-      } else {
-        throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
-      }
+      collector = collect(it, collector);
       Queue<Object> result = queueOf(collector);
       if (ctx.transform() != null) {
         scope.setIt(result);
@@ -439,6 +414,36 @@ public class RunMain extends TailspinParserBaseVisitor {
       return visitTransform(ctx.transform());
     }
     return nextValue;
+  }
+
+  Object collect(Queue<Object> it, Object collector) {
+    if (collector instanceof Map) {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> collectorMap = (Map<String, Object>) collector;
+      it.forEach(
+          m -> {
+            if (m instanceof Map) {
+              @SuppressWarnings("unchecked")
+              Map<String, Object> itMap = (Map<String, Object>) m;
+              collectorMap.putAll(itMap);
+            } else {
+              @SuppressWarnings("unchecked")
+              Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) m;
+              collectorMap.put(itEntry.getKey(), itEntry.getValue());
+            }
+          });
+    } else if (collector instanceof StringBuilder) {
+      StringBuilder sbCollector = (StringBuilder) collector;
+      it.forEach(s -> sbCollector.append(s.toString()));
+      collector = sbCollector.toString();
+    } else if (collector instanceof List) {
+      @SuppressWarnings("unchecked")
+      List<Object> collectorList = (List<Object>) collector;
+      collectorList.addAll(it);
+    } else {
+      throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
+    }
+    return collector;
   }
 
   @Override

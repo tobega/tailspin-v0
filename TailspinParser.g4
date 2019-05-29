@@ -72,7 +72,7 @@ blockExpression: blockStatement
 resultValue: valueChain ResultMarker;
 blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
-stateAssignment: valueChain To (At|NamedAt) reference;
+stateAssignment: valueChain To Deconstructor? (At|NamedAt) reference;
 
 valueChain: source
   | source transform

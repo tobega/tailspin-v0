@@ -199,7 +199,11 @@ public class RunTemplateBlock extends RunMain {
     if (value.size() != 1) {
       throw new IllegalArgumentException("Attempt to set state to multiple values " + value);
     }
-    reference.setValue(value.peek(), scope);
+    if (ctx.Deconstructor() != null) {
+      collect(value, reference.getValue(scope));
+    } else {
+      reference.setValue(value.peek(), scope);
+    }
     return null;
   }
 
