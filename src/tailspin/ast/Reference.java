@@ -142,8 +142,9 @@ public abstract class Reference {
 
     @Override
     public Object getValue(Scope scope) {
-      List<?> array = (List<?>) parent.getValue(scope);
-      return resolveDimensionDereference(0, array);
+      @SuppressWarnings("unchecked")
+      List<Object> array = (List<Object>) parent.getValue(scope);
+      return resolveDimensionDereference(0, array, List::get);
     }
 
     @Override
@@ -153,22 +154,30 @@ public abstract class Reference {
 
     @Override
     public void setValue(Object value, Scope scope) {
-      throw new UnsupportedOperationException("Not implemented yet");
+      @SuppressWarnings("unchecked")
+      List<Object> array = (List<Object>) parent.getValue(scope);
+      resolveDimensionDereference(0, array, (a, i) -> a.set(i, value));
     }
 
-    private Object resolveDimensionDereference(int currentDereference, List<?> array) {
+    private interface ArrayOperation {
+      Object invoke(List<Object> array, int index);
+    }
+
+    private Object resolveDimensionDereference(int currentDereference, List<Object> array,
+        ArrayOperation bottomOperation) {
+      ArrayOperation operation = currentDereference == dimensions.size() - 1 ? bottomOperation : List::get;
       Object idx = dimensions.get(currentDereference);
       Object dimensionResult;
       if (idx instanceof Integer) {
         int index = javaizeArrayIndex((Integer) idx, array.size());
-        dimensionResult = array.get(index);
+        dimensionResult = operation.invoke(array, index);
       } else if (idx instanceof RangeGenerator) {
-        dimensionResult = resolveArrayRangeDereference((RangeGenerator) idx, array);
+        dimensionResult = resolveArrayRangeDereference((RangeGenerator) idx, array, operation);
       } else if (idx instanceof List) {
         @SuppressWarnings("unchecked")
         List<Integer> permutation = (List<Integer>) idx;
         dimensionResult =
-            permutation.stream().map(i -> javaizeArrayIndex(i, array.size())).map(array::get);
+            permutation.stream().map(i -> javaizeArrayIndex(i, array.size())).map(i -> operation.invoke(array, i));
       } else {
           throw new UnsupportedOperationException(
               "Unable to dereference array by "
@@ -185,10 +194,12 @@ public abstract class Reference {
         @SuppressWarnings("unchecked")
         Stream<List<Object>> results = (Stream<List<Object>>) dimensionResult;
         return results
-            .map(a -> resolveDimensionDereference(currentDereference + 1, a))
+            .map(a -> resolveDimensionDereference(currentDereference + 1, a, bottomOperation))
             .collect(Collectors.toList());
       } else {
-        return resolveDimensionDereference(currentDereference + 1, (List<?>) dimensionResult);
+        @SuppressWarnings("unchecked")
+        List<Object> previousDimension = (List<Object>) dimensionResult;
+        return resolveDimensionDereference(currentDereference + 1, previousDimension, bottomOperation);
       }
     }
 
@@ -200,9 +211,10 @@ public abstract class Reference {
       }
     }
 
-    private Stream<Object> resolveArrayRangeDereference(RangeGenerator range, List<?> array) {
+    private Stream<Object> resolveArrayRangeDereference(RangeGenerator range,
+        List<Object> array, ArrayOperation operation) {
       return range.stream((Integer i) -> javaizeArrayIndex(i, array.size()))
-          .map(array::get);
+          .map(i -> operation.invoke(array, i));
     }
   }
 }

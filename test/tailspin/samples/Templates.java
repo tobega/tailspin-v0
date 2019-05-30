@@ -381,4 +381,34 @@ class Templates {
     // Here the return values do get generated in the "correct" order
     assertEquals("{a=0, b=1, c=2}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void templatesStateMutateArray() throws Exception {
+    String program =
+        "templates state\n[1..3] -> @\n$it -> @(2)\n$@ !\nend state\n" + "0 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    // Here the return values do get generated in the "correct" order
+    assertEquals("[1, 0, 3]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void templatesStateMutateTwoDimensionalArray() throws Exception {
+    String program =
+        "templates state\n[[1..3],[4..6],[7..9]] -> @\n$it -> @(2;3)\n$@ !\nend state\n" + "0 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    // Here the return values do get generated in the "correct" order
+    assertEquals("[[1, 2, 3], [4, 5, 0], [7, 8, 9]]", output.toString(StandardCharsets.UTF_8));
+  }
 }
