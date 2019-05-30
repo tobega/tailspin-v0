@@ -196,13 +196,15 @@ public class RunTemplateBlock extends RunMain {
     String stateContext = ctx.NamedAt() == null ? "" : ctx.NamedAt().getText().substring(1);
     Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
     Queue<Object> value = visitValueChain(ctx.valueChain());
-    if (value.size() != 1) {
-      throw new IllegalArgumentException("Attempt to set state to multiple values " + value);
-    }
     if (ctx.Deconstructor() != null) {
       collect(value, reference.getValue(scope));
     } else {
-      reference.setValue(value.peek(), scope);
+      reference.setValue(value, scope);
+      if (!value.isEmpty()) {
+        throw new IllegalStateException("Too many values at "
+            + ctx.getStart().getLine() + ":" + ctx.getStart().getCharPositionInLine()
+            + " " + ctx.getText());
+      }
     }
     return null;
   }

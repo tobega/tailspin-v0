@@ -10,7 +10,7 @@ import tailspin.interpreter.Scope;
 public abstract class Reference {
   public abstract Object getValue(Scope scope);
   abstract boolean isMutable();
-  public abstract void setValue(Object value, Scope scope);
+  public abstract void setValue(Queue<Object> value, Scope scope);
 
   public Reference field(String fieldIdentifier) {
     return new FieldReference(this, fieldIdentifier);
@@ -40,7 +40,7 @@ public abstract class Reference {
     }
 
     @Override
-    public void setValue(Object value, Scope scope) {
+    public void setValue(Queue<Object> value, Scope scope) {
       throw new UnsupportedOperationException("'it' is not mutable");
     }
   };
@@ -71,7 +71,7 @@ public abstract class Reference {
     }
 
     @Override
-    public void setValue(Object value, Scope scope) {
+    public void setValue(Queue<Object> value, Scope scope) {
       throw new UnsupportedOperationException(identifier + " is not mutable");
     }
   }
@@ -94,8 +94,8 @@ public abstract class Reference {
     }
 
     @Override
-    public void setValue(Object value, Scope scope) {
-      scope.setState(stateContext, value);
+    public void setValue(Queue<Object> value, Scope scope) {
+      scope.setState(stateContext, value.remove());
     }
   }
 
@@ -121,13 +121,13 @@ public abstract class Reference {
     }
 
     @Override
-    public void setValue(Object value, Scope scope) {
+    public void setValue(Queue<Object> value, Scope scope) {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
       @SuppressWarnings("unchecked")
       Map<String, Object> structure = (Map<String, Object>) parent.getValue(scope);
-      structure.put(fieldIdentifier, value);
+      structure.put(fieldIdentifier, value.remove());
     }
   }
 
@@ -153,10 +153,13 @@ public abstract class Reference {
     }
 
     @Override
-    public void setValue(Object value, Scope scope) {
+    public void setValue(Queue<Object> value, Scope scope) {
+      if (!isMutable()) {
+        throw new UnsupportedOperationException("Not mutable");
+      }
       @SuppressWarnings("unchecked")
       List<Object> array = (List<Object>) parent.getValue(scope);
-      resolveDimensionDereference(0, array, (a, i) -> a.set(i, value));
+      resolveDimensionDereference(0, array, (a, i) -> a.set(i, value.remove()));
     }
 
     private interface ArrayOperation {
