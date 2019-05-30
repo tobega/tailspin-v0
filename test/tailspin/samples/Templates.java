@@ -353,7 +353,7 @@ class Templates {
   }
 
   @Test
-  void templatesStateMutateField() throws Exception {
+  void mutateStateField() throws Exception {
     String program =
         "templates state\n{ a: 0, b: 0} -> @\n$it -> @.b\n$@ !\nend state\n" + "1 -> state -> stdout";
     Tailspin runner =
@@ -363,7 +363,6 @@ class Templates {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output);
 
-    // Here the return values do get generated in the "correct" order
     assertEquals("{a=0, b=1}", output.toString(StandardCharsets.UTF_8));
   }
 
@@ -378,12 +377,11 @@ class Templates {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output);
 
-    // Here the return values do get generated in the "correct" order
     assertEquals("{a=0, b=1, c=2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void templatesStateMutateArray() throws Exception {
+  void mutateStateArray() throws Exception {
     String program =
         "templates state\n[1..3] -> @\n$it -> @(2)\n$@ !\nend state\n" + "0 -> state -> stdout";
     Tailspin runner =
@@ -393,12 +391,11 @@ class Templates {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output);
 
-    // Here the return values do get generated in the "correct" order
     assertEquals("[1, 0, 3]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void templatesStateMutateTwoDimensionalArray() throws Exception {
+  void mutateTwoDimensionalStateArray() throws Exception {
     String program =
         "templates state\n[[1..3],[4..6],[7..9]] -> @\n$it -> @(2;3)\n$@ !\nend state\n" + "0 -> state -> stdout";
     Tailspin runner =
@@ -408,12 +405,11 @@ class Templates {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output);
 
-    // Here the return values do get generated in the "correct" order
     assertEquals("[[1, 2, 3], [4, 5, 0], [7, 8, 9]]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void templatesStateMutateArraySlice() throws Exception {
+  void mutateStateArraySlice() throws Exception {
     String program =
         "templates state\n[1..5] -> @\n$it..$it+2 -> @(2..4)\n$@ !\nend state\n" + "1 -> state -> stdout";
     Tailspin runner =
@@ -423,12 +419,11 @@ class Templates {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output);
 
-    // Here the return values do get generated in the "correct" order
     assertEquals("[1, 1, 2, 3, 5]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void templatesStateMutateArraySlice_tooFewValues() throws Exception {
+  void mutateStateArraySlice_tooFewValues() throws Exception {
     String program =
         "templates state\n[1..5] -> @\n$it..$it+1 -> @(2..4)\n$@ !\nend state\n" + "1 -> state -> stdout";
     Tailspin runner =
@@ -449,5 +444,47 @@ class Templates {
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(input, output));
+  }
+
+  @Test
+  void collectStateArray() throws Exception {
+    String program =
+        "templates state\n[] -> @\n$it..$it+2 -> ...@\n$@ !\nend state\n" + "1 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[1, 2, 3]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void preserveItAfterCollectState() throws Exception {
+    String program =
+        "templates state\n[] -> @\n$it..$it+2 -> ...@\n$it !\nend state\n" + "1 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void preserveItAfterMutateState() throws Exception {
+    String program =
+        "templates state\n[0] -> @\n$it -> @(1)\n$it !\nend state\n" + "1 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
   }
 }

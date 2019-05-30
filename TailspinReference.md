@@ -112,7 +112,8 @@ which can be modified by the special sink `@` and dereferenced as `$@`. Optional
 a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
 
 The local state is also deeply modifiable so you could change just a field of the state object, e.g. `-> @.field` or `-> @name.field`,
-or a position in an array, e.g. `-> @name(2;5)`.
+or a position in an array, e.g. `-> @name(2;5)`. A sequenceof variables can also be assigned to an array slice,
+e.g. `1..3 -> @(2..4)`
 
 A modifiable local state reference can also function as a collector for the [merge operator](#merge-operator), which then
 mutates the state. Note the difference between `-> ...@` which mutates the local state and `-> ...$@` which just creates an enhanced copy.
