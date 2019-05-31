@@ -118,6 +118,9 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
     reference = resolveReference(ctx.reference(), reference);
     Object value = reference.getValue(scope);
+    if (reference.isMutable()) {
+      value = Reference.copy(value);
+    }
     if (ctx.message() != null) {
       value = resolveProcessorMessage(ctx.message().Message().getText().substring(2), value);
     }

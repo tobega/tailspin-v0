@@ -11,7 +11,7 @@ import tailspin.interpreter.Scope;
 
 public abstract class Reference {
   public abstract Object getValue(Scope scope);
-  abstract boolean isMutable();
+  public abstract boolean isMutable();
   public abstract void setValue(Queue<Object> value, Scope scope);
 
   public Reference field(String fieldIdentifier) {
@@ -37,7 +37,7 @@ public abstract class Reference {
     }
 
     @Override
-    boolean isMutable() {
+    public boolean isMutable() {
       return false;
     }
 
@@ -68,7 +68,7 @@ public abstract class Reference {
     }
 
     @Override
-    boolean isMutable() {
+    public boolean isMutable() {
       return false;
     }
 
@@ -91,7 +91,7 @@ public abstract class Reference {
     }
 
     @Override
-    boolean isMutable() {
+    public boolean isMutable() {
       return true;
     }
 
@@ -101,7 +101,7 @@ public abstract class Reference {
     }
   }
 
-  private static Object copy(Object value) {
+  public static Object copy(Object value) {
     if (value instanceof Map) {
       @SuppressWarnings("unchecked")
       Map<String, Object> mapValue = (Map<String, Object>) value;
@@ -140,7 +140,7 @@ public abstract class Reference {
     }
 
     @Override
-    boolean isMutable() {
+    public boolean isMutable() {
       return parent.isMutable();
     }
 
@@ -172,7 +172,7 @@ public abstract class Reference {
     }
 
     @Override
-    boolean isMutable() {
+    public boolean isMutable() {
       return parent.isMutable();
     }
 
