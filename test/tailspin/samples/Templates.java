@@ -487,4 +487,88 @@ class Templates {
 
     assertEquals("1", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void immutableItArrayInMutableState() throws Exception {
+    String program =
+        "templates state\n$it -> @\n0 -> @(1)\n$it !\nend state\n" + "[1..3] -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[1, 2, 3]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void immutableItStructureInMutableState() throws Exception {
+    String program =
+        "templates state\n$it -> @\n0 -> @.a\n$it !\nend state\n" + "{a:1} -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{a=1}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deeplyImmutableItArrayInMutableState() throws Exception {
+    String program =
+        "templates state\n$it -> @\n0 -> @(1).a(2)\n$it !\nend state\n" + "[{a:[1..3]}] -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[{a=[1, 2, 3]}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deeplyImmutableItStructureInMutableState() throws Exception {
+    String program =
+        "templates state\n$it -> @\n0 -> @.a(1).b(2)\n$it !\nend state\n" + "{a:[{b:[1..3]}]} -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{a=[{b=[1, 2, 3]}]}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deeplyImmutableItStructureInMutableStateField() throws Exception {
+    String program =
+        "templates state\n{a:{b:1}} -> @\n$it -> @.a\n0 -> @.a.b\n$it !\nend state\n" + "{b:2} -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{b=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deeplyImmutableItStructureInMutableStateArray() throws Exception {
+    String program =
+        "templates state\n[{b:1}] -> @\n$it -> @(1)\n0 -> @(1).b\n$it !\nend state\n" + "{b:2} -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{b=2}", output.toString(StandardCharsets.UTF_8));
+  }
 }

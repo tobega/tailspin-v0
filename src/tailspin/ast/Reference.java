@@ -1,8 +1,10 @@
 package tailspin.ast;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
@@ -95,8 +97,30 @@ public abstract class Reference {
 
     @Override
     public void setValue(Queue<Object> value, Scope scope) {
-      scope.setState(stateContext, value.remove());
+      scope.setState(stateContext, copy(value.remove()));
     }
+  }
+
+  private static Object copy(Object value) {
+    if (value instanceof Map) {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> mapValue = (Map<String, Object>) value;
+      Map<String, Object> result = new TreeMap<>();
+      for (Map.Entry<String, Object> entry : mapValue.entrySet()) {
+        result.put(entry.getKey(), copy(entry.getValue()));
+      }
+      return result;
+    }
+    if (value instanceof List) {
+      @SuppressWarnings("unchecked")
+      List<Object> arrayValue = (List<Object>) value;
+      List<Object> result = new ArrayList<>();
+      for (Object member : arrayValue) {
+        result.add(copy(member));
+      }
+      return result;
+    }
+    return value;
   }
 
   private static class FieldReference extends Reference {
@@ -127,7 +151,7 @@ public abstract class Reference {
       }
       @SuppressWarnings("unchecked")
       Map<String, Object> structure = (Map<String, Object>) parent.getValue(scope);
-      structure.put(fieldIdentifier, value.remove());
+      structure.put(fieldIdentifier, Reference.copy(value.remove()));
     }
   }
 
@@ -159,7 +183,7 @@ public abstract class Reference {
       }
       @SuppressWarnings("unchecked")
       List<Object> array = (List<Object>) parent.getValue(scope);
-      resolveDimensionDereference(0, array, (a, i) -> a.set(i, value.remove()));
+      resolveDimensionDereference(0, array, (a, i) -> a.set(i, copy(value.remove())));
     }
 
     private interface ArrayOperation {
