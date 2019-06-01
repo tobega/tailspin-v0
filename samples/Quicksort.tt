@@ -7,7 +7,7 @@ templates quicksort
       <..$pivot>
         $it !
       <>
-        $it -> ...$@quicksort -> @quicksort
+        $it -> ...@quicksort
      )] -> quicksort..., $pivot, $@ -> quicksort... ] !
    <>
      $it !
