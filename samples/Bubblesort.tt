@@ -1,0 +1,22 @@
+templates bubblesort
+  templates bubble
+    1 -> @
+    1..$it-1 -> #
+    $@ !
+    <?($@bubblesort($it+1) <..~$@bubblesort($it)>)>
+      $it -> @
+      def temp: $@bubblesort($@)
+      $@bubblesort($@+1) -> @bubblesort($@)
+      $temp -> @bubblesort($@+1)
+  end bubble
+
+  $it -> @
+  $it::length -> #
+  $@ !
+
+  <2..>
+    $it -> bubble -> #
+end bubblesort
+
+[4,5,3,8,1,2,6,7,9,8,5] -> bubblesort -> stdout
+
