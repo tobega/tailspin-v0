@@ -46,7 +46,7 @@ keyValue: Key valueProduction;
 templates: source                        # literalTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
   | transformCall                        # callDefinedTransform
-  | LeftBracket IDENTIFIER RightBracket LeftParen templatesBody RightParen # arrayTemplates
+  | LeftBracket IDENTIFIER (Comma IDENTIFIER)* RightBracket LeftParen templatesBody RightParen # arrayTemplates
 ;
 
 transformCall: IDENTIFIER (At parameterValues)?;

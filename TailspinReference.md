@@ -195,6 +195,8 @@ Array templates is a convenient way to process [array](#arrays) elements individ
 their index in the array. They are created by prefixing an [inline templates](#inline-templates)
 definition with an identifier for the index within brackets,
 e.g. `[4,5,6] -> [i]($it + $i)` will produce the value `[5,7,9]`.
+Multiple dimensions also work, provided that the array structure has at least as many dimensions as specified.
+e.g `[[1,2,3],[4,5,6]] -> [i,j]($it * $i + $j)` gives `[[2,4,6],[9,12,15]]`
 
 ### Composer
 A composer takes a string and composes it into other objects according to the specified pattern.

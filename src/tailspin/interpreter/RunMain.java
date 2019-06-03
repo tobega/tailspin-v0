@@ -238,27 +238,56 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Queue<Object> visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx) {
-    String loopVariable = ctx.IDENTIFIER().getText();
+    List<String> loopVariables = ctx.IDENTIFIER().stream().map(TerminalNode::getText).collect(
+        Collectors.toList());
     Templates templates = visitTemplatesBody(ctx.templatesBody());
     Queue<Object> its = scope.getIt();
-    List<Object> result = new ArrayList<>();
-    its.forEach(it -> result.addAll(runArrayTemplate(loopVariable, templates, it)));
-    return queueOf(result);
+    Queue<Object> result = new ArrayDeque<>();
+    its.forEach(it -> result.add(runArrayTemplate(loopVariables, templates, it)));
+    return result;
   }
 
-  private Queue<Object> runArrayTemplate(String loopVariable, Templates templates, Object oIt) {
+  @SuppressWarnings("unchecked")
+  private List<Object> runArrayTemplate(List<String> loopVariables, Templates templates, Object oIt) {
     if (!(oIt instanceof List)) {
       throw new UnsupportedOperationException("Cannot apply array templates to " + oIt.getClass());
     }
-    List<?> it = (List<?>) oIt;
-    Queue<Object> result = new ArrayDeque<>();
-    for (int i = 0; i < it.size(); i++) {
-      TransformScope itemScope = new TransformScope(scope, "");
-      itemScope.defineValue(loopVariable, i + 1);
-      itemScope.setIt(queueOf(it.get(i)));
-      result.addAll(templates.run(itemScope, Map.of()));
+    List<Object>[] dimLists = new List[loopVariables.size()];
+    dimLists[0] = (List<Object>) oIt;
+    List[] results = new List[loopVariables.size()];
+    results[0] = new ArrayList<>();
+    for (int i = 1; i < loopVariables.size(); i++) {
+      dimLists[i] = (List<Object>) dimLists[0].get(0);
+      results[i] = new ArrayList<>();
     }
-    return result;
+    int[] dimCounters = new int[loopVariables.size()];
+    int lastIdx = loopVariables.size() - 1;
+    while (dimCounters[0] < dimLists[0].size()) {
+      for (dimCounters[lastIdx] = 0; dimCounters[lastIdx] < dimLists[lastIdx].size(); dimCounters[lastIdx]++) {
+        TransformScope itemScope = new TransformScope(scope, "");
+        for (int i = 0; i < loopVariables.size(); i++) {
+          itemScope.defineValue(loopVariables.get(i), dimCounters[i] + 1);
+        }
+        itemScope.setIt(queueOf(dimLists[lastIdx].get(dimCounters[lastIdx])));
+        results[lastIdx].addAll(templates.run(itemScope, Map.of()));
+      }
+      int idx = lastIdx - 1;
+      while (idx >= 0) {
+        results[idx].add(results[idx+1]);
+        dimCounters[idx]++;
+        if (dimCounters[idx] >= dimLists[idx].size()) {
+          idx--;
+          continue;
+        }
+        while (++idx <= lastIdx) {
+          dimCounters[idx] = 0;
+          results[idx] = new ArrayList<>();
+          dimLists[idx] = (List<Object>) dimLists[idx-1].get(dimCounters[idx-1]);
+        }
+        break;
+      }
+    }
+    return results[0];
   }
 
   @Override

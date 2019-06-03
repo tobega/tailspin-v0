@@ -167,6 +167,19 @@ class Templates {
   }
 
   @Test
+  void arrayTemplates2D() throws Exception {
+    String program = "[[2..4], [3..5]] -> [i,j](($i * $it) + $j !) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("[[3, 5, 7], [7, 10, 13]]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void multipleTransforms() throws Exception {
     String program = "1 -> (<> 2!) -> (<> 3!) -> stdout";
     Tailspin runner =
