@@ -352,6 +352,36 @@ class Templates {
   }
 
   @Test
+  void functionOfFunction() throws Exception {
+    String program = "templates low <..3> 1 ! <> 0 ! end low\n"
+        + "templates comp@{discriminator:} $it -> $discriminator -> # <1> 'yes' ! <> 'no' ! end comp\n"
+        + "templates meta@{f:} $it -> f@{discriminator: low} ! end meta\n"
+        + "1..6 -> meta@{f: comp} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("yesyesyesnonono", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void attemptToRedefineCurriedParameter() throws Exception {
+    String program = "templates low <..3> 1 ! <> 0 ! end low\n"
+        + "templates comp@{discriminator:} $it -> $discriminator -> # <1> 'yes' ! <> 'no' ! end comp\n"
+        + "templates meta@{f:} $it -> f@{discriminator: low} ! end meta\n"
+        + "1..6 -> meta@{f: comp@{discriminator: low}} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
+  }
+
+  @Test
   void streamedParameter() throws Exception {
     String program = "templates comp@{pivot:} 4 -> # <..$pivot> 'le' ! <> 'gt' ! end comp\n"
         + "1..6 -> comp@{pivot: $it} -> stdout";
