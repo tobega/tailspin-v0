@@ -7,7 +7,7 @@ program: statement (statement)* EOF;
 statement: Def Key valueChain                   # definition
   | valueChain To sink                                   # valueChainToSink
   | StartTemplatesDefinition IDENTIFIER parameterDefinitions? templatesBody EndDefinition IDENTIFIER # templatesDefinition
-  | StartProcessorDefinition IDENTIFIER block EndDefinition IDENTIFIER # processorDefinition
+  | StartProcessorDefinition IDENTIFIER parameterDefinitions? block EndDefinition IDENTIFIER # processorDefinition
   | StartComposerDefinition IDENTIFIER composerBody EndDefinition IDENTIFIER # composerDefinition
 ;
 

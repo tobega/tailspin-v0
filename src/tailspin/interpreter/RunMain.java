@@ -338,6 +338,10 @@ public class RunMain extends TailspinParserBaseVisitor {
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
     }
     ProcessorDefinition processor = new ProcessorDefinition(ctx.block());
+    if (ctx.parameterDefinitions() != null) {
+      List<ExpectedParameter> parameters = visitParameterDefinitions(ctx.parameterDefinitions());
+      processor.expectParameters(parameters);
+    }
     scope.defineValue(name, processor);
     return null;
   }
