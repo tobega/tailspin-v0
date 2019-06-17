@@ -14,5 +14,5 @@ composer words
   word: <~WS> (<WS>?)
 end words
 
-$input... -> ($it -> words -> $it(-1..1:-1)... -> '$it; ' -> ...'' !) -> '$it;
+$input... -> '$($it -> words -> $it(-1..1:-1)... -> '$it; ')
 ' -> stdout

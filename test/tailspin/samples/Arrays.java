@@ -280,7 +280,7 @@ class Arrays {
 
   @Test
   void arrayCollector() throws IOException {
-    String program = "def original: [5]\n 1..3 -> ...$original -> stdout";
+    String program = "def original: [5]\n [$original..., 1..3] -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -289,19 +289,6 @@ class Arrays {
     runner.run(input, output);
 
     assertEquals("[5, 1, 2, 3]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void arrayCollectorDoesNotModifyOriginal() throws IOException {
-    String program = "def original: [5]\n def new: 1..3 -> ...$original\n $original -> stdout";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
-
-    assertEquals("[5]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

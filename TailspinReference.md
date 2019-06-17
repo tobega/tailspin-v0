@@ -116,11 +116,20 @@ or a position in an array, e.g. `-> @name(2;5)`. A sequenceof variables can also
 e.g. `1..3 -> @(2..4)`
 
 A modifiable local state reference can also function as a collector for the [merge operator](#merge-operator), which then
-mutates the state. Note the difference between `-> ...@` which mutates the local state and `-> ...$@` which just creates an enhanced copy.
+mutates the state, e.g. `-> ...@`.
 
 Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
 result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues
 elsewhere in the program, so it is not really a sink as such.
+
+#### Merge operator
+This is the same symbol as the deconstructor, but applied before a state object assignment instead of after a value dereference, e.g. `...@myState`
+Slightly different things happen depending on what type of object is used as a collector:
+ * A structure: the stream must be a stream of structures or keyed values (or just one structure or keyed value) and the result is that of
+ the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
+ if @ is `{a:1, b:1}` `{a:2, c:2} -> ...@` results in @ being `{a:2, b:1, c:2}`
+ * A string: append the stream to the end of the string.
+ * An array: append the stream to the end of the array.
 
 ## Transforms
 Transforms take the current value (or each value separately from a [stream](#streams)) and convert
@@ -134,18 +143,6 @@ listed as [sources](#sources) qualify as transforms if they reference the _curre
 ### Deconstructor
 A deconstructor is a transform that works on [arrays](#arrays) by flowing the elements out of an array
 into a [stream](#streams), e.g. `[4,7,9]...` will create a stream of the values 4, 7 and 9.
-
-### Restructuring
-A restructuring is a transform that works on streams and compose the stream into more structured data.
-
-#### Merge operator
-This is the same symbol as the deconstructor, but applied before an object instead of after it, e.g. `...$myVal`
-Slightly different things happen depending on what type of object is used as a collector:
- * A structure: the stream must be a stream of structures or keyed values (or just one structure or keyed value) and the result is that of
- the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
- `{a:2, c:2} -> ...{a:1, b:1}` results in `{a:2, b:1, c:2}`
- * A string: append the stream to the end of the string.
- * An array: append the stream to the end of the array.
  
 ### Templates
 A templates object consists of an optional _initial block_ and an optional sequence of [matchers](#matchers),
@@ -279,7 +276,9 @@ See the note on side effects in the section on [sinks](#sinks).
 
 Streams can be captured into an [array](#arrays) by surrounding them with an [array literal](#array-literal).
 
-Streams can also be composed into larger objects through [restructuring](#restructuring).
+Streams can be captured into a string by surrounding them in a [string literal](#string-literal) interpolation expression.
+
+Streams of [key-value pairs](#keyed-values) can be captured in a [structure literal](#structure-literal).
 
 ## Arrays
 Arrays are an ordered list of objects that can be turned into a [stream](#streams) by a [deconstructor](#deconstructor).
@@ -315,7 +314,7 @@ E.g. if the structure `{ a: 1 }` is the _current value_, the value `1` can be ac
 
 ### Keyed values
 A structure can be [deconstructed](#deconstructor) into a stream of keyed values (or key-value pairs).
-The stream of keyed values can be [restructured](#restructuring) into a structure at some point.
+The stream of keyed values can be captured into a [structure literal](#structure-literal) at some point.
 
 When creating keyed values, the transform chain binds to the value, not the whole keyed value, e.g. `a: 1 -> (<1> 'yes')` will give the result `a: 'yes'`.
 To send the keyed value through a transform, put it in parentheses, so `(a: 1) -> ...{}` creates `{a: 1}`.

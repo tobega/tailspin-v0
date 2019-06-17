@@ -78,7 +78,7 @@ class Structures {
 
   @Test
   void restructureDereference() throws IOException {
-    String program = "def anA: { a: 1 }\n {b:2} -> ...$anA -> stdout";
+    String program = "def anA: { a: 1 }\n {$anA..., b:2} -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -90,21 +90,8 @@ class Structures {
   }
 
   @Test
-  void restructureDereferenceDoesNotChangeOriginal() throws IOException {
-    String program = "def anA: { a: 1 }\n def aAndB: {b:2} -> ...$anA\n $anA -> stdout";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
-
-    assertEquals("{a=1}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void restructureStreamDereference() throws IOException {
-    String program = "def anA: { a: 1 }\n 1..2 -> (<2>{b:2} ! <>{c:3} !) -> ...$anA -> stdout";
+    String program = "def anA: { a: 1 }\n {$anA..., 1..2 -> (<2>{b:2} ! <>{c:3} !)...} -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -117,7 +104,7 @@ class Structures {
 
   @Test
   void restructureLiteral() throws IOException {
-    String program = "{b:2} -> ...{a: 1} -> stdout";
+    String program = "{b:2} -> {a: 1, $it...} -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -126,6 +113,45 @@ class Structures {
     runner.run(input, output);
 
     assertEquals("{a=1, b=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void overrideDefaultValues() throws IOException {
+    String program = "{b:2} -> {b: 1, $it...} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{b=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void overrideItValues() throws IOException {
+    String program = "{b:2} -> {$it..., b: 1} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{b=1}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void reconstructPrefersValueChainToDereference() throws IOException {
+    String program = "[{b:2}] -> {$it(1)..., b: 1} -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("{b=1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -143,7 +169,7 @@ class Structures {
 
   @Test
   void restructureKeyedValues() throws IOException {
-    String program = "{ a: 1, b: 2 }... -> ...{} -> stdout";
+    String program = "{ a: 1, b: 2 } -> {$it...} -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -182,7 +208,7 @@ class Structures {
 
   @Test
   void freeKeyedValueRestructure() throws IOException {
-    String program = "(a: 1) -> ...{} -> stdout";
+    String program = "(a: 1) -> {$it} -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

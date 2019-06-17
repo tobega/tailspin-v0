@@ -39,7 +39,12 @@ arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valu
 
 valueProduction: sendToTemplates | valueChain;
 
-structureLiteral: LeftBrace (keyValue Comma?)* RightBrace;
+structureLiteral: LeftBrace (keyValues Comma?)* RightBrace;
+
+keyValues: keyValue
+  | valueChain Deconstructor
+  | dereferenceValue
+;
 
 keyValue: Key valueProduction;
 
@@ -81,12 +86,6 @@ valueChain: source
 
 transform: To templates transform?
   | Deconstructor transform?
-  | To Deconstructor collector transform?
-;
-
-collector: dereferenceValue
-  | START_STRING END_STRING
-  | structureLiteral
 ;
 
 matcher: StartMatcher condition (Else condition)* EndMatcher;

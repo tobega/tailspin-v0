@@ -357,7 +357,7 @@ class Strings {
 
   @Test
   void restructureString() throws Exception {
-    String program = "1..3 -> ...'' -> stdout";
+    String program = "'$(1..3)' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -411,7 +411,7 @@ class Strings {
   void keepCombiningMarksOnCharacter() throws Exception {
     String program =
         "templates reverse\n"
-            + "  [ $it... ] -> $it(-1..1:-1)... -> ...'' !\n"
+            + "  '$([ $it... ] -> $it(-1..1:-1)...)' !\n"
             + "end reverse\n"
             + "'as⃝df̅' -> reverse -> stdout";
     Tailspin runner =

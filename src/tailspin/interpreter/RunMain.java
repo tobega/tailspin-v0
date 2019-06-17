@@ -21,6 +21,7 @@ import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
 import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
 import tailspin.parser.TailspinParser.DimensionReferenceContext;
+import tailspin.parser.TailspinParser.KeyValuesContext;
 import tailspin.parser.TailspinParser.SendToTemplatesContext;
 import tailspin.parser.TailspinParser.ValueProductionContext;
 import tailspin.parser.TailspinParserBaseVisitor;
@@ -397,46 +398,10 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Queue<Object> visitTransform(TailspinParser.TransformContext ctx) {
-    if (ctx.collector() != null) {
-      Queue<Object> it = scope.getIt();
-      Object collector = visitCollector(ctx.collector());
-      collector = collect(it, collector);
-      Queue<Object> result = queueOf(collector);
-      if (ctx.transform() != null) {
-        scope.setIt(result);
-        return visitTransform(ctx.transform());
-      }
-      return result;
-    }
     if (ctx.Deconstructor() != null) {
       Queue<Object> its = scope.getIt();
-      Queue<Object> result = new ArrayDeque<>();
-      its.forEach(
-          it -> {
-            if (it instanceof List) {
-              Queue<Object> deconstructed = queueOf(((List<?>) it).stream());
-              result.addAll(deconstructed);
-            } else if (it instanceof String) {
-              ArrayDeque<String> deconstructed = new ArrayDeque<>();
-              for (char c : ((String) it).toCharArray()) {
-                int type = Character.getType(c);
-                if (Character.isLowSurrogate(c)
-                    || type == Character.COMBINING_SPACING_MARK
-                    || type == Character.ENCLOSING_MARK
-                    || type == Character.NON_SPACING_MARK) {
-                  deconstructed.add(deconstructed.removeLast() + c);
-                } else {
-                  deconstructed.add(String.valueOf(c));
-                }
-              }
-              result.addAll(deconstructed);
-            } else if (it instanceof Map) {
-              Queue<Object> deconstructed = queueOf(((Map<?,?>) it).entrySet().stream());
-              result.addAll(deconstructed);
-            } else {
-              throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
-            }
-          });
+      @SuppressWarnings("unchecked")
+      Queue<Object> result = (Queue<Object>) deconstruct(its);
       if (ctx.transform() != null) {
         scope.setIt(result);
         return visitTransform(ctx.transform());
@@ -450,6 +415,37 @@ public class RunMain extends TailspinParserBaseVisitor {
       return visitTransform(ctx.transform());
     }
     return nextValue;
+  }
+
+  private Queue<?> deconstruct(Queue<Object> its) {
+    Queue<Object> result = new ArrayDeque<>();
+    result.addAll(its.stream().flatMap(
+        it -> {
+          if (it instanceof List) {
+            return ((List<?>) it).stream();
+          } else if (it instanceof String) {
+            ArrayDeque<String> deconstructed = new ArrayDeque<>();
+            for (char c : ((String) it).toCharArray()) {
+              int type = Character.getType(c);
+              if (Character.isLowSurrogate(c)
+                  || type == Character.COMBINING_SPACING_MARK
+                  || type == Character.ENCLOSING_MARK
+                  || type == Character.NON_SPACING_MARK) {
+                deconstructed.add(deconstructed.removeLast() + c);
+              } else {
+                deconstructed.add(String.valueOf(c));
+              }
+            }
+            return deconstructed.stream();
+          } else if (it instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, ?> map = (Map<String, ?>) it;
+            return map.entrySet().stream().map(e -> new KeyValue(e.getKey(), e.getValue()));
+          } else {
+            throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
+          }
+        }).collect(Collectors.toList()));
+    return result;
   }
 
   Object collect(Queue<Object> it, Object collector) {
@@ -480,34 +476,6 @@ public class RunMain extends TailspinParserBaseVisitor {
       throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
     }
     return collector;
-  }
-
-  @Override
-  public Object visitCollector(TailspinParser.CollectorContext ctx) {
-    if (ctx.dereferenceValue() != null) {
-      Object originalCollector = visitDereferenceValue(ctx.dereferenceValue());
-      if ((originalCollector instanceof Queue) && ((Queue<?>) originalCollector).size() == 1) {
-        originalCollector = ((Queue<?>) originalCollector).peek();
-      }
-      if (originalCollector instanceof Map) {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> collector = new TreeMap<>((Map<String, Object>) originalCollector);
-        return collector;
-      }
-      if (originalCollector instanceof List) {
-        @SuppressWarnings("unchecked")
-        List<Object> collector = new ArrayList<>((List<Object>) originalCollector);
-        return collector;
-      }
-      throw new UnsupportedOperationException("Cannot create collector for " + originalCollector);
-    }
-    if (ctx.START_STRING() != null) {
-      return new StringBuilder();
-    }
-    if (ctx.structureLiteral() != null) {
-      return visitStructureLiteral(ctx.structureLiteral());
-    }
-    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -740,11 +708,30 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Map<String, Object> visitStructureLiteral(TailspinParser.StructureLiteralContext ctx) {
     Map<String, Object> structure = new TreeMap<>();
-    for (TailspinParser.KeyValueContext kvc : ctx.keyValue()) {
-      KeyValue keyValue = visitKeyValue(kvc);
-      structure.put(keyValue.getKey(), keyValue.getValue());
+    for (TailspinParser.KeyValuesContext kvs : ctx.keyValues()) {
+      visitKeyValues(kvs).forEach(keyValue -> {
+        structure.put(keyValue.getKey(), keyValue.getValue());
+      });
     }
     return structure;
+  }
+
+  @Override
+  public Queue<KeyValue> visitKeyValues(KeyValuesContext ctx) {
+    if (ctx.keyValue() != null) {
+      Queue<KeyValue> keyValues = new ArrayDeque<>();
+      keyValues.add(visitKeyValue(ctx.keyValue()));
+      return keyValues;
+    }
+    if (ctx.dereferenceValue() != null) {
+      Queue<KeyValue> keyValues = new ArrayDeque<>();
+      KeyValue value = (KeyValue) visitDereferenceValue(ctx.dereferenceValue());
+      keyValues.add(value);
+      return keyValues;
+    }
+    @SuppressWarnings("unchecked")
+    Queue<KeyValue> keyValues = (Queue<KeyValue>) deconstruct(visitValueChain(ctx.valueChain()));
+    return keyValues;
   }
 
   @Override
