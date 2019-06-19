@@ -6,13 +6,13 @@ templates sieve
 
   <..$@::length ?($@($it) * $@($it) <..$limit>)>
     templates sift
-      def inc: $it
-      $inc * $inc -> @
+      def prime: $it
+      $prime * $prime -> @
       [ $@sieve... -> # ] -> @sieve
       <..~$@>
         $it !
       <$@~..>
-        $@ + $inc -> @
+        $@ + $prime -> @
         $it -> #
     end sift
 

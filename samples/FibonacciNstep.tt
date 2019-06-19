@@ -1,4 +1,4 @@
-templates fibonacciNstep10
+templates fibonacciNstep@{N:}
   templates next
     $it(1) -> @next
     $it(2..-1)... -> ($it + $@next -> @next) !
@@ -6,24 +6,24 @@ templates fibonacciNstep10
   end next
 
   $it -> @
-  1..10 -> #
+  1..$N -> #
   <>
     $@(1) !
     $@ -> next -> @
-end fibonacciNstep10
+end fibonacciNstep
 
-[1,1] -> fibonacciNstep10 -> '$it; ' -> stdout
+[1,1] -> fibonacciNstep@{N:10} -> '$it; ' -> stdout
 '
 ' -> stdout
 
-[1,1,2] -> fibonacciNstep10 -> '$it; ' -> stdout
+[1,1,2] -> fibonacciNstep@{N:10} -> '$it; ' -> stdout
 '
 ' -> stdout
 
-[1,1,2,4] -> fibonacciNstep10 -> '$it; ' -> stdout
+[1,1,2,4] -> fibonacciNstep@{N:10} -> '$it; ' -> stdout
 '
 ' -> stdout
 
-[2,1] -> fibonacciNstep10 -> '$it; ' -> stdout
+[2,1] -> fibonacciNstep@{N:10} -> '$it; ' -> stdout
 '
 ' -> stdout
