@@ -11,8 +11,8 @@ def input: ['---------- Ice and Fire ------------',
 
 composer words
   [ <word>* ]
-  word: <~WS> (<WS>?)
+  word: <~WS> <WS>?
 end words
 
-$input... -> '$($it -> words -> $it(-1..1:-1)... -> '$it; ')
+$input... -> '$($it -> words -> $it(-1..1:-1)...)
 ' -> stdout
