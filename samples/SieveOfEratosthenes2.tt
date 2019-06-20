@@ -1,6 +1,7 @@
 templates sieve
   def limit: $it
   [ 1..$limit -> 1 ] -> @
+  0 -> @(1)
   2..$limit -> #
   $@ -> [i](<1> $i !) !
 
