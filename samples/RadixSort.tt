@@ -7,7 +7,7 @@ templates radixsort@{base:}
     <0>
       $value -> ...@radixsort.negatives(-1)
     <>
-      def bucket: $it mod $base + 1
+      def bucket: $it mod $base -> (<?($value<0..>)> $it + 1 ! <0> $base ! <> $it !)
       $value -> ...@radixsort.buckets($bucket)
       0 -> @radixsort.done
   end bucketize
@@ -25,13 +25,13 @@ templates radixsort@{base:}
     $@.done -> #
 end radixsort
 
-[170, 45, 75, 90, 802, 24, 2, 66] -> radixsort@{base:10} -> stdout
+[170, 45, 75, 91, 90, 92, 802, 24, 2, 66] -> radixsort@{base:10} -> stdout
 '
 ' -> stdout
-[-170, -45, -75, -90, -802, -24, -2, -66] -> radixsort@{base:10} -> stdout
+[-170, -45, -91, -90, -92, -802, -24, -2, -76] -> radixsort@{base:10} -> stdout
 '
 ' -> stdout
-[170, 45, 75, -90, -802, 24, 2, 66] -> radixsort@{base:10} -> stdout
+[170, 45, 75, -91, -90, -92, -802, 24, 2, 66] -> radixsort@{base:10} -> stdout
 '
 ' -> stdout
-[170, 45, 75, -90, -802, 24, 2, 66] -> radixsort@{base:3} -> stdout
+[170, 45, 75, -91, -90, -92, -802, 24, 2, 66] -> radixsort@{base:3} -> stdout
