@@ -1,0 +1,37 @@
+templates radixsort@{base:}
+  templates bucketize
+    def value: $it
+    $it / $@radixsort.digit -> #
+    <0 ?($value <0..>)>
+      $value -> ...@radixsort.positives
+    <0>
+      $value -> ...@radixsort.negatives(-1)
+    <>
+      def bucket: $it mod $base + 1
+      $value -> ...@radixsort.buckets($bucket)
+      0 -> @radixsort.done
+  end bucketize
+  // Negatives get completed in wrong length-order, we need to collect by length and correct at the end
+  { done: 1, digit: 1, positives: [], negatives: [[]], buckets: [1..$base -> []]} -> @
+  $it... -> bucketize -> void
+  $@.done -> #
+  <1>
+    [$@.negatives(-1..1:-1)... ..., $@.positives...] !
+  <>
+    def previous: $@.buckets
+    {done: 1, digit: $@.digit * $base, buckets:[1..$base -> []]} -> ...@
+    [] -> ...@.negatives
+    $previous... ... -> bucketize -> void
+    $@.done -> #
+end radixsort
+
+[170, 45, 75, 90, 802, 24, 2, 66] -> radixsort@{base:10} -> stdout
+'
+' -> stdout
+[-170, -45, -75, -90, -802, -24, -2, -66] -> radixsort@{base:10} -> stdout
+'
+' -> stdout
+[170, 45, 75, -90, -802, 24, 2, 66] -> radixsort@{base:10} -> stdout
+'
+' -> stdout
+[170, 45, 75, -90, -802, 24, 2, 66] -> radixsort@{base:3} -> stdout
