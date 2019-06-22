@@ -123,7 +123,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       value = Reference.copy(value);
     }
     if (ctx.message() != null) {
-      value = resolveProcessorMessage(ctx.message().Message().getText().substring(2), value);
+      value = resolveProcessorMessage(ctx.message(), value);
     }
     return value;
   }
@@ -145,7 +145,8 @@ public class RunMain extends TailspinParserBaseVisitor {
     return reference;
   }
 
-  private Queue<Object> resolveProcessorMessage(String message, Object value) {
+  private Queue<Object> resolveProcessorMessage(TailspinParser.MessageContext ctx, Object value) {
+    String message = ctx.Message().getText().substring(2);
     Queue<Object> result;
     if (value instanceof List) {
       if (message.equals("length")) {
@@ -154,7 +155,9 @@ public class RunMain extends TailspinParserBaseVisitor {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
     } else if (value instanceof ProcessorInstance) {
-      result = ((ProcessorInstance) value).receiveMessage(message, scope.getIt());
+      Map<String, Object> parameters = ctx.parameterValues() == null ? Map.of()
+        : visitParameterValues(ctx.parameterValues());
+      result = ((ProcessorInstance) value).receiveMessage(message, scope.getIt(), parameters);
     } else {
       throw new UnsupportedOperationException("Unimplemented processor type " + value.getClass().getSimpleName());
     }

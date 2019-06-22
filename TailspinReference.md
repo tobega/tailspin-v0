@@ -338,3 +338,6 @@ By convention, a processor definition should have an identifier starting with a 
 ### Messages
 A message is sent to a processor by getting a reference to the processor and appending two colons and the message identifier,
 e.g. `$it::length` to get the length of an array that is the _current value_.
+
+Processor messages are implemented as [defined templates](#defined-templates) within the processor which then
+run within the scope of the processor instance. Therefore messages can also take parameters.

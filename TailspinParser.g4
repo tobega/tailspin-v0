@@ -33,7 +33,7 @@ arrayReference: dimensionReference (SemiColon dimensionReference)*;
 
 dimensionReference: dereferenceValue|arithmeticExpression|rangeLiteral|arrayLiteral;
 
-message: Message;
+message: Message (At parameterValues)?;
 
 arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valueProduction)* RightBracket;
 

@@ -10,10 +10,11 @@ class ProcessorInstance {
     this.scope = scope;
   }
 
-  Queue<Object> receiveMessage(String message, Queue<Object> it) {
+  Queue<Object> receiveMessage(String message, Queue<Object> it,
+      Map<String, Object> parameters) {
     Transform transform = (Transform) scope.resolveValue(message);
     TransformScope transformScope = new TransformScope(scope, message);
     transformScope.setIt(it);
-    return transform.run(transformScope, Map.of());
+    return new TransformCall(message, transform, parameters).run(transformScope, Map.of());
   }
 }
