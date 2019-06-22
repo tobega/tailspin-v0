@@ -478,7 +478,7 @@ class Templates {
   }
 
   @Test
-  void templatesStateMutateArraySlice_tooManyValues() throws Exception {
+  void mutateStateArraySlice_tooManyValues() throws Exception {
     String program =
         "templates state\n[1..5] -> @\n$it..$it+3 -> @(2..4)\n$@ !\nend state\n" + "1 -> state -> stdout";
     Tailspin runner =
@@ -669,5 +669,29 @@ class Templates {
     runner.run(input, output);
 
     assertEquals("{a=[{b=1}]}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void templatesStateAssignedEmptyStream() throws Exception {
+    String program =
+        "templates state\n1 -> @\n$it -> (<5..> $it !) -> @\n$@ !\nend state\n" + "3 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
+  }
+
+  @Test
+  void templatesStateAssignedMultiValuedStream() throws Exception {
+    String program =
+        "templates state\n1 -> @\n1..$it -> @\n$@ !\nend state\n" + "3 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output));
   }
 }
