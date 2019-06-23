@@ -603,7 +603,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
     if (ctx.multiplicativeOperator() != null) {
       Integer left = (Integer) visit(ctx.arithmeticExpression(0));
-      Integer right = Math.abs((Integer) visit(ctx.arithmeticExpression(1)));
+      Integer right = (Integer) visit(ctx.arithmeticExpression(1));
       String operation = ctx.multiplicativeOperator().getText();
       switch (operation) {
         case "*":
@@ -612,7 +612,7 @@ public class RunMain extends TailspinParserBaseVisitor {
           return left / right;
         case "mod":
           int truncateRemainder = left % right;
-          return truncateRemainder < 0 ? right + truncateRemainder : truncateRemainder;
+          return truncateRemainder < 0 ? Math.abs(right) + truncateRemainder : truncateRemainder;
       }
     }
     if (ctx.integerLiteral() != null) {

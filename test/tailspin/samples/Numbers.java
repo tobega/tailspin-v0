@@ -308,4 +308,34 @@ class Numbers {
 
     assertEquals("4", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void multiplicationSign() throws IOException {
+    String program =
+        "1 * 2 -> stdout\n" + "1 * -2 -> stdout\n" + "-1 * -2 -> stdout\n" + "-1 * 2 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("2-22-2", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void divisionSign() throws IOException {
+    String program = "2 / 1 -> stdout\n"
+        + "-2 / 1 -> stdout\n"
+        + "-2 / -1 -> stdout\n"
+        + "2 / -1 -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output);
+
+    assertEquals("2-22-2", output.toString(StandardCharsets.UTF_8));
+  }
 }
