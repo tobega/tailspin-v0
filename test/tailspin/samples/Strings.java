@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import tailspin.Tailspin;
 
@@ -20,7 +21,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("What's up", output.toString(StandardCharsets.UTF_8));
   }
@@ -33,7 +34,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("What''s up", output.toString(StandardCharsets.UTF_8));
   }
@@ -46,7 +47,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello\nWorld", output.toString(StandardCharsets.UTF_8));
   }
@@ -59,7 +60,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
   }
@@ -72,7 +73,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
   }
@@ -85,7 +86,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
   }
@@ -101,7 +102,7 @@ class Strings {
     // TODO: this should give a better error message about symbol not found, perhaps already in
     // parse stage
     try {
-      runner.run(input, output);
+      runner.run(input, output, List.of());
       fail();
     } catch (Exception expected) {
     }
@@ -115,7 +116,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
   }
@@ -128,7 +129,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("$hello is a dereferencing", output.toString(StandardCharsets.UTF_8));
   }
@@ -141,7 +142,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("$$$signs", output.toString(StandardCharsets.UTF_8));
   }
@@ -154,7 +155,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("one;2;three;;", output.toString(StandardCharsets.UTF_8));
   }
@@ -167,7 +168,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("1337", output.toString(StandardCharsets.UTF_8));
   }
@@ -180,7 +181,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("0, 1, 2", output.toString(StandardCharsets.UTF_8));
   }
@@ -193,7 +194,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("one 1 one", output.toString(StandardCharsets.UTF_8));
   }
@@ -206,7 +207,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals(" 1 ", output.toString(StandardCharsets.UTF_8));
   }
@@ -220,7 +221,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("oneone 1 ", output.toString(StandardCharsets.UTF_8));
   }
@@ -233,7 +234,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("0", output.toString(StandardCharsets.UTF_8));
   }
@@ -246,7 +247,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("hihihi", output.toString(StandardCharsets.UTF_8));
   }
@@ -259,7 +260,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("112233", output.toString(StandardCharsets.UTF_8));
   }
@@ -272,7 +273,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("hi", output.toString(StandardCharsets.UTF_8));
   }
@@ -285,7 +286,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("hi", output.toString(StandardCharsets.UTF_8));
   }
@@ -298,7 +299,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[hi, ho]", output.toString(StandardCharsets.UTF_8));
   }
@@ -311,7 +312,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("hi", output.toString(StandardCharsets.UTF_8));
   }
@@ -324,7 +325,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("3", output.toString(StandardCharsets.UTF_8));
   }
@@ -337,7 +338,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("(2)", output.toString(StandardCharsets.UTF_8));
   }
@@ -350,7 +351,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("hi and so much more", output.toString(StandardCharsets.UTF_8));
   }
@@ -363,7 +364,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("123", output.toString(StandardCharsets.UTF_8));
   }
@@ -376,7 +377,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("123", output.toString(StandardCharsets.UTF_8));
   }
@@ -389,7 +390,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("abcabc", output.toString(StandardCharsets.UTF_8));
   }
@@ -402,7 +403,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("abcdefghiabcdefghi", output.toString(StandardCharsets.UTF_8));
   }
@@ -419,7 +420,7 @@ class Strings {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("f̅ds⃝a", output.toString(StandardCharsets.UTF_8));
   }

@@ -1,6 +1,21 @@
 package tailspin;
 
-import org.antlr.v4.runtime.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
+import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import tailspin.interpreter.BasicScope;
@@ -8,14 +23,6 @@ import tailspin.interpreter.RunMain;
 import tailspin.parser.TailspinLexer;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ProgramContext;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.BitSet;
 
 public class Tailspin {
 
@@ -40,13 +47,16 @@ public class Tailspin {
     return new Tailspin(prog);
   }
 
-  public void run(InputStream input, OutputStream output) {
+  public void run(InputStream input, OutputStream output, List<String> args) {
     // System.out.println(program.toStringTree());
-    new RunMain(new BasicScope(input, output)).visit(program);
+    BasicScope scope = new BasicScope(input, output);
+    scope.defineValue("args", args);
+    new RunMain(scope).visit(program);
   }
 
   public static void main(String[] args) throws IOException {
-    parse(Files.newInputStream(Paths.get(args[0]))).run(System.in, System.out);
+    List<String> clargs = Arrays.asList(Arrays.copyOfRange(args, 1, args.length));
+    parse(Files.newInputStream(Paths.get(args[0]))).run(System.in, System.out, clargs);
   }
 
   private static class MyANTLRErrorListener implements ANTLRErrorListener {

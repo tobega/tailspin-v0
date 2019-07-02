@@ -24,6 +24,9 @@ Rather than using control flow keywords, you would in tailspin produce streams o
 
 Comments are started with `//` and continue to the end of the line.
 
+## Command line arguments
+Command line arguments are available as a list of strings in the predefined value args, accessible as `$args`.
+
 ## Sources
 A source is the simplest _value chain_, simply producing a value.
 

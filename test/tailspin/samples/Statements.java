@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import tailspin.Tailspin;
@@ -19,7 +20,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
   }
@@ -32,7 +33,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
   }
@@ -45,7 +46,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
   }
@@ -58,7 +59,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
   }
@@ -71,7 +72,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
   }
@@ -84,7 +85,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World", output.toString(StandardCharsets.UTF_8));
   }
@@ -97,7 +98,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("HelloWorld", output.toString(StandardCharsets.UTF_8));
   }
@@ -122,7 +123,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
   }
@@ -135,7 +136,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
   }
@@ -149,7 +150,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello Goodbye Hello ", output.toString(StandardCharsets.UTF_8));
   }
@@ -163,7 +164,7 @@ class Statements {
 
       ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream output = new ByteArrayOutputStream();
-      runner.run(input, output);
+      runner.run(input, output, List.of());
     } catch (Exception expected) {
     }
   }
@@ -176,7 +177,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello World!", output.toString(StandardCharsets.UTF_8));
   }
@@ -189,7 +190,7 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("13", output.toString(StandardCharsets.UTF_8));
   }
@@ -203,7 +204,7 @@ class Statements {
 
       ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream output = new ByteArrayOutputStream();
-      runner.run(input, output);
+      runner.run(input, output, List.of());
       fail();
     } catch (Exception expected) {
     }
@@ -217,8 +218,21 @@ class Statements {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void commandLineArgs() throws Exception {
+    String program = "$args -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of("Hello", "world"));
+
+    assertEquals("[Hello, world]", output.toString(StandardCharsets.UTF_8));
   }
 }

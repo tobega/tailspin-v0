@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import tailspin.Tailspin;
 
@@ -25,7 +26,7 @@ class Processor {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("678", output.toString(StandardCharsets.UTF_8));
   }
@@ -49,7 +50,7 @@ class Processor {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("678", output.toString(StandardCharsets.UTF_8));
   }
@@ -73,7 +74,7 @@ class Processor {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("678", output.toString(StandardCharsets.UTF_8));
   }

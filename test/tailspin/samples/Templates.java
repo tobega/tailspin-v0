@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import tailspin.Tailspin;
 
@@ -18,7 +19,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello Goodbye Hello ", output.toString(StandardCharsets.UTF_8));
   }
@@ -32,7 +33,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("7", output.toString(StandardCharsets.UTF_8));
   }
@@ -47,7 +48,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     // Calls to stdout in the templates happen before the next part of the chain is
     // sent to stdout, even though the "return value" is output before the values to stdout
@@ -67,7 +68,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     // Thi is entirely as expected by any mental model
     assertEquals("12347", output.toString(StandardCharsets.UTF_8));
@@ -82,7 +83,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     // Here the return values do get generated in the "correct" order
     assertEquals("74321", output.toString(StandardCharsets.UTF_8));
@@ -96,7 +97,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     // Here the return values do get generated in the "correct" order
     assertEquals("21", output.toString(StandardCharsets.UTF_8));
@@ -111,7 +112,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     // Here the return values do get generated in the "correct" order
     assertEquals("3", output.toString(StandardCharsets.UTF_8));
@@ -126,7 +127,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -138,7 +139,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -150,7 +151,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -161,7 +162,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[2, 6, 12]", output.toString(StandardCharsets.UTF_8));
   }
@@ -174,7 +175,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[[3, 5, 7], [7, 10, 13]]", output.toString(StandardCharsets.UTF_8));
   }
@@ -187,7 +188,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("3", output.toString(StandardCharsets.UTF_8));
   }
@@ -201,7 +202,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     // Here the return values do get generated in the "correct" order
     assertEquals("2", output.toString(StandardCharsets.UTF_8));
@@ -216,7 +217,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     // Here the return values do get generated in the "correct" order
     assertEquals("2", output.toString(StandardCharsets.UTF_8));
@@ -236,7 +237,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     // Here the return values do get generated in the "correct" order
     assertEquals("2", output.toString(StandardCharsets.UTF_8));
@@ -251,7 +252,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     // Here the return values do get generated in the "correct" order
     assertEquals("4", output.toString(StandardCharsets.UTF_8));
@@ -265,7 +266,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Goodbye Hello Goodbye Hello Goodbye Hello ", output.toString(StandardCharsets.UTF_8));
   }
@@ -278,7 +279,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("234123", output.toString(StandardCharsets.UTF_8));
   }
@@ -291,7 +292,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("2", output.toString(StandardCharsets.UTF_8));
   }
@@ -304,7 +305,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("112233", output.toString(StandardCharsets.UTF_8));
   }
@@ -317,7 +318,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("Hello Hello ", output.toString(StandardCharsets.UTF_8));
   }
@@ -331,7 +332,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("lelelegtgtgt", output.toString(StandardCharsets.UTF_8));
   }
@@ -346,7 +347,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("yesyesyesnonono", output.toString(StandardCharsets.UTF_8));
   }
@@ -362,7 +363,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("yesyesyesnonono", output.toString(StandardCharsets.UTF_8));
   }
@@ -378,7 +379,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -390,7 +391,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("gtgtgtlelele", output.toString(StandardCharsets.UTF_8));
   }
@@ -404,7 +405,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("{a=0, b=1}", output.toString(StandardCharsets.UTF_8));
   }
@@ -418,7 +419,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("{a=0, b=1, c=2}", output.toString(StandardCharsets.UTF_8));
   }
@@ -432,7 +433,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[1, 0, 3]", output.toString(StandardCharsets.UTF_8));
   }
@@ -446,7 +447,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[[1, 2, 3], [4, 5, 0], [7, 8, 9]]", output.toString(StandardCharsets.UTF_8));
   }
@@ -460,7 +461,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[1, 1, 2, 3, 5]", output.toString(StandardCharsets.UTF_8));
   }
@@ -474,7 +475,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -486,7 +487,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -498,7 +499,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[1, 2, 3]", output.toString(StandardCharsets.UTF_8));
   }
@@ -512,7 +513,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("1", output.toString(StandardCharsets.UTF_8));
   }
@@ -526,7 +527,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("1", output.toString(StandardCharsets.UTF_8));
   }
@@ -540,7 +541,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[1, 2, 3]", output.toString(StandardCharsets.UTF_8));
   }
@@ -554,7 +555,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("{a=1}", output.toString(StandardCharsets.UTF_8));
   }
@@ -568,7 +569,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[{a=[1, 2, 3]}]", output.toString(StandardCharsets.UTF_8));
   }
@@ -582,7 +583,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("{a=[{b=[1, 2, 3]}]}", output.toString(StandardCharsets.UTF_8));
   }
@@ -596,7 +597,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("{b=2}", output.toString(StandardCharsets.UTF_8));
   }
@@ -610,7 +611,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("{b=2}", output.toString(StandardCharsets.UTF_8));
   }
@@ -624,7 +625,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[1, 2, 3]", output.toString(StandardCharsets.UTF_8));
   }
@@ -638,7 +639,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("{a=1}", output.toString(StandardCharsets.UTF_8));
   }
@@ -652,7 +653,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("[{a=[1, 2, 3]}]", output.toString(StandardCharsets.UTF_8));
   }
@@ -666,7 +667,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("{a=[{b=1}]}", output.toString(StandardCharsets.UTF_8));
   }
@@ -680,7 +681,7 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -692,6 +693,6 @@ class Templates {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 }

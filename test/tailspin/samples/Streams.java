@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import tailspin.Tailspin;
 
@@ -19,7 +20,7 @@ class Streams {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("a 1 a 2 a 3 ", output.toString(StandardCharsets.UTF_8));
   }
@@ -32,7 +33,7 @@ class Streams {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("a 1 a 3 a 5 ", output.toString(StandardCharsets.UTF_8));
   }
@@ -45,7 +46,7 @@ class Streams {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("a 3 a 2 a 1 ", output.toString(StandardCharsets.UTF_8));
   }
@@ -58,7 +59,7 @@ class Streams {
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
       ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream output = new ByteArrayOutputStream();
-      runner.run(input, output);
+      runner.run(input, output, List.of());
       fail();
     } catch (Exception expected) {
       assertEquals("Cannot produce range with zero increment at 1:5", expected.getMessage());
@@ -73,7 +74,7 @@ class Streams {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("12345", output.toString(StandardCharsets.UTF_8));
   }
@@ -86,7 +87,7 @@ class Streams {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("101520", output.toString(StandardCharsets.UTF_8));
   }
@@ -99,7 +100,7 @@ class Streams {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("a 2 a 3 ", output.toString(StandardCharsets.UTF_8));
   }
@@ -112,7 +113,7 @@ class Streams {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("a 1 a 2 ", output.toString(StandardCharsets.UTF_8));
   }
@@ -125,7 +126,7 @@ class Streams {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output);
+    runner.run(input, output, List.of());
 
     assertEquals("a 2 ", output.toString(StandardCharsets.UTF_8));
   }
