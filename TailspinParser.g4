@@ -23,7 +23,7 @@ source: Stdin
   | arithmeticExpression
 ;
 
-dereferenceValue: Dereference reference message?;
+dereferenceValue: (Dereference|DeleteState) reference message?;
 
 reference: (LeftParen arrayReference RightParen)? structureReference*;
 

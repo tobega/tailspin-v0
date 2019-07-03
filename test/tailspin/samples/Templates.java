@@ -695,4 +695,47 @@ class Templates {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
+
+  @Test
+  void deleteState() throws Exception {
+    String program =
+        "templates state\n$it -> @\n^@ -> stdout\n$@ !\nend state\n" + "3 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deleteStateField() throws Exception {
+    String program =
+        "templates state\n{ a: 0, b: $it} -> @\n^@.b !\n$@ !\nend state\n" + "1 -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1{a=0}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deleteStateArrayElement() throws Exception {
+    String program =
+        "templates state\n$it -> @\n^@(2) !\n$@ !\nend state\n" + "[4,5,6] -> state -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("5[4, 6]", output.toString(StandardCharsets.UTF_8));
+  }
 }

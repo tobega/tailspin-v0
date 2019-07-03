@@ -1,0 +1,39 @@
+processor Stack
+  $it -> @
+
+  templates push
+    $it -> ...@Stack
+  end push
+
+  templates peek
+    $@Stack(-1) !
+  end peek
+
+  templates pop
+    ^@Stack(-1) !
+  end pop
+
+  templates empty
+    $@Stack::length -> #
+    <0> 1 !
+    <> 0 !
+  end empty
+end Stack
+
+def myStack: [1] -> Stack
+
+2 -> $myStack::push -> void
+
+'$myStack::empty; $myStack::pop;
+' -> stdout
+'$myStack::empty; $myStack::pop;
+' -> stdout
+'$myStack::empty;
+' -> stdout
+
+3 -> $myStack::push -> void
+'$myStack::empty; $myStack::peek;
+' -> stdout
+'$myStack::empty; $myStack::pop;
+' -> stdout
+'$myStack::empty;' -> stdout

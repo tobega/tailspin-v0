@@ -95,7 +95,7 @@ as, or a scope larger than (or outside), the scope where the dereference takes p
 
 A symbol may not change its value in the same scope, but it may be shadowed in a nested scope.
 
-Note that templates have a modifiable state value that can be dereferenced, see [templates sinks](#templates-sinks)
+Note that templates have a modifiable state value that can be dereferenced, see [templates state](#templates-state)
 
 ## Sinks
 A sink is a place where a value "disappears" and the value chain ends.
@@ -109,7 +109,7 @@ Currently the defined explicit sinks are:
 Sinks generally denote side effects. The current specification is that each step of a _value chain_ is executed
 for all of the values of a stream `$it` before the next step is evaluated. This may change.
 
-### Templates sinks
+### Templates state
 A templates object has modifiable local temporary state, valid for the processing of one input value,
 which can be modified by the special sink `@` and dereferenced as `$@`. Optionally, or to access
 a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
@@ -121,18 +121,26 @@ e.g. `1..3 -> @(2..4)`
 A modifiable local state reference can also function as a collector for the [merge operator](#merge-operator), which then
 mutates the state, e.g. `-> ...@`.
 
-Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
-result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues
-elsewhere in the program, so it is not really a sink as such.
+To remove part of the state, use the [delete operator](#delete-operator), e.g. `^@name.key`
 
 #### Merge operator
-This is the same symbol as the deconstructor, but applied before a state object assignment instead of after a value dereference, e.g. `...@myState`
+This is the same symbol as the [deconstructor](#deconstructor), but applied before a state object assignment instead of after a value dereference, e.g. `...@myState`
 Slightly different things happen depending on what type of object is used as a collector:
  * A structure: the stream must be a stream of structures or keyed values (or just one structure or keyed value) and the result is that of
  the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
  if @ is `{a:1, b:1}` `{a:2, c:2} -> ...@` results in @ being `{a:2, b:1, c:2}`
  * A string: append the stream to the end of the string.
  * An array: append the stream to the end of the array.
+ 
+#### Delete operator
+The delete operator, `^`, can be applied to the state to remove either the entire state or parts of it. The current value of
+the removed entity is used as a [source](#sources). E.g. if @ is `[4,5,6]` then `^@(1)` will produce `4` and leave
+@ as `[5,6]`
+
+### Emit value
+Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
+result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues
+elsewhere in the program, so it is not really a sink as such.
 
 ## Transforms
 Transforms take the current value (or each value separately from a [stream](#streams)) and convert
@@ -326,7 +334,7 @@ To send the keyed value through a transform, put it in parentheses, so `(a: 1) -
 A processor is an object that is more complex than simply data. It would normally have some
 state that could possibly change. To interact with processors, you send [messages](#messages) to them.
 
-Internally in the processor, state is accessed like the [local state of templates](#templates-sinks), but with the processor name.
+Internally in the processor, state is accessed like the [local state of templates](#templates-state), but with the processor name.
 The processor state is, however, permanent as long as the processor object is retaned.
 
 A processor definition looks similar to a templates object but the definition starts with the word `processor` instead.

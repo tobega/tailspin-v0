@@ -11,6 +11,7 @@ import tailspin.interpreter.Scope;
 
 public abstract class Reference {
   public abstract Object getValue(Scope scope);
+  public abstract Object deleteValue(Scope scope);
   public abstract boolean isMutable();
   public abstract void setValue(Queue<Object> value, Scope scope);
 
@@ -34,6 +35,11 @@ public abstract class Reference {
         throw new AssertionError("Invalid it dereference " + itQ.size());
       }
       return itQ.peek();
+    }
+
+    @Override
+    public Object deleteValue(Scope scope) {
+      throw new UnsupportedOperationException("'it' is not deletable");
     }
 
     @Override
@@ -68,6 +74,11 @@ public abstract class Reference {
     }
 
     @Override
+    public Object deleteValue(Scope scope) {
+      throw new UnsupportedOperationException(identifier + " is not deletable");
+    }
+
+    @Override
     public boolean isMutable() {
       return false;
     }
@@ -88,6 +99,13 @@ public abstract class Reference {
     @Override
     public Object getValue(Scope scope) {
       return scope.getState(stateContext);
+    }
+
+    @Override
+    public Object deleteValue(Scope scope) {
+      Object state = scope.getState(stateContext);
+      scope.setState(stateContext, null);
+      return state;
     }
 
     @Override
@@ -140,6 +158,16 @@ public abstract class Reference {
     }
 
     @Override
+    public Object deleteValue(Scope scope) {
+      if (!isMutable()) {
+        throw new UnsupportedOperationException("Not deletable");
+      }
+      @SuppressWarnings("unchecked")
+      Map<String, Object> structure = (Map<String, Object>) parent.getValue(scope);
+      return structure.remove(fieldIdentifier);
+    }
+
+    @Override
     public boolean isMutable() {
       return parent.isMutable();
     }
@@ -169,6 +197,16 @@ public abstract class Reference {
       @SuppressWarnings("unchecked")
       List<Object> array = (List<Object>) parent.getValue(scope);
       return resolveDimensionDereference(0, array, List::get);
+    }
+
+    @Override
+    public Object deleteValue(Scope scope) {
+      if (!isMutable()) {
+        throw new UnsupportedOperationException("Not deletable");
+      }
+      @SuppressWarnings("unchecked")
+      List<Object> array = (List<Object>) parent.getValue(scope);
+      return resolveDimensionDereference(0, array, List::remove);
     }
 
     @Override

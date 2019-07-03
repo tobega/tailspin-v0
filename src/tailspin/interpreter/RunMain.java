@@ -108,7 +108,9 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
-    String identifier = ctx.Dereference().getText().substring(1);
+    boolean isDelete = ctx.DeleteState() != null;
+    TerminalNode dereference = isDelete ? ctx.DeleteState() : ctx.Dereference();
+    String identifier = dereference.getText().substring(1);
     Reference reference;
     if (identifier.equals("it")) {
       reference = Reference.it();
@@ -118,7 +120,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       reference = Reference.named(identifier);
     }
     reference = resolveReference(ctx.reference(), reference);
-    Object value = reference.getValue(scope);
+    Object value = isDelete ? reference.deleteValue(scope) : reference.getValue(scope);
     if (reference.isMutable()) {
       value = Reference.copy(value);
     }
