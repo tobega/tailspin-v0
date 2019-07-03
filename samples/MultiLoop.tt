@@ -1,0 +1,34 @@
+def x: ['a', 'b', 'c']
+def y: ['A', 'B', 'C']
+def z: [1, 2, 3]
+
+1..$x::length -> '$x($it);$y($it);$z($it);
+' -> stdout
+
+templates transpose
+  def a: $it
+  def n: $it(1)::length
+  [ 1..$n -> $a(1..-1; $it) ] !
+end transpose
+
+[$x, $y, $z] -> transpose... -> '$($it...)
+' -> stdout
+
+def u: ['a', 'b']
+def v: ['A', 'B', 'C']
+def w: [1]
+
+templates transpose2
+  [] -> @
+  $it... -> [i](
+    <?($i <..$@transpose2::length>)> $it -> ...@transpose2($i)
+    <> [$it] -> ...@transpose2) -> void
+  $@ !
+end transpose2
+
+[$x, $y, $z] -> transpose2... -> '$($it...)
+' -> stdout
+
+[$u,$v,$w] -> transpose2... -> '$($it...)
+' -> stdout
+

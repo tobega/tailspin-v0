@@ -5,11 +5,15 @@ a series of transforms so it should be easy to specify that flow. Transform step
 pattern-matching determining which template to apply. Output is generally specified as literals with interpolation of values.
 For more info see the [language reference documentation](TailspinReference.md)
 
-Example programs where I developed a tentative syntax are the [.tt files here](https://github.com/tobega/aoc2018) where the
-problems are taken from https://adventofcode.com/2018 and the numbers in the filename match the day.
-These programs cannot yet be run, this project is creating an interpreter in java to verify that the syntax is sane and runnable.
-What can be run (except perhaps the latest one) are the programs in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
+This project is creating an interpreter in java to verify that the syntax is sane and runnable.
+Small code samples can be found in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
 Development is driven by code snippets in the [test/tailspin/samples folder](https://github.com/tobega/tailspin-v0/tree/master/test/tailspin/samples).
+
+Larger example programs where I developed a tentative syntax are the [.tt files here](https://github.com/tobega/aoc2018) where the
+problems are taken from https://adventofcode.com/2018 and the numbers in the filename match the day. These have now all been reworked to
+be runnable.
+
+Examples can also be found at [Rosetta code](http://www.rosettacode.org/wiki/Category:Tailspin)
 
 ## To run a tailspin program
 Sorry, no easy way at the moment. Clone this repo, compile the sources (I use intellij), set the compiled .class files on your
@@ -27,11 +31,13 @@ main interpreter implementation where most new stuff is added.
 ## Contributing
 When it comes to language syntax I will be the final arbiter and dictator. It is
 important to get things that look similar to somehow work similarly
-(with obvious translations of context).
+(with obvious translations of context). Happy to accept feedback on things that seem illogical
+or unharmonious.
 
 Happy to accept suggestions of sample programs and attempts to solve it. If new syntax is thought
 to be needed, I could also consider suggestions, even if it means changing previous syntax
-choices to achieve the desired harmony.
+choices to achieve the desired harmony. Note, though, that Tailspin does not have goals to be either
+minimal or complete, features that seem mostly theoretical do not have to be implemented.
 
 Happy to accept contributions that enable full unicode support.
 
