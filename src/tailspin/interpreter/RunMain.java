@@ -25,6 +25,7 @@ import tailspin.parser.TailspinParser.KeyValuesContext;
 import tailspin.parser.TailspinParser.SendToTemplatesContext;
 import tailspin.parser.TailspinParser.ValueProductionContext;
 import tailspin.parser.TailspinParserBaseVisitor;
+import tailspin.types.ProcessorInstance;
 
 public class RunMain extends TailspinParserBaseVisitor {
   public final Scope scope;
@@ -423,8 +424,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   private Queue<?> deconstruct(Queue<Object> its) {
-    Queue<Object> result = new ArrayDeque<>();
-    result.addAll(its.stream().flatMap(
+    return new ArrayDeque<>(its.stream().flatMap(
         it -> {
           if (it instanceof List) {
             return ((List<?>) it).stream();
@@ -450,7 +450,6 @@ public class RunMain extends TailspinParserBaseVisitor {
             throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
           }
         }).collect(Collectors.toList()));
-    return result;
   }
 
   Object collect(Queue<Object> it, Object collector) {
@@ -714,9 +713,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Map<String, Object> visitStructureLiteral(TailspinParser.StructureLiteralContext ctx) {
     Map<String, Object> structure = new TreeMap<>();
     for (TailspinParser.KeyValuesContext kvs : ctx.keyValues()) {
-      visitKeyValues(kvs).forEach(keyValue -> {
-        structure.put(keyValue.getKey(), keyValue.getValue());
-      });
+      visitKeyValues(kvs).forEach(keyValue -> structure.put(keyValue.getKey(), keyValue.getValue()));
     }
     return structure;
   }

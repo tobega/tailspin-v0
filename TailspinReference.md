@@ -352,3 +352,7 @@ e.g. `$it::length` to get the length of an array that is the _current value_.
 
 Processor messages are implemented as [defined templates](#defined-templates) within the processor which then
 run within the scope of the processor instance. Therefore messages can also take parameters.
+
+## The System objects
+A predefined symbol `SYS` can be used to access certain system-defined functions:
+* `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.

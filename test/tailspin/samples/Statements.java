@@ -1,6 +1,7 @@
 package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
@@ -198,16 +199,12 @@ class Statements {
   @Test
   void symbolsMayNotBeRedefined() throws Exception {
     String program = "def one: 1 \n def one: 1\n";
-    try {
-      Tailspin runner =
-              Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
-      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      runner.run(input, output, List.of());
-      fail();
-    } catch (Exception expected) {
-    }
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -234,5 +231,19 @@ class Statements {
     runner.run(input, output, List.of("Hello", "world"));
 
     assertEquals("[Hello, world]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void systemNanoCount() throws Exception {
+    String program = "def start: $SYS::nanoCount\n"
+        + "[1..100 -> $SYS::nanoCount - $start] -> $it(-1) -> (<0~..> 1 !) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
   }
 }

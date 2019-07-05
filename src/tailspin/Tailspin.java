@@ -23,9 +23,9 @@ import tailspin.interpreter.RunMain;
 import tailspin.parser.TailspinLexer;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ProgramContext;
+import tailspin.types.SystemProcessor;
 
 public class Tailspin {
-
   private final ProgramContext program;
 
   private Tailspin(TailspinParser.ProgramContext program) {
@@ -51,6 +51,7 @@ public class Tailspin {
     // System.out.println(program.toStringTree());
     BasicScope scope = new BasicScope(input, output);
     scope.defineValue("args", args);
+    scope.defineValue("SYS", new SystemProcessor(scope));
     new RunMain(scope).visit(program);
   }
 

@@ -1,10 +1,10 @@
 package tailspin.interpreter;
 
-class TransformScope extends NestedScope {
+public class TransformScope extends NestedScope {
   final String scopeContext;
   private Object state;
 
-  TransformScope(Scope parentScope, String scopeContext) {
+  public TransformScope(Scope parentScope, String scopeContext) {
     super(parentScope);
     this.scopeContext = scopeContext;
   }

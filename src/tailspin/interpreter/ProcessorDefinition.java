@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Queue;
 import tailspin.parser.TailspinParser;
+import tailspin.types.ProcessorInstance;
 
 class ProcessorDefinition extends Templates {
 
