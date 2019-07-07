@@ -216,8 +216,8 @@ The main pattern is given first, but may be followed by named sub-patterns that 
 E.g. to compose a string of text like `'Line(Point(5,7),Point(13,9))'` into the array of structures `[{x:5,y:7},{x:13,y:9}]`:
 ```
 composer line
-  (<'Line\('>) [ <point>, <point> ] (<')'>)
-  point: (<'Point\('>) { x: <INT>, y: <INT> } (<')'>)
+  (<'Line\('>) [ <point>, (<','>) <point> ] (<')'>)
+  point: (<'Point\('>) { x: <INT>, (<','>) y: <INT> } (<')'>)
 end line
 ```
 
