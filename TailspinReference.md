@@ -244,9 +244,9 @@ templates minutes
   $it.h * 60 + $it.m !
 end minutes
 composer time
-  { h: <hour>, m: <minute> } -> minutes
-  hour: <'(one|two)'> -> (<'one'> 1 ! <'two'> 2 !) (<' hours and '>)
-  minute: <INT> (<' minutes'>)
+  { h: <hour>, (<' and '>) m: <minute> } -> minutes
+  hour: <'(one|two)'> -> (<'one'> 1 ! <'two'> 2 !) (<' hours?'>)
+  minute: <INT> (<' minutes?'>)
 end time
 'one hour and 13 minutes' -> time -> stdout
 ```
