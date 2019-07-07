@@ -147,10 +147,9 @@ definedCompositionSequence: Key compositionSequence
 compositionSequence: compositionSkipRule* compositionComponent+
 ;
 
-compositionMatcher: StartMatcher Invert? IDENTIFIER EndMatcher multiplier?
-  | StartMatcher Invert? stringLiteral EndMatcher multiplier?
-  | LeftBracket compositionSequence RightBracket
-  | LeftBrace compositionSkipRule* compositionKeyValue+ RightBrace
+compositionMatcher: StartMatcher Invert? (IDENTIFIER|stringLiteral) EndMatcher multiplier? transform?
+  | LeftBracket compositionSequence RightBracket transform?
+  | LeftBrace compositionSkipRule* compositionKeyValue+ RightBrace transform?
   | Dereference
 ;
 

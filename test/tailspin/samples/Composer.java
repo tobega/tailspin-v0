@@ -562,4 +562,121 @@ class Composer {
 
     assertEquals("[[7], 5]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void converter() throws IOException {
+    String program =
+        "templates parity"
+            + "<?($it mod 2 <1>)> 'odd' ! <> 'even' !\n"
+            + "end parity\n"
+            + "composer number\n"
+            + "<INT> -> parity\n"
+            + "end number\n"
+            + "['1', '56', '524', '43']... -> number -> '$it; ' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("odd even even odd ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void subRuleConverter() throws IOException {
+    String program =
+        "templates parity"
+            + "<?($it mod 2 <1>)> 'odd' ! <> 'even' !\n"
+            + "end parity\n"
+            + "composer number\n"
+            + "<mynum> -> parity\n"
+            + "mynum: <INT>\n"
+            + "end number\n"
+            + "['1', '56', '524', '43']... -> number -> '$it; ' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("odd even even odd ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayConverter() throws IOException {
+    String program =
+        "templates mul"
+            + "$it(1) * $it(2) !\n"
+            + "end mul\n"
+            + "composer numbers\n"
+            + "[ <INT> (<WS>) <INT> ] -> mul\n"
+            + "end numbers\n"
+            + "'5 7' -> numbers -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("35", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void structureConverter() throws IOException {
+    String program =
+        "templates mul"
+            + "$it.a * $it.b !\n"
+            + "end mul\n"
+            + "composer numbers\n"
+            + "{ a:<INT> (<WS>) b:<INT> } -> mul\n"
+            + "end numbers\n"
+            + "'5 7' -> numbers -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("35", output.toString(StandardCharsets.UTF_8));
+  }
+
+  // TODO: add a converter
+  @Test
+  void jsonNumber() throws IOException {
+    String program =
+        "composer number\n"
+            + "<'-?(0|[1-9][0-9]*)(\\.[0-9]+)?((e|E)(\\+|-)?[0-9]+)?'>\n"
+            + "end number\n"
+            + "['10', '-5', '-7.3', '10e-7', '0.15e6']... -> number -> '$it; ' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("10 -5 -7.3 10e-7 0.15e6 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void jsonString() throws IOException {
+    String program =
+        "composer string\n"
+            + "(<'\"'>) <chars> -> '$($it...)'  (<'\"'>)\n"
+            + "chars: [ <'(\\\\\"|[^\"])'>* -> (<'\\\\\"'> '\"' ! <> $it !) ]"
+            + "end string\n"
+            + "'\"foo\\\"bar\"' -> string -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("foo\"bar", output.toString(StandardCharsets.UTF_8));
+  }
 }

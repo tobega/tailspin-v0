@@ -7,12 +7,15 @@ import java.util.Queue;
 
 public class ArraySubComposer implements SubComposer {
   private final List<SubComposer> itemComposers;
+  private final ComposerTransform composerTransform;
 
   private List<Object> value;
   private boolean satisfied = false;
 
-  ArraySubComposer(List<SubComposer> itemComposers) {
+  ArraySubComposer(List<SubComposer> itemComposers,
+      ComposerTransform composerTransform) {
     this.itemComposers = itemComposers;
+    this.composerTransform = composerTransform;
   }
 
   @Override
@@ -35,7 +38,7 @@ public class ArraySubComposer implements SubComposer {
     result.add(value);
     value = null;
     satisfied = false;
-    return result;
+    return composerTransform.convert(result);
   }
 
   @Override

@@ -108,7 +108,7 @@ Sinks generally denote side effects. The current specification is that each step
 for all of the values of a stream `$it` before the next step is evaluated. This may change.
 
 ### Templates state
-A templates object has modifiable local temporary state, valid for the processing of one input value,
+A [templates](#templates) object has modifiable local temporary state, valid for the processing of one input value,
 which can be modified by the special sink `@` and dereferenced as `$@`. Optionally, or to access
 a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
 
@@ -237,6 +237,20 @@ A composition matcher can be negated by a tilde just inside the bracket, e.g. `<
 
 A skipped value may be captured by prefixing the matcher with `def _identifier_:`, e.g. `(def val: <INT>)` will not output the parsed integer at that location
 but captures it as `val`. This value may be output later as `$val`.
+
+A composition matcher (or a composed array or structure) can be sent through a series of [transforms](#transforms) to convert the parsed value, e.g.
+```
+templates minutes
+  $it.h * 60 + $it.m !
+end minutes
+composer time
+  { h: <hour>, m: <minute> } -> minutes
+  hour: <'(one|two)'> -> (<'one'> 1 ! <'two'> 2 !) (<' hours and '>)
+  minute: <INT> (<' minutes'>)
+end time
+'one hour and 13 minutes' -> time -> stdout
+```
+will print "73"
 
 ## Matchers
 A matcher is a condition enclosed by angle brackets. A sequence of matchers is evaluated from the

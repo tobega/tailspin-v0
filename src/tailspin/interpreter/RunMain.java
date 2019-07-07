@@ -845,18 +845,18 @@ public class RunMain extends TailspinParserBaseVisitor {
       TailspinParser.CompositionMatcherContext ctx) {
     CompositionSpec compositionSpec;
     if (ctx.LeftBracket() != null) {
-      compositionSpec = new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()));
+      compositionSpec = new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()), ctx.transform());
     } else if (ctx.LeftBrace() != null) {
       List<CompositionSpec> contents = new ArrayList<>();
       ctx.compositionSkipRule().forEach(s -> contents.add(visitCompositionSkipRule(s)));
       ctx.compositionKeyValue().forEach(k -> contents.add(visitCompositionKeyValue(k)));
-      compositionSpec = new Composer.StructureComposition(contents);
+      compositionSpec = new Composer.StructureComposition(contents, ctx.transform());
     } else if (ctx.IDENTIFIER() != null) {
       String matchRule = ctx.IDENTIFIER().getText();
-      compositionSpec = new Composer.NamedComposition(matchRule, ctx.Invert() != null);
+      compositionSpec = new Composer.NamedComposition(matchRule, ctx.Invert() != null, ctx.transform());
     } else if (ctx.stringLiteral() != null) {
       String regex = visitStringLiteral(ctx.stringLiteral());
-      compositionSpec = new Composer.RegexComposition(regex, ctx.Invert() != null);
+      compositionSpec = new Composer.RegexComposition(regex, ctx.Invert() != null, ctx.transform());
     } else if (ctx.Dereference() != null) {
       String identifier = ctx.Dereference().getText().substring(1);
       compositionSpec = new Composer.DereferenceComposition(identifier);
