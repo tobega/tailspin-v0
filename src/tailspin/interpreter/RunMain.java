@@ -1,7 +1,10 @@
 package tailspin.interpreter;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +16,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import tailspin.Tailspin;
 import tailspin.ast.Bound;
 import tailspin.ast.RangeGenerator;
 import tailspin.ast.Reference;
@@ -36,8 +40,42 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitProgram(TailspinParser.ProgramContext ctx) {
+    if (ctx.packageDefinition() != null) {
+      visitPackageDefinition(ctx.packageDefinition());
+    }
+    ctx.dependency().forEach(this::visit);
     ctx.statement().forEach(this::visit);
     return null;
+  }
+
+  @Override
+  public Object visitPackageDefinition(TailspinParser.PackageDefinitionContext ctx) {
+    ((BasicScope) scope).setPackageName(ctx.IDENTIFIER().getText());
+    return null;
+  }
+
+  @Override
+  public Object visitDependency(TailspinParser.DependencyContext ctx) {
+    String dependency = visitStringLiteral(ctx.stringLiteral());
+    String dependencyName = dependency.substring(dependency.lastIndexOf('/') + 1);
+    Path depPath = scope.basePath().resolve(dependency + ".tt");
+    try {
+      Tailspin dep = Tailspin.parse(Files.newInputStream(depPath));
+      @SuppressWarnings("unchecked")
+      List<String> args = (List<String>) scope.resolveValue("args");
+      // deps should not read from input
+      ByteArrayInputStream emptyInput = new ByteArrayInputStream(new byte[0]);
+      BasicScope depScope = dep.run(scope.basePath(), emptyInput, scope.getOutput(), args);
+      String packageName = depScope.getPackageName();
+      if (!dependencyName.equals(packageName)) {
+        throw new IllegalStateException("Mismatched package " + packageName + " in file " + dependencyName);
+      }
+      depScope.getExportedDefinitions()
+          .forEach(e -> scope.defineValue(packageName + "/" + e.getKey(), e.getValue()));
+      return null;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override

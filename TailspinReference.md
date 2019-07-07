@@ -63,8 +63,6 @@ an optional increment, e.g. `1..10` will give the numbers 1 to 10 inclusive and 
 To exclude the bounds, add a tilde between the numeric bound and the range operator `..`, so `1~..5:2` will give `3 5`,
 while `1..~5:2` will give `1 3`.
 
-_Current limitations_: start, end and increment must all be integer literals. (At some point they will most likely be full arithmetic expressions)
-
 ### Array literal
 An array literal produces an [array](#arrays) of values. It starts with a left bracket followed by
 a [stream](#streams) of _value chains_, separated by commas, and ends with a right bracket.
@@ -356,3 +354,19 @@ run within the scope of the processor instance. Therefore messages can also take
 ## The System objects
 A predefined symbol `SYS` can be used to access certain system-defined functions:
 * `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
+
+## Importing packages
+A tailspin file can be declared to be an importable package by
+a package statement on the first non-blank line, e.g. `package dep` defines this file as a package named dep.
+This file must be named "dep.tt".
+
+Importing packages can be done after the package statement, if any, and before any other statement by writing
+the word "import" followed by a string literal giving the search path to the file to be imported, without the package file suffix,
+e.g. `import 'lib/dep'` will import the package named "dep" from the folder named "lib".
+
+Import search paths are interpreted relative to the current working directory.
+
+The symbols (defined symbols, templates, processors, etc.) defined in the package will be accessible by
+prepending the package name and a "/" to the symbol name, e.g. package dep defines templates foo which can then
+be used as `dep/foo`.
+ 

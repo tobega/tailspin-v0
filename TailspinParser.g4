@@ -2,7 +2,11 @@ parser grammar TailspinParser;
 
 options { tokenVocab = TailspinLexer; }
 
-program: statement (statement)* EOF;
+program: packageDefinition? dependency* statement (statement)* EOF;
+
+packageDefinition: Package IDENTIFIER;
+
+dependency: Import stringLiteral;
 
 statement: Def Key valueChain                   # definition
   | valueChain To sink                                   # valueChainToSink

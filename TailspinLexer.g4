@@ -6,6 +6,10 @@ lexer grammar TailspinLexer;
 
 StartComment: '//' -> skip, pushMode(COMMENT_MODE);
 
+Package: 'package';
+
+Import: 'import';
+
 Stdout: 'stdout';
 
 Stdin: 'stdin';
@@ -97,10 +101,9 @@ IDENTIFIER: IDENTIFIER_START IDENTIFIER_PART*;
 fragment IDENTIFIER_START: [a-zA-Z];
 
 fragment IDENTIFIER_PART: IDENTIFIER_START
-  | [_0-9];
+  | [_/0-9];
 
 WS : [ \r\t\n]+ -> skip ;
-
 
 Else: '|';
 

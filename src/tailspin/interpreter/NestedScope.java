@@ -2,6 +2,7 @@ package tailspin.interpreter;
 
 import java.io.BufferedReader;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
@@ -53,6 +54,11 @@ class NestedScope implements Scope {
   @Override
   public OutputStream getOutput() {
     return parentScope.getOutput();
+  }
+
+  @Override
+  public Path basePath() {
+    return parentScope.basePath();
   }
 
   @Override

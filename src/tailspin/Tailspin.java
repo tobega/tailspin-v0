@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -48,11 +49,16 @@ public class Tailspin {
   }
 
   public void run(InputStream input, OutputStream output, List<String> args) {
+    run(Path.of("."), input, output, args);
+  }
+
+  public BasicScope run(Path basePath, InputStream input, OutputStream output, List<String> args) {
     // System.out.println(program.toStringTree());
-    BasicScope scope = new BasicScope(input, output);
+    BasicScope scope = new BasicScope(input, output, basePath);
     scope.defineValue("args", args);
     scope.defineValue("SYS", new SystemProcessor(scope));
     new RunMain(scope).visit(program);
+    return scope;
   }
 
   public static void main(String[] args) throws IOException {

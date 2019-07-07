@@ -2,6 +2,7 @@ package tailspin.interpreter;
 
 import java.io.BufferedReader;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.Queue;
 
 public interface Scope {
@@ -14,6 +15,8 @@ public interface Scope {
   BufferedReader getInput();
 
   OutputStream getOutput();
+
+  Path basePath();
 
   void setState(String stateContext, Object value);
 
