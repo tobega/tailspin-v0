@@ -49,14 +49,11 @@ class Composer implements Transform {
   private class PendingSequenceSubComposer implements SubComposer {
     private final List<CompositionSpec> compositionSpecs;
     private final Scope scope;
-    private final ComposerTransform composerTransform;
     SequenceSubComposer sequenceSubComposer;
 
-    PendingSequenceSubComposer(List<CompositionSpec> compositionSpecs, Scope scope,
-        ComposerTransform composerTransform) {
+    PendingSequenceSubComposer(List<CompositionSpec> compositionSpecs, Scope scope) {
       this.compositionSpecs = compositionSpecs;
       this.scope = scope;
-      this.composerTransform = composerTransform;
     }
 
     @Override
@@ -69,7 +66,7 @@ class Composer implements Transform {
     public Queue<Object> getValues() {
       Queue<Object> values = sequenceSubComposer.getValues();
       sequenceSubComposer = null;
-      return composerTransform.convert(values);
+      return values;
     }
 
     @Override
@@ -83,19 +80,23 @@ class Composer implements Transform {
       NamedComposition namedSpec = (NamedComposition) spec;
       String name = namedSpec.namedPattern;
       if (definedSequences.containsKey(name)) {
-        return new PendingSequenceSubComposer(definedSequences.get(name), scope,
-            new ComposerTransform(namedSpec.transform, scope));
+        return new PendingSequenceSubComposer(definedSequences.get(name), scope);
       }
       return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name),
-          namedSpec.invert, new ComposerTransform(namedSpec.transform, scope));
+          namedSpec.invert);
     }
     if (spec instanceof RegexComposition) {
       RegexComposition regexSpec = (RegexComposition) spec;
       return new RegexpSubComposer(Pattern.compile(regexSpec.pattern), Function.identity(),
-          regexSpec.invert, new ComposerTransform(regexSpec.transform, scope));
+          regexSpec.invert);
     }
     if (spec instanceof SkipComposition) {
       return new SkipSubComposer(resolveSpecs(((SkipComposition) spec).skipSpecs, scope));
+    }
+    if (spec instanceof ChoiceComposition) {
+      ChoiceComposition choiceSpec = (ChoiceComposition) spec;
+      return new ChoiceSubComposer(resolveSpecs(choiceSpec.choices, scope),
+          new ComposerTransform(choiceSpec.transform, scope));
     }
     if (spec instanceof ArrayComposition) {
       ArrayComposition arraySpec = (ArrayComposition) spec;
@@ -145,26 +146,20 @@ class Composer implements Transform {
   static class NamedComposition implements CompositionSpec {
     private final String namedPattern;
     private final boolean invert;
-    private final TailspinParser.TransformContext transform;
 
-    NamedComposition(String namedPattern, boolean invert,
-        TailspinParser.TransformContext transform) {
+    NamedComposition(String namedPattern, boolean invert) {
       this.namedPattern = namedPattern;
       this.invert = invert;
-      this.transform = transform;
     }
   }
 
   static class RegexComposition implements CompositionSpec {
     private final String pattern;
     private final boolean invert;
-    private final TailspinParser.TransformContext transform;
 
-    RegexComposition(String pattern, boolean invert,
-        TailspinParser.TransformContext transform) {
+    RegexComposition(String pattern, boolean invert) {
       this.pattern = pattern;
       this.invert = invert;
-      this.transform = transform;
     }
   }
 
@@ -257,6 +252,17 @@ class Composer implements Transform {
       this.compositionSpec = compositionSpec;
       this.count = count;
       this.identifier = identifier;
+    }
+  }
+
+  static class ChoiceComposition implements CompositionSpec {
+    private final List<CompositionSpec> choices;
+    private final TailspinParser.TransformContext transform;
+
+    ChoiceComposition(List<CompositionSpec> choices,
+        TailspinParser.TransformContext transform) {
+      this.choices = choices;
+      this.transform = transform;
     }
   }
 }

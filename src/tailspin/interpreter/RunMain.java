@@ -851,12 +851,9 @@ public class RunMain extends TailspinParserBaseVisitor {
       ctx.compositionSkipRule().forEach(s -> contents.add(visitCompositionSkipRule(s)));
       ctx.compositionKeyValue().forEach(k -> contents.add(visitCompositionKeyValue(k)));
       compositionSpec = new Composer.StructureComposition(contents, ctx.transform());
-    } else if (ctx.IDENTIFIER() != null) {
-      String matchRule = ctx.IDENTIFIER().getText();
-      compositionSpec = new Composer.NamedComposition(matchRule, ctx.Invert() != null, ctx.transform());
-    } else if (ctx.stringLiteral() != null) {
-      String regex = visitStringLiteral(ctx.stringLiteral());
-      compositionSpec = new Composer.RegexComposition(regex, ctx.Invert() != null, ctx.transform());
+    } else if (!ctx.compositionToken().isEmpty()) {
+      compositionSpec = new Composer.ChoiceComposition(ctx.compositionToken().stream()
+          .map(this::visitCompositionToken).collect(Collectors.toList()), ctx.transform());
     } else if (ctx.Dereference() != null) {
       String identifier = ctx.Dereference().getText().substring(1);
       compositionSpec = new Composer.DereferenceComposition(identifier);
@@ -865,6 +862,21 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
     if (ctx.multiplier() == null) return compositionSpec;
     return resolveMultiplier(ctx.multiplier(), compositionSpec);
+  }
+
+  @Override
+  public CompositionSpec visitCompositionToken(TailspinParser.CompositionTokenContext ctx) {
+    CompositionSpec compositionSpec;
+    if (ctx.IDENTIFIER() != null) {
+      String matchRule = ctx.IDENTIFIER().getText();
+      compositionSpec = new Composer.NamedComposition(matchRule, ctx.Invert() != null);
+    } else if (ctx.stringLiteral() != null) {
+      String regex = visitStringLiteral(ctx.stringLiteral());
+      compositionSpec = new Composer.RegexComposition(regex, ctx.Invert() != null);
+    } else {
+      throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());
+    }
+    return compositionSpec;
   }
 
   private CompositionSpec resolveMultiplier(TailspinParser.MultiplierContext ctx,

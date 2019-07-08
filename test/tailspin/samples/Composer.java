@@ -644,6 +644,25 @@ class Composer {
     assertEquals("35", output.toString(StandardCharsets.UTF_8));
   }
 
+  @Test
+  void choice() throws IOException {
+    String program =
+        "composer options\n"
+            + "<value>\n"
+            + "value: (<WS>?) <INT|'x[0-9a-f]'|array> (<WS>?)\n"
+            + "array: (<'\\('>) [ <value>* ] (<'\\)'>)\n"
+            + "end options\n"
+            + "['76', '( xb x5 45 (6))', 'x9']... -> options -> '$it; ' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("76 [xb, x5, 45, [6]] x9 ", output.toString(StandardCharsets.UTF_8));
+  }
+
   // TODO: add a converter
   @Test
   void jsonNumber() throws IOException {

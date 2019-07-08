@@ -10,15 +10,12 @@ class RegexpSubComposer implements SubComposer {
   private final Pattern pattern;
   private final Function<? super String, Object> valueCreator;
   private final boolean invert;
-  private final ComposerTransform transform;
-  String latestValue;
+  private String latestValue;
 
-  RegexpSubComposer(Pattern pattern, Function<? super String, Object> valueCreator, boolean invert,
-      ComposerTransform transform) {
+  RegexpSubComposer(Pattern pattern, Function<? super String, Object> valueCreator, boolean invert) {
     this.pattern = pattern;
     this.valueCreator = valueCreator;
     this.invert = invert;
-    this.transform = transform;
   }
 
   @Override
@@ -44,7 +41,7 @@ class RegexpSubComposer implements SubComposer {
     Queue<Object> result = new ArrayDeque<>();
     result.add(valueCreator.apply(latestValue));
     latestValue = null;
-    return transform.convert(result);
+    return result;
   }
 
   @Override

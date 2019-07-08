@@ -238,6 +238,8 @@ A composition matcher can be negated by a tilde just inside the bracket, e.g. `<
 A skipped value may be captured by prefixing the matcher with `def _identifier_:`, e.g. `(def val: <INT>)` will not output the parsed integer at that location
 but captures it as `val`. This value may be output later as `$val`.
 
+Several exclusive choices can be specified for a composition matcher, separated by a pipe "|", e.g. `<INT|string|'x[0-9]'>`. These are tried in order from left to right.
+
 A composition matcher (or a composed array or structure) can be sent through a series of [transforms](#transforms) to convert the parsed value, e.g.
 ```
 templates minutes
