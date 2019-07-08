@@ -34,7 +34,9 @@ A source is the simplest _value chain_, simply producing a value.
 A series of characters within single quotes, e.g. `'Hello World!'`. To write
 a single quote in a string, just double it up, e.g. `'What''s up?'`.
 
-A dollar sign is used to do string interpolation with a [dereferenced value](#dereference),
+To enter a character by its numeric unicode value, prefix the decimal value with "$" and end with ";", e.g. `'$9;'` gives a tab character.
+
+A dollar sign is also used to do string interpolation with a [dereferenced value](#dereference),
 where a semi-colon `;` completes the interpolation, e.g. `Hello $name;` to get `$name;` replaced with
 what the symbol identified as `name` currently is defined as. If you need a dollar sign in your string,
 just double it up, e.g. `'The price is $$5'`. If you need a semi-colon in your string right after your

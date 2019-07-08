@@ -121,7 +121,7 @@ stringLiteral: START_STRING stringContent* END_STRING;
 
 stringContent: stringInterpolate | STRING_TEXT;
 
-stringInterpolate: interpolateEvaluate|(dereferenceValue EndStringInterpolate);
+stringInterpolate: interpolateEvaluate|(dereferenceValue EndStringInterpolate)|CharacterCode;
 
 interpolateEvaluate: StartStringEvaluate valueChain RightParen;
 
