@@ -363,6 +363,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStringInterpolate(TailspinParser.StringInterpolateContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#characterCode}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCharacterCode(TailspinParser.CharacterCodeContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#interpolateEvaluate}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

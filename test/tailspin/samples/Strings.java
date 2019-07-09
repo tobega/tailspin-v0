@@ -427,7 +427,7 @@ class Strings {
 
   @Test
   void characterCodes() throws Exception {
-    String program = "'$9;$10;$13;' -> stdout";
+    String program = "'$#9;$#10;$#13;' -> stdout";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -436,5 +436,18 @@ class Strings {
     runner.run(input, output, List.of());
 
     assertEquals("\t\n\r", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void characterCodeExpression() throws Exception {
+    String program = "def tab: 9 '$#$tab;' -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("\t", output.toString(StandardCharsets.UTF_8));
   }
 }

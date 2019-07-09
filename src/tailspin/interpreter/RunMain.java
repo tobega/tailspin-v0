@@ -586,8 +586,8 @@ public class RunMain extends TailspinParserBaseVisitor {
       Queue<Object> valueQueue = visitValueChain(ctx.interpolateEvaluate().valueChain());
       return valueQueue.stream().map(Object::toString).collect(Collectors.joining());
     }
-    if (ctx.CharacterCode() != null) {
-      int code = Integer.parseInt(ctx.CharacterCode().getText().substring(1, ctx.CharacterCode().getText().length() - 1));
+    if (ctx.characterCode() != null) {
+      int code = visitArithmeticExpression(ctx.characterCode().arithmeticExpression());
       return Character.toString(code);
     }
     throw new UnsupportedOperationException();

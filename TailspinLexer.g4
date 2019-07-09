@@ -130,7 +130,7 @@ mode IN_STRING;
 
 StartStringEvaluate: '$(' -> pushMode(DEFAULT_MODE);
 
-CharacterCode: '$' Digits ';';
+StartCharacterCode: '$#' { stringInterpolate++; } -> pushMode(DEFAULT_MODE);
 
 StartStringInterpolate: Dereference { stringInterpolate++; } -> pushMode(DEFAULT_MODE), type(Dereference);
 

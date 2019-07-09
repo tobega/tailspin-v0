@@ -121,7 +121,9 @@ stringLiteral: START_STRING stringContent* END_STRING;
 
 stringContent: stringInterpolate | STRING_TEXT;
 
-stringInterpolate: interpolateEvaluate|(dereferenceValue EndStringInterpolate)|CharacterCode;
+stringInterpolate: interpolateEvaluate|(dereferenceValue EndStringInterpolate)|characterCode;
+
+characterCode: StartCharacterCode arithmeticExpression EndStringInterpolate;
 
 interpolateEvaluate: StartStringEvaluate valueChain RightParen;
 

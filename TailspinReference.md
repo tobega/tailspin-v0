@@ -34,7 +34,8 @@ A source is the simplest _value chain_, simply producing a value.
 A series of characters within single quotes, e.g. `'Hello World!'`. To write
 a single quote in a string, just double it up, e.g. `'What''s up?'`.
 
-To enter a character by its numeric unicode value, prefix the decimal value with "$" and end with ";", e.g. `'$9;'` gives a tab character.
+To enter a character by its numeric unicode value, prefix the decimal value
+(or [arithmetic expression](#arithmetic-expression)) with "$#" and end with ";", e.g. `'$#9;'` gives a tab character.
 
 A dollar sign is also used to do string interpolation with a [dereferenced value](#dereference),
 where a semi-colon `;` completes the interpolation, e.g. `Hello $name;` to get `$name;` replaced with
@@ -53,6 +54,7 @@ Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 / 4`:
 * mathematical modulo, `mod`, which gives the positive number r = n mod q such that |r| < |q| and n = k*q + r for some k.
 * addition `+`
 * subtraction `-`
+* parenthesized sub-expressions
 
 _Current limitations_: Only integers are supported.
 
