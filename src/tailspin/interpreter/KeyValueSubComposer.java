@@ -5,18 +5,28 @@ import java.util.List;
 import java.util.Queue;
 
 class KeyValueSubComposer implements SubComposer {
-  private final String key;
+  private final SubComposer keyComposer;
   private final List<SubComposer> valueSubComposers;
+  private String key;
   private Object value;
   private boolean satisfied = false;
 
-  KeyValueSubComposer(String key, List<SubComposer> valueSubComposers) {
-    this.key = key;
+  KeyValueSubComposer(SubComposer keyComposer, List<SubComposer> valueSubComposers) {
+    this.keyComposer = keyComposer;
     this.valueSubComposers = valueSubComposers;
   }
 
   @Override
   public String nibble(String s) {
+    s = keyComposer.nibble(s);
+    if (!keyComposer.isSatisfied()) {
+      return s;
+    }
+    Queue<Object> keys = keyComposer.getValues();
+    if (keys.size() != 1) {
+      throw new IllegalArgumentException("Only one key allowed for a keyed value, not " + keys);
+    }
+    key = (String) keys.peek();
     satisfied = true;
     for (SubComposer subComposer : valueSubComposers) {
       s = subComposer.nibble(s);

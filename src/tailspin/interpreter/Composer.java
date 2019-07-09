@@ -110,7 +110,7 @@ class Composer implements Transform {
     }
     if (spec instanceof KeyValueComposition) {
       KeyValueComposition keyValueSpec = (KeyValueComposition) spec;
-      return new KeyValueSubComposer(keyValueSpec.key, resolveSpecs(keyValueSpec.valueMatch, scope));
+      return new KeyValueSubComposer(resolveSpec(keyValueSpec.key, scope), resolveSpecs(keyValueSpec.valueMatch, scope));
     }
     if (spec instanceof OptionalComposition) {
       return new OptionalSubComposer(resolveSpec(((OptionalComposition) spec).compositionSpec, scope));
@@ -132,6 +132,9 @@ class Composer implements Transform {
     if (spec instanceof CountComposition) {
       CountComposition countSpec = (CountComposition) spec;
       return new CountSubComposer(resolveSpec(countSpec.compositionSpec, scope), countSpec.count, countSpec.identifier, scope);
+    }
+    if (spec instanceof Constant) {
+      return new ConstantSubComposer(((Constant) spec).value);
     }
     throw new UnsupportedOperationException("Unknown composition spec " + spec.getClass().getSimpleName());
   }
@@ -216,12 +219,20 @@ class Composer implements Transform {
   }
 
   static class KeyValueComposition implements CompositionSpec {
-    private final String key;
+    private final CompositionSpec key;
     private final List<CompositionSpec> valueMatch;
 
-    KeyValueComposition(String key, List<CompositionSpec> valueMatch) {
+    KeyValueComposition(CompositionSpec key, List<CompositionSpec> valueMatch) {
       this.key = key;
       this.valueMatch = valueMatch;
+    }
+  }
+
+  static class Constant implements CompositionSpec {
+    private final String value;
+
+    Constant(String value) {
+      this.value = value;
     }
   }
 

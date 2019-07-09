@@ -25,9 +25,11 @@ class StructureSubComposer implements SubComposer {
     for (SubComposer subComposer : subComposers) {
       s = subComposer.nibble(s);
       satisfied &= subComposer.isSatisfied();
-      if (subComposer.isSatisfied() && (subComposer instanceof KeyValueSubComposer)) {
-        KeyValue keyValue = (KeyValue) subComposer.getValues().peek();
-        value.put(keyValue.getKey(), keyValue.getValue());
+      if (subComposer.isSatisfied()) {
+        subComposer.getValues().forEach(kv -> {
+          KeyValue keyValue = (KeyValue) kv;
+          value.put(keyValue.getKey(), keyValue.getValue());
+        });
       }
     }
     return s;

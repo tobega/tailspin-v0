@@ -817,6 +817,9 @@ public class RunMain extends TailspinParserBaseVisitor {
     ctx.compositionComponent().stream()
         .map(this::visitCompositionComponent)
         .forEach(result::addAll);
+    if (ctx.structureMemberMatchers() != null) {
+      result.addAll(visitStructureMemberMatchers(ctx.structureMemberMatchers()));
+    }
     return result;
   }
 
@@ -847,23 +850,47 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public CompositionSpec visitCompositionMatcher(
       TailspinParser.CompositionMatcherContext ctx) {
-    CompositionSpec compositionSpec;
     if (ctx.LeftBracket() != null) {
-      compositionSpec = new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()), ctx.transform());
+      return new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()), ctx.transform());
     } else if (ctx.LeftBrace() != null) {
       List<CompositionSpec> contents = new ArrayList<>();
       ctx.compositionSkipRule().forEach(s -> contents.add(visitCompositionSkipRule(s)));
-      ctx.compositionKeyValue().forEach(k -> contents.add(visitCompositionKeyValue(k)));
-      compositionSpec = new Composer.StructureComposition(contents, ctx.transform());
-    } else if (!ctx.compositionToken().isEmpty()) {
-      compositionSpec = new Composer.ChoiceComposition(ctx.compositionToken().stream()
-          .map(this::visitCompositionToken).collect(Collectors.toList()), ctx.transform());
+      if (ctx.structureMemberMatchers() != null) {
+        contents.addAll(visitStructureMemberMatchers(ctx.structureMemberMatchers()));
+      }
+      return new Composer.StructureComposition(contents, ctx.transform());
+    } else if (ctx.tokenMatcher() != null) {
+      return visitTokenMatcher(ctx.tokenMatcher());
     } else if (ctx.Dereference() != null) {
       String identifier = ctx.Dereference().getText().substring(1);
-      compositionSpec = new Composer.DereferenceComposition(identifier);
+      return new Composer.DereferenceComposition(identifier);
     } else {
       throw new UnsupportedOperationException("Unknown type of composition matcher");
     }
+  }
+
+  @Override
+  public List<CompositionSpec> visitStructureMemberMatchers(TailspinParser.StructureMemberMatchersContext ctx) {
+    List<CompositionSpec> members = new ArrayList<>();
+    ctx.structureMemberMatcher().forEach(k -> members.add(visitStructureMemberMatcher(k)));
+    return members;
+  }
+
+  @Override
+  public CompositionSpec visitStructureMemberMatcher(TailspinParser.StructureMemberMatcherContext ctx) {
+    if (ctx.compositionKeyValue() != null) {
+      return visitCompositionKeyValue(ctx.compositionKeyValue());
+    } else if (ctx.tokenMatcher() != null) {
+      return visitTokenMatcher(ctx.tokenMatcher());
+    } else {
+      throw new UnsupportedOperationException("Unknown matcher " + ctx);
+    }
+  }
+
+  @Override
+  public CompositionSpec visitTokenMatcher(TailspinParser.TokenMatcherContext ctx) {
+    CompositionSpec compositionSpec = new Composer.ChoiceComposition(ctx.compositionToken().stream()
+        .map(this::visitCompositionToken).collect(Collectors.toList()), ctx.transform());
     if (ctx.multiplier() == null) return compositionSpec;
     return resolveMultiplier(ctx.multiplier(), compositionSpec);
   }
@@ -898,7 +925,12 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public CompositionSpec visitCompositionKeyValue(TailspinParser.CompositionKeyValueContext ctx) {
-    String key = ctx.Key().getText().replace(":", "");
+    CompositionSpec key;
+    if (ctx.Key() != null) {
+      key = new Composer.Constant(ctx.Key().getText().replace(":", ""));
+    } else {
+      key = visitTokenMatcher(ctx.compositionKey().tokenMatcher());
+    }
     List<CompositionSpec> valueMatch = new ArrayList<>();
     ctx.compositionSkipRule().forEach(s -> valueMatch.add(visitCompositionSkipRule(s)));
     valueMatch.addAll(visitCompositionComponent(ctx.compositionComponent()));

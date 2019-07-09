@@ -221,7 +221,7 @@ E.g. to compose a string of text like `'Line(Point(5,7),Point(13,9))'` into the 
 ```
 composer line
   (<'Line\('>) [ <point>, (<','>) <point> ] (<')'>)
-  point: (<'Point\('>) { x: <INT>, (<','>) y: <INT> } (<')'>)
+  point: (<'Point\('>) { x: <INT> (<','>), y: <INT> } (<')'>)
 end line
 ```
 

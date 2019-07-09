@@ -366,7 +366,7 @@ class Composer {
   @Test
   void buildStructure() throws IOException {
     String program = "composer coords\n"
-        + "{ x: <INT> (<','>) y: <INT> }\n"
+        + "{ x: <INT> (<','>), y: <INT> }\n"
         + "end coords\n"
         + "'1,2' -> coords -> stdout";
     Tailspin runner =
@@ -631,7 +631,7 @@ class Composer {
             + "$it.a * $it.b !\n"
             + "end mul\n"
             + "composer numbers\n"
-            + "{ a:<INT> (<WS>) b:<INT> } -> mul\n"
+            + "{ a:<INT> (<WS>), b:<INT> } -> mul\n"
             + "end numbers\n"
             + "'5 7' -> numbers -> stdout";
     Tailspin runner =
@@ -697,5 +697,73 @@ class Composer {
     runner.run(input, output, List.of());
 
     assertEquals("foo\"bar", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeStructureKey() throws IOException {
+    String program = "composer keyValue\n"
+        + "{ <~WS>: (<WS>) <~WS> }\n"
+        + "end keyValue\n"
+        + "'foo bar' -> keyValue -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{foo=bar}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void keyValueSubRule() throws IOException {
+    String program = "composer struct\n"
+        + "{ <keyValue>* }\n"
+        + "keyValue: <~WS>: (<WS>) <~WS> (<WS>?)\n"
+        + "end struct\n"
+        + "'foo bar baz qux' -> struct -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{baz=qux, foo=bar}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void emptyStructure() throws IOException {
+    String program = "composer struct\n"
+        + "{ <keyValue>* }\n"
+        + "keyValue: <~WS>: (<WS>) <~WS>\n"
+        + "end struct\n"
+        + "'' -> struct -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void subRuleFollowingKeyValueSubRule() throws IOException {
+    String program = "composer struct\n"
+        + "<main>\n"
+        + "keyValue: <~WS>: (<WS>) <~WS> (<WS>?)\n"
+        + "main: { <keyValue>* }\n"
+        + "end struct\n"
+        + "'foo bar baz qux' -> struct -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{baz=qux, foo=bar}", output.toString(StandardCharsets.UTF_8));
   }
 }

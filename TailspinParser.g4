@@ -146,14 +146,20 @@ composerBody: compositionSequence definedCompositionSequence*
 definedCompositionSequence: Key compositionSequence
 ;
 
-compositionSequence: compositionSkipRule* compositionComponent+
+compositionSequence: compositionSkipRule* (compositionComponent+|structureMemberMatchers)
 ;
 
-compositionMatcher: StartMatcher compositionToken (Else compositionToken)* EndMatcher multiplier? transform?
+compositionMatcher: tokenMatcher
   | LeftBracket compositionSequence RightBracket transform?
-  | LeftBrace compositionSkipRule* compositionKeyValue+ RightBrace transform?
+  | LeftBrace compositionSkipRule* structureMemberMatchers? RightBrace transform?
   | Dereference
 ;
+
+structureMemberMatchers: structureMemberMatcher (Comma structureMemberMatcher)*;
+
+structureMemberMatcher: tokenMatcher|compositionKeyValue;
+
+tokenMatcher: StartMatcher compositionToken (Else compositionToken)* EndMatcher multiplier? transform?;
 
 compositionToken: Invert? (IDENTIFIER|stringLiteral);
 
@@ -165,6 +171,8 @@ compositionSkipRule: LeftParen compositionCapture+ RightParen;
 
 compositionCapture: (Def Key)? compositionMatcher;
 
-compositionKeyValue: Key compositionSkipRule* compositionComponent Comma?;
+compositionKeyValue: (Key|compositionKey) compositionSkipRule* compositionComponent Comma?;
+
+compositionKey: tokenMatcher Colon;
 
 compositionComponent: compositionMatcher compositionSkipRule*;
