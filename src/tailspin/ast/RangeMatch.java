@@ -11,14 +11,18 @@ public class RangeMatch {
   }
 
   public boolean contains(Comparable<Object> it) {
-    if (lowerBound != null) {
-      if (it.compareTo(lowerBound.value) < 0) return false;
-      if (!lowerBound.inclusive && it.compareTo(lowerBound.value) == 0) return false;
+    try {
+      if (lowerBound != null) {
+        if (it.compareTo(lowerBound.value) < 0) return false;
+        if (!lowerBound.inclusive && it.compareTo(lowerBound.value) == 0) return false;
+      }
+      if (upperBound != null) {
+        if (it.compareTo(upperBound.value) > 0) return false;
+        if (!upperBound.inclusive && it.compareTo(upperBound.value) == 0) return false;
+      }
+      return true;
+    } catch (ClassCastException e) {
+      return false;
     }
-    if (upperBound != null) {
-      if (it.compareTo(upperBound.value) > 0) return false;
-      if (!upperBound.inclusive && it.compareTo(upperBound.value) == 0) return false;
-    }
-    return true;
   }
 }

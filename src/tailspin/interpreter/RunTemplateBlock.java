@@ -79,7 +79,7 @@ public class RunTemplateBlock extends RunMain {
     // TODO: this could be good to save in compiled form
     Pattern compiled =
         Pattern.compile(
-            "\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ);
+            "\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ + Pattern.DOTALL);
     return compiled.matcher(it).matches();
   }
 

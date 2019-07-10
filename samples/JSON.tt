@@ -11,7 +11,7 @@ templates hexToInt
   $@ !
 end hexToInt
 
-composer json
+composer jsonParser
   <value>
   value: (<WS>?) <string|number|object|array|true|false|null> (<WS>?)
 
@@ -41,8 +41,38 @@ composer json
   true: <'true'> // TODO: represent this other than string
   false: <'false'> // TODO: represent this other than string
   null: <'null'> // TODO: represent this other than string
-end json
+end jsonParser
 
-'{ "foo": 1, "bar": [10, "apples"] }' -> json -> '$it.bar(2);
+templates printJson
+  templates printKeyValue
+    '$($it::key -> printJson): $($it::value -> printJson)' !
+  end printKeyValue
+  templates encodeChars
+    <'"'> '\"' !
+    <'\\'> '\\' !
+    <'/'> '\/' !
+    <'$#8;'> '\b' !
+    <'$#12;'> '\f' !
+    <'$#10;'> '\n' !
+    <'$#13;'> '\r' !
+    <'$#9;'> '\t' !
+    <> $it !
+  end encodeChars
+  $it -> #
+  <[]>
+    '[$($it(1) -> printJson)$($it(2..-1)... -> ', $($it -> printJson)')]' !
+  <{}>
+    [ $it... ] -> '{$($it(1) -> printKeyValue)$($it(2..-1)... -> ', $($it -> printKeyValue)')}' !
+  <..0|0..>
+    '$it;'!
+  <'.*'>
+    [ $it... -> encodeChars ] -> '"$($it...)"' !
+  <> 'WTF!' !
+  // Other types do not yet exist in Tailspin
+end printJson
+
+'{ "foo": 1, "bar": [10, "apples"] }' -> jsonParser -> '$it.bar(2);
 ' -> stdout
 
+{ blue: [1,2], ocean: 'water' } -> printJson -> '$it;
+' -> stdout

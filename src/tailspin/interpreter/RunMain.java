@@ -195,6 +195,14 @@ public class RunMain extends TailspinParserBaseVisitor {
       } else {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
+    } else if (value instanceof KeyValue) {
+      if (message.equals("key")) {
+        result = queueOf(((KeyValue) value).getKey());
+      } else if (message.equals("value")) {
+        result = queueOf(((KeyValue) value).getValue());
+      } else {
+        throw new UnsupportedOperationException("Unknown array message " + message);
+      }
     } else if (value instanceof ProcessorInstance) {
       Map<String, Object> parameters = ctx.parameterValues() == null ? Map.of()
         : visitParameterValues(ctx.parameterValues());
