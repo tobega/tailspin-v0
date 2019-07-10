@@ -872,19 +872,22 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public List<CompositionSpec> visitStructureMemberMatchers(TailspinParser.StructureMemberMatchersContext ctx) {
     List<CompositionSpec> members = new ArrayList<>();
-    ctx.structureMemberMatcher().forEach(k -> members.add(visitStructureMemberMatcher(k)));
+    ctx.structureMemberMatcher().forEach(k -> members.addAll(visitStructureMemberMatcher(k)));
     return members;
   }
 
   @Override
-  public CompositionSpec visitStructureMemberMatcher(TailspinParser.StructureMemberMatcherContext ctx) {
+  public List<CompositionSpec> visitStructureMemberMatcher(TailspinParser.StructureMemberMatcherContext ctx) {
+    List<CompositionSpec> parts = new ArrayList<>();
+    ctx.compositionSkipRule().forEach(sr -> parts.add(visitCompositionSkipRule(sr)));
     if (ctx.compositionKeyValue() != null) {
-      return visitCompositionKeyValue(ctx.compositionKeyValue());
+      parts.add(visitCompositionKeyValue(ctx.compositionKeyValue()));
     } else if (ctx.tokenMatcher() != null) {
-      return visitTokenMatcher(ctx.tokenMatcher());
+      parts.add(visitTokenMatcher(ctx.tokenMatcher()));
     } else {
       throw new UnsupportedOperationException("Unknown matcher " + ctx);
     }
+    return parts;
   }
 
   @Override

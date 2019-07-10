@@ -157,7 +157,7 @@ compositionMatcher: tokenMatcher
 
 structureMemberMatchers: structureMemberMatcher (Comma structureMemberMatcher)*;
 
-structureMemberMatcher: tokenMatcher|compositionKeyValue;
+structureMemberMatcher: compositionSkipRule* (tokenMatcher|compositionKeyValue);
 
 tokenMatcher: StartMatcher compositionToken (Else compositionToken)* EndMatcher multiplier? transform?;
 

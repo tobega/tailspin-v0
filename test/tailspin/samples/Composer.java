@@ -380,6 +380,38 @@ class Composer {
   }
 
   @Test
+  void buildStructure_placeCommaBeforeSkipMatcher() throws IOException {
+    String program = "composer coords\n"
+        + "{ x: <INT> ,(<','>) y: <INT> }\n"
+        + "end coords\n"
+        + "'1,2' -> coords -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=1, y=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void buildStructure_placeKeyBeforeSkipMatcher() throws IOException {
+    String program = "composer coords\n"
+        + "{ x: <INT> , y: (<','>) <INT> }\n"
+        + "end coords\n"
+        + "'1,2' -> coords -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=1, y=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void dereferenceValue() throws IOException {
     String program = "def val: 3\n"
         + "composer coords\n"
