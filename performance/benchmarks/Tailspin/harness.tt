@@ -1,0 +1,34 @@
+package harness
+
+composer toInt
+  <INT>
+end toInt
+
+templates run@{name:, benchmark:}
+  templates measure
+    1 -> @
+    def startTime: $SYS::nanoCount
+    1..$it -> benchmark -> (<0> 0 -> @measure) -> void
+    $@ -> #
+    <1>
+      def endTime: $SYS::nanoCount
+      def runTime: ($endTime - $startTime) / 1000
+      '$name;: iterations=1 runtime: $runTime;us
+' -> stdout
+      $@harness/run + $runTime -> @harness/run
+    <0>
+      'Benchmark failed with incorrect result
+' -> stdout
+  end measure
+
+  'Starting $name; benchmark ...
+' -> stdout
+  0 -> @
+  def specs: { iterations: $args::length -> (<1..> $args(1) -> harness/toInt ! <> 1!),
+               innerIterations: $args::length -> (<2..> $args(2) -> harness/toInt ! <> 1!)
+             }
+  1..$specs.iterations -> ($specs.innerIterations -> measure -> void) -> void
+  '$name;: iterations=$specs.iterations; average: $($@harness/run / $specs.iterations)us total: $@harness/run;us
+
+' -> stdout
+end run
