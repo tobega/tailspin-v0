@@ -8,14 +8,14 @@ import tailspin.parser.TailspinParser;
 import tailspin.types.ProcessorInstance;
 
 class ProcessorDefinition extends Templates {
-
-  ProcessorDefinition(TailspinParser.BlockContext block) {
-    super(block, new ArrayList<>());
+  ProcessorDefinition(Scope definingScope, TailspinParser.BlockContext block) {
+    super(definingScope, block, new ArrayList<>());
   }
 
   @Override
-  public Queue<Object> run(TransformScope scope, Map<String, Object> parameters) {
-    super.run(scope, parameters);
+  public Queue<Object> run(Queue<Object> it, Map<String, Object> parameters) {
+    TransformScope scope = createTransformScope(it, parameters);
+    runInScope(scope);
     Queue<Object> result = new ArrayDeque<>();
     result.add(new ProcessorInstance(scope));
     return result;

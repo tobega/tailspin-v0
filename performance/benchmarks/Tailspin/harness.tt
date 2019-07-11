@@ -15,7 +15,7 @@ templates run@{name:, benchmark:}
       def runTime: ($endTime - $startTime) / 1000
       '$name;: iterations=1 runtime: $runTime;us
 ' -> stdout
-      $@harness/run + $runTime -> @harness/run
+      $@run + $runTime -> @run
     <0>
       'Benchmark failed with incorrect result
 ' -> stdout
@@ -24,11 +24,11 @@ templates run@{name:, benchmark:}
   'Starting $name; benchmark ...
 ' -> stdout
   0 -> @
-  def specs: { iterations: $args::length -> (<1..> $args(1) -> harness/toInt ! <> 1!),
-               innerIterations: $args::length -> (<2..> $args(2) -> harness/toInt ! <> 1!)
+  def specs: { iterations: $args::length -> (<1..> $args(1) -> toInt ! <> 1!),
+               innerIterations: $args::length -> (<2..> $args(2) -> toInt ! <> 1!)
              }
   1..$specs.iterations -> ($specs.innerIterations -> measure -> void) -> void
-  '$name;: iterations=$specs.iterations; average: $($@harness/run / $specs.iterations)us total: $@harness/run;us
+  '$name;: iterations=$specs.iterations; average: $($@run / $specs.iterations)us total: $@run;us
 
 ' -> stdout
 end run

@@ -283,8 +283,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     Queue<Object> result = new ArrayDeque<>();
     qIt.forEach(
         it -> {
-          scope.setIt(queueOf(it));
-          result.addAll(templates.run(new TransformScope(scope, ""), Map.of()));
+          result.addAll(templates.run(queueOf(it), Map.of()));
         });
     return result;
   }
@@ -294,6 +293,8 @@ public class RunMain extends TailspinParserBaseVisitor {
     List<String> loopVariables = ctx.IDENTIFIER().stream().map(TerminalNode::getText).collect(
         Collectors.toList());
     Templates templates = visitTemplatesBody(ctx.templatesBody());
+    templates.expectParameters(loopVariables.stream().map(ExpectedParameter::new)
+        .collect(Collectors.toList()));
     Queue<Object> its = scope.getIt();
     Queue<Object> result = new ArrayDeque<>();
     its.forEach(it -> result.add(runArrayTemplate(loopVariables, templates, it)));
@@ -317,12 +318,12 @@ public class RunMain extends TailspinParserBaseVisitor {
     int lastIdx = loopVariables.size() - 1;
     while (dimCounters[0] < dimLists[0].size()) {
       for (dimCounters[lastIdx] = 0; dimCounters[lastIdx] < dimLists[lastIdx].size(); dimCounters[lastIdx]++) {
-        TransformScope itemScope = new TransformScope(scope, "");
+        Map<String, Object> counters = new HashMap<>();
         for (int i = 0; i < loopVariables.size(); i++) {
-          itemScope.defineValue(loopVariables.get(i), dimCounters[i] + 1);
+          counters.put(loopVariables.get(i), dimCounters[i] + 1);
         }
-        itemScope.setIt(queueOf(dimLists[lastIdx].get(dimCounters[lastIdx])));
-        results[lastIdx].addAll(templates.run(itemScope, Map.of()));
+        Queue<Object> itemIt = queueOf(dimLists[lastIdx].get(dimCounters[lastIdx]));
+        results[lastIdx].addAll(templates.run(itemIt, counters));
       }
       int idx = lastIdx - 1;
       while (idx >= 0) {
@@ -349,7 +350,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     for (TailspinParser.MatchTemplateContext mtc : ctx.matchTemplate()) {
       matchTemplates.add(visitMatchTemplate(mtc));
     }
-    return new Templates(ctx.block(), matchTemplates);
+    return new Templates(scope, ctx.block(), matchTemplates);
   }
 
   @Override
@@ -390,7 +391,8 @@ public class RunMain extends TailspinParserBaseVisitor {
       throw new IllegalStateException(
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
     }
-    ProcessorDefinition processor = new ProcessorDefinition(ctx.block());
+    ProcessorDefinition processor = new ProcessorDefinition(scope, ctx.block());
+    processor.setScopeContext(name);
     if (ctx.parameterDefinitions() != null) {
       List<ExpectedParameter> parameters = visitParameterDefinitions(ctx.parameterDefinitions());
       processor.expectParameters(parameters);
@@ -407,7 +409,7 @@ public class RunMain extends TailspinParserBaseVisitor {
         it -> {
           scope.setIt(queueOf(it));
           TransformCall transformCall = visitTransformCall(ctx.transformCall());
-          result.addAll(transformCall.execute(scope));
+          result.addAll(transformCall.execute(queueOf(it)));
         });
     return result;
   }
@@ -419,7 +421,7 @@ public class RunMain extends TailspinParserBaseVisitor {
         ? visitParameterValues(ctx.parameterValues())
         : Map.of();
     Transform transform = (Transform) scope.resolveValue(name);
-    return new TransformCall(name, transform, parameters);
+    return new TransformCall(transform, parameters);
   }
 
   @Override
@@ -537,7 +539,7 @@ public class RunMain extends TailspinParserBaseVisitor {
           scope.setIt(queueOf(it));
           Queue<Object> source = visitSource(ctx.source());
           if (source.peek() instanceof TransformCall) {
-            result.addAll(((TransformCall) source.peek()).execute(scope));
+            result.addAll(((TransformCall) source.peek()).execute(queueOf(it)));
           } else {
             result.addAll(source);
           }
@@ -580,7 +582,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       if (interpolated instanceof Templates) {
         Templates templates = (Templates) interpolated;
         return templates
-            .run(new TransformScope(scope, templates.getScopeName()), Map.of()).stream()
+            .run(scope.getIt(), Map.of()).stream()
                 .map(Object::toString)
                 .collect(Collectors.joining());
       } else if (interpolated instanceof Queue) {
@@ -815,7 +817,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       String key = definition.Key().getText().replace(":", "");
       definedSequences.put(key, visitCompositionSequence(definition.compositionSequence()));
     }
-    return new Composer(visitCompositionSequence(ctx.compositionSequence()), definedSequences);
+    return new Composer(scope, visitCompositionSequence(ctx.compositionSequence()), definedSequences);
   }
 
   @Override

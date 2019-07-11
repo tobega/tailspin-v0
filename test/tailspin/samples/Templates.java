@@ -738,4 +738,34 @@ class Templates {
 
     assertEquals("5[4, 6]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void cannotAccessCallingScope() throws Exception {
+    String program =
+        "templates bar\n$it + $foo !\nend bar\n"
+            + "templates baz\n def foo: 2\n$it -> bar !\nend baz\n"
+            + "3 -> baz -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void shouldAccessDefiningScope() throws Exception {
+    String program =
+        "def foo: 1\ntemplates bar\n$it + $foo !\nend bar\n"
+            + "templates baz\n def foo: 2\n$it -> bar !\nend baz\n"
+            + "3 -> baz -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+  }
 }

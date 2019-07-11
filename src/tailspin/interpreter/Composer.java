@@ -20,18 +20,21 @@ class Composer implements Transform {
     namedValueCreators.put("WS", Function.identity());
   }
 
+  private final Scope definingScope;
   private final List<CompositionSpec> specs;
   private final Map<String, List<CompositionSpec>> definedSequences;
 
-  Composer(List<CompositionSpec> specs, Map<String, List<CompositionSpec>> definedSequences) {
+  Composer(Scope definingScope, List<CompositionSpec> specs, Map<String, List<CompositionSpec>> definedSequences) {
+    this.definingScope = definingScope;
     this.specs = specs;
     this.definedSequences = definedSequences;
   }
 
   @Override
-  public Queue<Object> run(TransformScope scope, Map<String, Object> parameters) {
+  public Queue<Object> run(Queue<Object> it, Map<String, Object> parameters) {
+    TransformScope scope = new TransformScope(definingScope, "");
     ArrayDeque<Object> result = new ArrayDeque<>();
-    String s = (String) scope.getIt().peek();
+    String s = (String) it.peek();
     for (CompositionSpec spec : specs) {
       SubComposer subComposer = resolveSpec(spec, scope);
       s = subComposer.nibble(s);

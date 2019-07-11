@@ -9,19 +9,29 @@ import java.util.Queue;
 import tailspin.parser.TailspinParser;
 
 class Templates implements Transform {
+  private final Scope definingScope;
   // @Nullable
   private final TailspinParser.BlockContext block;
   private final List<MatchTemplate> matchTemplates;
   private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
   private String scopeName = "";
 
-  Templates(/*@Nullable*/ TailspinParser.BlockContext block, List<MatchTemplate> matchTemplates) {
+  Templates(/*@Nullable*/ Scope definingScope,
+      TailspinParser.BlockContext block, List<MatchTemplate> matchTemplates) {
+    this.definingScope = definingScope;
     this.block = block;
     this.matchTemplates = matchTemplates;
   }
 
   @Override
-  public Queue<Object> run(TransformScope scope, Map<String, Object> parameters) {
+  public Queue<Object> run(Queue<Object> it, Map<String, Object> parameters) {
+    TransformScope scope = createTransformScope(it, parameters);
+    return runInScope(scope);
+  }
+
+  TransformScope createTransformScope(Queue<Object> it, Map<String, Object> parameters) {
+    TransformScope scope = new TransformScope(definingScope, scopeName);
+    scope.setIt(it);
     int foundParameters = 0;
     for (ExpectedParameter expectedParameter : expectedParameters) {
       if (parameters.containsKey(expectedParameter.name)) {
@@ -34,6 +44,10 @@ class Templates implements Transform {
     if (foundParameters != parameters.size()) {
       throw new IllegalArgumentException("Too many parameters for " + scope.scopeContext + ":\n" + parameters);
     }
+    return scope;
+  }
+
+  Queue<Object> runInScope(TransformScope scope) {
     RunTemplateBlock runner = new RunTemplateBlock(this, scope);
     if (block != null) {
       return runner.visitBlock(block);
@@ -63,7 +77,7 @@ class Templates implements Transform {
     return scopeName;
   }
 
-  public void setScopeContext(String name) {
+  void setScopeContext(String name) {
     scopeName = name;
   }
 }

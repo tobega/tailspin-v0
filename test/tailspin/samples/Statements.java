@@ -268,4 +268,22 @@ class Statements {
 
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void packageTemplatesRunInPackageScope(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "package dep\ntemplates quote '\"$it;\"' ! end quote\n"
+        + "templates addQuote $it -> quote ! end addQuote";
+    Path depFile = dir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "import 'dep'\n 1 -> dep/addQuote -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
+  }
 }
