@@ -1,5 +1,7 @@
 package tailspin.interpreter;
 
+import static tailspin.ast.Expression.atMostOneValue;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -17,16 +19,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
+import tailspin.ast.Block;
+import tailspin.ast.BlockStatement;
 import tailspin.ast.Bound;
+import tailspin.ast.Expression;
 import tailspin.ast.RangeGenerator;
 import tailspin.ast.Reference;
+import tailspin.ast.SendToTemplates;
+import tailspin.ast.StateAssignment;
+import tailspin.ast.ValueChain;
 import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
 import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
 import tailspin.parser.TailspinParser.DimensionReferenceContext;
 import tailspin.parser.TailspinParser.KeyValuesContext;
-import tailspin.parser.TailspinParser.SendToTemplatesContext;
 import tailspin.parser.TailspinParser.ValueProductionContext;
 import tailspin.parser.TailspinParserBaseVisitor;
 import tailspin.types.ProcessorInstance;
@@ -350,12 +357,40 @@ public class RunMain extends TailspinParserBaseVisitor {
     for (TailspinParser.MatchTemplateContext mtc : ctx.matchTemplate()) {
       matchTemplates.add(visitMatchTemplate(mtc));
     }
-    return new Templates(scope, ctx.block(), matchTemplates);
+    return new Templates(scope, visitBlock(ctx.block()), matchTemplates);
   }
 
   @Override
   public MatchTemplate visitMatchTemplate(TailspinParser.MatchTemplateContext ctx) {
-    return new MatchTemplate(ctx.matcher(), ctx.block());
+    return new MatchTemplate(ctx.matcher(), visitBlock(ctx.block()));
+  }
+
+  @Override
+  public Block visitBlock(TailspinParser.BlockContext ctx) {
+    if (ctx == null) return null;
+    List<Expression> blockExpressions = new ArrayList<>();
+    for (TailspinParser.BlockExpressionContext exp : ctx.blockExpression()) {
+      Expression expression = (Expression) visit(exp);
+      blockExpressions.add(expression);
+    }
+    return new Block(blockExpressions);
+  }
+
+  @Override
+  public StateAssignment visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
+    String stateContext = ctx.NamedAt() == null ? "" : ctx.NamedAt().getText().substring(1);
+    Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
+    return new StateAssignment(new ValueChain(ctx.valueChain()), reference, ctx.Deconstructor() != null);
+  }
+
+  @Override
+  public Expression visitResultValue(TailspinParser.ResultValueContext ctx) {
+    return new ValueChain(ctx.valueChain());
+  }
+
+  @Override
+  public BlockStatement visitBlockStatement(TailspinParser.BlockStatementContext ctx) {
+    return new BlockStatement(ctx.statement());
   }
 
   @Override
@@ -391,7 +426,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       throw new IllegalStateException(
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
     }
-    ProcessorDefinition processor = new ProcessorDefinition(scope, ctx.block());
+    ProcessorDefinition processor = new ProcessorDefinition(scope, visitBlock(ctx.block()));
     processor.setScopeContext(name);
     if (ctx.parameterDefinitions() != null) {
       List<ExpectedParameter> parameters = visitParameterDefinitions(ctx.parameterDefinitions());
@@ -498,36 +533,6 @@ public class RunMain extends TailspinParserBaseVisitor {
             throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
           }
         }).collect(Collectors.toList()));
-  }
-
-  Object collect(Queue<Object> it, Object collector) {
-    if (collector instanceof Map) {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> collectorMap = (Map<String, Object>) collector;
-      it.forEach(
-          m -> {
-            if (m instanceof Map) {
-              @SuppressWarnings("unchecked")
-              Map<String, Object> itMap = (Map<String, Object>) m;
-              collectorMap.putAll(itMap);
-            } else {
-              @SuppressWarnings("unchecked")
-              Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) m;
-              collectorMap.put(itEntry.getKey(), itEntry.getValue());
-            }
-          });
-    } else if (collector instanceof StringBuilder) {
-      StringBuilder sbCollector = (StringBuilder) collector;
-      it.forEach(s -> sbCollector.append(s.toString()));
-      collector = sbCollector.toString();
-    } else if (collector instanceof List) {
-      @SuppressWarnings("unchecked")
-      List<Object> collectorList = (List<Object>) collector;
-      collectorList.addAll(it);
-    } else {
-      throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
-    }
-    return collector;
   }
 
   @Override
@@ -739,16 +744,16 @@ public class RunMain extends TailspinParserBaseVisitor {
     return ctx.valueProduction().stream()
         .flatMap(
             vp -> {
-              Queue<Object> result = visitValueProduction(vp);
+              Queue<Object> result = visitValueProduction(vp).run(atMostOneValue(scope.getIt()), scope);
               return result.stream();
             })
         .collect(Collectors.toList());
   }
 
   @Override
-  public Queue<Object> visitValueProduction(ValueProductionContext ctx) {
+  public Expression visitValueProduction(ValueProductionContext ctx) {
     if (ctx.valueChain() != null) {
-      return visitValueChain(ctx.valueChain());
+      return new ValueChain(ctx.valueChain());
     }
     if (ctx.sendToTemplates() != null) {
       return visitSendToTemplates(ctx.sendToTemplates());
@@ -757,8 +762,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Queue<Object> visitSendToTemplates(SendToTemplatesContext ctx) {
-    throw new UnsupportedOperationException("Can only send to templates in a templates object");
+  public SendToTemplates visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx) {
+    return new SendToTemplates(new ValueChain(ctx.valueChain()));
   }
 
   @Override
@@ -791,7 +796,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public KeyValue visitKeyValue(TailspinParser.KeyValueContext ctx) {
     String key = ctx.Key().getText().replace(":", "");
-    Queue<Object> valueQueue = visitValueProduction(ctx.valueProduction());
+    Queue<Object> valueQueue = visitValueProduction(ctx.valueProduction()).run(atMostOneValue(scope.getIt()), scope);
     if (valueQueue.size() != 1) {
       throw new AssertionError("Invalid multiple value " + valueQueue.size());
     }

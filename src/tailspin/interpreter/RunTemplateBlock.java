@@ -1,7 +1,5 @@
 package tailspin.interpreter;
 
-import java.util.ArrayDeque;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -9,7 +7,6 @@ import java.util.regex.Pattern;
 import tailspin.ast.Bound;
 import tailspin.ast.Matcher;
 import tailspin.ast.RangeMatch;
-import tailspin.ast.Reference;
 import tailspin.ast.SuchThatMatch;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ArrayMatchContext;
@@ -20,7 +17,7 @@ public class RunTemplateBlock extends RunMain {
   private final Templates templates;
   public Object toMatch = null;
 
-  RunTemplateBlock(Templates templates, Scope scope) {
+  public RunTemplateBlock(Templates templates, Scope scope) {
     super(scope);
     this.templates = templates;
   }
@@ -143,34 +140,7 @@ public class RunTemplateBlock extends RunMain {
     return true;
   }
 
-  @Override
-  public Queue<Object> visitBlock(TailspinParser.BlockContext ctx) {
-    Queue<Object> results = new ArrayDeque<>();
-    Queue<Object> it = scope.getIt();
-    for (TailspinParser.BlockExpressionContext exp : ctx.blockExpression()) {
-      Object result = visit(exp);
-      if (result != null) {
-        if (result instanceof Queue) {
-          results.addAll((Collection<?>) result);
-        } else {
-          results.add(result);
-        }
-      }
-      // reset $it for next chain
-      scope.setIt(it);
-    }
-    return results;
-  }
-
-  @Override
-  public Queue<Object> visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx) {
-    Queue<Object> qIt = visitValueChain(ctx.valueChain());
-    Queue<Object> result = new ArrayDeque<>();
-    qIt.forEach(it -> result.addAll(templates.matchTemplates(createMatcherBlockRunner(queueOf(it)))));
-    return result;
-  }
-
-  RunMatcherBlock createMatcherBlockRunner(Queue<Object> it) {
+  public RunMatcherBlock createMatcherBlockRunner(Queue<Object> it) {
     Scope matcherScope = newMatcherScope();
     matcherScope.setIt(it);
     return new RunMatcherBlock(templates, matcherScope);
@@ -189,28 +159,5 @@ public class RunTemplateBlock extends RunMain {
     Scope newMatcherScope() {
       return new NestedScope(scope.getParentScope());
     }
-  }
-
-  @Override
-  public Object visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
-    String stateContext = ctx.NamedAt() == null ? "" : ctx.NamedAt().getText().substring(1);
-    Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
-    Queue<Object> value = visitValueChain(ctx.valueChain());
-    if (ctx.Deconstructor() != null) {
-      collect(value, reference.getValue(scope));
-    } else {
-      reference.setValue(value, scope);
-      if (!value.isEmpty()) {
-        throw new IllegalStateException("Too many values at "
-            + ctx.getStart().getLine() + ":" + ctx.getStart().getCharPositionInLine()
-            + " " + ctx.getText());
-      }
-    }
-    return null;
-  }
-
-  @Override
-  public Object visitResultValue(TailspinParser.ResultValueContext ctx) {
-    return visitValueChain(ctx.valueChain());
   }
 }

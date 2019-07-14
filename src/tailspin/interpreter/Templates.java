@@ -1,23 +1,25 @@
 package tailspin.interpreter;
 
-import java.util.ArrayDeque;
+import static tailspin.ast.Expression.oneValue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
-import tailspin.parser.TailspinParser;
+import tailspin.ast.Block;
+import tailspin.ast.Expression;
 
-class Templates implements Transform {
+public class Templates implements Transform {
   private final Scope definingScope;
   // @Nullable
-  private final TailspinParser.BlockContext block;
+  private final Block block;
   private final List<MatchTemplate> matchTemplates;
   private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
   private String scopeName = "";
 
-  Templates(/*@Nullable*/ Scope definingScope,
-      TailspinParser.BlockContext block, List<MatchTemplate> matchTemplates) {
+  Templates(Scope definingScope,
+      /*@Nullable*/ Block block, List<MatchTemplate> matchTemplates) {
     this.definingScope = definingScope;
     this.block = block;
     this.matchTemplates = matchTemplates;
@@ -26,11 +28,13 @@ class Templates implements Transform {
   @Override
   public Queue<Object> run(Queue<Object> it, Map<String, Object> parameters) {
     TransformScope scope = createTransformScope(it, parameters);
-    return runInScope(scope);
+    if (it.size() > 1) throw new IllegalStateException("Too many it-values " + it);
+    return runInScope(it.peek(), scope);
   }
 
   TransformScope createTransformScope(Queue<Object> it, Map<String, Object> parameters) {
     TransformScope scope = new TransformScope(definingScope, scopeName);
+    scope.setTemplates(this);
     scope.setIt(it);
     int foundParameters = 0;
     for (ExpectedParameter expectedParameter : expectedParameters) {
@@ -47,26 +51,20 @@ class Templates implements Transform {
     return scope;
   }
 
-  Queue<Object> runInScope(TransformScope scope) {
+  Queue<Object> runInScope(Object it, TransformScope scope) {
     RunTemplateBlock runner = new RunTemplateBlock(this, scope);
     if (block != null) {
-      return runner.visitBlock(block);
+      return block.run(it, scope);
     } else {
       return matchTemplates(runner.createMatcherBlockRunner(scope.getIt()));
     }
   }
 
-  Queue<Object> matchTemplates(RunTemplateBlock.RunMatcherBlock runner) {
+  public Queue<Object> matchTemplates(RunTemplateBlock.RunMatcherBlock runner) {
+    Object it = oneValue(runner.scope.getIt());
     Optional<MatchTemplate> match =
-        matchTemplates.stream().filter(m -> runner.visitMatcher(m.matcher).matches(oneValue(runner.scope.getIt()), runner)).findFirst();
-    return match.map(m -> runner.visitBlock(m.block)).orElse(new ArrayDeque<>());
-  }
-
-  private Object oneValue(Queue<Object> itStream) {
-    if (itStream.size() != 1) {
-      throw new AssertionError("Matcher called with several values");
-    }
-    return itStream.peek();
+        matchTemplates.stream().filter(m -> runner.visitMatcher(m.matcher).matches(it, runner)).findFirst();
+    return match.map(m -> m.block.run(it, runner.scope)).orElse(Expression.EMPTY_RESULT);
   }
 
   void expectParameters(List<ExpectedParameter> parameters) {

@@ -3,6 +3,7 @@ package tailspin.interpreter;
 public class TransformScope extends NestedScope {
   final String scopeContext;
   private Object state;
+  private Templates templates;
 
   public TransformScope(Scope parentScope, String scopeContext) {
     super(parentScope);
@@ -25,5 +26,13 @@ public class TransformScope extends NestedScope {
     } else {
       return super.getState(stateContext);
     }
+  }
+
+  public void setTemplates(Templates templates) {
+    this.templates = templates;
+  }
+
+  public Templates getTemplates() {
+    return templates;
   }
 }
