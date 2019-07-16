@@ -1,6 +1,6 @@
 package tailspin.interpreter;
 
-import static tailspin.ast.Expression.oneValue;
+import static tailspin.ast.Value.oneValue;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

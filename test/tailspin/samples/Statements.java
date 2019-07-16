@@ -286,4 +286,18 @@ class Statements {
 
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void dynamicDereferenceInCorrectScope() throws Exception {
+    String program =
+        "def foo: 2\n [4,5,6] -> $it($foo) -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
 }

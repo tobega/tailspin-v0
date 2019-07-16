@@ -19,14 +19,19 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
+import tailspin.ast.ArithmeticExpression;
+import tailspin.ast.ArrayLiteral;
 import tailspin.ast.Block;
 import tailspin.ast.BlockStatement;
 import tailspin.ast.Bound;
+import tailspin.ast.DereferenceValue;
 import tailspin.ast.Expression;
 import tailspin.ast.RangeGenerator;
+import tailspin.ast.RangeLiteral;
 import tailspin.ast.Reference;
 import tailspin.ast.SendToTemplates;
 import tailspin.ast.StateAssignment;
+import tailspin.ast.Value;
 import tailspin.ast.ValueChain;
 import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.parser.TailspinParser;
@@ -117,7 +122,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       return queueOf(visitStringLiteral(ctx.stringLiteral()));
     }
     if (ctx.dereferenceValue() != null) {
-      return queueOf(visitDereferenceValue(ctx.dereferenceValue()));
+      return visitDereferenceValue(ctx.dereferenceValue()).run(Expression.atMostOneValue(scope.getIt()), scope);
     }
     if (ctx.arithmeticExpression() != null) {
       return queueOf(visitArithmeticExpression(ctx.arithmeticExpression()));
@@ -153,7 +158,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Object visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
+  public DereferenceValue visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
     boolean isDelete = ctx.DeleteState() != null;
     TerminalNode dereference = isDelete ? ctx.DeleteState() : ctx.Dereference();
     String identifier = dereference.getText().substring(1);
@@ -166,14 +171,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       reference = Reference.named(identifier);
     }
     reference = resolveReference(ctx.reference(), reference);
-    Object value = isDelete ? reference.deleteValue(scope) : reference.getValue(scope);
-    if (reference.isMutable()) {
-      value = Reference.copy(value);
-    }
-    if (ctx.message() != null) {
-      value = resolveProcessorMessage(ctx.message(), value);
-    }
-    return value;
+    return new DereferenceValue(reference, isDelete, ctx.message());
   }
 
   Reference resolveReference(TailspinParser.ReferenceContext ctx, Reference reference) {
@@ -193,7 +191,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     return reference;
   }
 
-  private Queue<Object> resolveProcessorMessage(TailspinParser.MessageContext ctx, Object value) {
+  public Queue<Object> resolveProcessorMessage(TailspinParser.MessageContext ctx, Object value) {
     String message = ctx.Message().getText().substring(2);
     Queue<Object> result;
     if (value instanceof List) {
@@ -225,36 +223,16 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   private Reference resolveArrayDereference(TailspinParser.ArrayReferenceContext ctx, Reference reference) {
-    List<Object> dimensions = new ArrayList<>();
+    List<Value> dimensions = new ArrayList<>();
     for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
       if (dimCtx.arithmeticExpression() != null) {
-        dimensions.add(visitArithmeticExpression(dimCtx.arithmeticExpression()));
+        dimensions.add(new ArithmeticExpression(dimCtx.arithmeticExpression()));
       } else if (dimCtx.rangeLiteral() != null) {
-        dimensions.add(visitRangeLiteral(dimCtx.rangeLiteral()));
+        dimensions.add(new RangeLiteral(dimCtx.rangeLiteral()));
       } else if (dimCtx.arrayLiteral() != null) {
-        @SuppressWarnings("unchecked")
-        List<Integer> permutation = (List<Integer>) visitArrayLiteral(dimCtx.arrayLiteral());
-        dimensions.add(permutation);
+        dimensions.add(new ArrayLiteral(dimCtx.arrayLiteral()));
       } else if (dimCtx.dereferenceValue() != null) {
-        Object index = visitDereferenceValue(dimCtx.dereferenceValue());
-        if ((index instanceof Queue) && ((Queue<?>) index).size() == 1) {
-          index = ((Queue<?>) index).peek();
-        }
-        if (index instanceof Integer) {
-          dimensions.add(index);
-        } else if (index instanceof List) {
-          @SuppressWarnings("unchecked")
-          List<Integer> permutation = (List) index;
-          dimensions.add(permutation);
-        } else {
-          throw new UnsupportedOperationException(
-              "Unable to dereference array by "
-                  + index.getClass().getName()
-                  + " at "
-                  + dimCtx.getStart().getLine()
-                  + ":"
-                  + dimCtx.getStart().getCharPositionInLine() + " " + dimCtx.getText());
-        }
+        dimensions.add(Value.of(visitDereferenceValue(dimCtx.dereferenceValue())));
       } else {
         throw new UnsupportedOperationException(
             "Unknown way to dereference array at "
@@ -583,19 +561,18 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public String visitStringInterpolate(TailspinParser.StringInterpolateContext ctx) {
     if (ctx.dereferenceValue() != null) {
-      Object interpolated = visitDereferenceValue(ctx.dereferenceValue());
-      if (interpolated instanceof Templates) {
-        Templates templates = (Templates) interpolated;
+      Queue<Object> interpolated = visitDereferenceValue(ctx.dereferenceValue())
+          .run(Expression.atMostOneValue(scope.getIt()),scope);
+      if (interpolated.size() == 1 && interpolated.peek() instanceof Templates) {
+        Templates templates = (Templates) interpolated.peek();
         return templates
             .run(scope.getIt(), Map.of()).stream()
                 .map(Object::toString)
                 .collect(Collectors.joining());
-      } else if (interpolated instanceof Queue) {
-        return ((Queue<?>) interpolated).stream()
-                .map(Object::toString)
-                .collect(Collectors.joining());
       }
-      return interpolated.toString();
+      return ((Queue<?>) interpolated).stream()
+          .map(Object::toString)
+          .collect(Collectors.joining());
     }
     if (ctx.interpolateEvaluate() != null) {
       Queue<Object> valueQueue = visitValueChain(ctx.interpolateEvaluate().valueChain());
@@ -627,7 +604,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Integer visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
     if (ctx.dereferenceValue() != null) {
       String unaryOperator = ctx.additiveOperator() == null ? "" : ctx.additiveOperator().getText();
-      Object value = visitDereferenceValue(ctx.dereferenceValue());
+      Object value = Value.oneValue(visitDereferenceValue(ctx.dereferenceValue())
+          .run(Expression.atMostOneValue(scope.getIt()), scope));
       if (value instanceof Queue && ((Queue<?>) value).size() == 1) {
         value = ((Queue<?>) value).peek();
       }
@@ -699,7 +677,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Bound visitLowerBound(TailspinParser.LowerBoundContext ctx) {
     Object bound;
     if (ctx.dereferenceValue() != null) {
-      bound = visitDereferenceValue(ctx.dereferenceValue());
+      bound = Value.oneValue(visitDereferenceValue(ctx.dereferenceValue())
+          .run(Expression.atMostOneValue(scope.getIt()), scope));
     } else if (ctx.arithmeticExpression() != null) {
       bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
@@ -721,7 +700,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Bound visitUpperBound(TailspinParser.UpperBoundContext ctx) {
     Object bound;
     if (ctx.dereferenceValue() != null) {
-      bound = visitDereferenceValue(ctx.dereferenceValue());
+      bound = Value.oneValue(visitDereferenceValue(ctx.dereferenceValue())
+          .run(Expression.atMostOneValue(scope.getIt()), scope));
     } else if (ctx.arithmeticExpression() != null) {
       bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
@@ -784,7 +764,8 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
     if (ctx.dereferenceValue() != null) {
       Queue<KeyValue> keyValues = new ArrayDeque<>();
-      KeyValue value = (KeyValue) visitDereferenceValue(ctx.dereferenceValue());
+      KeyValue value = (KeyValue) Value.oneValue(visitDereferenceValue(ctx.dereferenceValue())
+          .run(Value.oneValue(scope.getIt()), scope));
       keyValues.add(value);
       return keyValues;
     }

@@ -1,0 +1,20 @@
+import 'harness'
+
+templates sieve
+  def size: $it
+  {primeCount: 0, flags: [ 1..$size -> 1 ]} -> @
+  2..$size -> #
+  $@.primeCount !
+  <?($@.flags($it) <1>)>
+    $@.primeCount + 1 -> @.primeCount
+    $it+$it..$size:$it -> (def k: $it
+        0 -> @sieve.flags($k)) -> void
+end sieve
+
+templates runAndVerify
+  5000 -> sieve -> #
+  <669> 1 !
+  <> 0 !
+end runAndVerify
+
+1 -> harness/run@{name: 'List', benchmark:runAndVerify} -> void

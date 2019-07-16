@@ -10,16 +10,16 @@ import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
 
 public abstract class Reference {
-  public abstract Object getValue(Scope scope);
-  public abstract Object deleteValue(Scope scope);
+  public abstract Object getValue(Object it, Scope scope);
+  public abstract Object deleteValue(Object it, Scope scope);
   public abstract boolean isMutable();
-  public abstract void setValue(Queue<Object> value, Scope scope);
+  public abstract void setValue(Queue<Object> value, Object it, Scope scope);
 
   public Reference field(String fieldIdentifier) {
     return new FieldReference(this, fieldIdentifier);
   }
 
-  public Reference array(List<Object> dimensions) {
+  public Reference array(List<Value> dimensions) {
     return new ArrayReference(this, dimensions);
   }
 
@@ -29,7 +29,7 @@ public abstract class Reference {
 
   private static Reference itReference = new Reference() {
     @Override
-    public Object getValue(Scope scope) {
+    public Object getValue(Object it, Scope scope) {
       Queue<Object> itQ = scope.getIt();
       if (itQ.size() != 1) {
         throw new AssertionError("Invalid it dereference " + itQ.size());
@@ -38,7 +38,7 @@ public abstract class Reference {
     }
 
     @Override
-    public Object deleteValue(Scope scope) {
+    public Object deleteValue(Object it, Scope scope) {
       throw new UnsupportedOperationException("'it' is not deletable");
     }
 
@@ -48,8 +48,13 @@ public abstract class Reference {
     }
 
     @Override
-    public void setValue(Queue<Object> value, Scope scope) {
+    public void setValue(Queue<Object> value, Object it, Scope scope) {
       throw new UnsupportedOperationException("'it' is not mutable");
+    }
+
+    @Override
+    public String toString() {
+      return "$it";
     }
   };
 
@@ -69,12 +74,12 @@ public abstract class Reference {
     }
 
     @Override
-    public Object getValue(Scope scope) {
+    public Object getValue(Object it, Scope scope) {
       return scope.resolveValue(identifier);
     }
 
     @Override
-    public Object deleteValue(Scope scope) {
+    public Object deleteValue(Object it, Scope scope) {
       throw new UnsupportedOperationException(identifier + " is not deletable");
     }
 
@@ -84,8 +89,13 @@ public abstract class Reference {
     }
 
     @Override
-    public void setValue(Queue<Object> value, Scope scope) {
+    public void setValue(Queue<Object> value, Object it, Scope scope) {
       throw new UnsupportedOperationException(identifier + " is not mutable");
+    }
+
+    @Override
+    public String toString() {
+      return "$" + identifier;
     }
   }
 
@@ -97,12 +107,12 @@ public abstract class Reference {
     }
 
     @Override
-    public Object getValue(Scope scope) {
+    public Object getValue(Object it, Scope scope) {
       return scope.getState(stateContext);
     }
 
     @Override
-    public Object deleteValue(Scope scope) {
+    public Object deleteValue(Object it, Scope scope) {
       Object state = scope.getState(stateContext);
       scope.setState(stateContext, null);
       return state;
@@ -114,8 +124,13 @@ public abstract class Reference {
     }
 
     @Override
-    public void setValue(Queue<Object> value, Scope scope) {
+    public void setValue(Queue<Object> value, Object it, Scope scope) {
       scope.setState(stateContext, copy(value.remove()));
+    }
+
+    @Override
+    public String toString() {
+      return "@" + stateContext;
     }
   }
 
@@ -151,19 +166,19 @@ public abstract class Reference {
     }
 
     @Override
-    public Object getValue(Scope scope) {
+    public Object getValue(Object it, Scope scope) {
       @SuppressWarnings("unchecked")
-      Map<String, Object> structure = (Map<String, Object>) parent.getValue(scope);
+      Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
       return structure.get(fieldIdentifier);
     }
 
     @Override
-    public Object deleteValue(Scope scope) {
+    public Object deleteValue(Object it, Scope scope) {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not deletable");
       }
       @SuppressWarnings("unchecked")
-      Map<String, Object> structure = (Map<String, Object>) parent.getValue(scope);
+      Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
       return structure.remove(fieldIdentifier);
     }
 
@@ -173,40 +188,45 @@ public abstract class Reference {
     }
 
     @Override
-    public void setValue(Queue<Object> value, Scope scope) {
+    public void setValue(Queue<Object> value, Object it, Scope scope) {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
       @SuppressWarnings("unchecked")
-      Map<String, Object> structure = (Map<String, Object>) parent.getValue(scope);
+      Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
       structure.put(fieldIdentifier, Reference.copy(value.remove()));
+    }
+
+    @Override
+    public String toString() {
+      return parent.toString() + "." + fieldIdentifier;
     }
   }
 
   private static class ArrayReference extends Reference {
     private final Reference parent;
-    private final List<Object> dimensions;
+    private final List<Value> dimensions;
 
-    private ArrayReference(Reference parent, List<Object> dimensions) {
+    private ArrayReference(Reference parent, List<Value> dimensions) {
       this.parent = parent;
       this.dimensions = dimensions;
     }
 
     @Override
-    public Object getValue(Scope scope) {
+    public Object getValue(Object it, Scope scope) {
       @SuppressWarnings("unchecked")
-      List<Object> array = (List<Object>) parent.getValue(scope);
-      return resolveDimensionDereference(0, array, List::get);
+      List<Object> array = (List<Object>) parent.getValue(it, scope);
+      return resolveDimensionDereference(0, array, List::get, it, scope);
     }
 
     @Override
-    public Object deleteValue(Scope scope) {
+    public Object deleteValue(Object it, Scope scope) {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not deletable");
       }
       @SuppressWarnings("unchecked")
-      List<Object> array = (List<Object>) parent.getValue(scope);
-      return resolveDimensionDereference(0, array, List::remove);
+      List<Object> array = (List<Object>) parent.getValue(it, scope);
+      return resolveDimensionDereference(0, array, List::remove, it, scope);
     }
 
     @Override
@@ -215,13 +235,19 @@ public abstract class Reference {
     }
 
     @Override
-    public void setValue(Queue<Object> value, Scope scope) {
+    public void setValue(Queue<Object> value, Object it, Scope scope) {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
       @SuppressWarnings("unchecked")
-      List<Object> array = (List<Object>) parent.getValue(scope);
-      resolveDimensionDereference(0, array, (a, i) -> a.set(i, copy(value.remove())));
+      List<Object> array = (List<Object>) parent.getValue(it, scope);
+      resolveDimensionDereference(0, array, (a, i) -> a.set(i, copy(value.remove())),
+          it, scope);
+    }
+
+    @Override
+    public String toString() {
+      return parent.toString() + "(" + dimensions.stream().map(Object::toString).collect(Collectors.joining(";")) + ")";
     }
 
     private interface ArrayOperation {
@@ -229,9 +255,10 @@ public abstract class Reference {
     }
 
     private Object resolveDimensionDereference(int currentDereference, List<Object> array,
-        ArrayOperation bottomOperation) {
+        ArrayOperation bottomOperation, Object it, Scope scope) {
       ArrayOperation operation = currentDereference == dimensions.size() - 1 ? bottomOperation : List::get;
-      Object idx = dimensions.get(currentDereference);
+      Value dimensionValue = dimensions.get(currentDereference);
+      Object idx = dimensionValue.evaluate(it, scope);
       Object dimensionResult;
       if (idx instanceof Integer) {
         int index = javaizeArrayIndex((Integer) idx, array.size());
@@ -259,12 +286,12 @@ public abstract class Reference {
         @SuppressWarnings("unchecked")
         Stream<List<Object>> results = (Stream<List<Object>>) dimensionResult;
         return results
-            .map(a -> resolveDimensionDereference(currentDereference + 1, a, bottomOperation))
+            .map(a -> resolveDimensionDereference(currentDereference + 1, a, bottomOperation, it, scope))
             .collect(Collectors.toList());
       } else {
         @SuppressWarnings("unchecked")
         List<Object> previousDimension = (List<Object>) dimensionResult;
-        return resolveDimensionDereference(currentDereference + 1, previousDimension, bottomOperation);
+        return resolveDimensionDereference(currentDereference + 1, previousDimension, bottomOperation, it, scope);
       }
     }
 

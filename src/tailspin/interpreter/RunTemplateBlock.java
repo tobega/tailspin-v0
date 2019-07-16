@@ -8,6 +8,7 @@ import tailspin.ast.Bound;
 import tailspin.ast.Matcher;
 import tailspin.ast.RangeMatch;
 import tailspin.ast.SuchThatMatch;
+import tailspin.ast.Value;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ArrayMatchContext;
 import tailspin.parser.TailspinParser.MatcherContext;
@@ -48,7 +49,8 @@ public class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitObjectEquals(TailspinParser.ObjectEqualsContext ctx) {
-    Object expected = visitDereferenceValue(ctx.dereferenceValue());
+    Object expected = Value.oneValue(visitDereferenceValue(ctx.dereferenceValue())
+        .run(Value.oneValue(scope.getIt()), scope));
     return expected.equals(toMatch);
   }
 

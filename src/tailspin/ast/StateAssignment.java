@@ -20,9 +20,9 @@ public class StateAssignment implements Expression {
   public Queue<Object> run(Object it, Scope blockScope) {
     Queue<Object> values = valueChain.run(it, blockScope);
     if (merge) {
-      collect(values, stateReference.getValue(blockScope));
+      collect(values, stateReference.getValue(it, blockScope));
     } else {
-      stateReference.setValue(values, blockScope);
+      stateReference.setValue(values, it, blockScope);
       if (!values.isEmpty()) {
         // TODO: add source reference
         throw new IllegalStateException("Too many values");

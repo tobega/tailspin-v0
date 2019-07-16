@@ -768,4 +768,34 @@ class Templates {
 
     assertEquals("4", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void dynamicReferenceAssignment() throws Exception {
+    String program =
+        "templates bar\n[4,5,6] -> @ def foo: $it 0 -> @($foo) $@!\nend bar\n"
+            + "2 -> bar -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[4, 0, 6]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void dynamicDereference() throws Exception {
+    String program =
+        "templates bar\n[4,5,6] -> @\ndef foo: $it\n $@($foo)!\nend bar\n"
+            + "2 -> bar -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
 }

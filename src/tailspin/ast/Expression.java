@@ -24,13 +24,6 @@ public interface Expression {
     return result;
   }
 
-  static Object oneValue(Queue<Object> itStream) {
-    if (itStream.size() != 1) {
-      throw new AssertionError("Expected exactly one value but was " + itStream);
-    }
-    return itStream.peek();
-  }
-
   static Object atMostOneValue(Queue<Object> itStream) {
     if (itStream == null) {
       return null;
