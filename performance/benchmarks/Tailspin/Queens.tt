@@ -1,0 +1,50 @@
+import 'harness'
+
+// Probably not the most idiomatic way to solve this problem in Tailspin
+templates queens
+  templates getRowColumn
+    <?($@queens.freeRows($it.r) <0>)> 0 !
+    <?($@queens.freeMaxs($it.r + $it.c) <0>)> 0 !
+    <?($@queens.freeMins($it.c - $it.r + 8) <0>)> 0 !
+    <> 1!
+  end getRowColumn
+
+  templates setRowColumn
+    def p: $it
+    $p.val -> @queens.freeRows($p.r)
+    $p.val -> @queens.freeMaxs($p.c + $p.r)
+    $p.val -> @queens.freeMins($p.c - $p.r + 8)
+  end setRowColumn
+
+  templates placeQueen
+    def c: $it
+    1 -> #
+    <-1> 1! // Use -1 to signal successful completion
+    <9> 0 !
+    <?({r: $it, c: $c} -> getRowColumn <1>)>
+      def r: $it
+      $c -> @queens.queenRows($r)
+      {r: $it, c: $c, val: 0} -> setRowColumn -> void
+      $c -> (<8> -1!
+        <?($c + 1 -> placeQueen <1>)> -1!
+        <>
+          {r: $r, c: $c, val: 1} -> setRowColumn -> void
+          $r + 1 !) -> #
+    <> $it + 1 -> #
+  end placeQueen
+
+  { freeRows: [1..8 -> 1],
+    freeMaxs: [1..16 -> 1],
+    freeMins: [1..16 -> 1],
+    queenRows: [1..8 -> -1] } -> @
+  1 -> placeQueen !
+end queens
+
+templates runAndVerify
+  1 -> @
+  1..10 -> queens -> #
+  $@ !
+  <0> 0 -> @
+end runAndVerify
+
+1 -> harness/run@{name: 'Queens', benchmark:runAndVerify} -> void
