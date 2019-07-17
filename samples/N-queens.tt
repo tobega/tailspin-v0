@@ -1,0 +1,32 @@
+templates queens
+  def n: $it
+  templates addColumn
+    def prev: $it
+    templates addIfPossible
+      def row: $it
+      def minor: $it - $prev::length - 1
+      def major: $it + $prev::length + 1
+       // If any element of prev matches row, array is non-empty and no result proceeds past the first line
+       // Similar for the major and minor diagonals
+      $prev -> [i](<$row> 0 !) -> (<[](0)> $prev !)
+            -> [i](<?($it - $i <$minor>)> 0 !) -> (<[](0)> $prev !)
+            -> [i](<?($it + $i <$major>)> 0 !) -> (<[](0)> $prev !)
+            -> [ $prev..., $row] !
+    end addIfPossible
+    1..$n -> addIfPossible !
+  end addColumn
+  1..$n -> [$it] -> #
+  <[]($n)> $it !
+  <> $it -> addColumn -> #
+end queens
+
+def solutions: [ 8 -> queens ]
+'For 8 queens there are $solutions::length; solutions
+' -> stdout
+
+def columns: ['abcdefgh'...]
+'One of them is $($solutions(1) -> [i]('$columns($i);$it;' !))
+' -> stdout
+
+'For 3 queens there are $([3 -> queens] -> $it::length) solutions
+' -> stdout
