@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import static tailspin.ast.Expression.EMPTY_RESULT;
 import static tailspin.ast.Expression.atMostOneValue;
 
 import java.io.ByteArrayInputStream;
@@ -56,7 +57,10 @@ public class RunMain extends TailspinParserBaseVisitor {
       visitPackageDefinition(ctx.packageDefinition());
     }
     ctx.dependency().forEach(this::visit);
-    ctx.statement().forEach(this::visit);
+    ctx.statement().forEach(s -> {
+      scope.setIt(EMPTY_RESULT);
+      visit(s);
+    });
     return null;
   }
 

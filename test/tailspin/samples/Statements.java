@@ -300,4 +300,26 @@ class Statements {
 
     assertEquals("5", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void noIt() throws Exception {
+    String program = "$it -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Throwable.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void noItAfterValueChain() throws Exception {
+    String program = "1 -> [$it] -> stdout\n$it -> stdout";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Throwable.class, () -> runner.run(input, output, List.of()));
+  }
 }
