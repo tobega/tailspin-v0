@@ -1,18 +1,18 @@
 templates sieve
   def limit: $it
-  [ 2..$limit ] -> @
+  @: [ 2..$limit ]
   1 -> #
   $@ !
 
   <..$@::length ?($@($it) * $@($it) <..$limit>)>
     templates sift
       def prime: $it
-      $prime * $prime -> @
-      [ $@sieve... -> # ] -> @sieve
+      @: $prime * $prime
+      @sieve: [ $@sieve... -> # ]
       <..~$@>
         $it !
       <$@~..>
-        $@ + $prime -> @
+        @: $@ + $prime
         $it -> #
     end sift
 

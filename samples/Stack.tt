@@ -1,8 +1,8 @@
 processor Stack
-  $it -> @
+  @: $it
 
   templates push
-    $it -> ...@Stack
+    ..|@Stack: $it
   end push
 
   templates peek

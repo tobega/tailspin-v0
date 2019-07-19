@@ -1,10 +1,10 @@
 templates q
   def outputFrom: $it(1)
   def until: $it(2)
-  [1,1] -> @
+  @: [1,1]
   1..$until -> #
   <$@::length~..>
-    $@($it - $@($it - 1)) + $@($it - $@($it - 2)) -> ...@
+    ..|@: $@($it - $@($it - 1)) + $@($it - $@($it - 2))
     $it -> #
   <$outputFrom..>
     $@($it) !
@@ -18,11 +18,11 @@ end q
 ' -> stdout
 
 templates countDownSteps
-  0 -> @
+  @: 0
   def qs: $it
   2..$qs::length -> #
   $@ !
-  <?($qs($it) <..~$qs($it-1)>)> $@ + 1 -> @
+  <?($qs($it) <..~$qs($it-1)>)> @: $@ + 1
 end countDownSteps
 
 [[1, 100000] -> q] -> countDownSteps -> 'Less than previous $it; times' -> stdout

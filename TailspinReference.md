@@ -111,34 +111,6 @@ Currently the defined explicit sinks are:
 Sinks generally denote side effects. The current specification is that each step of a _value chain_ is executed
 for all of the values of a stream `$it` before the next step is evaluated. This may change.
 
-### Templates state
-A [templates](#templates) object has modifiable local temporary state, valid for the processing of one input value,
-which can be modified by the special sink `@` and dereferenced as `$@`. Optionally, or to access
-a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
-
-The local state is also deeply modifiable so you could change just a field of the state object, e.g. `-> @.field` or `-> @name.field`,
-or a position in an array, e.g. `-> @name(2;5)`. A sequenceof variables can also be assigned to an array slice,
-e.g. `1..3 -> @(2..4)`
-
-A modifiable local state reference can also function as a collector for the [merge operator](#merge-operator), which then
-mutates the state, e.g. `-> ...@`.
-
-To remove part of the state, use the [delete operator](#delete-operator), e.g. `^@name.key`
-
-#### Merge operator
-This is the same symbol as the [deconstructor](#deconstructor), but applied before a state object assignment instead of after a value dereference, e.g. `...@myState`
-Slightly different things happen depending on what type of object is used as a collector:
- * A structure: the stream must be a stream of structures or keyed values (or just one structure or keyed value) and the result is that of
- the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
- if @ is `{a:1, b:1}` `{a:2, c:2} -> ...@` results in @ being `{a:2, b:1, c:2}`
- * A string: append the stream to the end of the string.
- * An array: append the stream to the end of the array.
- 
-#### Delete operator
-The delete operator, `^`, can be applied to the state to remove either the entire state or parts of it. The current value of
-the removed entity is used as a [source](#sources). E.g. if @ is `[4,5,6]` then `^@(1)` will produce `4` and leave
-@ as `[5,6]`
-
 ### Emit value
 Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
 result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues
@@ -297,6 +269,35 @@ Such-that conditions can also be applied to transforms of the value. Note that t
 
 Note that a such-that conditions shifts the focus so that `$it` becomes the thing being matched. This makes no difference at
 the top level but matters in nested such-thats.
+
+## Templates state
+A [templates](#templates) object has modifiable local temporary state, valid for the processing of one input value,
+which can be modified by the special identifier `@`, set as `@: _value chain_` and dereferenced as `$@`. Optionally, or to access
+a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
+
+The local state is also deeply modifiable so you could change just a field of the state object, e.g. `@.field: _value chain_` or `@name.field: _value chain_`,
+or a position in an array, e.g. `@name(2;5): _value_ chain_`. A sequenceof variables can also be assigned to an array slice,
+e.g. `1..3 -> @(2..4)`
+
+A modifiable local state reference can be a collector for the [merge operator](#merge-operator), which then
+mutates the state, e.g. `..|@: _value chain_`.
+
+To remove part of the state, use the [delete operator](#delete-operator), e.g. `^@name.key`
+
+### Merge operator
+This is the symbol `..|` which is similar to the [deconstructor](#deconstructor), but collects values instead of disperses them.
+It is applied before a state object assignment instead of after a value stream, e.g. `..|@myState`
+Slightly different things happen depending on what type of object is used as a collector:
+ * A structure: the stream must be a stream of structures or keyed values (or just one structure or keyed value) and the result is that of
+ the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
+ if @ is `{a:1, b:1}` `..|@: {a:2, c:2}` results in @ being `{a:2, b:1, c:2}`
+ * A string: append the stream to the end of the string.
+ * An array: append the stream to the end of the array.
+ 
+### Delete operator
+The delete operator, `^`, can be applied to the state to remove either the entire state or parts of it. The current value of
+the removed entity is used as a [source](#sources). E.g. if @ is `[4,5,6]` then `^@(1)` will produce `4` and leave
+@ as `[5,6]`
 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by

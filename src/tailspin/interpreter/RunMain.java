@@ -144,7 +144,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       return queueOf(scope.getInput().lines());
     }
     if (ctx.LeftParen() != null) {
-      return visitValueChain(ctx.valueChain());
+      return queueOf(visitKeyValue(ctx.keyValue()));
     }
     throw new UnsupportedOperationException(ctx.toString());
   }
@@ -362,7 +362,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   public StateAssignment visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
     String stateContext = ctx.NamedAt() == null ? "" : ctx.NamedAt().getText().substring(1);
     Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
-    return new StateAssignment(new ValueChain(ctx.valueChain()), reference, ctx.Deconstructor() != null);
+    return new StateAssignment(new ValueChain(ctx.valueChain()), reference, ctx.Merge() != null);
   }
 
   @Override

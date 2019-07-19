@@ -1,16 +1,16 @@
 templates bubblesort
   templates bubble
-    1 -> @
+    @: 1
     1..$it-1 -> #
     $@ !
     <?($@bubblesort($it+1) <..~$@bubblesort($it)>)>
-      $it -> @
+      @: $it
       def temp: $@bubblesort($@)
-      $@bubblesort($@+1) -> @bubblesort($@)
-      $temp -> @bubblesort($@+1)
+      @bubblesort($@): $@bubblesort($@+1)
+      @bubblesort($@+1): $temp
   end bubble
 
-  $it -> @
+  @: $it
   $it::length -> #
   $@ !
 

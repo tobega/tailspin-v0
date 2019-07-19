@@ -1,14 +1,13 @@
 templates sieve
   def limit: $it
-  [ 1..$limit -> 1 ] -> @
-  0 -> @(1)
+  @: [ 1..$limit -> 1 ]
+  @(1): 0
   2..$limit -> #
   $@ -> [i](<1> $i !) !
 
   <?($@($it) <1>)>
     def prime2: $it * $it
-    $prime2..$limit:$it -> (def notPrime: $it
-      0 -> @sieve($notPrime)) -> void
+    $prime2..$limit:$it -> (@sieve($it): 0) -> void
 end sieve
 
 1000 -> sieve... ->  '$it; ' -> stdout

@@ -23,7 +23,7 @@ source: Stdin
   | rangeLiteral
   | arrayLiteral
   | structureLiteral
-  | LeftParen valueChain RightParen
+  | LeftParen keyValue RightParen
   | arithmeticExpression
 ;
 
@@ -81,7 +81,7 @@ blockExpression: blockStatement
 resultValue: valueChain ResultMarker;
 blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
-stateAssignment: valueChain To Deconstructor? (At|NamedAt) reference;
+stateAssignment: Merge? (At|NamedAt) reference Colon valueChain;
 
 valueChain: source
   | source transform

@@ -9,9 +9,9 @@ templates queens
 
   templates setRowColumn
     def p: $it
-    $p.val -> @queens.freeRows($p.r)
-    $p.val -> @queens.freeMaxs($p.c + $p.r)
-    $p.val -> @queens.freeMins($p.c - $p.r + $n)
+    @queens.freeRows($p.r): $p.val
+    @queens.freeMaxs($p.c + $p.r): $p.val
+    @queens.freeMins($p.c - $p.r + $n): $p.val
   end setRowColumn
 
   templates placeQueen
@@ -21,7 +21,7 @@ templates queens
     <$n+1> 0 !
     <?({r: $it, c: $c} -> getRowColumn <1>)>
       def r: $it
-      $c -> @queens.queenRows($r)
+      @queens.queenRows($r): $c
       {r: $it, c: $c, val: 0} -> setRowColumn -> void
       $c -> (<$n> -1!
         <?($c + 1 -> placeQueen <1>)> -1!
@@ -31,10 +31,10 @@ templates queens
     <> $it + 1 -> #
   end placeQueen
 
-  { freeRows: [1..$n -> 1],
+  @: { freeRows: [1..$n -> 1],
     freeMaxs: [1..$n*2 -> 1],
     freeMins: [1..$n*2 -> 1],
-    queenRows: [1..$n -> -1] } -> @
+    queenRows: [1..$n -> -1] }
   1 -> placeQueen -> void
   $@.queenRows !
 end queens

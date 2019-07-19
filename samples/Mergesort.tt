@@ -1,13 +1,13 @@
 templates mergesort
   templates merge
-    $it(2) -> @
+    @: $it(2)
     $it(1)... -> (
       <?($@merge<[](0)>)
       | ..$@merge(1)>
         $it !
       <>
         $@merge(1) !
-        $@merge(2..-1) -> @merge
+        @merge: $@merge(2..-1)
         $it -> #
      ) !
      $@... !

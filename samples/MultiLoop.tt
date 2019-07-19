@@ -19,10 +19,10 @@ def v: ['A', 'B', 'C']
 def w: [1]
 
 templates transpose2
-  [] -> @
+  @: []
   $it... -> [i](
-    <?($i <..$@transpose2::length>)> $it -> ...@transpose2($i)
-    <> [$it] -> ...@transpose2) -> void
+    <?($i <..$@transpose2::length>)> ..|@transpose2($i): $it
+    <> ..|@transpose2: [$it]) -> void
   $@ !
 end transpose2
 

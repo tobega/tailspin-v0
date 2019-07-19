@@ -42,6 +42,8 @@ Comma: ',';
 
 Deconstructor: '...';
 
+Merge: '..|';
+
 DeleteState: '^' At IDENTIFIER?;
 
 Invert: '~';

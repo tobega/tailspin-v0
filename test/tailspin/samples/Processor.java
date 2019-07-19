@@ -14,7 +14,7 @@ class Processor {
   void simple() throws Exception {
     String program =
         "processor Holder\n"
-            + "$it -> @\n"
+            + "@: $it\n"
             + "templates add\n"
             + "  $it + $@Holder !\n"
             + "end add\n"
@@ -38,7 +38,7 @@ class Processor {
             + "  $it + $x !\n"
             + "end add\n"
             + "processor Holder@{op:}\n"
-            + "$it -> @\n"
+            + "@: $it\n"
             + "templates do\n"
             + "  $it -> op@{x:$@Holder} !\n"
             + "end do\n"
@@ -62,7 +62,7 @@ class Processor {
             + "  $it + $x !\n"
             + "end add\n"
             + "processor Holder\n"
-            + "$it -> @\n"
+            + "@: $it\n"
             + "templates do@{op:}\n"
             + "  $it -> op@{x:$@Holder} !\n"
             + "end do\n"
