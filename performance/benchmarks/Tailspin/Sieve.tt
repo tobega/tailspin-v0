@@ -2,13 +2,12 @@ import 'harness'
 
 templates sieve
   def size: $it
-  {primeCount: 0, flags: [ 1..$size -> 1 ]} -> @
+  @: {primeCount: 0, flags: [ 1..$size -> 1 ]}
   2..$size -> #
   $@.primeCount !
   <?($@.flags($it) <1>)>
-    $@.primeCount + 1 -> @.primeCount
-    $it+$it..$size:$it -> (def k: $it
-        0 -> @sieve.flags($k)) -> void
+    @.primeCount: $@.primeCount + 1
+    $it+$it..$size:$it -> (@sieve.flags($it): 0) -> void
 end sieve
 
 templates runAndVerify

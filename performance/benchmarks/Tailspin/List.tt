@@ -2,7 +2,7 @@ import 'harness'
 
 // This is not an idiomatic way to do this in Tailspin, unless you really need mutable elements in the list
 processor Element
-  {val: $it} -> @
+  @: {val: $it}
 
   templates length
     <?($@Element <{next:<>}>)>
@@ -12,7 +12,7 @@ processor Element
   end length
 
   templates setNext
-    {next: $it} -> ...@Element
+    ..|@Element: {next: $it}
   end setNext
 
   templates getNext

@@ -7,8 +7,8 @@ templates hexToInt
     <'0'> 0! <'1'> 1! <'2'> 2! <'3'> 3! <'4'> 4! <'5'> 5! <'6'> 6! <'7'> 7! <'8'> 8! <'9'> 9!
     <'[Aa]'> 10! <'Bb'> 11! <'Cc'> 12! <'Dd'> 13! <'Ee'> 14! <'Ff'> 15!
   end hexDigit
-  0 -> @
-  $it... -> hexDigit -> ($@hexToInt * 16 + $it -> @hexToInt) -> void
+  @: 0
+  $it... -> hexDigit -> (@hexToInt: $@hexToInt * 16 + $it) -> void
   $@ !
 end hexToInt
 
