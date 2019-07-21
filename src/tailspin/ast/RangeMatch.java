@@ -1,6 +1,8 @@
 package tailspin.ast;
 
-public class RangeMatch {
+import tailspin.interpreter.Scope;
+
+public class RangeMatch implements Condition {
 
   private final Bound lowerBound;
   private final Bound upperBound;
@@ -10,15 +12,20 @@ public class RangeMatch {
     this.upperBound = upperBound;
   }
 
-  public boolean contains(Comparable<Object> it) {
+  @Override
+  public boolean evaluate(Object oit, Scope scope) {
+    @SuppressWarnings("unchecked")
+    Comparable<Object> it = (Comparable<Object>) oit;
     try {
       if (lowerBound != null) {
-        if (it.compareTo(lowerBound.value) < 0) return false;
-        if (!lowerBound.inclusive && it.compareTo(lowerBound.value) == 0) return false;
+        Object low = lowerBound.value.evaluate(oit, scope);
+        if (it.compareTo(low) < 0) return false;
+        if (!lowerBound.inclusive && it.compareTo(low) == 0) return false;
       }
       if (upperBound != null) {
-        if (it.compareTo(upperBound.value) > 0) return false;
-        if (!upperBound.inclusive && it.compareTo(upperBound.value) == 0) return false;
+        Object high = upperBound.value.evaluate(oit, scope);
+        if (it.compareTo(high) > 0) return false;
+        if (!upperBound.inclusive && it.compareTo(high) == 0) return false;
       }
       return true;
     } catch (ClassCastException e) {

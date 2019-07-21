@@ -264,7 +264,9 @@ public abstract class Reference {
         int index = javaizeArrayIndex((Integer) idx, array.size());
         dimensionResult = operation.invoke(array, index);
       } else if (idx instanceof RangeGenerator) {
-        dimensionResult = resolveArrayRangeDereference((RangeGenerator) idx, array, operation);
+        dimensionResult = ((RangeGenerator) idx)
+            .stream((Integer i) -> javaizeArrayIndex(i, array.size()), it, scope)
+            .map(i -> operation.invoke(array, i));
       } else if (idx instanceof List) {
         @SuppressWarnings("unchecked")
         List<Integer> permutation = (List<Integer>) idx;
@@ -303,10 +305,5 @@ public abstract class Reference {
       }
     }
 
-    private Stream<Object> resolveArrayRangeDereference(RangeGenerator range,
-        List<Object> array, ArrayOperation operation) {
-      return range.stream((Integer i) -> javaizeArrayIndex(i, array.size()))
-          .map(i -> operation.invoke(array, i));
-    }
   }
 }

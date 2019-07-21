@@ -28,10 +28,11 @@ import tailspin.ast.Bound;
 import tailspin.ast.DereferenceValue;
 import tailspin.ast.Expression;
 import tailspin.ast.RangeGenerator;
-import tailspin.ast.RangeLiteral;
+import tailspin.ast.ArrayDimensionRange;
 import tailspin.ast.Reference;
 import tailspin.ast.SendToTemplates;
 import tailspin.ast.StateAssignment;
+import tailspin.ast.StringLiteral;
 import tailspin.ast.Value;
 import tailspin.ast.ValueChain;
 import tailspin.interpreter.Composer.CompositionSpec;
@@ -132,7 +133,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       return queueOf(visitArithmeticExpression(ctx.arithmeticExpression()));
     }
     if (ctx.rangeLiteral() != null) {
-      return queueOf(visitRangeLiteral(ctx.rangeLiteral()).stream());
+      return visitRangeLiteral(ctx.rangeLiteral()).run(Expression.atMostOneValue(scope.getIt()), scope);
     }
     if (ctx.arrayLiteral() != null) {
       return queueOf(visitArrayLiteral(ctx.arrayLiteral()));
@@ -232,7 +233,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       if (dimCtx.arithmeticExpression() != null) {
         dimensions.add(new ArithmeticExpression(dimCtx.arithmeticExpression()));
       } else if (dimCtx.rangeLiteral() != null) {
-        dimensions.add(new RangeLiteral(dimCtx.rangeLiteral()));
+        dimensions.add(new ArrayDimensionRange(dimCtx.rangeLiteral()));
       } else if (dimCtx.arrayLiteral() != null) {
         dimensions.add(new ArrayLiteral(dimCtx.arrayLiteral()));
       } else if (dimCtx.dereferenceValue() != null) {
@@ -679,46 +680,32 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Bound visitLowerBound(TailspinParser.LowerBoundContext ctx) {
-    Object bound;
+    Value bound;
     if (ctx.dereferenceValue() != null) {
-      bound = Value.oneValue(visitDereferenceValue(ctx.dereferenceValue())
-          .run(Expression.atMostOneValue(scope.getIt()), scope));
+      bound = Value.of(visitDereferenceValue(ctx.dereferenceValue()));
     } else if (ctx.arithmeticExpression() != null) {
-      bound = visitArithmeticExpression(ctx.arithmeticExpression());
+      bound = new ArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
-      bound = visitStringLiteral(ctx.stringLiteral());
+      bound = new StringLiteral(ctx.stringLiteral());
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
-    }
-    if (bound instanceof Queue) {
-      if (((Queue)bound).size() != 1) {
-        throw new AssertionError("Lower bound with several values");
-      }
-      bound = ((Queue)bound).peek();
     }
     return new Bound(bound, ctx.Invert() == null);
   }
 
   @Override
   public Bound visitUpperBound(TailspinParser.UpperBoundContext ctx) {
-    Object bound;
+    Value bound;
     if (ctx.dereferenceValue() != null) {
-      bound = Value.oneValue(visitDereferenceValue(ctx.dereferenceValue())
-          .run(Expression.atMostOneValue(scope.getIt()), scope));
+      bound = Value.of(visitDereferenceValue(ctx.dereferenceValue()));
     } else if (ctx.arithmeticExpression() != null) {
-      bound = visitArithmeticExpression(ctx.arithmeticExpression());
+      bound = new ArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
-      bound = visitStringLiteral(ctx.stringLiteral());
+      bound = new StringLiteral(ctx.stringLiteral());
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
-    }
-    if (bound instanceof Queue) {
-      if (((Queue)bound).size() != 1) {
-        throw new AssertionError("Upper bound with several values");
-      }
-      bound = ((Queue)bound).peek();
     }
     return new Bound(bound, ctx.Invert() == null);
   }

@@ -6,17 +6,16 @@ import tailspin.interpreter.RunMain;
 import tailspin.interpreter.Scope;
 import tailspin.parser.TailspinParser;
 
-public class RangeLiteral implements Value {
+public class StringLiteral implements Value {
+  final TailspinParser.StringLiteralContext stringLiteral;
 
-  private final TailspinParser.RangeLiteralContext rangeLiteral;
-
-  public RangeLiteral(TailspinParser.RangeLiteralContext rangeLiteral) {
-    this.rangeLiteral = rangeLiteral;
+  public StringLiteral(TailspinParser.StringLiteralContext stringLiteral) {
+    this.stringLiteral = stringLiteral;
   }
 
   @Override
   public Object evaluate(Object it, Scope scope) {
     scope.setIt(queueOf(it));
-    return new RunMain(scope).visitRangeLiteral(rangeLiteral);
+    return new RunMain(scope).visitStringLiteral(stringLiteral);
   }
 }

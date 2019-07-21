@@ -67,7 +67,7 @@ public class RunTemplateBlock extends RunMain {
     Comparable<Object> it = (Comparable<Object>) toMatch;
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
-    return new RangeMatch(lowerBound, upperBound).contains(it);
+    return new RangeMatch(lowerBound, upperBound).evaluate(it, scope);
   }
 
   @Override
