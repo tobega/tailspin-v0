@@ -20,4 +20,4 @@ templates sieve
     $it + 1 -> #
 end sieve
 
-1000 -> sieve ...->  '$it; ' -> stdout
+1000 -> sieve ...->  '$it; ' -> !OUT::write

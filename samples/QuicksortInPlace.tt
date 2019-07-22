@@ -33,4 +33,4 @@ templates quicksort
     $it -> partial -> #
 end quicksort
 
-[4,5,3,8,1,2,6,7,9,8,5] -> quicksort -> stdout
+[4,5,3,8,1,2,6,7,9,8,5] -> quicksort -> !OUT::write

@@ -5,7 +5,6 @@ import static tailspin.ast.Expression.atMostOneValue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
@@ -21,6 +20,7 @@ import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
 import tailspin.ast.ArithmeticExpression;
+import tailspin.ast.ArrayDimensionRange;
 import tailspin.ast.ArrayLiteral;
 import tailspin.ast.Block;
 import tailspin.ast.BlockStatement;
@@ -28,9 +28,9 @@ import tailspin.ast.Bound;
 import tailspin.ast.DereferenceValue;
 import tailspin.ast.Expression;
 import tailspin.ast.RangeGenerator;
-import tailspin.ast.ArrayDimensionRange;
 import tailspin.ast.Reference;
 import tailspin.ast.SendToTemplates;
+import tailspin.ast.SinkReference;
 import tailspin.ast.StateAssignment;
 import tailspin.ast.StringLiteral;
 import tailspin.ast.Value;
@@ -141,9 +141,6 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.structureLiteral() != null) {
       return queueOf(visitStructureLiteral(ctx.structureLiteral()));
     }
-    if (ctx.Stdin() != null) {
-      return queueOf(scope.getInput().lines());
-    }
     if (ctx.LeftParen() != null) {
       return queueOf(visitKeyValue(ctx.keyValue()));
     }
@@ -167,6 +164,11 @@ public class RunMain extends TailspinParserBaseVisitor {
     boolean isDelete = ctx.DeleteState() != null;
     TerminalNode dereference = isDelete ? ctx.DeleteState() : ctx.Dereference();
     String identifier = dereference.getText().substring(1);
+    Reference reference = getReference(ctx.reference(), identifier);
+    return new DereferenceValue(reference, isDelete, ctx.message());
+  }
+
+  private Reference getReference(TailspinParser.ReferenceContext ctx, String identifier) {
     Reference reference;
     if (identifier.equals("it")) {
       reference = Reference.it();
@@ -175,11 +177,11 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else {
       reference = Reference.named(identifier);
     }
-    reference = resolveReference(ctx.reference(), reference);
-    return new DereferenceValue(reference, isDelete, ctx.message());
+    reference = resolveReference(ctx, reference);
+    return reference;
   }
 
-  Reference resolveReference(TailspinParser.ReferenceContext ctx, Reference reference) {
+  private Reference resolveReference(TailspinParser.ReferenceContext ctx, Reference reference) {
     if (ctx.arrayReference() != null) {
       try {
         reference = resolveArrayDereference(ctx.arrayReference(), reference);
@@ -251,17 +253,10 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Void visitSink(TailspinParser.SinkContext ctx) {
-    if (ctx.Stdout() != null) {
-      scope
-          .getIt()
-          .forEach(
-              it -> {
-                try {
-                  scope.getOutput().write(it.toString().getBytes(StandardCharsets.UTF_8));
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
-                }
-              });
+    if (ctx.SinkReference() != null) {
+      SinkReference sink = new SinkReference(
+          getReference(ctx.reference(), ctx.SinkReference().getText().substring(1)), ctx.message());
+      scope.getIt().forEach(it -> sink.run(it, scope));
     }
     return null;
   }
@@ -490,7 +485,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   private Queue<?> deconstruct(Queue<Object> its) {
-    return new ArrayDeque<>(its.stream().flatMap(
+    return its.stream().flatMap(
         it -> {
           if (it instanceof List) {
             return ((List<?>) it).stream();
@@ -515,7 +510,7 @@ public class RunMain extends TailspinParserBaseVisitor {
           } else {
             throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
           }
-        }).collect(Collectors.toList()));
+        }).collect(Collectors.toCollection(ArrayDeque::new));
   }
 
   @Override

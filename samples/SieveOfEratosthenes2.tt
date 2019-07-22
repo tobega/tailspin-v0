@@ -10,4 +10,4 @@ templates sieve
     $prime2..$limit:$it -> (@sieve($it): 0) -> void
 end sieve
 
-1000 -> sieve... ->  '$it; ' -> stdout
+1000 -> sieve... ->  '$it; ' -> !OUT::write

@@ -17,12 +17,19 @@ stage is simply the value produced by the stage before. At the start of a top-le
 A transform is typically a [templates](#templates) object where the block to be executed is
 decided by a [matcher](#matchers) on the current value (referred to as `$it`).
 
+Note that at each step of a value chain, any number of values may be emitted for each input value.
+If no values are emitted from a step, the processing of that value chain ends.
+
 Whitespace works as a separator but is ignored.
 
 Language constructs are designed to be as like the value they match or produce as possible.
 Rather than using control flow keywords, you would in tailspin produce streams of values in a declarative way.
 
 Comments are started with `//` and continue to the end of the line.
+
+## Side effects
+The current specification is that each step of a _value chain_ is executed
+for all of the values of a stream `$it` before the next step is evaluated. This may change.
 
 ## Command line arguments
 Command line arguments are available as a list of strings in the predefined value args, accessible as `$args`.
@@ -79,11 +86,8 @@ a [stream](#streams) of key-value pairs, optionally separated by commas, and end
 A key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
 
 ### Input
-Input is data obtained from an external source. An input source is currently defined as producing a stream
-of lines of data (with the line-end markers removed).
-
-#### Stdin
-A user entering data in the terminal (or data from the unix standard input pipe) is accessed by the token `stdin`.
+Input is data obtained from an external source. See the [system objects](#the-system-objects), e.g. `IN` for
+a user entering data in the terminal (or data from the unix standard input pipe).
 Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).
 
 ### Dereference
@@ -102,19 +106,22 @@ Note that templates have a modifiable state value that can be dereferenced, see 
 ## Sinks
 A sink is a place where a value "disappears" and the value chain ends.
 
-A symbol definition could be considered to have an implicit sink at the end that captures the value into the symbol.
+A symbol definition (or a state modification) could be considered to have an implicit sink at the end that captures the value into the symbol (or state).
 
-Currently the defined explicit sinks are:
- * `-> stdout` which outputs the result stream, converted to text, into the standard output (generally the console).
- * `-> void` which is used to ignore the output.
+`-> void` is a special sink which is used to ignore the values from a chain (or to mark that the chain is not expected to produce values).
 
-Sinks generally denote side effects. The current specification is that each step of a _value chain_ is executed
-for all of the values of a stream `$it` before the next step is evaluated. This may change.
+Defined sinks are accessed by prepending the identifier reference with an exclamation point `!` (instead of the `$` otherwise used).
+
+To produce output from your program, see [the system objects](#the-system-objects), e.g. `OUT`
+
+Sinks often entail [side effects](#side-effects)
 
 ### Emit value
 Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
 result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues
 elsewhere in the program, so it is not really a sink as such.
+
+Note also that emitting a value does not end the execution of the templates block and you are free to emit multiple values.
 
 ## Transforms
 Transforms take the current value (or each value separately from a [stream](#streams)) and convert
@@ -258,6 +265,10 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
 * Inverse match, to match the opposite of a conditon, just put a tilde inside the angle bracket, e.g. `<~5>`
 * Array match, given as `<[]>` matches if the _current value_ is an array. A match can also be restricted to arrays
   of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`
+
+### Do-nothing block (guard clause)
+Sometimes it is easier or clearer to specify conditions which you don't want to do anything with.
+A matcher block can be simply the word `void` to indicate this case.
   
 ### Such-that conditions
 Sometimes you want to match relations between parts of a structure or values at certain array positions, then you can
@@ -375,6 +386,12 @@ run within the scope of the processor instance. Therefore messages can also take
 ## The System objects
 A predefined symbol `SYS` can be used to access certain system-defined functions:
 * `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
+
+`IN` accesses user data entered in the terminal (or data from the unix standard input pipe).
+* `$IN::lines` Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).
+
+`OUT` sends data to the standard output pipe (by default the terminal)
+* `!OUT::write` writes a string representation of each of the objects in the stream. (Note the `!` prefix for a [sink](#sinks))
 
 ## Importing packages
 A tailspin file can be declared to be an importable package by

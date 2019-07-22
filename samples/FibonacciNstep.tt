@@ -12,18 +12,18 @@ templates fibonacciNstep@{N:}
     @: $@ -> next
 end fibonacciNstep
 
-[1,1] -> fibonacciNstep@{N:10} -> '$it; ' -> stdout
+[1,1] -> fibonacciNstep@{N:10} -> '$it; ' -> !OUT::write
 '
-' -> stdout
+' -> !OUT::write
 
-[1,1,2] -> fibonacciNstep@{N:10} -> '$it; ' -> stdout
+[1,1,2] -> fibonacciNstep@{N:10} -> '$it; ' -> !OUT::write
 '
-' -> stdout
+' -> !OUT::write
 
-[1,1,2,4] -> fibonacciNstep@{N:10} -> '$it; ' -> stdout
+[1,1,2,4] -> fibonacciNstep@{N:10} -> '$it; ' -> !OUT::write
 '
-' -> stdout
+' -> !OUT::write
 
-[2,1] -> fibonacciNstep@{N:10} -> '$it; ' -> stdout
+[2,1] -> fibonacciNstep@{N:10} -> '$it; ' -> !OUT::write
 '
-' -> stdout
+' -> !OUT::write

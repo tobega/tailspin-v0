@@ -22,11 +22,11 @@ end queens
 
 def solutions: [ 8 -> queens ]
 'For 8 queens there are $solutions::length; solutions
-' -> stdout
+' -> !OUT::write
 
 def columns: ['abcdefgh'...]
 'One of them is $($solutions(1) -> [i]('$columns($i);$it;' !))
-' -> stdout
+' -> !OUT::write
 
 'For 3 queens there are $([3 -> queens] -> $it::length) solutions
-' -> stdout
+' -> !OUT::write

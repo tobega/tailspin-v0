@@ -14,15 +14,15 @@ templates run@{name:, benchmark:}
       def endTime: $SYS::nanoCount
       def runTime: ($endTime - $startTime) / 1000
       '$name;: iterations=1 runtime: $runTime;us
-' -> stdout
+' -> !OUT::write
       @run: $@run + $runTime
     <0>
       'Benchmark failed with incorrect result
-' -> stdout
+' -> !OUT::write
   end measure
 
   'Starting $name; benchmark ...
-' -> stdout
+' -> !OUT::write
   @: 0
   def specs: { iterations: $args::length -> (<1..> $args(1) -> toInt ! <> 1!),
                innerIterations: $args::length -> (<2..> $args(2) -> toInt ! <> 1!)
@@ -30,5 +30,5 @@ templates run@{name:, benchmark:}
   1..$specs.iterations -> ($specs.innerIterations -> measure -> void) -> void
   '$name;: iterations=$specs.iterations; average: $($@run / $specs.iterations)us total: $@run;us
 
-' -> stdout
+' -> !OUT::write
 end run

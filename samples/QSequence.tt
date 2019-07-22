@@ -10,12 +10,12 @@ templates q
     $@($it) !
 end q
 
-[1,10] -> q -> '$it; ' -> stdout
+[1,10] -> q -> '$it; ' -> !OUT::write
 '
-' -> stdout
+' -> !OUT::write
 
 [1000,1000] -> q -> '$it;
-' -> stdout
+' -> !OUT::write
 
 templates countDownSteps
   @: 0
@@ -25,4 +25,4 @@ templates countDownSteps
   <?($qs($it) <..~$qs($it-1)>)> @: $@ + 1
 end countDownSteps
 
-[[1, 100000] -> q] -> countDownSteps -> 'Less than previous $it; times' -> stdout
+[[1, 100000] -> q] -> countDownSteps -> 'Less than previous $it; times' -> !OUT::write

@@ -12,7 +12,7 @@ import tailspin.Tailspin;
 class Input {
   @Test
   void helloWorld() throws Exception {
-    String program = "stdin -> stdout";
+    String program = "$IN::lines -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -25,7 +25,7 @@ class Input {
 
   @Test
   void helloMultiline() throws Exception {
-    String program = "stdin -> 'Hello $it;!\n' -> stdout";
+    String program = "$IN::lines -> 'Hello $it;!\n' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -38,7 +38,7 @@ class Input {
 
   @Test
   void streamOfLines() throws Exception {
-    String program = "stdin -> '$it;\n' -> stdout";
+    String program = "$IN::lines -> '$it;\n' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

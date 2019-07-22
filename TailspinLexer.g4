@@ -10,10 +10,6 @@ Package: 'package';
 
 Import: 'import';
 
-Stdout: 'stdout';
-
-Stdin: 'stdin';
-
 Void: 'void';
 
 Def: 'def' [ \r\t\n];
@@ -21,6 +17,8 @@ Def: 'def' [ \r\t\n];
 To: '->';
 
 ResultMarker: '!';
+
+SinkReference: ResultMarker IDENTIFIER;
 
 At: '@';
 

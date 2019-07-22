@@ -18,6 +18,8 @@ public class SystemProcessor extends ProcessorInstance {
     if (message.equals("nanoCount")) {
       // TODO: make long the number used
       result.add((int) (System.nanoTime() & (0x8fffffff)));
+    } else {
+      throw new UnsupportedOperationException("Unknown SYS message " + message);
     }
     return result;
   }

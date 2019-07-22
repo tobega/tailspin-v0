@@ -15,7 +15,7 @@ class Strings {
 
   @Test
   void apostrophe() throws Exception {
-    String program = "'" + "What''s up" + "' -> stdout";
+    String program = "'" + "What''s up" + "' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -28,7 +28,7 @@ class Strings {
 
   @Test
   void moreApostrophes() throws Exception {
-    String program = "'" + "What''''s up" + "' -> stdout";
+    String program = "'" + "What''''s up" + "' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -41,7 +41,7 @@ class Strings {
 
   @Test
   void multilineString() throws Exception {
-    String program = "'Hello\nWorld'  -> stdout";
+    String program = "'Hello\nWorld'  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -54,7 +54,7 @@ class Strings {
 
   @Test
   void interpolateWholeString() throws Exception {
-    String program = "def helloWorld: 'Hello World!'\n" + "'$helloWorld;' -> stdout";
+    String program = "def helloWorld: 'Hello World!'\n" + "'$helloWorld;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -67,7 +67,7 @@ class Strings {
 
   @Test
   void interpolatePartialString() throws Exception {
-    String program = "def world: 'World!'\n" + "'Hello $world;' -> stdout";
+    String program = "def world: 'World!'\n" + "'Hello $world;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -80,7 +80,7 @@ class Strings {
 
   @Test
   void interpolatePartialStringFirst() throws Exception {
-    String program = "def hello: 'Hello'\n" + "'$hello; World!' -> stdout";
+    String program = "def hello: 'Hello'\n" + "'$hello; World!' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -93,7 +93,7 @@ class Strings {
 
   @Test
   void interpolateNoSuchVariable() throws Exception {
-    String program = "def hello: 'Hello '\n" + "'$helloWorld;!' -> stdout";
+    String program = "def hello: 'Hello '\n" + "'$helloWorld;!' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -110,7 +110,7 @@ class Strings {
 
   @Test
   void interpolateRunningIntoText() throws Exception {
-    String program = "def hello: 'Hello '\n" + "'$hello;World!' -> stdout";
+    String program = "def hello: 'Hello '\n" + "'$hello;World!' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -123,7 +123,7 @@ class Strings {
 
   @Test
   void dollar() throws Exception {
-    String program = "'" + "$$hello is a dereferencing" + "' -> stdout";
+    String program = "'" + "$$hello is a dereferencing" + "' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -136,7 +136,7 @@ class Strings {
 
   @Test
   void moreDollars() throws Exception {
-    String program = "'" + "$$$$$$signs" + "' -> stdout";
+    String program = "'" + "$$$$$$signs" + "' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -149,7 +149,7 @@ class Strings {
 
   @Test
   void semiColons() throws Exception {
-    String program = "def two: '2'\n" + "'one;$two;;three;;' -> stdout";
+    String program = "def two: '2'\n" + "'one;$two;;three;;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -162,7 +162,7 @@ class Strings {
 
   @Test
   void interpolateNumericValue() throws IOException {
-    String program = "33 -> '1$it;7' -> stdout";
+    String program = "33 -> '1$it;7' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -175,7 +175,7 @@ class Strings {
 
   @Test
   void interpolateExpression() throws Exception {
-    String program = "1 -> '$($it - 1), $it;, $(2)' -> stdout";
+    String program = "1 -> '$($it - 1), $it;, $(2)' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -188,7 +188,7 @@ class Strings {
 
   @Test
   void interpolateTemplates() throws Exception {
-    String program = "templates foo <1> 'one' ! end foo\n" + "1 -> '$foo; $it; $foo;' -> stdout";
+    String program = "templates foo <1> 'one' ! end foo\n" + "1 -> '$foo; $it; $foo;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -201,7 +201,7 @@ class Strings {
 
   @Test
   void interpolateTemplatesWithNoMatch() throws Exception {
-    String program = "templates foo <2> 'two'! end foo\n" + "1 -> '$foo; $it; $foo;' -> stdout";
+    String program = "templates foo <2> 'two'! end foo\n" + "1 -> '$foo; $it; $foo;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -215,7 +215,7 @@ class Strings {
   @Test
   void interpolateTemplatesWithNoResult() throws Exception {
     String program =
-        "templates foo <1> 'one' -> stdout end foo\n" + "1 -> '$foo; $it; $foo;' -> stdout";
+        "templates foo <1> 'one' -> !OUT::write end foo\n" + "1 -> '$foo; $it; $foo;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -228,7 +228,7 @@ class Strings {
 
   @Test
   void interpolateTemplatesChain() throws Exception {
-    String program = "3 -> '$($it - 1 -> ($it - 2!))' -> stdout";
+    String program = "3 -> '$($it - 1 -> ($it - 2!))' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -241,7 +241,7 @@ class Strings {
 
   @Test
   void valueChainInterpolation() throws Exception {
-    String program = "1..3 -> (<> 'hi'!) -> '$it;' -> stdout";
+    String program = "1..3 -> (<> 'hi'!) -> '$it;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -254,7 +254,7 @@ class Strings {
 
   @Test
   void doubleDereferenceInterpolation() throws Exception {
-    String program = "1..3 -> '$it;$it;' -> stdout";
+    String program = "1..3 -> '$it;$it;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -267,7 +267,7 @@ class Strings {
 
   @Test
   void interpolateStructureField() throws Exception {
-    String program = "{a: 'hi'} -> '$it.a;' -> stdout";
+    String program = "{a: 'hi'} -> '$it.a;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -280,7 +280,7 @@ class Strings {
 
   @Test
   void interpolateArrayElement() throws Exception {
-    String program = "['yo', 'hi'] -> '$it(2);' -> stdout";
+    String program = "['yo', 'hi'] -> '$it(2);' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -293,7 +293,7 @@ class Strings {
 
   @Test
   void interpolateArrayRange() throws Exception {
-    String program = "['yo', 'hi', 'ho'] -> '$it(2..3);' -> stdout";
+    String program = "['yo', 'hi', 'ho'] -> '$it(2..3);' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -306,7 +306,7 @@ class Strings {
 
   @Test
   void interpolateStructureArrayElement() throws Exception {
-    String program = "{a:['yo', 'hi']} -> '$it.a(2);' -> stdout";
+    String program = "{a:['yo', 'hi']} -> '$it.a(2);' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -319,7 +319,7 @@ class Strings {
 
   @Test
   void interpolateMessage() throws Exception {
-    String program = "['yo', 'hi', 'ho'] -> '$it::length;' -> stdout";
+    String program = "['yo', 'hi', 'ho'] -> '$it::length;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -332,7 +332,7 @@ class Strings {
 
   @Test
   void lexerMunchParentheses() throws Exception {
-    String program = "'(2)' -> stdout";
+    String program = "'(2)' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -345,7 +345,7 @@ class Strings {
 
   @Test
   void lexerMunchIdentifier() throws Exception {
-    String program = "'hi' -> '$it; and so much more' -> stdout";
+    String program = "'hi' -> '$it; and so much more' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -358,7 +358,7 @@ class Strings {
 
   @Test
   void restructureString() throws Exception {
-    String program = "'$(1..3)' -> stdout";
+    String program = "'$(1..3)' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -371,7 +371,7 @@ class Strings {
 
   @Test
   void deconstructString() throws Exception {
-    String program = "'abc'... -> (<'c'> 3 ! <'a'> 1 ! <> 2 !) -> stdout";
+    String program = "'abc'... -> (<'c'> 3 ! <'a'> 1 ! <> 2 !) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -384,7 +384,7 @@ class Strings {
 
   @Test
   void deconstructStringEachTransformInTurn() throws Exception {
-    String program = "'abc'... -> ($it -> stdout\n$it!) -> stdout";
+    String program = "'abc'... -> ($it -> !OUT::write\n$it!) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -397,7 +397,7 @@ class Strings {
 
   @Test
   void multiDeconstructStringEachTransformInTurn() throws Exception {
-    String program = "['abc', 'def', 'ghi']... -> $it... -> ($it -> stdout\n$it!) -> stdout";
+    String program = "['abc', 'def', 'ghi']... -> $it... -> ($it -> !OUT::write\n$it!) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -414,7 +414,7 @@ class Strings {
         "templates reverse\n"
             + "  '$([ $it... ] -> $it(-1..1:-1)...)' !\n"
             + "end reverse\n"
-            + "'as⃝df̅' -> reverse -> stdout";
+            + "'as⃝df̅' -> reverse -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -427,7 +427,7 @@ class Strings {
 
   @Test
   void characterCodes() throws Exception {
-    String program = "'$#9;$#10;$#13;' -> stdout";
+    String program = "'$#9;$#10;$#13;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -440,7 +440,7 @@ class Strings {
 
   @Test
   void characterCodeExpression() throws Exception {
-    String program = "def tab: 9 '$#$tab;' -> stdout";
+    String program = "def tab: 9 '$#$tab;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

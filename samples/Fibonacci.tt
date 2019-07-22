@@ -13,6 +13,6 @@ templates nthFibonacci
 end nthFibonacci
 
 8 -> nthFibonacci -> '$it;
-' -> stdout
+' -> !OUT::write
 -5 -> nthFibonacci -> '$it;
-' -> stdout
+' -> !OUT::write

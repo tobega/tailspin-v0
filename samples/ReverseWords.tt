@@ -15,4 +15,4 @@ composer words
 end words
 
 $input... -> '$($it -> words -> $it(-1..1:-1)...)
-' -> stdout
+' -> !OUT::write

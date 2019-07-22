@@ -72,7 +72,7 @@ templates printJson
 end printJson
 
 '{ "foo": 1, "bar": [10, "apples"] }' -> jsonParser -> '$it.bar(2);
-' -> stdout
+' -> !OUT::write
 
 { blue: [1,2], ocean: 'water' } -> printJson -> '$it;
-' -> stdout
+' -> !OUT::write

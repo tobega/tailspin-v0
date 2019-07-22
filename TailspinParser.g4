@@ -17,8 +17,7 @@ statement: Def Key valueChain                   # definition
 
 parameterDefinitions: At LeftBrace (Key Comma?)+ RightBrace;
 
-source: Stdin
-  | dereferenceValue
+source: dereferenceValue
   | stringLiteral
   | rangeLiteral
   | arrayLiteral
@@ -57,6 +56,8 @@ templates: source                        # literalTemplates
   | transformCall                        # callDefinedTransform
   | LeftBracket IDENTIFIER (Comma IDENTIFIER)* RightBracket LeftParen templatesBody RightParen # arrayTemplates
 ;
+
+sink: (SinkReference reference message?) | Void;
 
 transformCall: IDENTIFIER (At parameterValues)?;
 
@@ -126,8 +127,6 @@ stringInterpolate: interpolateEvaluate|(dereferenceValue EndStringInterpolate)|c
 characterCode: StartCharacterCode arithmeticExpression EndStringInterpolate;
 
 interpolateEvaluate: StartStringEvaluate valueChain RightParen;
-
-sink: Stdout | Void;
 
 arithmeticExpression: integerLiteral
   | LeftParen valueChain RightParen

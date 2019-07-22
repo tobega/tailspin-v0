@@ -7,22 +7,22 @@ templates replace@{a:,b:}
   <> $it !
 end replace
 
-'' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> stdout
+'' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
 '
-' -> stdout
+' -> !OUT::write
 
-'A' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> stdout
+'A' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
 '
-' -> stdout
+' -> !OUT::write
 
-'Julius Caesar' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> stdout
+'Julius Caesar' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
 '
-' -> stdout
+' -> !OUT::write
 
-'Julius Caesar invaded Britain' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> stdout
+'Julius Caesar invaded Britain' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
 '
-' -> stdout
+' -> !OUT::write
 
-'Brutus killed Julius Caesar, his friend.' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> stdout
+'Brutus killed Julius Caesar, his friend.' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
 '
-' -> stdout
+' -> !OUT::write

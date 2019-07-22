@@ -20,7 +20,7 @@ import tailspin.Tailspin;
 class Statements {
   @Test
   void helloWorld() throws Exception {
-    String program = "'Hello World' -> stdout";
+    String program = "'Hello World' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -33,7 +33,7 @@ class Statements {
 
   @Test
   void newlineAfter() throws Exception {
-    String program = "'Hello World' -> stdout\n";
+    String program = "'Hello World' -> !OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -46,7 +46,7 @@ class Statements {
 
   @Test
   void extraWhitespaceAfter() throws Exception {
-    String program = "'Hello World' -> stdout ";
+    String program = "'Hello World' -> !OUT::write ";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -59,7 +59,7 @@ class Statements {
 
   @Test
   void newlineBefore() throws Exception {
-    String program = "\n'Hello World' -> stdout";
+    String program = "\n'Hello World' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -72,7 +72,7 @@ class Statements {
 
   @Test
   void extraWhitespaceBefore() throws Exception {
-    String program = " 'Hello World' -> stdout ";
+    String program = " 'Hello World' -> !OUT::write ";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -85,7 +85,7 @@ class Statements {
 
   @Test
   void multiLineStatement() throws Exception {
-    String program = "'Hello World'\n  -> stdout";
+    String program = "'Hello World'\n  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -98,7 +98,7 @@ class Statements {
 
   @Test
   void twoStatements() throws Exception {
-    String program = "'Hello' -> stdout\n" + "'World'  -> stdout";
+    String program = "'Hello' -> !OUT::write\n" + "'World'  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -112,7 +112,7 @@ class Statements {
   @Test
   @Disabled
   void twoStatementsWithoutNewlineError() {
-    String program = "'Hello' -> stdout   'World'  -> stdout";
+    String program = "'Hello' -> !OUT::write   'World'  -> !OUT::write";
     try {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -123,7 +123,7 @@ class Statements {
 
   @Test
   void definedSymbol() throws Exception {
-    String program = "def world: 'World!'\n" + "'Hello '->stdout\n" + "$world -> stdout";
+    String program = "def world: 'World!'\n" + "'Hello '->!OUT::write\n" + "$world -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -136,7 +136,7 @@ class Statements {
 
   @Test
   void chain() throws Exception {
-    String program = "'World!' -> 'Hello $it;' -> stdout";
+    String program = "'World!' -> 'Hello $it;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -150,7 +150,7 @@ class Statements {
   @Test
   void definedTemplate() throws Exception {
     String program =
-        "templates greet\n<2> 'Goodbye '! <> 'Hello '!\nend greet\n" + "1..3 -> greet -> stdout";
+        "templates greet\n<2> 'Goodbye '! <> 'Hello '!\nend greet\n" + "1..3 -> greet -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -177,7 +177,7 @@ class Statements {
 
   @Test
   void definedSymbolFromValueChain() throws Exception {
-    String program = "def helloWorld: 'World!' -> 'Hello $it;' \n $helloWorld -> stdout\n";
+    String program = "def helloWorld: 'World!' -> 'Hello $it;' \n $helloWorld -> !OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -190,7 +190,7 @@ class Statements {
 
   @Test
   void commentsIgnored() throws Exception {
-    String program = "1 -> stdout\n // 2 -> stdout\n 3 -> stdout // 4 -> stdout\n";
+    String program = "1 -> !OUT::write\n // 2 -> !OUT::write\n 3 -> !OUT::write // 4 -> !OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -227,7 +227,7 @@ class Statements {
 
   @Test
   void commandLineArgs() throws Exception {
-    String program = "$args -> stdout";
+    String program = "$args -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -241,7 +241,7 @@ class Statements {
   @Test
   void systemNanoCount() throws Exception {
     String program = "def start: $SYS::nanoCount\n"
-        + "[1..100 -> $SYS::nanoCount - $start] -> $it(-1) -> (<0~..> 1 !) -> stdout";
+        + "[1..100 -> $SYS::nanoCount - $start] -> $it(-1) -> (<0~..> 1 !) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -258,7 +258,7 @@ class Statements {
     String dep = "package dep\ntemplates quote '\"$it;\"' ! end quote";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
-    String program = "import 'dep'\n 1 -> dep/quote -> stdout";
+    String program = "import 'dep'\n 1 -> dep/quote -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -276,7 +276,7 @@ class Statements {
         + "templates addQuote $it -> quote ! end addQuote";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
-    String program = "import 'dep'\n 1 -> dep/addQuote -> stdout";
+    String program = "import 'dep'\n 1 -> dep/addQuote -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -290,7 +290,7 @@ class Statements {
   @Test
   void dynamicDereferenceInCorrectScope() throws Exception {
     String program =
-        "def foo: 2\n [4,5,6] -> $it($foo) -> stdout";
+        "def foo: 2\n [4,5,6] -> $it($foo) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -303,7 +303,7 @@ class Statements {
 
   @Test
   void noIt() throws Exception {
-    String program = "$it -> stdout";
+    String program = "$it -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -314,7 +314,7 @@ class Statements {
 
   @Test
   void noItAfterValueChain() throws Exception {
-    String program = "1 -> [$it] -> stdout\n$it -> stdout";
+    String program = "1 -> [$it] -> !OUT::write\n$it -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

@@ -170,6 +170,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#sink}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSink(TailspinParser.SinkContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#transformCall}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -374,12 +380,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitInterpolateEvaluate(TailspinParser.InterpolateEvaluateContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TailspinParser#sink}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSink(TailspinParser.SinkContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#arithmeticExpression}.
 	 * @param ctx the parse tree

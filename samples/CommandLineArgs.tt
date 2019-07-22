@@ -1,1 +1,1 @@
-$args -> stdout
+$args -> !OUT::write

@@ -9,4 +9,4 @@ templates buzz
 end buzz
 
 [ 1..100 -> '$fizz;$buzz;' ] -> [i](<''> $i ! <> $it !)... -> '$it;
-' -> stdout
+' -> !OUT::write

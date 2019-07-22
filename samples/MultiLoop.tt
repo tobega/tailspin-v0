@@ -3,7 +3,7 @@ def y: ['A', 'B', 'C']
 def z: [1, 2, 3]
 
 1..$x::length -> '$x($it);$y($it);$z($it);
-' -> stdout
+' -> !OUT::write
 
 templates transpose
   def a: $it
@@ -12,7 +12,7 @@ templates transpose
 end transpose
 
 [$x, $y, $z] -> transpose... -> '$($it...)
-' -> stdout
+' -> !OUT::write
 
 def u: ['a', 'b']
 def v: ['A', 'B', 'C']
@@ -27,8 +27,8 @@ templates transpose2
 end transpose2
 
 [$x, $y, $z] -> transpose2... -> '$($it...)
-' -> stdout
+' -> !OUT::write
 
 [$u,$v,$w] -> transpose2... -> '$($it...)
-' -> stdout
+' -> !OUT::write
 

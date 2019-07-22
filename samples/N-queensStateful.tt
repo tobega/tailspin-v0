@@ -40,6 +40,6 @@ templates queens
 end queens
 
 'A solution to the 8 queens problem is $(8 -> queens)
-' -> stdout
+' -> !OUT::write
 'A solution to the 4 queens problem is $(4 -> queens)
-' -> stdout
+' -> !OUT::write

@@ -1,6 +1,6 @@
 'What is your name?
-' -> stdout
+' -> !OUT::write
 
 // Reads all lines of the input before continuing, so you need to press ctrl-D or cmd-D at end
-stdin -> 'Hello $it;!
-' -> stdout
+$IN::lines -> 'Hello $it;!
+' -> !OUT::write

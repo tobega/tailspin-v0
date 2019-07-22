@@ -11,10 +11,10 @@ templates permutations
 end permutations
 
 def alpha: ['ABCD'...]
-[ $alpha::length -> permutations -> '$($alpha($it)...)' ] -> stdout
+[ $alpha::length -> permutations -> '$($alpha($it)...)' ] -> !OUT::write
 '
 
-' -> stdout
+' -> !OUT::write
 
 templates lexicalPermutations
   <1> [1] !
@@ -26,4 +26,4 @@ templates lexicalPermutations
       $p... -> [ $k, $tail($it)...] !) !
 end lexicalPermutations
 
-[ $alpha::length -> lexicalPermutations -> '$($alpha($it)...)' ] -> stdout
+[ $alpha::length -> lexicalPermutations -> '$($alpha($it)...)' ] -> !OUT::write

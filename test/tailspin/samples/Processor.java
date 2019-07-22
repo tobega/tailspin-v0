@@ -20,7 +20,7 @@ class Processor {
             + "end add\n"
             + "end Holder\n"
             + "def five: 5 -> Holder\n"
-            + "1..3 -> $five::add -> stdout";
+            + "1..3 -> $five::add -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -44,7 +44,7 @@ class Processor {
             + "end do\n"
             + "end Holder\n"
             + "def addFive: 5 -> Holder@{op:add}\n"
-            + "1..3 -> $addFive::do -> stdout";
+            + "1..3 -> $addFive::do -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -68,7 +68,7 @@ class Processor {
             + "end do\n"
             + "end Holder\n"
             + "def five: 5 -> Holder\n"
-            + "1..3 -> $five::do@{op:add} -> stdout";
+            + "1..3 -> $five::do@{op:add} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

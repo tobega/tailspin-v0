@@ -33,4 +33,4 @@ templates mergesort
   $it -> [ $it... -> [ $it ] ] -> mergeAll !
 end mergesort
 
-[4,5,3,8,1,2,6,7,9,8,5] -> mergesort -> stdout
+[4,5,3,8,1,2,6,7,9,8,5] -> mergesort -> !OUT::write

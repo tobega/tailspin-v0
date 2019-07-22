@@ -25,15 +25,15 @@ def myStack: [1] -> Stack
 2 -> $myStack::push -> void
 
 '$myStack::empty; $myStack::pop;
-' -> stdout
+' -> !OUT::write
 '$myStack::empty; $myStack::pop;
-' -> stdout
+' -> !OUT::write
 '$myStack::empty;
-' -> stdout
+' -> !OUT::write
 
 3 -> $myStack::push -> void
 '$myStack::empty; $myStack::peek;
-' -> stdout
+' -> !OUT::write
 '$myStack::empty; $myStack::pop;
-' -> stdout
-'$myStack::empty;' -> stdout
+' -> !OUT::write
+'$myStack::empty;' -> !OUT::write

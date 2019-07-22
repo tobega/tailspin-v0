@@ -13,7 +13,7 @@ import tailspin.Tailspin;
 class Numbers {
   @Test
   void printLiteral() throws IOException {
-    String program = "1337 -> stdout";
+    String program = "1337 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -26,7 +26,7 @@ class Numbers {
 
   @Test
   void printNegativeLiteral() throws IOException {
-    String program = "-1337 -> stdout";
+    String program = "-1337 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -39,7 +39,7 @@ class Numbers {
 
   @Test
   void definition() throws IOException {
-    String program = "def leet: 1337\n" + "$leet -> stdout";
+    String program = "def leet: 1337\n" + "$leet -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -52,7 +52,7 @@ class Numbers {
 
   @Test
   void add() throws IOException {
-    String program = "1300 + 37 -> stdout";
+    String program = "1300 + 37 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -65,7 +65,7 @@ class Numbers {
 
   @Test
   void subtract() throws IOException {
-    String program = "1400 - 63 -> stdout";
+    String program = "1400 - 63 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -78,7 +78,7 @@ class Numbers {
 
   @Test
   void multiply() throws IOException {
-    String program = "3 * 5 -> stdout";
+    String program = "3 * 5 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -91,7 +91,7 @@ class Numbers {
 
   @Test
   void divide() throws IOException {
-    String program = "15 / 3 -> stdout";
+    String program = "15 / 3 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -104,7 +104,7 @@ class Numbers {
 
   @Test
   void mathematicalModulo() throws IOException {
-    String program = "9 mod 7 -> stdout";
+    String program = "9 mod 7 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -117,7 +117,7 @@ class Numbers {
 
   @Test
   void mathematicalModuloNegativeDividend() throws IOException {
-    String program = "-9 mod 7 -> stdout";
+    String program = "-9 mod 7 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -130,7 +130,7 @@ class Numbers {
 
   @Test
   void mathematicalModuloNegativeDivisor() throws IOException {
-    String program = "9 mod -7 -> stdout";
+    String program = "9 mod -7 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -143,7 +143,7 @@ class Numbers {
 
   @Test
   void mathematicalModuloNegativeDivisorAndDividend() throws IOException {
-    String program = "-9 mod -7 -> stdout";
+    String program = "-9 mod -7 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -156,7 +156,7 @@ class Numbers {
 
   @Test
   void precedence() throws IOException {
-    String program = "2 * 3 + 16 / 4 - 50 mod 24 -> stdout";
+    String program = "2 * 3 + 16 / 4 - 50 mod 24 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -169,7 +169,7 @@ class Numbers {
 
   @Test
   void precedenceParentheses() throws IOException {
-    String program = "(3 + 2) * (5 + 1) -> stdout";
+    String program = "(3 + 2) * (5 + 1) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -182,7 +182,7 @@ class Numbers {
 
   @Test
   void dereference() throws IOException {
-    String program = "def x: 5\n 3 * $x -> stdout";
+    String program = "def x: 5\n 3 * $x -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -195,7 +195,7 @@ class Numbers {
 
   @Test
   void dereferenceUnaryMinus() throws IOException {
-    String program = "def x: 5\n -$x -> stdout";
+    String program = "def x: 5\n -$x -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -208,7 +208,7 @@ class Numbers {
 
   @Test
   void dereferenceField() throws IOException {
-    String program = "def a: {x:5}\n $a.x + 2 -> stdout";
+    String program = "def a: {x:5}\n $a.x + 2 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -221,7 +221,7 @@ class Numbers {
 
   @Test
   void arithmeticTransform() throws IOException {
-    String program = "5 -> $it + 2 -> stdout";
+    String program = "5 -> $it + 2 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -234,7 +234,7 @@ class Numbers {
 
   @Test
   void subtractDereferences() throws IOException {
-    String program = "5 -> $it - $it -> stdout";
+    String program = "5 -> $it - $it -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -247,7 +247,7 @@ class Numbers {
 
   @Test
   void subtractDereferencesInTemplates() throws IOException {
-    String program = "5 -> ($it - $it !) -> stdout";
+    String program = "5 -> ($it - $it !) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -260,7 +260,7 @@ class Numbers {
 
   @Test
   void subtractDereferencesInMatchBlock() throws IOException {
-    String program = "templates a\n<> $it - $it !\n end a\n 5 -> a -> stdout";
+    String program = "templates a\n<> $it - $it !\n end a\n 5 -> a -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -273,7 +273,7 @@ class Numbers {
 
   @Test
   void subtractWithoutSpaces() throws IOException {
-    String program = "5-1 -> stdout";
+    String program = "5-1 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -286,7 +286,7 @@ class Numbers {
 
   @Test
   void valueChainInExpression() throws IOException {
-    String program = "templates add $it + 1 ! end add\n 5 - (2 -> add) -> stdout";
+    String program = "templates add $it + 1 ! end add\n 5 - (2 -> add) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -299,7 +299,7 @@ class Numbers {
 
   @Test
   void valueChainStartsExpression() throws IOException {
-    String program = "templates add $it + 1 ! end add\n (5 -> add) - 2 -> stdout";
+    String program = "templates add $it + 1 ! end add\n (5 -> add) - 2 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -313,7 +313,7 @@ class Numbers {
   @Test
   void multiplicationSign() throws IOException {
     String program =
-        "1 * 2 -> stdout\n" + "1 * -2 -> stdout\n" + "-1 * -2 -> stdout\n" + "-1 * 2 -> stdout";
+        "1 * 2 -> !OUT::write\n" + "1 * -2 -> !OUT::write\n" + "-1 * -2 -> !OUT::write\n" + "-1 * 2 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -326,10 +326,10 @@ class Numbers {
 
   @Test
   void divisionSign() throws IOException {
-    String program = "2 / 1 -> stdout\n"
-        + "-2 / 1 -> stdout\n"
-        + "-2 / -1 -> stdout\n"
-        + "2 / -1 -> stdout";
+    String program = "2 / 1 -> !OUT::write\n"
+        + "-2 / 1 -> !OUT::write\n"
+        + "-2 / -1 -> !OUT::write\n"
+        + "2 / -1 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

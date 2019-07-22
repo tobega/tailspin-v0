@@ -4,4 +4,4 @@ $it; bottles of beer.
 Take one down, pass it around,
 $($it - 1) bottles of beer on the wall.
 
-' -> stdout
+' -> !OUT::write

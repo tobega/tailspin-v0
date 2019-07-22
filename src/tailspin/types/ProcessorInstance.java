@@ -7,7 +7,7 @@ import tailspin.interpreter.Transform;
 import tailspin.interpreter.TransformCall;
 
 public class ProcessorInstance {
-  private final Scope scope;
+  final Scope scope;
 
   public ProcessorInstance(Scope scope) {
     this.scope = scope;

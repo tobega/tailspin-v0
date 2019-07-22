@@ -10,4 +10,4 @@ templates sayWords
 end sayWords
 
 [ 1..$input.N -> '$sayWords;' ] -> [i](<''> $i ! <> $it !) -> '$it;
-' -> stdout
+' -> !OUT::write
