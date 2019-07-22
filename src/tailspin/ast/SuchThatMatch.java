@@ -1,15 +1,16 @@
 package tailspin.ast;
 
+import static tailspin.ast.Value.oneValue;
+
 import java.util.ArrayDeque;
 import java.util.Queue;
 import tailspin.interpreter.RunTemplateBlock;
-import tailspin.parser.TailspinParser;
 
 public class SuchThatMatch {
-  private final TailspinParser.ValueChainContext lhs;
+  private final Value lhs;
   private final Matcher matcher;
 
-  public SuchThatMatch(TailspinParser.ValueChainContext lhs, Matcher matcher) {
+  public SuchThatMatch(Value lhs, Matcher matcher) {
     this.lhs = lhs;
     this.matcher = matcher;
   }
@@ -18,11 +19,7 @@ public class SuchThatMatch {
     Queue<Object> originalIt = runner.scope.getIt();
     runner.scope.setIt(queueOf(runner.toMatch));
     try{
-      Queue<Object> values = runner.visitValueChain(lhs);
-      if (values.size() != 1) {
-        throw new IllegalStateException("Wrong number of values " + values.size() + " at " + lhs.getText());
-      }
-      Object value = values.peek();
+      Object value = lhs.evaluate(runner.toMatch, runner.scope);
       return matcher.matches(value,runner);
     } finally{
       runner.scope.setIt(originalIt);

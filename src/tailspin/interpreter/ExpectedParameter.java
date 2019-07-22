@@ -1,9 +1,9 @@
 package tailspin.interpreter;
 
-class ExpectedParameter {
+public class ExpectedParameter {
   final String name;
 
-  ExpectedParameter(String name) {
+  public ExpectedParameter(String name) {
     this.name = name;
   }
 }

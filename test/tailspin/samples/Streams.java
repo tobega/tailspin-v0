@@ -62,7 +62,7 @@ class Streams {
       runner.run(input, output, List.of());
       fail();
     } catch (Exception expected) {
-      assertEquals("Cannot produce range with zero increment at 1:5", expected.getMessage());
+      assertEquals("Cannot produce range with zero increment", expected.getMessage());
     }
   }
 

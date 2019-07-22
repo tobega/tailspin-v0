@@ -8,9 +8,9 @@ import tailspin.interpreter.Templates;
 import tailspin.interpreter.TransformScope;
 
 public class SendToTemplates implements Expression {
-  private final ValueChain valueChain;
+  private final Expression valueChain;
 
-  public SendToTemplates(ValueChain valueChain) {
+  public SendToTemplates(Expression valueChain) {
     this.valueChain = valueChain;
   }
 

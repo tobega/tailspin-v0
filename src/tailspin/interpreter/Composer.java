@@ -8,7 +8,7 @@ import java.util.Queue;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import tailspin.parser.TailspinParser;
+import tailspin.ast.Expression;
 
 class Composer implements Transform {
   private static final HashMap<String, Pattern> namedPatterns = new HashMap<>();
@@ -31,10 +31,10 @@ class Composer implements Transform {
   }
 
   @Override
-  public Queue<Object> run(Queue<Object> it, Map<String, Object> parameters) {
+  public Queue<Object> run(Object it, Map<String, Object> parameters) {
     TransformScope scope = new TransformScope(definingScope, "");
     ArrayDeque<Object> result = new ArrayDeque<>();
-    String s = (String) it.peek();
+    String s = (String) it;
     for (CompositionSpec spec : specs) {
       SubComposer subComposer = resolveSpec(spec, scope);
       s = subComposer.nibble(s);
@@ -179,9 +179,9 @@ class Composer implements Transform {
 
   static class ArrayComposition implements CompositionSpec {
     private final List<CompositionSpec> itemSpecs;
-    private final TailspinParser.TransformContext transform;
+    private final Expression transform;
 
-    ArrayComposition(List<CompositionSpec> itemSpecs, TailspinParser.TransformContext transform) {
+    ArrayComposition(List<CompositionSpec> itemSpecs, Expression transform) {
       this.itemSpecs = itemSpecs;
       this.transform = transform;
     }
@@ -213,9 +213,9 @@ class Composer implements Transform {
 
   static class StructureComposition implements CompositionSpec {
     private final List<CompositionSpec> contents;
-    private final TailspinParser.TransformContext transform;
+    private final Expression transform;
 
-    StructureComposition(List<CompositionSpec> contents, TailspinParser.TransformContext transform) {
+    StructureComposition(List<CompositionSpec> contents, Expression transform) {
       this.contents = contents;
       this.transform = transform;
     }
@@ -271,10 +271,9 @@ class Composer implements Transform {
 
   static class ChoiceComposition implements CompositionSpec {
     private final List<CompositionSpec> choices;
-    private final TailspinParser.TransformContext transform;
+    private final Expression transform;
 
-    ChoiceComposition(List<CompositionSpec> choices,
-        TailspinParser.TransformContext transform) {
+    ChoiceComposition(List<CompositionSpec> choices, Expression transform) {
       this.choices = choices;
       this.transform = transform;
     }

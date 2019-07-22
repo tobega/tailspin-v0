@@ -6,11 +6,11 @@ import java.util.Queue;
 import tailspin.interpreter.Scope;
 
 public class StateAssignment implements Expression {
-  private final ValueChain valueChain;
+  private final Expression valueChain;
   private final Reference stateReference;
   private final boolean merge;
 
-  public StateAssignment(ValueChain valueChain, Reference stateReference, boolean merge) {
+  public StateAssignment(Expression valueChain, Reference stateReference, boolean merge) {
     this.valueChain = valueChain;
     this.stateReference = stateReference;
     this.merge = merge;

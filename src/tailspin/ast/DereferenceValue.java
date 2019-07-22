@@ -1,8 +1,10 @@
 package tailspin.ast;
 
+import java.util.Map;
 import java.util.Queue;
 import tailspin.interpreter.RunMain;
 import tailspin.interpreter.Scope;
+import tailspin.interpreter.TransformCall;
 import tailspin.parser.TailspinParser;
 
 public class DereferenceValue implements Expression {
@@ -30,6 +32,10 @@ public class DereferenceValue implements Expression {
     if (message != null) {
       scope.setIt(Expression.queueOf(it));
       value = new RunMain(scope).resolveProcessorMessage(message, value);
+    }
+    // TODO: consider whether to support this case or not
+    if (value instanceof TransformCall) {
+      return ((TransformCall) value).run(it, Map.of());
     }
     return Expression.queueOf(value);
   }

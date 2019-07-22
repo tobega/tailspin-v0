@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,11 +22,15 @@ import tailspin.Tailspin;
 import tailspin.ast.ArithmeticExpression;
 import tailspin.ast.ArrayDimensionRange;
 import tailspin.ast.ArrayLiteral;
+import tailspin.ast.ArrayTemplates;
 import tailspin.ast.Block;
 import tailspin.ast.BlockStatement;
 import tailspin.ast.Bound;
+import tailspin.ast.ChainStage;
+import tailspin.ast.Deconstructor;
 import tailspin.ast.DereferenceValue;
 import tailspin.ast.Expression;
+import tailspin.ast.InlineTemplates;
 import tailspin.ast.KeyValueExpression;
 import tailspin.ast.RangeGenerator;
 import tailspin.ast.Reference;
@@ -34,8 +39,10 @@ import tailspin.ast.SinkReference;
 import tailspin.ast.StateAssignment;
 import tailspin.ast.StringLiteral;
 import tailspin.ast.StructureLiteral;
+import tailspin.ast.TemplatesCall;
+import tailspin.ast.TemplatesDefinition;
+import tailspin.ast.TemplatesReference;
 import tailspin.ast.Value;
-import tailspin.ast.ValueChain;
 import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
@@ -98,51 +105,43 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Void visitValueChainToSink(TailspinParser.ValueChainToSinkContext ctx) {
-    Queue<Object> value = visitValueChain(ctx.valueChain());
+    Queue<Object> value = visitValueChain(ctx.valueChain()).run(Expression.atMostOneValue(scope.getIt()), scope);
     scope.setIt(value);
     visitSink(ctx.sink());
     return null;
   }
 
   @Override
-  public Queue<Object> visitValueChain(TailspinParser.ValueChainContext ctx) {
+  public Expression visitValueChain(TailspinParser.ValueChainContext ctx) {
     if (ctx.keyValue() != null) {
-      return queueOf(visitKeyValue(ctx.keyValue()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
+      return Expression.wrap(visitKeyValue(ctx.keyValue()));
     }
-    Queue<Object> oldIt = scope.getIt();
-    Queue<Object> value = visitSource(ctx.source());
-    if (ctx.transform() != null) {
-      scope.setIt(value);
-      value = visitTransform(ctx.transform());
-    }
-    if (oldIt != null) {
-      scope.setIt(oldIt); // reset for next value chain in same scope
-    }
-    return value;
+    Expression source = visitSource(ctx.source());
+    return new ChainStage(source, ctx.transform() == null ? null : visitTransform(ctx.transform()));
   }
 
   @Override
-  public Queue<Object> visitSource(TailspinParser.SourceContext ctx) {
+  public Expression visitSource(TailspinParser.SourceContext ctx) {
     if (ctx.stringLiteral() != null) {
-      return queueOf(new StringLiteral(ctx.stringLiteral()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
+      return Expression.wrap(new StringLiteral(ctx.stringLiteral()));
     }
     if (ctx.dereferenceValue() != null) {
-      return visitDereferenceValue(ctx.dereferenceValue()).run(Expression.atMostOneValue(scope.getIt()), scope);
+      return visitDereferenceValue(ctx.dereferenceValue());
     }
     if (ctx.arithmeticExpression() != null) {
-      return queueOf(new ArithmeticExpression(ctx.arithmeticExpression()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
+      return Expression.wrap(new ArithmeticExpression(ctx.arithmeticExpression()));
     }
     if (ctx.rangeLiteral() != null) {
-      return visitRangeLiteral(ctx.rangeLiteral()).run(Expression.atMostOneValue(scope.getIt()), scope);
+      return visitRangeLiteral(ctx.rangeLiteral());
     }
     if (ctx.arrayLiteral() != null) {
-      return queueOf(new ArrayLiteral(ctx.arrayLiteral()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
+      return Expression.wrap(new ArrayLiteral(ctx.arrayLiteral()));
     }
     if (ctx.structureLiteral() != null) {
-      return queueOf(visitStructureLiteral(ctx.structureLiteral()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
+      return Expression.wrap(visitStructureLiteral(ctx.structureLiteral()));
     }
     if (ctx.LeftParen() != null) {
-      return queueOf(visitKeyValue(ctx.keyValue()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
+      return Expression.wrap(visitKeyValue(ctx.keyValue()));
     }
     throw new UnsupportedOperationException(ctx.toString());
   }
@@ -216,9 +215,13 @@ public class RunMain extends TailspinParserBaseVisitor {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
     } else if (value instanceof ProcessorInstance) {
-      Map<String, Object> parameters = ctx.parameterValues() == null ? Map.of()
+      Map<String, Value> parameters = ctx.parameterValues() == null ? Map.of()
         : visitParameterValues(ctx.parameterValues());
-      result = ((ProcessorInstance) value).receiveMessage(message, scope.getIt(), parameters);
+      Object it = Expression.atMostOneValue(scope.getIt());
+      Map<String, Object> resolvedParams = parameters.entrySet().stream()
+          .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().evaluate(it, scope)))
+          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+      result = ((ProcessorInstance) value).receiveMessage(message, scope.getIt(), resolvedParams);
     } else {
       throw new UnsupportedOperationException("Unimplemented processor type " + value.getClass().getSimpleName());
     }
@@ -262,80 +265,26 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Queue<Object> visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx) {
-    Templates templates = visitTemplatesBody(ctx.templatesBody());
-    Queue<Object> qIt = scope.getIt();
-    Queue<Object> result = new ArrayDeque<>();
-    qIt.forEach(
-        it -> {
-          result.addAll(templates.run(queueOf(it), Map.of()));
-        });
-    return result;
+  public Expression visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx) {
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
+    return new InlineTemplates(templatesDefinition);
   }
 
   @Override
-  public Queue<Object> visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx) {
+  public Expression visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx) {
     List<String> loopVariables = ctx.IDENTIFIER().stream().map(TerminalNode::getText).collect(
         Collectors.toList());
-    Templates templates = visitTemplatesBody(ctx.templatesBody());
-    templates.expectParameters(loopVariables.stream().map(ExpectedParameter::new)
-        .collect(Collectors.toList()));
-    Queue<Object> its = scope.getIt();
-    Queue<Object> result = new ArrayDeque<>();
-    its.forEach(it -> result.add(runArrayTemplate(loopVariables, templates, it)));
-    return result;
-  }
-
-  @SuppressWarnings("unchecked")
-  private List<Object> runArrayTemplate(List<String> loopVariables, Templates templates, Object oIt) {
-    if (!(oIt instanceof List)) {
-      throw new UnsupportedOperationException("Cannot apply array templates to " + oIt.getClass());
-    }
-    List<Object>[] dimLists = new List[loopVariables.size()];
-    dimLists[0] = (List<Object>) oIt;
-    List[] results = new List[loopVariables.size()];
-    results[0] = new ArrayList<>();
-    for (int i = 1; i < loopVariables.size(); i++) {
-      dimLists[i] = (List<Object>) dimLists[0].get(0);
-      results[i] = new ArrayList<>();
-    }
-    int[] dimCounters = new int[loopVariables.size()];
-    int lastIdx = loopVariables.size() - 1;
-    while (dimCounters[0] < dimLists[0].size()) {
-      for (dimCounters[lastIdx] = 0; dimCounters[lastIdx] < dimLists[lastIdx].size(); dimCounters[lastIdx]++) {
-        Map<String, Object> counters = new HashMap<>();
-        for (int i = 0; i < loopVariables.size(); i++) {
-          counters.put(loopVariables.get(i), dimCounters[i] + 1);
-        }
-        Queue<Object> itemIt = queueOf(dimLists[lastIdx].get(dimCounters[lastIdx]));
-        results[lastIdx].addAll(templates.run(itemIt, counters));
-      }
-      int idx = lastIdx - 1;
-      while (idx >= 0) {
-        results[idx].add(results[idx+1]);
-        dimCounters[idx]++;
-        if (dimCounters[idx] >= dimLists[idx].size()) {
-          idx--;
-          continue;
-        }
-        while (++idx <= lastIdx) {
-          dimCounters[idx] = 0;
-          results[idx] = new ArrayList<>();
-          dimLists[idx] = (List<Object>) dimLists[idx-1].get(dimCounters[idx-1]);
-        }
-        break;
-      }
-    }
-    return results[0];
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
+    return new ArrayTemplates(loopVariables, templatesDefinition);
   }
 
   @Override
-  public Templates visitTemplatesBody(TailspinParser.TemplatesBodyContext ctx) {
+  public TemplatesDefinition visitTemplatesBody(TailspinParser.TemplatesBodyContext ctx) {
     List<MatchTemplate> matchTemplates = new ArrayList<>();
     for (TailspinParser.MatchTemplateContext mtc : ctx.matchTemplate()) {
       matchTemplates.add(visitMatchTemplate(mtc));
     }
-    return new Templates(scope, visitBlock(ctx.block()), matchTemplates);
+    return new TemplatesDefinition(visitBlock(ctx.block()), matchTemplates);
   }
 
   @Override
@@ -358,12 +307,12 @@ public class RunMain extends TailspinParserBaseVisitor {
   public StateAssignment visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
     String stateContext = ctx.NamedAt() == null ? "" : ctx.NamedAt().getText().substring(1);
     Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
-    return new StateAssignment(new ValueChain(ctx.valueChain()), reference, ctx.Merge() != null);
+    return new StateAssignment(visitValueChain(ctx.valueChain()), reference, ctx.Merge() != null);
   }
 
   @Override
   public Expression visitResultValue(TailspinParser.ResultValueContext ctx) {
-    return new ValueChain(ctx.valueChain());
+    return visitValueChain(ctx.valueChain());
   }
 
   @Override
@@ -378,7 +327,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       throw new IllegalStateException(
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
     }
-    Templates templates = visitTemplatesBody(ctx.templatesBody());
+    Templates templates = visitTemplatesBody(ctx.templatesBody()).define(scope);
     templates.setScopeContext(name);
     if (ctx.parameterDefinitions() != null) {
       List<ExpectedParameter> parameters = visitParameterDefinitions(ctx.parameterDefinitions());
@@ -415,34 +364,25 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Queue<Object> visitCallDefinedTransform(TailspinParser.CallDefinedTransformContext ctx) {
-    Queue<Object> qIt = scope.getIt();
-    Queue<Object> result = new ArrayDeque<>();
-    qIt.forEach(
-        it -> {
-          scope.setIt(queueOf(it));
-          TransformCall transformCall = visitTransformCall(ctx.transformCall());
-          result.addAll(transformCall.execute(queueOf(it)));
-        });
-    return result;
+  public Expression visitCallDefinedTransform(TailspinParser.CallDefinedTransformContext ctx) {
+    return new TemplatesCall(visitTransformCall(ctx.transformCall()));
   }
 
   @Override
-  public TransformCall visitTransformCall(TailspinParser.TransformCallContext ctx) {
+  public TemplatesReference visitTransformCall(TailspinParser.TransformCallContext ctx) {
     String name = ctx.IDENTIFIER().getText();
-    Map<String, Object> parameters = ctx.parameterValues() != null
+    Map<String, Value> parameters = ctx.parameterValues() != null
         ? visitParameterValues(ctx.parameterValues())
         : Map.of();
-    Transform transform = (Transform) scope.resolveValue(name);
-    return new TransformCall(transform, parameters);
+    return new TemplatesReference(name, parameters);
   }
 
   @Override
-  public Map<String, Object> visitParameterValues(TailspinParser.ParameterValuesContext ctx) {
-    Map<String, Object> parameters = new HashMap<>();
+  public Map<String, Value> visitParameterValues(TailspinParser.ParameterValuesContext ctx) {
+    Map<String, Value> parameters = new HashMap<>();
     for(TailspinParser.ParameterValueContext parameterValueContext : ctx.parameterValue()) {
       KeyValue keyValue = visitParameterValue(parameterValueContext);
-      parameters.put(keyValue.getKey(), keyValue.getValue());
+      parameters.put(keyValue.getKey(), (Value) keyValue.getValue());
     }
     return parameters;
   }
@@ -451,11 +391,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   public KeyValue visitParameterValue(TailspinParser.ParameterValueContext ctx) {
     String key = ctx.Key().getText().replace(":", "");
     if (ctx.valueChain() != null) {
-      Queue<Object> valueQueue = visitValueChain(ctx.valueChain());
-      if (valueQueue.size() != 1) {
-        throw new AssertionError("Invalid multiple value " + valueQueue.size());
-      }
-      return new KeyValue(key, valueQueue.peek());
+      return new KeyValue(key, Value.of(visitValueChain(ctx.valueChain())));
     }
     if (ctx.transformCall() != null) {
       return new KeyValue(key, visitTransformCall(ctx.transformCall()));
@@ -464,76 +400,29 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Queue<Object> visitTransform(TailspinParser.TransformContext ctx) {
+  public ChainStage visitTransform(TailspinParser.TransformContext ctx) {
+    if (ctx == null) {
+      return null;
+    }
+    ChainStage nextStage = ctx.transform() == null ? null : visitTransform(ctx.transform());
     if (ctx.Deconstructor() != null) {
-      Queue<Object> its = scope.getIt();
-      @SuppressWarnings("unchecked")
-      Queue<Object> result = (Queue<Object>) deconstruct(its);
-      if (ctx.transform() != null) {
-        scope.setIt(result);
-        return visitTransform(ctx.transform());
-      }
-      return result;
+      return new ChainStage(Deconstructor.INSTANCE, nextStage);
     }
     @SuppressWarnings("unchecked")
-    Queue<Object> nextValue = (Queue<Object>) visit(ctx.templates());
-    if (ctx.transform() != null) {
-      scope.setIt(nextValue);
-      return visitTransform(ctx.transform());
-    }
-    return nextValue;
-  }
-
-  private Queue<?> deconstruct(Queue<Object> its) {
-    return its.stream().flatMap(
-        it -> {
-          if (it instanceof List) {
-            return ((List<?>) it).stream();
-          } else if (it instanceof String) {
-            ArrayDeque<String> deconstructed = new ArrayDeque<>();
-            for (char c : ((String) it).toCharArray()) {
-              int type = Character.getType(c);
-              if (Character.isLowSurrogate(c)
-                  || type == Character.COMBINING_SPACING_MARK
-                  || type == Character.ENCLOSING_MARK
-                  || type == Character.NON_SPACING_MARK) {
-                deconstructed.add(deconstructed.removeLast() + c);
-              } else {
-                deconstructed.add(String.valueOf(c));
-              }
-            }
-            return deconstructed.stream();
-          } else if (it instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<String, ?> map = (Map<String, ?>) it;
-            return map.entrySet().stream().map(e -> new KeyValue(e.getKey(), e.getValue()));
-          } else {
-            throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
-          }
-        }).collect(Collectors.toCollection(ArrayDeque::new));
+    Expression transform = (Expression) visit(ctx.templates());
+    return new ChainStage(transform, nextStage);
   }
 
   @Override
-  public Queue<Object> visitLiteralTemplates(TailspinParser.LiteralTemplatesContext ctx) {
-    Queue<Object> its = scope.getIt();
-    Queue<Object> result = new ArrayDeque<>();
-    its.forEach(
-        it -> {
-          scope.setIt(queueOf(it));
-          Queue<Object> source = visitSource(ctx.source());
-          if (source.peek() instanceof TransformCall) {
-            result.addAll(((TransformCall) source.peek()).execute(queueOf(it)));
-          } else {
-            result.addAll(source);
-          }
-        });
-    return result;
+  public Expression visitLiteralTemplates(TailspinParser.LiteralTemplatesContext ctx) {
+    return visitSource(ctx.source());
   }
 
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
     String identifier = ctx.Key().getText().replace(":", "");
-    Queue<Object> valueChainResult = visitValueChain(ctx.valueChain());
+    Queue<Object> valueChainResult = visitValueChain(ctx.valueChain())
+        .run(Expression.atMostOneValue(scope.getIt()), scope);
     if (valueChainResult.size() != 1) {
       throw new IllegalArgumentException(
           "Attempt to define symbol " + identifier + " with " + valueChainResult.size() + " values");
@@ -575,7 +464,8 @@ public class RunMain extends TailspinParserBaseVisitor {
           .collect(Collectors.joining());
     }
     if (ctx.interpolateEvaluate() != null) {
-      Queue<Object> valueQueue = visitValueChain(ctx.interpolateEvaluate().valueChain());
+      Queue<Object> valueQueue = visitValueChain(ctx.interpolateEvaluate().valueChain())
+          .run(Expression.atMostOneValue(scope.getIt()),scope);
       return valueQueue.stream().map(Object::toString).collect(Collectors.joining());
     }
     if (ctx.characterCode() != null) {
@@ -620,7 +510,8 @@ public class RunMain extends TailspinParserBaseVisitor {
       }
     }
     if (ctx.LeftParen() != null) {
-      Queue<Object> values = visitValueChain(ctx.valueChain());
+      Queue<Object> values = visitValueChain(ctx.valueChain())
+          .run(Expression.atMostOneValue(scope.getIt()),scope);
       if (values.size() != 1) {
         throw new UnsupportedOperationException("Several values at " + ctx.valueChain().getText());
       }
@@ -661,15 +552,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   public RangeGenerator visitRangeLiteral(TailspinParser.RangeLiteralContext ctx) {
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
-    Integer increment =
-        ctx.arithmeticExpression() == null ? null : (Integer) visit(ctx.arithmeticExpression());
-    if (increment != null && increment == 0) {
-      throw new IllegalArgumentException(
-          "Cannot produce range with zero increment at "
-              + ctx.stop.getLine()
-              + ":"
-              + ctx.stop.getCharPositionInLine());
-    }
+    Value increment =
+        ctx.arithmeticExpression() == null ? null : new ArithmeticExpression(ctx.arithmeticExpression());
     return new RangeGenerator(lowerBound, upperBound, increment);
   }
 
@@ -707,10 +591,12 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public List<?> visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx) {
+    Queue<Object> originalIt = scope.getIt();
     return ctx.valueProduction().stream()
         .flatMap(
             vp -> {
-              Queue<Object> result = visitValueProduction(vp).run(atMostOneValue(scope.getIt()), scope);
+              scope.setIt(originalIt);
+              Queue<Object> result = visitValueProduction(vp).run(atMostOneValue(originalIt), scope);
               return result.stream();
             })
         .collect(Collectors.toList());
@@ -719,7 +605,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Expression visitValueProduction(ValueProductionContext ctx) {
     if (ctx.valueChain() != null) {
-      return new ValueChain(ctx.valueChain());
+      return visitValueChain(ctx.valueChain());
     }
     if (ctx.sendToTemplates() != null) {
       return visitSendToTemplates(ctx.sendToTemplates());
@@ -729,7 +615,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public SendToTemplates visitSendToTemplates(TailspinParser.SendToTemplatesContext ctx) {
-    return new SendToTemplates(new ValueChain(ctx.valueChain()));
+    return new SendToTemplates(visitValueChain(ctx.valueChain()));
   }
 
   @Override
@@ -745,7 +631,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.dereferenceValue() != null) {
       return visitDereferenceValue(ctx.dereferenceValue());
     }
-    return new ValueChain(ctx.valueChain());
+    return visitValueChain(ctx.valueChain());
   }
 
   @Override
@@ -817,14 +703,14 @@ public class RunMain extends TailspinParserBaseVisitor {
   public CompositionSpec visitCompositionMatcher(
       TailspinParser.CompositionMatcherContext ctx) {
     if (ctx.LeftBracket() != null) {
-      return new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()), ctx.transform());
+      return new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()), visitTransform(ctx.transform()));
     } else if (ctx.LeftBrace() != null) {
       List<CompositionSpec> contents = new ArrayList<>();
       ctx.compositionSkipRule().forEach(s -> contents.add(visitCompositionSkipRule(s)));
       if (ctx.structureMemberMatchers() != null) {
         contents.addAll(visitStructureMemberMatchers(ctx.structureMemberMatchers()));
       }
-      return new Composer.StructureComposition(contents, ctx.transform());
+      return new Composer.StructureComposition(contents, visitTransform(ctx.transform()));
     } else if (ctx.tokenMatcher() != null) {
       return visitTokenMatcher(ctx.tokenMatcher());
     } else if (ctx.Dereference() != null) {
@@ -859,7 +745,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public CompositionSpec visitTokenMatcher(TailspinParser.TokenMatcherContext ctx) {
     CompositionSpec compositionSpec = new Composer.ChoiceComposition(ctx.compositionToken().stream()
-        .map(this::visitCompositionToken).collect(Collectors.toList()), ctx.transform());
+        .map(this::visitCompositionToken).collect(Collectors.toList()), visitTransform(ctx.transform()));
     if (ctx.multiplier() == null) return compositionSpec;
     return resolveMultiplier(ctx.multiplier(), compositionSpec);
   }

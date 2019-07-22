@@ -9,9 +9,9 @@ public class RangeGenerator implements Expression {
 
   private final Bound lowerBound;
   private final Bound upperBound;
-  private final Integer step;
+  private final Value step;
 
-  public RangeGenerator(Bound lowerBound, Bound upperBound, Integer step) {
+  public RangeGenerator(Bound lowerBound, Bound upperBound, Value step) {
     this.lowerBound = lowerBound;
     this.upperBound = upperBound;
     this.step = step;
@@ -23,7 +23,10 @@ public class RangeGenerator implements Expression {
   }
 
   public Stream<Integer> stream(Function<Integer, Integer> boundTransform, Object it, Scope scope) {
-    int increment = step == null ? 1 : step;
+    int increment = step == null ? 1 : (int) step.evaluate(it, scope);
+    if (increment == 0) {
+      throw new IllegalArgumentException("Cannot produce range with zero increment");
+    }
     int start = boundTransform.apply((int) lowerBound.value.evaluate(it, scope));
     int end = boundTransform.apply((int) upperBound.value.evaluate(it, scope));
     if (start < 0 || (increment > 0 && start > end) || (increment < 0 && start < end)) {

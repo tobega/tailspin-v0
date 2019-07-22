@@ -1,7 +1,5 @@
 package tailspin.interpreter;
 
-import static tailspin.ast.Value.oneValue;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Map;
@@ -15,9 +13,9 @@ class ProcessorDefinition extends Templates {
   }
 
   @Override
-  public Queue<Object> run(Queue<Object> it, Map<String, Object> parameters) {
+  public Queue<Object> run(Object it, Map<String, Object> parameters) {
     TransformScope scope = createTransformScope(it, parameters);
-    runInScope(oneValue(it), scope);
+    runInScope(it, scope);
     Queue<Object> result = new ArrayDeque<>();
     result.add(new ProcessorInstance(scope));
     return result;

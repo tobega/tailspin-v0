@@ -30,11 +30,7 @@ public abstract class Reference {
   private static Reference itReference = new Reference() {
     @Override
     public Object getValue(Object it, Scope scope) {
-      Queue<Object> itQ = scope.getIt();
-      if (itQ.size() != 1) {
-        throw new AssertionError("Invalid it dereference " + itQ.size());
-      }
-      return itQ.peek();
+      return it;
     }
 
     @Override

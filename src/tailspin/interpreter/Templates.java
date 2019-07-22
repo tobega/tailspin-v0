@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import static tailspin.ast.Expression.queueOf;
 import static tailspin.ast.Value.oneValue;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class Templates implements Transform {
   private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
   private String scopeName = "";
 
-  Templates(Scope definingScope,
+  public Templates(Scope definingScope,
       /*@Nullable*/ Block block, List<MatchTemplate> matchTemplates) {
     this.definingScope = definingScope;
     this.block = block;
@@ -26,16 +27,15 @@ public class Templates implements Transform {
   }
 
   @Override
-  public Queue<Object> run(Queue<Object> it, Map<String, Object> parameters) {
+  public Queue<Object> run(Object it, Map<String, Object> parameters) {
     TransformScope scope = createTransformScope(it, parameters);
-    if (it.size() > 1) throw new IllegalStateException("Too many it-values " + it);
-    return runInScope(it.peek(), scope);
+    return runInScope(it, scope);
   }
 
-  TransformScope createTransformScope(Queue<Object> it, Map<String, Object> parameters) {
+  TransformScope createTransformScope(Object it, Map<String, Object> parameters) {
     TransformScope scope = new TransformScope(definingScope, scopeName);
     scope.setTemplates(this);
-    scope.setIt(it);
+    scope.setIt(queueOf(it));
     int foundParameters = 0;
     for (ExpectedParameter expectedParameter : expectedParameters) {
       if (parameters.containsKey(expectedParameter.name)) {
@@ -67,7 +67,7 @@ public class Templates implements Transform {
     return match.map(m -> m.block.run(it, runner.scope)).orElse(Expression.EMPTY_RESULT);
   }
 
-  void expectParameters(List<ExpectedParameter> parameters) {
+  public void expectParameters(List<ExpectedParameter> parameters) {
     expectedParameters.addAll(parameters);
   }
 

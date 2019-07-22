@@ -13,12 +13,8 @@ public class TransformCall implements Transform {
     this.parameters = parameters;
   }
 
-  Queue<Object> execute(Queue<Object> it) {
-    return transform.run(it, parameters);
-  }
-
   @Override
-  public Queue<Object> run(Queue<Object> it, Map<String, Object> parameters) {
+  public Queue<Object> run(Object it, Map<String, Object> parameters) {
     Map<String, Object> params = new HashMap<>(this.parameters);
     for (Map.Entry<String, Object> p : parameters.entrySet()) {
       if (params.put(p.getKey(), p.getValue()) != null) {

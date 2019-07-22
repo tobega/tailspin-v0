@@ -44,7 +44,7 @@ public class RunTemplateBlock extends RunMain {
 
   @Override
   public SuchThatMatch visitSuchThat(SuchThatContext ctx) {
-    return new SuchThatMatch(ctx.valueChain(), visitMatcher(ctx.matcher()));
+    return new SuchThatMatch(Value.of(visitValueChain(ctx.valueChain())), visitMatcher(ctx.matcher()));
   }
 
   @Override

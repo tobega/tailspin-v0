@@ -355,7 +355,7 @@ class Templates {
   @Test
   void functionOfFunction() throws Exception {
     String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp@{discriminator:} $it -> $discriminator -> # <1> 'yes' ! <> 'no' ! end comp\n"
+        + "templates comp@{discriminator:} $it -> $discriminator -> # <1> 'yes' ! <0> 'no' ! <> $it ! end comp\n"
         + "templates meta@{f:} $it -> f@{discriminator: low} ! end meta\n"
         + "1..6 -> meta@{f: comp} -> !OUT::write";
     Tailspin runner =

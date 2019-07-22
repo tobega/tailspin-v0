@@ -3,7 +3,7 @@ package tailspin.interpreter;
 import tailspin.ast.Block;
 import tailspin.parser.TailspinParser;
 
-class MatchTemplate {
+public class MatchTemplate {
   final TailspinParser.MatcherContext matcher;
   final Block block;
 
