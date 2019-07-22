@@ -82,8 +82,10 @@ E.g. `[1,2,3,4,5]` and `[1..3, 4..5]` and `[1..5]` all produce an array of size 
 
 ### Structure literal
 A structure literal produces a [structure](#structures) value. It starts with a left brace, followed by
-a [stream](#streams) of key-value pairs, optionally separated by commas, and ends with a right brace.
-A key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
+literal key-value pairs or expressions generating [streams](#streams) of key-value pairs, separated by commas, and ends with a right brace.
+A literal key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
+An example of an expression generating a stream of key-value pairs is a [deconstruct](#deconstructor)
+ of a [dereferenced](#dereference) structure value.
 
 ### Input
 Input is data obtained from an external source. See the [system objects](#the-system-objects), e.g. `IN` for
@@ -313,7 +315,7 @@ the removed entity is used as a [source](#sources). E.g. if @ is `[4,5,6]` then 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by
 repeating each step of the chain by setting __each__ of the stream values as the _current value_ in turn.
-See the note on side effects in the section on [sinks](#sinks).
+See the note on [side effects](#side-effects).
 
 Streams can be captured into an [array](#arrays) by surrounding them with an [array literal](#array-literal).
 

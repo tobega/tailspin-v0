@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -27,12 +26,14 @@ import tailspin.ast.BlockStatement;
 import tailspin.ast.Bound;
 import tailspin.ast.DereferenceValue;
 import tailspin.ast.Expression;
+import tailspin.ast.KeyValueExpression;
 import tailspin.ast.RangeGenerator;
 import tailspin.ast.Reference;
 import tailspin.ast.SendToTemplates;
 import tailspin.ast.SinkReference;
 import tailspin.ast.StateAssignment;
 import tailspin.ast.StringLiteral;
+import tailspin.ast.StructureLiteral;
 import tailspin.ast.Value;
 import tailspin.ast.ValueChain;
 import tailspin.interpreter.Composer.CompositionSpec;
@@ -106,7 +107,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Queue<Object> visitValueChain(TailspinParser.ValueChainContext ctx) {
     if (ctx.keyValue() != null) {
-      return queueOf(visitKeyValue(ctx.keyValue()));
+      return queueOf(visitKeyValue(ctx.keyValue()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
     }
     Queue<Object> oldIt = scope.getIt();
     Queue<Object> value = visitSource(ctx.source());
@@ -123,26 +124,25 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Queue<Object> visitSource(TailspinParser.SourceContext ctx) {
     if (ctx.stringLiteral() != null) {
-      // TODO: Difference between stringLiteral here and StringLiteralTemplates
-      return queueOf(visitStringLiteral(ctx.stringLiteral()));
+      return queueOf(new StringLiteral(ctx.stringLiteral()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
     }
     if (ctx.dereferenceValue() != null) {
       return visitDereferenceValue(ctx.dereferenceValue()).run(Expression.atMostOneValue(scope.getIt()), scope);
     }
     if (ctx.arithmeticExpression() != null) {
-      return queueOf(visitArithmeticExpression(ctx.arithmeticExpression()));
+      return queueOf(new ArithmeticExpression(ctx.arithmeticExpression()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
     }
     if (ctx.rangeLiteral() != null) {
       return visitRangeLiteral(ctx.rangeLiteral()).run(Expression.atMostOneValue(scope.getIt()), scope);
     }
     if (ctx.arrayLiteral() != null) {
-      return queueOf(visitArrayLiteral(ctx.arrayLiteral()));
+      return queueOf(new ArrayLiteral(ctx.arrayLiteral()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
     }
     if (ctx.structureLiteral() != null) {
-      return queueOf(visitStructureLiteral(ctx.structureLiteral()));
+      return queueOf(visitStructureLiteral(ctx.structureLiteral()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
     }
     if (ctx.LeftParen() != null) {
-      return queueOf(visitKeyValue(ctx.keyValue()));
+      return queueOf(visitKeyValue(ctx.keyValue()).evaluate(Expression.atMostOneValue(scope.getIt()), scope));
     }
     throw new UnsupportedOperationException(ctx.toString());
   }
@@ -733,41 +733,25 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Map<String, Object> visitStructureLiteral(TailspinParser.StructureLiteralContext ctx) {
-    Map<String, Object> structure = new TreeMap<>();
-    for (TailspinParser.KeyValuesContext kvs : ctx.keyValues()) {
-      visitKeyValues(kvs).forEach(keyValue -> structure.put(keyValue.getKey(), keyValue.getValue()));
-    }
-    return structure;
+  public StructureLiteral visitStructureLiteral(TailspinParser.StructureLiteralContext ctx) {
+    return new StructureLiteral(ctx.keyValues().stream().map(this::visitKeyValues).collect(Collectors.toList()));
   }
 
   @Override
-  public Queue<KeyValue> visitKeyValues(KeyValuesContext ctx) {
+  public Expression visitKeyValues(KeyValuesContext ctx) {
     if (ctx.keyValue() != null) {
-      Queue<KeyValue> keyValues = new ArrayDeque<>();
-      keyValues.add(visitKeyValue(ctx.keyValue()));
-      return keyValues;
+      return Expression.wrap(visitKeyValue(ctx.keyValue()));
     }
     if (ctx.dereferenceValue() != null) {
-      Queue<KeyValue> keyValues = new ArrayDeque<>();
-      KeyValue value = (KeyValue) Value.oneValue(visitDereferenceValue(ctx.dereferenceValue())
-          .run(Value.oneValue(scope.getIt()), scope));
-      keyValues.add(value);
-      return keyValues;
+      return visitDereferenceValue(ctx.dereferenceValue());
     }
-    @SuppressWarnings("unchecked")
-    Queue<KeyValue> keyValues = (Queue<KeyValue>) deconstruct(visitValueChain(ctx.valueChain()));
-    return keyValues;
+    return new ValueChain(ctx.valueChain());
   }
 
   @Override
-  public KeyValue visitKeyValue(TailspinParser.KeyValueContext ctx) {
+  public KeyValueExpression visitKeyValue(TailspinParser.KeyValueContext ctx) {
     String key = ctx.Key().getText().replace(":", "");
-    Queue<Object> valueQueue = visitValueProduction(ctx.valueProduction()).run(atMostOneValue(scope.getIt()), scope);
-    if (valueQueue.size() != 1) {
-      throw new AssertionError("Invalid multiple value " + valueQueue.size());
-    }
-    return new KeyValue(key, valueQueue.peek());
+    return new KeyValueExpression(key, Value.of(visitValueProduction(ctx.valueProduction())));
   }
 
   @Override

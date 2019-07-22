@@ -11,6 +11,10 @@ public interface Expression {
 
   Queue<Object> run(Object it, Scope blockScope);
 
+  static Expression wrap(Value value) {
+    return (it, scope) -> queueOf(value.evaluate(it, scope));
+  }
+
   static Queue<Object> queueOf(Object generated) {
     if (generated == null) return EMPTY_RESULT;
     Queue<Object> result = new ArrayDeque<>();

@@ -42,10 +42,10 @@ arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valu
 
 valueProduction: sendToTemplates | valueChain;
 
-structureLiteral: LeftBrace (keyValues Comma?)* RightBrace;
+structureLiteral: LeftBrace (keyValues (Comma keyValues)*)? RightBrace;
 
 keyValues: keyValue
-  | valueChain Deconstructor
+  | valueChain
   | dereferenceValue
 ;
 

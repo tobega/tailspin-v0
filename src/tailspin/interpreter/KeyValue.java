@@ -2,11 +2,11 @@ package tailspin.interpreter;
 
 import java.util.Map;
 
-class KeyValue implements Map.Entry<String, Object> {
+public class KeyValue implements Map.Entry<String, Object> {
   private final String key;
   private final Object value;
 
-  KeyValue(String key, Object value) {
+  public KeyValue(String key, Object value) {
     this.key = key;
     this.value = value;
   }
