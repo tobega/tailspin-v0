@@ -2,21 +2,16 @@ package tailspin.ast;
 
 import java.util.Map;
 import java.util.Queue;
-import tailspin.interpreter.RunMain;
 import tailspin.interpreter.Scope;
 import tailspin.interpreter.TransformCall;
-import tailspin.parser.TailspinParser;
 
 public class DereferenceValue implements Expression {
   private final Reference reference;
   private final boolean isDelete;
-  private final TailspinParser.MessageContext message;
 
-  public DereferenceValue(Reference reference, boolean isDelete,
-      TailspinParser.MessageContext message) {
+  public DereferenceValue(Reference reference, boolean isDelete) {
     this.reference = reference;
     this.isDelete = isDelete;
-    this.message = message;
   }
 
   @Override
@@ -27,11 +22,6 @@ public class DereferenceValue implements Expression {
     }
     if (reference.isMutable()) {
       value = Reference.copy(value);
-    }
-    // TODO: only a message could result in multiple values
-    if (message != null) {
-      scope.setIt(Expression.queueOf(it));
-      value = new RunMain(scope).resolveProcessorMessage(message, value);
     }
     // TODO: consider whether to support this case or not
     if (value instanceof TransformCall) {

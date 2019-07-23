@@ -13,7 +13,7 @@ public class ProcessorInstance {
     this.scope = scope;
   }
 
-  public Queue<Object> receiveMessage(String message, Queue<Object> it,
+  public Queue<Object> receiveMessage(String message, Object it,
       Map<String, Object> parameters) {
     Transform transform = (Transform) scope.resolveValue(message);
     return new TransformCall(transform, parameters).run(it, Map.of());

@@ -18,7 +18,7 @@ To: '->';
 
 ResultMarker: '!';
 
-SinkReference: ResultMarker IDENTIFIER;
+SinkReference: ResultMarker (DeleteState| At? IDENTIFIER?);
 
 At: '@';
 

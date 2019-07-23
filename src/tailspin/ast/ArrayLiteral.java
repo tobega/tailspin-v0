@@ -1,22 +1,20 @@
 package tailspin.ast;
 
-import static tailspin.ast.Expression.queueOf;
-
-import tailspin.interpreter.RunMain;
+import java.util.List;
+import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
-import tailspin.parser.TailspinParser;
 
 public class ArrayLiteral implements Value {
+  private final List<Expression> valueProductions;
 
-  private final TailspinParser.ArrayLiteralContext arrayLiteral;
-
-  public ArrayLiteral(TailspinParser.ArrayLiteralContext arrayLiteral) {
-    this.arrayLiteral = arrayLiteral;
+  public ArrayLiteral(List<Expression> valueProductions) {
+    this.valueProductions = valueProductions;
   }
 
   @Override
   public Object evaluate(Object it, Scope scope) {
-    scope.setIt(queueOf(it));
-    return new RunMain(scope).visitArrayLiteral(arrayLiteral);
+    return valueProductions.stream()
+        .flatMap(vp -> vp.run(it, scope).stream())
+        .collect(Collectors.toList());
   }
 }

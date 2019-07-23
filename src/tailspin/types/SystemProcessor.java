@@ -12,7 +12,7 @@ public class SystemProcessor extends ProcessorInstance {
   }
 
   @Override
-  public Queue<Object> receiveMessage(String message, Queue<Object> it,
+  public Queue<Object> receiveMessage(String message, Object it,
       Map<String, Object> parameters) {
     Queue<Object> result = new ArrayDeque<>();
     if (message.equals("nanoCount")) {

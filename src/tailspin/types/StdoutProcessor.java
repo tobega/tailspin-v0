@@ -12,17 +12,14 @@ public class StdoutProcessor extends ProcessorInstance {
   }
 
   @Override
-  public Queue<Object> receiveMessage(String message, Queue<Object> qit,
+  public Queue<Object> receiveMessage(String message, Object it,
       Map<String, Object> parameters) {
     if (message.equals("write")) {
-      qit.forEach(
-          it -> {
-            try {
-              scope.getOutput().write(it.toString().getBytes(StandardCharsets.UTF_8));
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-          });
+      try {
+        scope.getOutput().write(it.toString().getBytes(StandardCharsets.UTF_8));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     } else {
       throw new UnsupportedOperationException("Unknown OUT message " + message);
     }

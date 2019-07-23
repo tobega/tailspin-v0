@@ -1,13 +1,11 @@
 package tailspin.interpreter;
 
 import static tailspin.ast.Expression.EMPTY_RESULT;
-import static tailspin.ast.Expression.atMostOneValue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +32,7 @@ import tailspin.ast.InlineTemplates;
 import tailspin.ast.IntegerExpression;
 import tailspin.ast.IntegerLiteral;
 import tailspin.ast.KeyValueExpression;
+import tailspin.ast.ProcessorMessage;
 import tailspin.ast.RangeGenerator;
 import tailspin.ast.Reference;
 import tailspin.ast.SendToTemplates;
@@ -53,7 +52,6 @@ import tailspin.parser.TailspinParser.DimensionReferenceContext;
 import tailspin.parser.TailspinParser.KeyValuesContext;
 import tailspin.parser.TailspinParser.ValueProductionContext;
 import tailspin.parser.TailspinParserBaseVisitor;
-import tailspin.types.ProcessorInstance;
 
 public class RunMain extends TailspinParserBaseVisitor {
   public final Scope scope;
@@ -109,7 +107,11 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Void visitValueChainToSink(TailspinParser.ValueChainToSinkContext ctx) {
     Queue<Object> value = visitValueChain(ctx.valueChain()).run(Expression.atMostOneValue(scope.getIt()), scope);
     scope.setIt(value);
-    visitSink(ctx.sink());
+    Expression sink = visitSink(ctx.sink());
+    // void sink is null
+    if (sink != null) {
+      value.forEach(it -> sink.run(it, scope));
+    }
     return null;
   }
 
@@ -137,7 +139,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       return visitRangeLiteral(ctx.rangeLiteral());
     }
     if (ctx.arrayLiteral() != null) {
-      return Expression.wrap(new ArrayLiteral(ctx.arrayLiteral()));
+      return Expression.wrap(visitArrayLiteral(ctx.arrayLiteral()));
     }
     if (ctx.structureLiteral() != null) {
       return Expression.wrap(visitStructureLiteral(ctx.structureLiteral()));
@@ -161,12 +163,17 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public DereferenceValue visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
+  public Expression visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
     boolean isDelete = ctx.DeleteState() != null;
     TerminalNode dereference = isDelete ? ctx.DeleteState() : ctx.Dereference();
     String identifier = dereference.getText().substring(1);
     Reference reference = getReference(ctx.reference(), identifier);
-    return new DereferenceValue(reference, isDelete, ctx.message());
+    DereferenceValue dereferenceValue = new DereferenceValue(reference, isDelete);
+    if (ctx.message() != null) {
+      return new ProcessorMessage(dereferenceValue, ctx.message().Message().getText().substring(2),
+          visitParameterValues(ctx.message().parameterValues()));
+    }
+    return dereferenceValue;
   }
 
   private Reference getReference(TailspinParser.ReferenceContext ctx, String identifier) {
@@ -199,37 +206,6 @@ public class RunMain extends TailspinParserBaseVisitor {
     return reference;
   }
 
-  public Queue<Object> resolveProcessorMessage(TailspinParser.MessageContext ctx, Object value) {
-    String message = ctx.Message().getText().substring(2);
-    Queue<Object> result;
-    if (value instanceof List) {
-      if (message.equals("length")) {
-        result = queueOf(((List<?>) value).size());
-      } else {
-        throw new UnsupportedOperationException("Unknown array message " + message);
-      }
-    } else if (value instanceof KeyValue) {
-      if (message.equals("key")) {
-        result = queueOf(((KeyValue) value).getKey());
-      } else if (message.equals("value")) {
-        result = queueOf(((KeyValue) value).getValue());
-      } else {
-        throw new UnsupportedOperationException("Unknown array message " + message);
-      }
-    } else if (value instanceof ProcessorInstance) {
-      Map<String, Value> parameters = ctx.parameterValues() == null ? Map.of()
-        : visitParameterValues(ctx.parameterValues());
-      Object it = Expression.atMostOneValue(scope.getIt());
-      Map<String, Object> resolvedParams = parameters.entrySet().stream()
-          .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().evaluate(it, scope)))
-          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-      result = ((ProcessorInstance) value).receiveMessage(message, scope.getIt(), resolvedParams);
-    } else {
-      throw new UnsupportedOperationException("Unimplemented processor type " + value.getClass().getSimpleName());
-    }
-    return result;
-  }
-
   private Reference resolveFieldDereference(Reference reference, String fieldIdentifier) {
     return reference.field(fieldIdentifier);
   }
@@ -240,9 +216,9 @@ public class RunMain extends TailspinParserBaseVisitor {
       if (dimCtx.arithmeticExpression() != null) {
         dimensions.add(visitArithmeticExpression(dimCtx.arithmeticExpression()));
       } else if (dimCtx.rangeLiteral() != null) {
-        dimensions.add(new ArrayDimensionRange(dimCtx.rangeLiteral()));
+        dimensions.add(new ArrayDimensionRange(visitRangeLiteral(dimCtx.rangeLiteral())));
       } else if (dimCtx.arrayLiteral() != null) {
-        dimensions.add(new ArrayLiteral(dimCtx.arrayLiteral()));
+        dimensions.add(visitArrayLiteral(dimCtx.arrayLiteral()));
       } else if (dimCtx.dereferenceValue() != null) {
         dimensions.add(Value.of(visitDereferenceValue(dimCtx.dereferenceValue())));
       } else {
@@ -257,11 +233,21 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Void visitSink(TailspinParser.SinkContext ctx) {
+  public Expression visitSink(TailspinParser.SinkContext ctx) {
     if (ctx.SinkReference() != null) {
-      SinkReference sink = new SinkReference(
-          getReference(ctx.reference(), ctx.SinkReference().getText().substring(1)), ctx.message());
-      scope.getIt().forEach(it -> sink.run(it, scope));
+      String identifier = ctx.SinkReference().getText().substring(1);
+      boolean isDelete = false;
+      if (identifier.charAt(0) == '^') {
+        identifier = identifier.substring(1);
+        isDelete = true;
+      }
+      Reference reference = getReference(ctx.reference(), identifier);
+      DereferenceValue dereferenceValue = new DereferenceValue(reference, isDelete);
+      if (ctx.message() != null) {
+        return new SinkReference(new ProcessorMessage(dereferenceValue, ctx.message().Message().getText().substring(2),
+            visitParameterValues(ctx.message().parameterValues())));
+      }
+      return new SinkReference(dereferenceValue);
     }
     return null;
   }
@@ -381,6 +367,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Map<String, Value> visitParameterValues(TailspinParser.ParameterValuesContext ctx) {
+    if (ctx == null) return Map.of();
     Map<String, Value> parameters = new HashMap<>();
     for(TailspinParser.ParameterValueContext parameterValueContext : ctx.parameterValue()) {
       KeyValue keyValue = visitParameterValue(parameterValueContext);
@@ -573,16 +560,10 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public List<?> visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx) {
-    Queue<Object> originalIt = scope.getIt();
-    return ctx.valueProduction().stream()
-        .flatMap(
-            vp -> {
-              scope.setIt(originalIt);
-              Queue<Object> result = visitValueProduction(vp).run(atMostOneValue(originalIt), scope);
-              return result.stream();
-            })
-        .collect(Collectors.toList());
+  public ArrayLiteral visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx) {
+    return new ArrayLiteral(ctx.valueProduction().stream()
+        .map(this::visitValueProduction)
+        .collect(Collectors.toList()));
   }
 
   @Override
