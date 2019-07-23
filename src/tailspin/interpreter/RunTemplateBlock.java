@@ -56,7 +56,7 @@ public class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
-    Integer expected = visitArithmeticExpression(ctx.arithmeticExpression());
+    Long expected = (Long) visitArithmeticExpression(ctx.arithmeticExpression()).evaluate(Value.oneValue(scope.getIt()), scope);
     return expected.equals(toMatch);
   }
 
@@ -126,18 +126,18 @@ public class RunTemplateBlock extends RunMain {
     if (ctx.Range() != null) {
       int rangeTokenIndex = ctx.Range().getSymbol().getTokenIndex();
       if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() < rangeTokenIndex) {
-        int lowerBound = visitArithmeticExpression(ctx.arithmeticExpression(0));
+        int lowerBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(Value.oneValue(scope.getIt()), scope)).intValue();
         if (it.size() < lowerBound) return false;
       }
       if (ctx.arithmeticExpression(1) != null) {
-        int upperBound = visitArithmeticExpression(ctx.arithmeticExpression(1));
+        int upperBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(1)).evaluate(Value.oneValue(scope.getIt()), scope)).intValue();
         return it.size() <= upperBound;
       } else if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() > rangeTokenIndex) {
-        int upperBound = visitArithmeticExpression(ctx.arithmeticExpression(0));
+        int upperBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(Value.oneValue(scope.getIt()), scope)).intValue();
         return it.size() <= upperBound;
       }
     } else if (ctx.arithmeticExpression(0) != null) {
-      return visitArithmeticExpression(ctx.arithmeticExpression(0)) == it.size();
+      return ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(Value.oneValue(scope.getIt()), scope)).intValue() == it.size();
     }
     return true;
   }

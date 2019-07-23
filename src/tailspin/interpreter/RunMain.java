@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
-import tailspin.ast.ArithmeticExpression;
+import tailspin.ast.ArithmeticOperation;
 import tailspin.ast.ArrayDimensionRange;
 import tailspin.ast.ArrayLiteral;
 import tailspin.ast.ArrayTemplates;
@@ -31,6 +31,8 @@ import tailspin.ast.Deconstructor;
 import tailspin.ast.DereferenceValue;
 import tailspin.ast.Expression;
 import tailspin.ast.InlineTemplates;
+import tailspin.ast.IntegerExpression;
+import tailspin.ast.IntegerLiteral;
 import tailspin.ast.KeyValueExpression;
 import tailspin.ast.RangeGenerator;
 import tailspin.ast.Reference;
@@ -129,7 +131,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       return visitDereferenceValue(ctx.dereferenceValue());
     }
     if (ctx.arithmeticExpression() != null) {
-      return Expression.wrap(new ArithmeticExpression(ctx.arithmeticExpression()));
+      return Expression.wrap(visitArithmeticExpression(ctx.arithmeticExpression()));
     }
     if (ctx.rangeLiteral() != null) {
       return visitRangeLiteral(ctx.rangeLiteral());
@@ -236,7 +238,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     List<Value> dimensions = new ArrayList<>();
     for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
       if (dimCtx.arithmeticExpression() != null) {
-        dimensions.add(new ArithmeticExpression(dimCtx.arithmeticExpression()));
+        dimensions.add(visitArithmeticExpression(dimCtx.arithmeticExpression()));
       } else if (dimCtx.rangeLiteral() != null) {
         dimensions.add(new ArrayDimensionRange(dimCtx.rangeLiteral()));
       } else if (dimCtx.arrayLiteral() != null) {
@@ -469,81 +471,62 @@ public class RunMain extends TailspinParserBaseVisitor {
       return valueQueue.stream().map(Object::toString).collect(Collectors.joining());
     }
     if (ctx.characterCode() != null) {
-      int code = visitArithmeticExpression(ctx.characterCode().arithmeticExpression());
+      int code = ((Number) visitArithmeticExpression(ctx.characterCode().arithmeticExpression()).evaluate(Expression.atMostOneValue(scope.getIt()),scope)).intValue();
       return Character.toString(code);
     }
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public Integer visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx) {
-    if (ctx.Zero() != null) return 0;
+  public Value visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx) {
+    if (ctx.Zero() != null) return new IntegerLiteral(0);
     return visitNonZeroInteger(ctx.nonZeroInteger());
   }
 
   @Override
-  public Integer visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx) {
-    Integer value = Integer.valueOf(ctx.PositiveInteger().getText());
+  public Value visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx) {
+    long value = Long.valueOf(ctx.PositiveInteger().getText());
     if (ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-")) {
       value = - value;
     }
-    return value;
+    return new IntegerLiteral(value);
   }
 
   @Override
-  public Integer visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
+  public Value visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
     if (ctx.dereferenceValue() != null) {
-      String unaryOperator = ctx.additiveOperator() == null ? "" : ctx.additiveOperator().getText();
-      Object value = Value.oneValue(visitDereferenceValue(ctx.dereferenceValue())
-          .run(Expression.atMostOneValue(scope.getIt()), scope));
-      if (value instanceof Queue && ((Queue<?>) value).size() == 1) {
-        value = ((Queue<?>) value).peek();
-      }
-      switch (unaryOperator) {
-        case "":
-        case "+":
-          return (Integer) value;
-        case "-":
-          return -(Integer) value;
-        default:
-          throw new UnsupportedOperationException("Unknown unary operator " + unaryOperator);
-      }
+      boolean isNegative = ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-");
+      return new IntegerExpression(isNegative, visitDereferenceValue(ctx.dereferenceValue()));
     }
     if (ctx.LeftParen() != null) {
-      Queue<Object> values = visitValueChain(ctx.valueChain())
-          .run(Expression.atMostOneValue(scope.getIt()),scope);
-      if (values.size() != 1) {
-        throw new UnsupportedOperationException("Several values at " + ctx.valueChain().getText());
-      }
-      return (Integer) values.peek();
+      return new IntegerExpression(false, visitValueChain(ctx.valueChain()));
     }
     if (ctx.additiveOperator() != null) {
-      Integer left = (Integer) visit(ctx.arithmeticExpression(0));
-      Integer right = (Integer) visit(ctx.arithmeticExpression(1));
+      Value left = (Value) visit(ctx.arithmeticExpression(0));
+      Value right = (Value) visit(ctx.arithmeticExpression(1));
       String operation = ctx.additiveOperator().getText();
       switch (operation) {
         case "+":
-          return left + right;
+          return new ArithmeticOperation(left, ArithmeticOperation.Op.Add, right);
         case "-":
-          return left - right;
+          return new ArithmeticOperation(left, ArithmeticOperation.Op.Subtract, right);
       }
     }
     if (ctx.multiplicativeOperator() != null) {
-      Integer left = (Integer) visit(ctx.arithmeticExpression(0));
-      Integer right = (Integer) visit(ctx.arithmeticExpression(1));
+      Value left = (Value) visit(ctx.arithmeticExpression(0));
+      Value right = (Value) visit(ctx.arithmeticExpression(1));
       String operation = ctx.multiplicativeOperator().getText();
       switch (operation) {
         case "*":
-          return left * right;
+          return new ArithmeticOperation(left, ArithmeticOperation.Op.Multiply, right);
         case "/":
-          return left / right;
+          return new ArithmeticOperation(left, ArithmeticOperation.Op.DivideTruncate, right);
         case "mod":
-          int truncateRemainder = left % right;
-          return truncateRemainder < 0 ? Math.abs(right) + truncateRemainder : truncateRemainder;
+          return new ArithmeticOperation(left, ArithmeticOperation.Op.Modulo, right);
       }
     }
     if (ctx.integerLiteral() != null) {
-      return (Integer) visit(ctx.integerLiteral());
+      return (Value) visit(ctx.integerLiteral());
     }
     throw new UnsupportedOperationException();
   }
@@ -553,7 +536,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
     Value increment =
-        ctx.arithmeticExpression() == null ? null : new ArithmeticExpression(ctx.arithmeticExpression());
+        ctx.arithmeticExpression() == null ? null : visitArithmeticExpression(ctx.arithmeticExpression());
     return new RangeGenerator(lowerBound, upperBound, increment);
   }
 
@@ -563,7 +546,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.dereferenceValue() != null) {
       bound = Value.of(visitDereferenceValue(ctx.dereferenceValue()));
     } else if (ctx.arithmeticExpression() != null) {
-      bound = new ArithmeticExpression(ctx.arithmeticExpression());
+      bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
       bound = new StringLiteral(ctx.stringLiteral());
     } else {
@@ -579,7 +562,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.dereferenceValue() != null) {
       bound = Value.of(visitDereferenceValue(ctx.dereferenceValue()));
     } else if (ctx.arithmeticExpression() != null) {
-      bound = new ArithmeticExpression(ctx.arithmeticExpression());
+      bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
       bound = new StringLiteral(ctx.stringLiteral());
     } else {

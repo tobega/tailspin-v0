@@ -256,18 +256,18 @@ public abstract class Reference {
       Value dimensionValue = dimensions.get(currentDereference);
       Object idx = dimensionValue.evaluate(it, scope);
       Object dimensionResult;
-      if (idx instanceof Integer) {
-        int index = javaizeArrayIndex((Integer) idx, array.size());
+      if (idx instanceof Number) {
+        int index = (int) javaizeArrayIndex(((Number) idx).intValue(), array.size());
         dimensionResult = operation.invoke(array, index);
       } else if (idx instanceof RangeGenerator) {
         dimensionResult = ((RangeGenerator) idx)
-            .stream((Integer i) -> javaizeArrayIndex(i, array.size()), it, scope)
-            .map(i -> operation.invoke(array, i));
+            .stream(i -> javaizeArrayIndex(i.intValue(), array.size()), it, scope)
+            .map(i -> operation.invoke(array, i.intValue()));
       } else if (idx instanceof List) {
         @SuppressWarnings("unchecked")
-        List<Integer> permutation = (List<Integer>) idx;
+        List<Number> permutation = (List<Number>) idx;
         dimensionResult =
-            permutation.stream().map(i -> javaizeArrayIndex(i, array.size())).map(i -> operation.invoke(array, i));
+            permutation.stream().map(i -> javaizeArrayIndex(i.intValue(), array.size())).map(i -> operation.invoke(array, i.intValue()));
       } else {
           throw new UnsupportedOperationException(
               "Unable to dereference array by "
@@ -293,7 +293,7 @@ public abstract class Reference {
       }
     }
 
-    private int javaizeArrayIndex(int index, int size) {
+    private long javaizeArrayIndex(int index, int size) {
       if (index < 0) {
         return index + size;
       } else {
