@@ -1,13 +1,13 @@
 package tailspin.interpreter;
 
 import tailspin.ast.Block;
-import tailspin.parser.TailspinParser;
+import tailspin.ast.Condition;
 
 public class MatchTemplate {
-  final TailspinParser.MatcherContext matcher;
+  final Condition matcher;
   final Block block;
 
-  MatchTemplate(TailspinParser.MatcherContext matcher, Block block) {
+  MatchTemplate(Condition matcher, Block block) {
     this.matcher = matcher;
     this.block = block;
   }

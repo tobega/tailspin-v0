@@ -22,7 +22,7 @@ public class ProcessorConstructor extends Templates {
   }
 
   @Override
-  public Queue<Object> matchTemplates(RunTemplateBlock.RunMatcherBlock runner) {
+  public Queue<Object> matchTemplates(Object it, Scope scope) {
     throw new UnsupportedOperationException("Cannot send to templates in");
   }
 }

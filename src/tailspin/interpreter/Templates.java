@@ -1,7 +1,6 @@
 package tailspin.interpreter;
 
 import static tailspin.ast.Expression.queueOf;
-import static tailspin.ast.Value.oneValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,19 +51,17 @@ public class Templates implements Transform {
   }
 
   Queue<Object> runInScope(Object it, TransformScope scope) {
-    RunTemplateBlock runner = new RunTemplateBlock(scope);
     if (block != null) {
       return block.run(it, scope);
     } else {
-      return matchTemplates(runner.createMatcherBlockRunner(scope.getIt()));
+      return matchTemplates(it, scope);
     }
   }
 
-  public Queue<Object> matchTemplates(RunTemplateBlock.RunMatcherBlock runner) {
-    Object it = oneValue(runner.scope.getIt());
+  public Queue<Object> matchTemplates(Object it, Scope scope) {
     Optional<MatchTemplate> match =
-        matchTemplates.stream().filter(m -> runner.visitMatcher(m.matcher).matches(it, runner)).findFirst();
-    return match.map(m -> m.block.run(it, runner.scope)).orElse(Expression.EMPTY_RESULT);
+        matchTemplates.stream().filter(m -> m.matcher.matches(it, it, scope)).findFirst();
+    return match.map(m -> m.block.run(it, new NestedScope(scope))).orElse(Expression.EMPTY_RESULT);
   }
 
   public void expectParameters(List<ExpectedParameter> parameters) {

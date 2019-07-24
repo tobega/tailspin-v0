@@ -17,27 +17,34 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
+import tailspin.ast.AnyOf;
 import tailspin.ast.ArithmeticOperation;
 import tailspin.ast.ArrayDimensionRange;
 import tailspin.ast.ArrayLiteral;
+import tailspin.ast.ArrayMatch;
 import tailspin.ast.ArrayTemplates;
 import tailspin.ast.Block;
 import tailspin.ast.Bound;
 import tailspin.ast.ChainStage;
 import tailspin.ast.CodedCharacter;
 import tailspin.ast.ComposerDefinition;
+import tailspin.ast.Condition;
 import tailspin.ast.Deconstructor;
 import tailspin.ast.Definition;
 import tailspin.ast.DereferenceValue;
+import tailspin.ast.Equality;
 import tailspin.ast.Expression;
 import tailspin.ast.InlineTemplates;
 import tailspin.ast.IntegerConstant;
 import tailspin.ast.IntegerExpression;
+import tailspin.ast.InvertMatch;
 import tailspin.ast.KeyValueExpression;
 import tailspin.ast.ProcessorDefinition;
 import tailspin.ast.ProcessorMessage;
 import tailspin.ast.RangeGenerator;
+import tailspin.ast.RangeMatch;
 import tailspin.ast.Reference;
+import tailspin.ast.RegexpMatch;
 import tailspin.ast.SendToTemplates;
 import tailspin.ast.SinkValueChain;
 import tailspin.ast.StateAssignment;
@@ -45,10 +52,13 @@ import tailspin.ast.StringConstant;
 import tailspin.ast.StringInterpolation;
 import tailspin.ast.StringLiteral;
 import tailspin.ast.StructureLiteral;
+import tailspin.ast.StructureMatch;
+import tailspin.ast.SuchThatMatch;
 import tailspin.ast.TemplatesCall;
 import tailspin.ast.TemplatesDefinition;
 import tailspin.ast.TemplatesReference;
 import tailspin.ast.Value;
+import tailspin.ast.ValueMatcher;
 import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
@@ -277,7 +287,79 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public MatchTemplate visitMatchTemplate(TailspinParser.MatchTemplateContext ctx) {
-    return new MatchTemplate(ctx.matcher(), visitBlock(ctx.block()));
+    return new MatchTemplate(visitMatcher(ctx.matcher()), visitBlock(ctx.block()));
+  }
+
+  @Override
+  public AnyOf visitMatcher(TailspinParser.MatcherContext ctx) {
+    return new AnyOf(ctx.condition().stream().map(this::visitCondition).collect(Collectors.toList()));
+  }
+
+  @Override
+  public ValueMatcher visitCondition(TailspinParser.ConditionContext ctx) {
+    return new ValueMatcher(ctx.typeMatch() == null ? null : (Condition) visit(ctx.typeMatch()),
+        ctx.suchThat() == null ? List.of()
+            : ctx.suchThat().stream().map(this::visitSuchThat).collect(Collectors.toList()));
+  }
+
+  @Override
+  public SuchThatMatch visitSuchThat(TailspinParser.SuchThatContext ctx) {
+    return new SuchThatMatch(Value.of(visitValueChain(ctx.valueChain())), visitMatcher(ctx.matcher()));
+  }
+
+  @Override
+  public Condition visitObjectEquals(TailspinParser.ObjectEqualsContext ctx) {
+    return new Equality(Value.of(visitDereferenceValue(ctx.dereferenceValue())));
+  }
+
+  @Override
+  public Condition visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
+    return new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
+  }
+
+  @Override
+  public Condition visitRangeMatch(TailspinParser.RangeMatchContext ctx) {
+    return visitRangeBounds(ctx.rangeBounds());
+  }
+
+  @Override
+  public RangeMatch visitRangeBounds(TailspinParser.RangeBoundsContext ctx) {
+    Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
+    Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
+    return new RangeMatch(lowerBound, upperBound);
+  }
+
+  @Override
+  public Condition visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
+    return new RegexpMatch(visitStringLiteral(ctx.stringLiteral()));
+  }
+
+  @Override
+  public Condition visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
+    Map<String, Condition> keyMatchers = new HashMap<>();
+    for (int i = 0; i < ctx.Key().size(); i++) {
+      String key = ctx.Key(i).getText().replace(":", "");
+      TailspinParser.MatcherContext matcherCtx = ctx.matcher(i);
+      AnyOf matcher = visitMatcher(matcherCtx);
+      keyMatchers.put(key, matcher);
+    }
+    return new StructureMatch(keyMatchers);
+  }
+
+  @Override
+  public Condition visitInvertMatch(TailspinParser.InvertMatchContext ctx) {
+    return new InvertMatch(visitCondition(ctx.condition()));
+  }
+
+  @Override
+  public Condition visitArrayMatch(TailspinParser.ArrayMatchContext ctx) {
+    Condition lengthCondition = null;
+    if (ctx.rangeBounds() != null) {
+      lengthCondition = visitRangeBounds(ctx.rangeBounds());
+    } else if (ctx.arithmeticExpression() != null) {
+      lengthCondition = new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
+    }
+    return new ArrayMatch(lengthCondition);
   }
 
   @Override
