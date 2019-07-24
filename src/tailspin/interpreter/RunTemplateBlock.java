@@ -2,10 +2,11 @@ package tailspin.interpreter;
 
 import static tailspin.ast.Value.oneValue;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import tailspin.ast.ArrayMatch;
 import tailspin.ast.Bound;
+import tailspin.ast.Condition;
 import tailspin.ast.Equality;
 import tailspin.ast.Matcher;
 import tailspin.ast.RangeMatch;
@@ -60,9 +61,14 @@ public class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitRangeMatch(TailspinParser.RangeMatchContext ctx) {
+    return visitRangeBounds(ctx.rangeBounds()).matches(toMatch, oneValue(scope.getIt()), scope);
+  }
+
+  @Override
+  public RangeMatch visitRangeBounds(TailspinParser.RangeBoundsContext ctx) {
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
-    return new RangeMatch(lowerBound, upperBound).matches(toMatch, oneValue(scope.getIt()), scope);
+    return new RangeMatch(lowerBound, upperBound);
   }
 
   @Override
@@ -109,28 +115,13 @@ public class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitArrayMatch(ArrayMatchContext ctx) {
-    if (!(toMatch instanceof List)) return false;
-    List<?> it = (List<?>) toMatch;
-    if (ctx.Range() != null) {
-      int rangeTokenIndex = ctx.Range().getSymbol().getTokenIndex();
-      if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() < rangeTokenIndex) {
-        int lowerBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(
-            oneValue(scope.getIt()), scope)).intValue();
-        if (it.size() < lowerBound) return false;
-      }
-      if (ctx.arithmeticExpression(1) != null) {
-        int upperBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(1)).evaluate(
-            oneValue(scope.getIt()), scope)).intValue();
-        return it.size() <= upperBound;
-      } else if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() > rangeTokenIndex) {
-        int upperBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(
-            oneValue(scope.getIt()), scope)).intValue();
-        return it.size() <= upperBound;
-      }
-    } else if (ctx.arithmeticExpression(0) != null) {
-      return ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(oneValue(scope.getIt()), scope)).intValue() == it.size();
+    Condition lengthCondition = null;
+    if (ctx.rangeBounds() != null) {
+      lengthCondition = visitRangeBounds(ctx.rangeBounds());
+    } else if (ctx.arithmeticExpression() != null) {
+      lengthCondition = new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
     }
-    return true;
+    return new ArrayMatch(lengthCondition).matches(toMatch, oneValue(scope.getIt()), scope);
   }
 
   public RunMatcherBlock createMatcherBlockRunner(Queue<Object> it) {

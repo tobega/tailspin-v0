@@ -99,12 +99,14 @@ condition: typeMatch? suchThat*;
 
 typeMatch: dereferenceValue           # objectEquals
   | arithmeticExpression              # integerEquals
-  | lowerBound? Range upperBound?     # rangeMatch
+  | rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (Key matcher Comma?)* RightBrace # structureMatch
   | Invert condition                  # invertMatch
-  | LeftBracket RightBracket (LeftParen arithmeticExpression? Range? arithmeticExpression? RightParen)?         # arrayMatch
+  | LeftBracket RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
 ;
+
+rangeBounds: lowerBound? Range upperBound?;
 
 suchThat: BeginSuchThat valueChain matcher RightParen;
 
