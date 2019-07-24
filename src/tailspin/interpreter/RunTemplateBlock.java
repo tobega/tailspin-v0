@@ -5,11 +5,11 @@ import static tailspin.ast.Value.oneValue;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.regex.Pattern;
 import tailspin.ast.Bound;
-import tailspin.ast.Expression;
+import tailspin.ast.Equality;
 import tailspin.ast.Matcher;
 import tailspin.ast.RangeMatch;
+import tailspin.ast.RegexpMatch;
 import tailspin.ast.SuchThatMatch;
 import tailspin.ast.Value;
 import tailspin.parser.TailspinParser;
@@ -50,22 +50,16 @@ public class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitObjectEquals(TailspinParser.ObjectEqualsContext ctx) {
-    Object expected = oneValue(visitDereferenceValue(ctx.dereferenceValue())
-        .run(oneValue(scope.getIt()), scope));
-    return expected.equals(toMatch);
+    return new Equality(Value.of(visitDereferenceValue(ctx.dereferenceValue()))).matches(toMatch, oneValue(scope.getIt()), scope);
   }
 
   @Override
   public Boolean visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
-    Long expected = (Long) visitArithmeticExpression(ctx.arithmeticExpression()).evaluate(oneValue(scope.getIt()), scope);
-    return expected.equals(toMatch);
+    return new Equality(visitArithmeticExpression(ctx.arithmeticExpression())).matches(toMatch, oneValue(scope.getIt()), scope);
   }
 
   @Override
   public Boolean visitRangeMatch(TailspinParser.RangeMatchContext ctx) {
-    if (!(toMatch instanceof Comparable)) return false;
-    @SuppressWarnings("unchecked")
-    Comparable<Object> it = (Comparable<Object>) toMatch;
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
     return new RangeMatch(lowerBound, upperBound).matches(toMatch, oneValue(scope.getIt()), scope);
@@ -73,14 +67,7 @@ public class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
-    if (!(toMatch instanceof String)) return false;
-    String it = (String) toMatch;
-    String pattern = (String) visitStringLiteral(ctx.stringLiteral()).evaluate(Expression.atMostOneValue(scope.getIt()), scope);
-    // TODO: this could be good to save in compiled form
-    Pattern compiled =
-        Pattern.compile(
-            "\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ + Pattern.DOTALL);
-    return compiled.matcher(it).matches();
+    return new RegexpMatch(visitStringLiteral(ctx.stringLiteral())).matches(toMatch, oneValue(scope.getIt()), scope);
   }
 
   @Override
