@@ -22,22 +22,24 @@ import tailspin.ast.ArrayDimensionRange;
 import tailspin.ast.ArrayLiteral;
 import tailspin.ast.ArrayTemplates;
 import tailspin.ast.Block;
-import tailspin.ast.BlockStatement;
 import tailspin.ast.Bound;
 import tailspin.ast.ChainStage;
 import tailspin.ast.CodedCharacter;
+import tailspin.ast.ComposerDefinition;
 import tailspin.ast.Deconstructor;
+import tailspin.ast.Definition;
 import tailspin.ast.DereferenceValue;
 import tailspin.ast.Expression;
 import tailspin.ast.InlineTemplates;
 import tailspin.ast.IntegerConstant;
 import tailspin.ast.IntegerExpression;
 import tailspin.ast.KeyValueExpression;
+import tailspin.ast.ProcessorDefinition;
 import tailspin.ast.ProcessorMessage;
 import tailspin.ast.RangeGenerator;
 import tailspin.ast.Reference;
 import tailspin.ast.SendToTemplates;
-import tailspin.ast.SinkReference;
+import tailspin.ast.SinkValueChain;
 import tailspin.ast.StateAssignment;
 import tailspin.ast.StringConstant;
 import tailspin.ast.StringInterpolation;
@@ -71,7 +73,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     ctx.dependency().forEach(this::visit);
     ctx.statement().forEach(s -> {
       scope.setIt(EMPTY_RESULT);
-      visit(s);
+      ((Expression) visit(s)).run(null, scope);
     });
     return null;
   }
@@ -107,15 +109,10 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Void visitValueChainToSink(TailspinParser.ValueChainToSinkContext ctx) {
-    Queue<Object> value = visitValueChain(ctx.valueChain()).run(Expression.atMostOneValue(scope.getIt()), scope);
-    scope.setIt(value);
+  public Expression visitValueChainToSink(TailspinParser.ValueChainToSinkContext ctx) {
+    Expression valueChain = visitValueChain(ctx.valueChain());
     Expression sink = visitSink(ctx.sink());
-    // void sink is null
-    if (sink != null) {
-      value.forEach(it -> sink.run(it, scope));
-    }
-    return null;
+    return new SinkValueChain(valueChain, sink);
   }
 
   @Override
@@ -247,10 +244,10 @@ public class RunMain extends TailspinParserBaseVisitor {
       Reference reference = getReference(ctx.reference(), identifier);
       DereferenceValue dereferenceValue = new DereferenceValue(reference, isDelete);
       if (ctx.message() != null) {
-        return new SinkReference(new ProcessorMessage(dereferenceValue, ctx.message().Message().getText().substring(2),
-            visitParameterValues(ctx.message().parameterValues())));
+        return new ProcessorMessage(dereferenceValue, ctx.message().Message().getText().substring(2),
+            visitParameterValues(ctx.message().parameterValues()));
       }
-      return new SinkReference(dereferenceValue);
+      return dereferenceValue;
     }
     return null;
   }
@@ -307,30 +304,32 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public BlockStatement visitBlockStatement(TailspinParser.BlockStatementContext ctx) {
-    return new BlockStatement(ctx.statement());
+  public Expression visitBlockStatement(TailspinParser.BlockStatementContext ctx) {
+    return (Expression) visit(ctx.statement());
   }
 
   @Override
-  public Object visitTemplatesDefinition(TailspinParser.TemplatesDefinitionContext ctx) {
+  public Expression visitTemplatesDefinition(TailspinParser.TemplatesDefinitionContext ctx) {
     String name = ctx.IDENTIFIER(0).getText();
     if (!name.equals(ctx.IDENTIFIER(1).getText())) {
       throw new IllegalStateException(
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
     }
-    Templates templates = visitTemplatesBody(ctx.templatesBody()).define(scope);
-    templates.setScopeContext(name);
-    if (ctx.parameterDefinitions() != null) {
-      List<ExpectedParameter> parameters = visitParameterDefinitions(ctx.parameterDefinitions());
-      templates.expectParameters(parameters);
-    }
-    scope.defineValue(name, templates);
-    return null;
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
+    templatesDefinition.expectParameters(visitParameterDefinitions(ctx.parameterDefinitions()));
+    return new Definition(name, (it, scope) -> {
+      Templates templates = templatesDefinition.define(scope);
+      templates.setScopeContext(name);
+      return templates;
+    });
   }
 
   @Override
   public List<ExpectedParameter> visitParameterDefinitions(TailspinParser.ParameterDefinitionsContext ctx) {
     List<ExpectedParameter> parameters = new ArrayList<>();
+    if (ctx == null) {
+      return parameters;
+    }
     for (TerminalNode key : ctx.Key()) {
       parameters.add(new ExpectedParameter(key.getText().replace(":", "")));
     }
@@ -338,20 +337,19 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Object visitProcessorDefinition(TailspinParser.ProcessorDefinitionContext ctx) {
+  public Expression visitProcessorDefinition(TailspinParser.ProcessorDefinitionContext ctx) {
     String name = ctx.IDENTIFIER(0).getText();
     if (!name.equals(ctx.IDENTIFIER(1).getText())) {
       throw new IllegalStateException(
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for templates " + name);
     }
-    ProcessorDefinition processor = new ProcessorDefinition(scope, visitBlock(ctx.block()));
-    processor.setScopeContext(name);
-    if (ctx.parameterDefinitions() != null) {
-      List<ExpectedParameter> parameters = visitParameterDefinitions(ctx.parameterDefinitions());
-      processor.expectParameters(parameters);
-    }
-    scope.defineValue(name, processor);
-    return null;
+    ProcessorDefinition processorDefinition = new ProcessorDefinition(visitBlock(ctx.block()),
+        visitParameterDefinitions(ctx.parameterDefinitions()));
+    return new Definition(name, (it, scope) -> {
+      ProcessorConstructor processorConstructor = processorDefinition.define(scope);
+      processorConstructor.setScopeContext(name);
+      return processorConstructor;
+    });
   }
 
   @Override
@@ -413,14 +411,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
     String identifier = ctx.Key().getText().replace(":", "");
-    Queue<Object> valueChainResult = visitValueChain(ctx.valueChain())
-        .run(Expression.atMostOneValue(scope.getIt()), scope);
-    if (valueChainResult.size() != 1) {
-      throw new IllegalArgumentException(
-          "Attempt to define symbol " + identifier + " with " + valueChainResult.size() + " values");
-    }
-    scope.defineValue(identifier, valueChainResult.peek());
-    return null;
+    return new Definition(identifier, Value.of(visitValueChain(ctx.valueChain())));
   }
 
   @Override
@@ -593,25 +584,24 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Object visitComposerDefinition(TailspinParser.ComposerDefinitionContext ctx) {
+  public Expression visitComposerDefinition(TailspinParser.ComposerDefinitionContext ctx) {
     String name = ctx.IDENTIFIER(0).getText();
     if (!name.equals(ctx.IDENTIFIER(1).getText())) {
       throw new IllegalStateException(
           "Mismatched end " + ctx.IDENTIFIER(1).getText() + " for parser " + name);
     }
-    Composer composer = visitComposerBody(ctx.composerBody());
-    scope.defineValue(name, composer);
-    return null;
+    ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
+    return new Definition(name, (it, scope) -> composerDefinition.define(scope));
   }
 
   @Override
-  public Composer visitComposerBody(TailspinParser.ComposerBodyContext ctx) {
+  public ComposerDefinition visitComposerBody(TailspinParser.ComposerBodyContext ctx) {
     Map<String, List<CompositionSpec>> definedSequences = new HashMap<>();
     for (DefinedCompositionSequenceContext definition : ctx.definedCompositionSequence()) {
       String key = definition.Key().getText().replace(":", "");
       definedSequences.put(key, visitCompositionSequence(definition.compositionSequence()));
     }
-    return new Composer(scope, visitCompositionSequence(ctx.compositionSequence()), definedSequences);
+    return new ComposerDefinition(visitCompositionSequence(ctx.compositionSequence()), definedSequences);
   }
 
   @Override

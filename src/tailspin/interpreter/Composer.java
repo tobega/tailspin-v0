@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import tailspin.ast.Expression;
 import tailspin.ast.Value;
 
-class Composer implements Transform {
+public class Composer implements Transform {
   private static final HashMap<String, Pattern> namedPatterns = new HashMap<>();
   private static final HashMap<String, Function<? super String, Object>> namedValueCreators = new HashMap<>();
   static {
@@ -25,7 +25,8 @@ class Composer implements Transform {
   private final List<CompositionSpec> specs;
   private final Map<String, List<CompositionSpec>> definedSequences;
 
-  Composer(Scope definingScope, List<CompositionSpec> specs, Map<String, List<CompositionSpec>> definedSequences) {
+  public Composer(Scope definingScope, List<CompositionSpec> specs,
+      Map<String, List<CompositionSpec>> definedSequences) {
     this.definingScope = definingScope;
     this.specs = specs;
     this.definedSequences = definedSequences;
@@ -149,7 +150,7 @@ class Composer implements Transform {
         Collectors.toList());
   }
 
-  interface CompositionSpec {}
+  public interface CompositionSpec {}
 
   static class NamedComposition implements CompositionSpec {
     private final String namedPattern;

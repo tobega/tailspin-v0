@@ -30,6 +30,9 @@ public abstract class Reference {
   private static Reference itReference = new Reference() {
     @Override
     public Object getValue(Object it, Scope scope) {
+      if (it == null) {
+        throw new IllegalStateException("Cannot reference $it, doesn't exist");
+      }
       return it;
     }
 

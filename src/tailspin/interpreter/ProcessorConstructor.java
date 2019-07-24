@@ -7,8 +7,8 @@ import java.util.Queue;
 import tailspin.ast.Block;
 import tailspin.types.ProcessorInstance;
 
-class ProcessorDefinition extends Templates {
-  ProcessorDefinition(Scope definingScope, Block block) {
+public class ProcessorConstructor extends Templates {
+  public ProcessorConstructor(Scope definingScope, Block block) {
     super(definingScope, block, new ArrayList<>());
   }
 
