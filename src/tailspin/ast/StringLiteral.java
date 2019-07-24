@@ -1,21 +1,21 @@
 package tailspin.ast;
 
-import static tailspin.ast.Expression.queueOf;
-
-import tailspin.interpreter.RunMain;
+import java.util.List;
+import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
-import tailspin.parser.TailspinParser;
 
 public class StringLiteral implements Value {
-  final TailspinParser.StringLiteralContext stringLiteral;
+  final List<Value> stringLiteral;
 
-  public StringLiteral(TailspinParser.StringLiteralContext stringLiteral) {
+  public StringLiteral(List<Value> stringLiteral) {
     this.stringLiteral = stringLiteral;
   }
 
   @Override
   public Object evaluate(Object it, Scope scope) {
-    scope.setIt(queueOf(it));
-    return new RunMain(scope).visitStringLiteral(stringLiteral);
+    return stringLiteral.stream()
+        .map(v -> v.evaluate(it, scope))
+        .map(Object::toString)
+        .collect(Collectors.joining());
   }
 }

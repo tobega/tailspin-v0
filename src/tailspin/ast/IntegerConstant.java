@@ -2,10 +2,10 @@ package tailspin.ast;
 
 import tailspin.interpreter.Scope;
 
-public class IntegerLiteral implements Value {
+public class IntegerConstant implements Value {
   private final long value;
 
-  public IntegerLiteral(long value) {
+  public IntegerConstant(long value) {
     this.value = value;
   }
 

@@ -3,7 +3,7 @@ package tailspin.ast;
 import java.util.Map;
 import java.util.Queue;
 import tailspin.interpreter.Scope;
-import tailspin.interpreter.TransformCall;
+import tailspin.interpreter.Transform;
 
 public class DereferenceValue implements Expression {
   private final Reference reference;
@@ -23,9 +23,9 @@ public class DereferenceValue implements Expression {
     if (reference.isMutable()) {
       value = Reference.copy(value);
     }
-    // TODO: consider whether to support this case or not
-    if (value instanceof TransformCall) {
-      return ((TransformCall) value).run(it, Map.of());
+    // Currently, dereferencing a transform means calling it. It makes some sense in string interpolation
+    if (value instanceof Transform) {
+      return ((Transform) value).run(it, Map.of());
     }
     return Expression.queueOf(value);
   }

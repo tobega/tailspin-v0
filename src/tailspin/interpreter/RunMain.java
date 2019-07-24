@@ -25,12 +25,13 @@ import tailspin.ast.Block;
 import tailspin.ast.BlockStatement;
 import tailspin.ast.Bound;
 import tailspin.ast.ChainStage;
+import tailspin.ast.CodedCharacter;
 import tailspin.ast.Deconstructor;
 import tailspin.ast.DereferenceValue;
 import tailspin.ast.Expression;
 import tailspin.ast.InlineTemplates;
+import tailspin.ast.IntegerConstant;
 import tailspin.ast.IntegerExpression;
-import tailspin.ast.IntegerLiteral;
 import tailspin.ast.KeyValueExpression;
 import tailspin.ast.ProcessorMessage;
 import tailspin.ast.RangeGenerator;
@@ -38,6 +39,8 @@ import tailspin.ast.Reference;
 import tailspin.ast.SendToTemplates;
 import tailspin.ast.SinkReference;
 import tailspin.ast.StateAssignment;
+import tailspin.ast.StringConstant;
+import tailspin.ast.StringInterpolation;
 import tailspin.ast.StringLiteral;
 import tailspin.ast.StructureLiteral;
 import tailspin.ast.TemplatesCall;
@@ -81,7 +84,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitDependency(TailspinParser.DependencyContext ctx) {
-    String dependency = visitStringLiteral(ctx.stringLiteral());
+    String dependency = (String) visitStringLiteral(ctx.stringLiteral()).evaluate(Expression.atMostOneValue(scope.getIt()), scope);
     String dependencyName = dependency.substring(dependency.lastIndexOf('/') + 1);
     Path depPath = scope.basePath().resolve(dependency + ".tt");
     try {
@@ -127,7 +130,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Expression visitSource(TailspinParser.SourceContext ctx) {
     if (ctx.stringLiteral() != null) {
-      return Expression.wrap(new StringLiteral(ctx.stringLiteral()));
+      return Expression.wrap(visitStringLiteral(ctx.stringLiteral()));
     }
     if (ctx.dereferenceValue() != null) {
       return visitDereferenceValue(ctx.dereferenceValue());
@@ -421,52 +424,37 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public String visitStringLiteral(TailspinParser.StringLiteralContext ctx) {
-    return ctx.stringContent().stream()
-        .map(this::visit)
-        .map(Object::toString)
-        .collect(Collectors.joining());
+  public Value visitStringLiteral(TailspinParser.StringLiteralContext ctx) {
+    return new StringLiteral(ctx.stringContent().stream()
+        .map(this::visitStringContent)
+        .collect(Collectors.toList()));
   }
 
   @Override
-  public String visitStringContent(TailspinParser.StringContentContext ctx) {
+  public Value visitStringContent(TailspinParser.StringContentContext ctx) {
     if (ctx.STRING_TEXT() != null) {
-      return ctx.STRING_TEXT().getSymbol().getText().replace("''", "'").replace("$$", "$");
+      return new StringConstant(ctx.STRING_TEXT().getSymbol().getText().replace("''", "'").replace("$$", "$"));
     }
-    return visit(ctx.stringInterpolate()).toString();
+    return visitStringInterpolate(ctx.stringInterpolate());
   }
 
   @Override
-  public String visitStringInterpolate(TailspinParser.StringInterpolateContext ctx) {
+  public Value visitStringInterpolate(TailspinParser.StringInterpolateContext ctx) {
     if (ctx.dereferenceValue() != null) {
-      Queue<Object> interpolated = visitDereferenceValue(ctx.dereferenceValue())
-          .run(Expression.atMostOneValue(scope.getIt()),scope);
-      if (interpolated.size() == 1 && interpolated.peek() instanceof Templates) {
-        Templates templates = (Templates) interpolated.peek();
-        return templates
-            .run(scope.getIt(), Map.of()).stream()
-                .map(Object::toString)
-                .collect(Collectors.joining());
-      }
-      return ((Queue<?>) interpolated).stream()
-          .map(Object::toString)
-          .collect(Collectors.joining());
+      return new StringInterpolation(visitDereferenceValue(ctx.dereferenceValue()));
     }
     if (ctx.interpolateEvaluate() != null) {
-      Queue<Object> valueQueue = visitValueChain(ctx.interpolateEvaluate().valueChain())
-          .run(Expression.atMostOneValue(scope.getIt()),scope);
-      return valueQueue.stream().map(Object::toString).collect(Collectors.joining());
+      return new StringInterpolation(visitValueChain(ctx.interpolateEvaluate().valueChain()));
     }
     if (ctx.characterCode() != null) {
-      int code = ((Number) visitArithmeticExpression(ctx.characterCode().arithmeticExpression()).evaluate(Expression.atMostOneValue(scope.getIt()),scope)).intValue();
-      return Character.toString(code);
+      return new CodedCharacter(visitArithmeticExpression(ctx.characterCode().arithmeticExpression()));
     }
     throw new UnsupportedOperationException();
   }
 
   @Override
   public Value visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx) {
-    if (ctx.Zero() != null) return new IntegerLiteral(0);
+    if (ctx.Zero() != null) return new IntegerConstant(0);
     return visitNonZeroInteger(ctx.nonZeroInteger());
   }
 
@@ -476,7 +464,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-")) {
       value = - value;
     }
-    return new IntegerLiteral(value);
+    return new IntegerConstant(value);
   }
 
   @Override
@@ -535,7 +523,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else if (ctx.arithmeticExpression() != null) {
       bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
-      bound = new StringLiteral(ctx.stringLiteral());
+      bound = visitStringLiteral(ctx.stringLiteral());
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
@@ -551,7 +539,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else if (ctx.arithmeticExpression() != null) {
       bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
-      bound = new StringLiteral(ctx.stringLiteral());
+      bound = visitStringLiteral(ctx.stringLiteral());
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
@@ -721,7 +709,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       String matchRule = ctx.IDENTIFIER().getText();
       compositionSpec = new Composer.NamedComposition(matchRule, ctx.Invert() != null);
     } else if (ctx.stringLiteral() != null) {
-      String regex = visitStringLiteral(ctx.stringLiteral());
+      Value regex = visitStringLiteral(ctx.stringLiteral());
       compositionSpec = new Composer.RegexComposition(regex, ctx.Invert() != null);
     } else {
       throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());

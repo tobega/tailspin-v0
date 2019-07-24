@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.regex.Pattern;
 import tailspin.ast.Bound;
+import tailspin.ast.Expression;
 import tailspin.ast.Matcher;
 import tailspin.ast.RangeMatch;
 import tailspin.ast.SuchThatMatch;
@@ -74,7 +75,7 @@ public class RunTemplateBlock extends RunMain {
   public Boolean visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
     if (!(toMatch instanceof String)) return false;
     String it = (String) toMatch;
-    String pattern = visitStringLiteral(ctx.stringLiteral());
+    String pattern = (String) visitStringLiteral(ctx.stringLiteral()).evaluate(Expression.atMostOneValue(scope.getIt()), scope);
     // TODO: this could be good to save in compiled form
     Pattern compiled =
         Pattern.compile(

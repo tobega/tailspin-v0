@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import tailspin.ast.Expression;
+import tailspin.ast.Value;
 
 class Composer implements Transform {
   private static final HashMap<String, Pattern> namedPatterns = new HashMap<>();
@@ -90,7 +91,8 @@ class Composer implements Transform {
     }
     if (spec instanceof RegexComposition) {
       RegexComposition regexSpec = (RegexComposition) spec;
-      return new RegexpSubComposer(Pattern.compile(regexSpec.pattern), Function.identity(),
+      // Note that we do not allow regex interpolations to reference $it. What would that even mean?
+      return new RegexpSubComposer(Pattern.compile((String) regexSpec.pattern.evaluate(null, scope)), Function.identity(),
           regexSpec.invert);
     }
     if (spec instanceof SkipComposition) {
@@ -160,10 +162,10 @@ class Composer implements Transform {
   }
 
   static class RegexComposition implements CompositionSpec {
-    private final String pattern;
+    private final Value pattern;
     private final boolean invert;
 
-    RegexComposition(String pattern, boolean invert) {
+    RegexComposition(Value pattern, boolean invert) {
       this.pattern = pattern;
       this.invert = invert;
     }
