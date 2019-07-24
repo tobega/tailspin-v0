@@ -1,5 +1,7 @@
 package tailspin.interpreter;
 
+import static tailspin.ast.Value.oneValue;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -48,14 +50,14 @@ public class RunTemplateBlock extends RunMain {
 
   @Override
   public Boolean visitObjectEquals(TailspinParser.ObjectEqualsContext ctx) {
-    Object expected = Value.oneValue(visitDereferenceValue(ctx.dereferenceValue())
-        .run(Value.oneValue(scope.getIt()), scope));
+    Object expected = oneValue(visitDereferenceValue(ctx.dereferenceValue())
+        .run(oneValue(scope.getIt()), scope));
     return expected.equals(toMatch);
   }
 
   @Override
   public Boolean visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
-    Long expected = (Long) visitArithmeticExpression(ctx.arithmeticExpression()).evaluate(Value.oneValue(scope.getIt()), scope);
+    Long expected = (Long) visitArithmeticExpression(ctx.arithmeticExpression()).evaluate(oneValue(scope.getIt()), scope);
     return expected.equals(toMatch);
   }
 
@@ -66,7 +68,7 @@ public class RunTemplateBlock extends RunMain {
     Comparable<Object> it = (Comparable<Object>) toMatch;
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
-    return new RangeMatch(lowerBound, upperBound).evaluate(it, scope);
+    return new RangeMatch(lowerBound, upperBound).matches(toMatch, oneValue(scope.getIt()), scope);
   }
 
   @Override
@@ -125,18 +127,21 @@ public class RunTemplateBlock extends RunMain {
     if (ctx.Range() != null) {
       int rangeTokenIndex = ctx.Range().getSymbol().getTokenIndex();
       if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() < rangeTokenIndex) {
-        int lowerBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(Value.oneValue(scope.getIt()), scope)).intValue();
+        int lowerBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(
+            oneValue(scope.getIt()), scope)).intValue();
         if (it.size() < lowerBound) return false;
       }
       if (ctx.arithmeticExpression(1) != null) {
-        int upperBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(1)).evaluate(Value.oneValue(scope.getIt()), scope)).intValue();
+        int upperBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(1)).evaluate(
+            oneValue(scope.getIt()), scope)).intValue();
         return it.size() <= upperBound;
       } else if (ctx.arithmeticExpression(0) != null && ctx.arithmeticExpression(0).start.getTokenIndex() > rangeTokenIndex) {
-        int upperBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(Value.oneValue(scope.getIt()), scope)).intValue();
+        int upperBound = ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(
+            oneValue(scope.getIt()), scope)).intValue();
         return it.size() <= upperBound;
       }
     } else if (ctx.arithmeticExpression(0) != null) {
-      return ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(Value.oneValue(scope.getIt()), scope)).intValue() == it.size();
+      return ((Number) visitArithmeticExpression(ctx.arithmeticExpression(0)).evaluate(oneValue(scope.getIt()), scope)).intValue() == it.size();
     }
     return true;
   }

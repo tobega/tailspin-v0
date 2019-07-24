@@ -349,6 +349,19 @@ class Matchers {
   }
 
   @Test
+  void suchThatRangeMatch() throws Exception {
+    String program = "[1,1] -> (<[]?($it(1)<..$it(2)>)> 'yes'! <> 'no'!) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void suchThatMatchNotMatches() throws Exception {
     String program = "[1,2] -> (<[]?($it(1)<$it(2)>)> 'yes'! <> 'no'!) -> !OUT::write";
     Tailspin runner =

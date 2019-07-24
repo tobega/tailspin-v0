@@ -3,5 +3,5 @@ package tailspin.ast;
 import tailspin.interpreter.Scope;
 
 public interface Condition {
-  boolean evaluate(Object it, Scope scope);
+  boolean matches(Object toMatch, Object it, Scope scope);
 }

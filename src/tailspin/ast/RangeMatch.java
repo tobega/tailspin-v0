@@ -13,18 +13,18 @@ public class RangeMatch implements Condition {
   }
 
   @Override
-  public boolean evaluate(Object it, Scope scope) {
+  public boolean matches(Object toMatch, Object it, Scope scope) {
     try {
       if (lowerBound != null) {
         Object low = lowerBound.value.evaluate(it, scope);
-        Comparison comparison = compare(it, low);
+        Comparison comparison = compare(toMatch, low);
         if (comparison == Comparison.INCOMPARABLE) return false;
         if (comparison == Comparison.LESS) return false;
         if (!lowerBound.inclusive && comparison == Comparison.EQUAL) return false;
       }
       if (upperBound != null) {
         Object high = upperBound.value.evaluate(it, scope);
-        Comparison comparison = compare(it, high);
+        Comparison comparison = compare(toMatch, high);
         if (comparison == Comparison.INCOMPARABLE) return false;
         if (comparison == Comparison.GREATER) return false;
         if (!upperBound.inclusive && comparison == Comparison.EQUAL) return false;
