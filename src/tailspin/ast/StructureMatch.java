@@ -16,6 +16,9 @@ public class StructureMatch implements Condition {
     @SuppressWarnings("unchecked")
     Map<String, Object> mapToMatch = (Map<String, Object>) toMatch;
     for (Map.Entry<String, Condition> keyMatch : keyConditions.entrySet()) {
+      if (!mapToMatch.containsKey(keyMatch.getKey())) {
+        return false;
+      }
       Object valueToMatch = mapToMatch.get(keyMatch.getKey());
       if (!keyMatch.getValue().matches(valueToMatch, mapToMatch, scope)) {
         return false;

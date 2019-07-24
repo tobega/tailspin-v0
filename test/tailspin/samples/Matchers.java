@@ -115,6 +115,19 @@ class Matchers {
   }
 
   @Test
+  void structureMatchNonExistentPropertyCannotMatchTheAnyMatcher() throws Exception {
+    String program = "{ a: 1 } -> (<{ b: <> }> 'no!'! <> 'yes'!) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void structureMatchPropertyMatches() throws Exception {
     String program = "{ a: 1 } -> (<{ a: <0> }> 'no!' !<{ a:<1> }> 'yes'! <> 'no'!) -> !OUT::write";
     Tailspin runner =
