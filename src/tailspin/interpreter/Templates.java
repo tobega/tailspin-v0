@@ -52,7 +52,7 @@ public class Templates implements Transform {
   }
 
   Queue<Object> runInScope(Object it, TransformScope scope) {
-    RunTemplateBlock runner = new RunTemplateBlock(this, scope);
+    RunTemplateBlock runner = new RunTemplateBlock(scope);
     if (block != null) {
       return block.run(it, scope);
     } else {

@@ -16,12 +16,10 @@ import tailspin.parser.TailspinParser.MatcherContext;
 import tailspin.parser.TailspinParser.SuchThatContext;
 
 public class RunTemplateBlock extends RunMain {
-  private final Templates templates;
   public Object toMatch = null;
 
-  public RunTemplateBlock(Templates templates, Scope scope) {
+  public RunTemplateBlock(Scope scope) {
     super(scope);
-    this.templates = templates;
   }
 
   @Override
@@ -146,7 +144,7 @@ public class RunTemplateBlock extends RunMain {
   public RunMatcherBlock createMatcherBlockRunner(Queue<Object> it) {
     Scope matcherScope = newMatcherScope();
     matcherScope.setIt(it);
-    return new RunMatcherBlock(templates, matcherScope);
+    return new RunMatcherBlock(matcherScope);
   }
 
   Scope newMatcherScope() {
@@ -154,8 +152,8 @@ public class RunTemplateBlock extends RunMain {
   }
 
   class RunMatcherBlock extends RunTemplateBlock {
-    RunMatcherBlock(Templates templates, Scope scope) {
-      super(templates, scope);
+    RunMatcherBlock(Scope scope) {
+      super(scope);
     }
 
     @Override

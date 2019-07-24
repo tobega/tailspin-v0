@@ -18,7 +18,7 @@ public class SendToTemplates implements Expression {
   public Queue<Object> run(Object it, Scope blockScope) {
     TransformScope transformScope = findTransformScope(blockScope);
     Templates templates = transformScope.getTemplates();
-    RunTemplateBlock runner = new RunTemplateBlock(templates, transformScope);
+    RunTemplateBlock runner = new RunTemplateBlock(transformScope);
     Queue<Object> result = new ArrayDeque<>();
     valueChain.run(it, blockScope).forEach(item ->
       result.addAll(templates.matchTemplates(runner.createMatcherBlockRunner(Expression.queueOf(item)))));
