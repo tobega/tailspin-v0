@@ -702,7 +702,9 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public List<CompositionSpec> visitCompositionComponent(TailspinParser.CompositionComponentContext ctx) {
     List<CompositionSpec> result = new ArrayList<>();
-    result.add(visitCompositionMatcher(ctx.compositionMatcher()));
+    if (ctx.compositionMatcher() != null) {
+      result.add(visitCompositionMatcher(ctx.compositionMatcher()));
+    }
     ctx.compositionSkipRule().forEach(s -> result.add(visitCompositionSkipRule(s)));
     return result;
   }

@@ -798,4 +798,22 @@ class Composer {
 
     assertEquals("{baz=qux, foo=bar}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void voidResult() throws IOException {
+    String program = "composer maybeA\n"
+        + "<a|not>\n"
+        + "a: <'[aA]'>\n"
+        + "not: (<'.'>)\n"
+        + "end maybeA\n"
+        + "['a', 'b', 'c', 'A']... -> maybeA -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("aA", output.toString(StandardCharsets.UTF_8));
+  }
 }

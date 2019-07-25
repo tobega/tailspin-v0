@@ -1,0 +1,42 @@
+// An eban number is a number that does not contain any letter 'e' when written out in american english
+// Only numbers below one sextillion are considered
+
+templates isEban
+  composer eban
+    <valid|not>
+    valid: <'([246]|[3456][0246])(0[03456][0246])*$$'>
+    not: (<'[0-9]+'>)
+  end eban
+  def number: $it;
+  '$it;' -> eban -> $number !
+end isEban
+
+def small: [1..1000 -> isEban];
+$small -> !OUT::write
+'
+There are $small::length; eban numbers up to and including 1000
+
+' -> !OUT::write
+
+def next: [1000..4000 -> isEban];
+$next -> !OUT::write
+'
+There are $next::length; eban numbers between 1000 and 4000 (inclusive)
+
+' -> !OUT::write
+'
+There are $([1..10000 -> isEban] -> $it::length) eban numbers up to and including 10 000
+
+' -> !OUT::write
+'
+There are $([1..100000 -> isEban] -> $it::length) eban numbers up to and including 100 000
+
+' -> !OUT::write
+'
+There are $([1..1000000 -> isEban] -> $it::length) eban numbers up to and including 1 000 000
+
+' -> !OUT::write
+'
+There are $([1..10000000 -> isEban] -> $it::length) eban numbers up to and including 10 000 000
+
+' -> !OUT::write

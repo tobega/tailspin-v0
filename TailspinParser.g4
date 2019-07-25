@@ -176,4 +176,4 @@ compositionKeyValue: (Key|compositionKey) compositionSkipRule* compositionCompon
 
 compositionKey: tokenMatcher Colon;
 
-compositionComponent: compositionMatcher compositionSkipRule*;
+compositionComponent: (compositionMatcher|compositionSkipRule) compositionSkipRule*;
