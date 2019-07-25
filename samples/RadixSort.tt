@@ -1,26 +1,26 @@
 templates radixsort@{base:}
   templates bucketize
-    def value: $it
+    def value: $it;
     $it / $@radixsort.digit -> #
     <0 ?($value <0..>)>
-      ..|@radixsort.positives: $value
+      ..|@radixsort.positives: $value;
     <0>
-      ..|@radixsort.negatives(-1): $value
+      ..|@radixsort.negatives(-1): $value;
     <>
-      def bucket: $it mod $base -> (<?($value<0..>)> $it + 1 ! <0> $base ! <> $it !)
-      ..|@radixsort.buckets($bucket): $value
-      @radixsort.done: 0
+      def bucket: $it mod $base -> (<?($value<0..>)> $it + 1 ! <0> $base ! <> $it !);
+      ..|@radixsort.buckets($bucket): $value;
+      @radixsort.done: 0;
   end bucketize
   // Negatives get completed in wrong length-order, we need to collect by length and correct at the end
-  @: { done: 1, digit: 1, positives: [], negatives: [[]], buckets: [1..$base -> []]}
+  @: { done: 1, digit: 1, positives: [], negatives: [[]], buckets: [1..$base -> []]};
   $it... -> bucketize -> void
   $@.done -> #
   <1>
     [$@.negatives(-1..1:-1)... ..., $@.positives...] !
   <>
-    def previous: $@.buckets
-    ..|@: {done: 1, digit: $@.digit * $base, buckets:[1..$base -> []]}
-    ..|@.negatives: []
+    def previous: $@.buckets;
+    ..|@: {done: 1, digit: $@.digit * $base, buckets:[1..$base -> []]};
+    ..|@.negatives: [];
     $previous... ... -> bucketize -> void
     $@.done -> #
 end radixsort

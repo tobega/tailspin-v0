@@ -1,11 +1,11 @@
 templates queens
-  def n: $it
+  def n: $it;
   templates addColumn
-    def prev: $it
+    def prev: $it;
     templates addIfPossible
-      def row: $it
-      def minor: $it - $prev::length - 1
-      def major: $it + $prev::length + 1
+      def row: $it;
+      def minor: $it - $prev::length - 1;
+      def major: $it + $prev::length + 1;
        // If any element of prev matches row, array is non-empty and no result proceeds past the first line
        // Similar for the major and minor diagonals
       $prev -> [i](<$row> 0 !) -> (<[](0)> $prev !)
@@ -20,11 +20,11 @@ templates queens
   <> $it -> addColumn -> #
 end queens
 
-def solutions: [ 8 -> queens ]
+def solutions: [ 8 -> queens ];
 'For 8 queens there are $solutions::length; solutions
 ' -> !OUT::write
 
-def columns: ['abcdefgh'...]
+def columns: ['abcdefgh'...];
 'One of them is $($solutions(1) -> [i]('$columns($i);$it;' !))
 ' -> !OUT::write
 

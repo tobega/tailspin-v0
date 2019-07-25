@@ -54,7 +54,7 @@ class Strings {
 
   @Test
   void interpolateWholeString() throws Exception {
-    String program = "def helloWorld: 'Hello World!'\n" + "'$helloWorld;' -> !OUT::write";
+    String program = "def helloWorld: 'Hello World!';\n" + "'$helloWorld;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -67,7 +67,7 @@ class Strings {
 
   @Test
   void interpolatePartialString() throws Exception {
-    String program = "def world: 'World!'\n" + "'Hello $world;' -> !OUT::write";
+    String program = "def world: 'World!';\n" + "'Hello $world;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -80,7 +80,7 @@ class Strings {
 
   @Test
   void interpolatePartialStringFirst() throws Exception {
-    String program = "def hello: 'Hello'\n" + "'$hello; World!' -> !OUT::write";
+    String program = "def hello: 'Hello';\n" + "'$hello; World!' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -93,7 +93,7 @@ class Strings {
 
   @Test
   void interpolateNoSuchVariable() throws Exception {
-    String program = "def hello: 'Hello '\n" + "'$helloWorld;!' -> !OUT::write";
+    String program = "def hello: 'Hello ';\n" + "'$helloWorld;!' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -110,7 +110,7 @@ class Strings {
 
   @Test
   void interpolateRunningIntoText() throws Exception {
-    String program = "def hello: 'Hello '\n" + "'$hello;World!' -> !OUT::write";
+    String program = "def hello: 'Hello ';\n" + "'$hello;World!' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -149,7 +149,7 @@ class Strings {
 
   @Test
   void semiColons() throws Exception {
-    String program = "def two: '2'\n" + "'one;$two;;three;;' -> !OUT::write";
+    String program = "def two: '2';\n" + "'one;$two;;three;;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -440,7 +440,7 @@ class Strings {
 
   @Test
   void characterCodeExpression() throws Exception {
-    String program = "def tab: 9 '$#$tab;' -> !OUT::write";
+    String program = "def tab: 9; '$#$tab;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

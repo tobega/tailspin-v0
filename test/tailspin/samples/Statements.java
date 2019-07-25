@@ -123,7 +123,7 @@ class Statements {
 
   @Test
   void definedSymbol() throws Exception {
-    String program = "def world: 'World!'\n" + "'Hello '->!OUT::write\n" + "$world -> !OUT::write";
+    String program = "def world: 'World!';\n" + "'Hello '->!OUT::write\n" + "$world -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -177,7 +177,7 @@ class Statements {
 
   @Test
   void definedSymbolFromValueChain() throws Exception {
-    String program = "def helloWorld: 'World!' -> 'Hello $it;' \n $helloWorld -> !OUT::write\n";
+    String program = "def helloWorld: 'World!' -> 'Hello $it;' ;\n $helloWorld -> !OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -203,7 +203,7 @@ class Statements {
 
   @Test
   void symbolsMayNotBeRedefined() throws Exception {
-    String program = "def one: 1 \n def one: 1\n";
+    String program = "def one: 1;\n def one: 1;\n";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -240,7 +240,7 @@ class Statements {
 
   @Test
   void systemNanoCount() throws Exception {
-    String program = "def start: $SYS::nanoCount\n"
+    String program = "def start: $SYS::nanoCount;\n"
         + "[1..100 -> $SYS::nanoCount - $start] -> $it(-1) -> (<0~..> 1 !) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -290,7 +290,7 @@ class Statements {
   @Test
   void dynamicDereferenceInCorrectScope() throws Exception {
     String program =
-        "def foo: 2\n [4,5,6] -> $it($foo) -> !OUT::write";
+        "def foo: 2;\n [4,5,6] -> $it($foo) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

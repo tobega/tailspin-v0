@@ -125,7 +125,7 @@ class Arrays {
 
   @Test
   void simpleDereferenceDereference() throws IOException {
-    String program = "def i: 3\n [1,3,4,7,11] -> $it($i)  -> !OUT::write";
+    String program = "def i: 3;\n [1,3,4,7,11] -> $it($i)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -203,7 +203,7 @@ class Arrays {
 
   @Test
   void permutationDereferenceDereference() throws IOException {
-    String program = "def order: [3,1,4]\n [1,3,4,7,11] -> $it($order) -> !OUT::write";
+    String program = "def order: [3,1,4];\n [1,3,4,7,11] -> $it($order) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -229,7 +229,7 @@ class Arrays {
 
   @Test
   void arrayLiteralInterpolationArrayDereferenceValueChain() throws IOException {
-    String program = "def a: [5]\n 1 -> [ $a(1) -> 'foo$it;' ] -> !OUT::write";
+    String program = "def a: [5];\n 1 -> [ $a(1) -> 'foo$it;' ] -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -242,7 +242,7 @@ class Arrays {
 
   @Test
   void arrayLiteralInterpolationFieldArrayDereferenceValueChain() throws IOException {
-    String program = "def a: { b: [5]}\n 1 -> [ $a.b(1) -> 'foo$it;' ] -> !OUT::write";
+    String program = "def a: { b: [5]};\n 1 -> [ $a.b(1) -> 'foo$it;' ] -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -281,7 +281,7 @@ class Arrays {
 
   @Test
   void arrayCollector() throws IOException {
-    String program = "def original: [5]\n [$original..., 1..3] -> !OUT::write";
+    String program = "def original: [5];\n [$original..., 1..3] -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -411,7 +411,7 @@ class Arrays {
 
   @Test
   void rangeDereferenceBeyondLast() throws IOException {
-    String program = "def a: [1,2,3]\n -1 -> $a($it+1..-1)  -> !OUT::write";
+    String program = "def a: [1,2,3];\n -1 -> $a($it+1..-1)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -424,7 +424,7 @@ class Arrays {
 
   @Test
   void arithmeticExpressionDereference() throws IOException {
-    String program = "def a: [1,2,3]\n 1 -> $a($it+1)  -> !OUT::write";
+    String program = "def a: [1,2,3];\n 1 -> $a($it+1)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

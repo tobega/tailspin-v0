@@ -8,7 +8,7 @@ packageDefinition: Package IDENTIFIER;
 
 dependency: Import stringLiteral;
 
-statement: Def Key valueChain                   # definition
+statement: Def Key valueChain SemiColon                  # definition
   | valueChain To sink                                   # valueChainToSink
   | StartTemplatesDefinition IDENTIFIER parameterDefinitions? templatesBody EndDefinition IDENTIFIER # templatesDefinition
   | StartProcessorDefinition IDENTIFIER parameterDefinitions? block EndDefinition IDENTIFIER # processorDefinition
@@ -82,7 +82,7 @@ blockExpression: blockStatement
 resultValue: valueChain ResultMarker;
 blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
-stateAssignment: Merge? (At|NamedAt) reference Colon valueChain;
+stateAssignment: Merge? (At|NamedAt) reference Colon valueChain SemiColon;
 
 valueChain: source
   | source transform

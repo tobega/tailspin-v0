@@ -64,7 +64,7 @@ class Matchers {
 
   @Test
   void interpolatedRegexpMatch() throws Exception {
-    String program = "def aiches: '[Hh]'\n 'Hello' -> (<'Hell'> 'no!'! <'$aiches;el.*'> 'yes' ! <> 'no'!) -> !OUT::write";
+    String program = "def aiches: '[Hh]';\n 'Hello' -> (<'Hell'> 'no!'! <'$aiches;el.*'> 'yes' ! <> 'no'!) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -155,7 +155,7 @@ class Matchers {
 
   @Test
   void rangeMatchDereference() throws Exception {
-    String program = "def mid: 3\n1..6 -> (<..$mid> 'L'! <> 'H'!) -> !OUT::write";
+    String program = "def mid: 3;\n1..6 -> (<..$mid> 'L'! <> 'H'!) -> !OUT::write";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -168,7 +168,7 @@ class Matchers {
 
   @Test
   void rangeMatchExpression() throws Exception {
-    String program = "def mid: 3\n1..6 -> (<..($mid+1)> 'L'! <> 'H'!) -> !OUT::write";
+    String program = "def mid: 3;\n1..6 -> (<..($mid+1)> 'L'! <> 'H'!) -> !OUT::write";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -181,7 +181,7 @@ class Matchers {
 
   @Test
   void rangeMatchDereferenceState() throws Exception {
-    String program = "1..6 -> (@: 3 $it -> # <..$@> 'L'! <> 'H'!) -> !OUT::write";
+    String program = "1..6 -> (@: 3; $it -> # <..$@> 'L'! <> 'H'!) -> !OUT::write";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -194,7 +194,7 @@ class Matchers {
 
   @Test
   void matchDereferenceMessage() throws Exception {
-    String program = "def a: [ 1..3 ]\n1..6 -> (<..$a::length> 'L'! <> 'H'!) -> !OUT::write";
+    String program = "def a: [ 1..3 ];\n1..6 -> (<..$a::length> 'L'! <> 'H'!) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -454,7 +454,7 @@ class Matchers {
 
   @Test
   void stringEquals() throws Exception {
-    String program = "def char: 'b'\n ['a', 'b', 'c']... -> (<$char> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "def char: 'b';\n ['a', 'b', 'c']... -> (<$char> 'yes'! <> 'no'!) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -480,7 +480,7 @@ class Matchers {
 
   @Test
   void stringRangeDereferenced() throws Exception {
-    String program = "def mid: 'c'\n['a', 'b', 'c', 'd', 'e']... -> (<..~$mid> 'low' ! <$mid~..> 'high' ! <> 'mid' !) -> !OUT::write";
+    String program = "def mid: 'c';\n['a', 'b', 'c', 'd', 'e']... -> (<..~$mid> 'low' ! <$mid~..> 'high' ! <> 'mid' !) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

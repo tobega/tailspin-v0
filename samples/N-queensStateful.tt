@@ -1,5 +1,5 @@
 templates queens
-  def n: $it
+  def n: $it;
   templates getRowColumn
     <?($@queens.freeRows($it.r) <0>)> 0 !
     <?($@queens.freeMaxs($it.r + $it.c) <0>)> 0 !
@@ -8,20 +8,20 @@ templates queens
   end getRowColumn
 
   templates setRowColumn
-    def p: $it
-    @queens.freeRows($p.r): $p.val
-    @queens.freeMaxs($p.c + $p.r): $p.val
-    @queens.freeMins($p.c - $p.r + $n): $p.val
+    def p: $it;
+    @queens.freeRows($p.r): $p.val;
+    @queens.freeMaxs($p.c + $p.r): $p.val;
+    @queens.freeMins($p.c - $p.r + $n): $p.val;
   end setRowColumn
 
   templates placeQueen
-    def c: $it
+    def c: $it;
     1 -> #
     <-1> 1! // Use -1 to signal successful completion
     <$n+1> 0 !
     <?({r: $it, c: $c} -> getRowColumn <1>)>
-      def r: $it
-      @queens.queenRows($r): $c
+      def r: $it;
+      @queens.queenRows($r): $c;
       {r: $it, c: $c, val: 0} -> setRowColumn -> void
       $c -> (<$n> -1!
         <?($c + 1 -> placeQueen <1>)> -1!
@@ -34,7 +34,7 @@ templates queens
   @: { freeRows: [1..$n -> 1],
     freeMaxs: [1..$n*2 -> 1],
     freeMins: [1..$n*2 -> 1],
-    queenRows: [1..$n -> -1] }
+    queenRows: [1..$n -> -1] };
   1 -> placeQueen -> void
   $@.queenRows !
 end queens

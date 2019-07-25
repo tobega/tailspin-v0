@@ -1,9 +1,9 @@
-def input: {N: 110, words: [ { mod: 3, word: 'Fizz' }, { mod: 5, word: 'Buzz'}, {mod:7, word: 'Baxx'}]}
+def input: {N: 110, words: [ { mod: 3, word: 'Fizz' }, { mod: 5, word: 'Buzz'}, {mod:7, word: 'Baxx'}]};
 
 templates sayWords
-  def i: $it
+  def i: $it;
   templates maybeSay
-    def word: $it.word
+    def word: $it.word;
     $i mod $it.mod -> (<0> $word !) !
   end maybeSay
   $input.words... -> maybeSay !

@@ -1,14 +1,14 @@
 templates quicksort
   templates partial
-    def first: $it(1)
-    def last: $it(2)
-    def pivot: $@quicksort($first)
+    def first: $it(1);
+    def last: $it(2);
+    def pivot: $@quicksort($first);
     [ $it(1) + 1, $it(2)  ] -> #
 
     <?($it(2) <..~$it(1)>)>
-      def limit: $it(2)
-      @quicksort($first): $@quicksort($limit)
-      @quicksort($limit): $pivot
+      def limit: $it(2);
+      @quicksort($first): $@quicksort($limit);
+      @quicksort($limit): $pivot;
       [ $first, $limit - 1 ] !
       [ $limit + 1, $last ] !
 
@@ -19,13 +19,13 @@ templates quicksort
       [ $it(1) + 1, $it(2)] -> #
 
     <>
-      def idx: $it
-      def temp: $@quicksort($idx(1))
-      @quicksort($idx(1)): $@quicksort($idx(2))
-      @quicksort($idx(2)): $temp
+      def idx: $it;
+      def temp: $@quicksort($idx(1));
+      @quicksort($idx(1)): $@quicksort($idx(2));
+      @quicksort($idx(2)): $temp;
       [ $it(1) + 1, $it(2) - 1] -> #
   end partial
-  @: $it
+  @: $it;
   [1, $@::length] -> #
   $@ !
 

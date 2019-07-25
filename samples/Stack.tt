@@ -1,8 +1,8 @@
 processor Stack
-  @: $it
+  @: $it;
 
   templates push
-    ..|@Stack: $it
+    ..|@Stack: $it;
   end push
 
   templates peek
@@ -20,7 +20,7 @@ processor Stack
   end empty
 end Stack
 
-def myStack: [1] -> Stack
+def myStack: [1] -> Stack;
 
 2 -> $myStack::push -> void
 

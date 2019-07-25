@@ -62,7 +62,7 @@ class Composer {
 
   @Test
   void interpolateComposeRegex() throws IOException {
-    String program = "def any: '.*'\n"
+    String program = "def any: '.*';\n"
         + "composer all\n"
         + "<'$any;'>\n"
         + "end all\n"
@@ -413,7 +413,7 @@ class Composer {
 
   @Test
   void dereferenceValue() throws IOException {
-    String program = "def val: 3\n"
+    String program = "def val: 3;\n"
         + "composer coords\n"
         + "  { x: $val, y: <INT> }\n"
         + "end coords\n"
@@ -510,7 +510,7 @@ class Composer {
 
   @Test
   void exactAmountDereference() throws IOException {
-    String program = "def count: 2\n"
+    String program = "def count: 2;\n"
         + "composer words\n"
         + "<word>=$count\n"
         + "word: <~WS> (<WS>?)\n"

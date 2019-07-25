@@ -79,7 +79,7 @@ class Structures {
 
   @Test
   void restructureDereference() throws IOException {
-    String program = "def anA: { a: 1 }\n {$anA..., b:2} -> !OUT::write";
+    String program = "def anA: { a: 1 };\n {$anA..., b:2} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -92,7 +92,7 @@ class Structures {
 
   @Test
   void restructureStreamDereference() throws IOException {
-    String program = "def anA: { a: 1 }\n {$anA..., 1..2 -> (<2>{b:2} ! <>{c:3} !)...} -> !OUT::write";
+    String program = "def anA: { a: 1 };\n {$anA..., 1..2 -> (<2>{b:2} ! <>{c:3} !)...} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

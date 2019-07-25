@@ -3,22 +3,22 @@ import 'harness'
 // I don't know what this benchmark really is supposed to calculate, but it sure does a lot of swaps
 templates permute
   templates derange
-    @permute.count: $@permute.count + 1
+    @permute.count: $@permute.count + 1;
     $it -> #
     <1..>
-      def n: $it
+      def n: $it;
       templates swap
-        def i: $it
-        def temp: $@permute.v($n)
-        @permute.v($n): $@permute.v($i)
-        @permute.v($i): $temp
+        def i: $it;
+        def temp: $@permute.v($n);
+        @permute.v($n): $@permute.v($i);
+        @permute.v($i): $temp;
       end swap
       $n - 1 -> derange -> void
       $n..1:-1 -> ($it -> swap -> void
         $n - 1 -> derange -> void
         $it -> swap -> void) -> void
   end derange
-  @: { count: 0, v: [1..$it]}
+  @: { count: 0, v: [1..$it]};
   $it -> derange -> void
   $@.count !
 end permute

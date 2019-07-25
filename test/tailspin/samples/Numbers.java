@@ -39,7 +39,7 @@ class Numbers {
 
   @Test
   void definition() throws IOException {
-    String program = "def leet: 1337\n" + "$leet -> !OUT::write";
+    String program = "def leet: 1337;\n" + "$leet -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -182,7 +182,7 @@ class Numbers {
 
   @Test
   void dereference() throws IOException {
-    String program = "def x: 5\n 3 * $x -> !OUT::write";
+    String program = "def x: 5;\n 3 * $x -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -195,7 +195,7 @@ class Numbers {
 
   @Test
   void dereferenceUnaryMinus() throws IOException {
-    String program = "def x: 5\n -$x -> !OUT::write";
+    String program = "def x: 5;\n -$x -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -208,7 +208,7 @@ class Numbers {
 
   @Test
   void dereferenceField() throws IOException {
-    String program = "def a: {x:5}\n $a.x + 2 -> !OUT::write";
+    String program = "def a: {x:5};\n $a.x + 2 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
