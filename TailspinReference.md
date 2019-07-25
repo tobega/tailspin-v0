@@ -93,7 +93,7 @@ a user entering data in the terminal (or data from the unix standard input pipe)
 Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).
 
 ### Dereference
-An identifier can be defined to represent a value, e.g. `def myValue: _value chain_` where \_value chain\_ should be a _value chain_
+An identifier can be defined to represent a value, e.g. `def myValue: _value chain_;` where \_value chain\_ should be a _value chain_
 that produces the desired value.
 Then the value can be retrieved as a source itself by a dereference which is done by simply writing the
 identifier prefixed by a dollar sign, e.g. `$myValue`
@@ -108,7 +108,7 @@ Note that templates have a modifiable state value that can be dereferenced, see 
 ## Sinks
 A sink is a place where a value "disappears" and the value chain ends.
 
-A symbol definition (or a state modification) could be considered to have an implicit sink at the end that captures the value into the symbol (or state).
+A symbol definition (or a state modification) has a semi-colon `;` at the end that could be considered to be a sink captures the value into the symbol (or state).
 
 `-> void` is a special sink which is used to ignore the values from a chain (or to mark that the chain is not expected to produce values).
 
@@ -285,17 +285,17 @@ the top level but matters in nested such-thats.
 
 ## Templates state
 A [templates](#templates) object has modifiable local temporary state, valid for the processing of one input value,
-which can be modified by the special identifier `@`, set as `@: _value chain_` and dereferenced as `$@`. Optionally, or to access
+which can be modified by the special identifier `@`, set as `@: _value chain_;` and dereferenced as `$@`. Optionally, or to access
 a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
 
-The local state is also deeply modifiable so you could change just a field of the state object, e.g. `@.field: _value chain_` or `@name.field: _value chain_`,
-or a position in an array, e.g. `@name(2;5): _value_ chain_`. A sequenceof variables can also be assigned to an array slice,
-e.g. `1..3 -> @(2..4)`
+The local state is also deeply modifiable so you could change just a field of the state object, e.g. `@.field: _value chain_;` or `@name.field: _value chain_;`,
+or a position in an array, e.g. `@name(2;5): _value_ chain_;`. A sequenceof variables can also be assigned to an array slice,
+e.g. `@(2..4): 1..3;`
 
 A modifiable local state reference can be a collector for the [merge operator](#merge-operator), which then
-mutates the state, e.g. `..|@: _value chain_`.
+mutates the state, e.g. `..|@: _value chain_;`.
 
-To remove part of the state, use the [delete operator](#delete-operator), e.g. `^@name.key`
+To remove part of the state, use the [delete operator](#delete-operator), e.g. `^@name.key`, which also places the deleted value into the chain.
 
 ### Merge operator
 This is the symbol `..|` which is similar to the [deconstructor](#deconstructor), but collects values instead of disperses them.
@@ -303,7 +303,7 @@ It is applied before a state object assignment instead of after a value stream, 
 Slightly different things happen depending on what type of object is used as a collector:
  * A structure: the stream must be a stream of structures or keyed values (or just one structure or keyed value) and the result is that of
  the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
- if @ is `{a:1, b:1}` `..|@: {a:2, c:2}` results in @ being `{a:2, b:1, c:2}`
+ if @ is `{a:1, b:1}` `..|@: {a:2, c:2};` results in @ being `{a:2, b:1, c:2}`
  * A string: append the stream to the end of the string.
  * An array: append the stream to the end of the array.
  

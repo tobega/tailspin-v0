@@ -1,36 +1,22 @@
 templates mergesort
   templates merge
     @: $it(2);
-    $it(1)... -> (
+    [ $it(1)... -> (
       <?($@merge<[](0)>)
       | ..$@merge(1)>
         $it !
       <>
-        $@merge(1) !
-        @merge: $@merge(2..-1);
+        ^@merge(1) !
         $it -> #
-     ) !
-     $@... !
+     ),
+     $@...] !
   end merge
+  $it -> #
 
-  templates mergePairs
-    <[](1)>
-      $it(1) !
-    <[](2..)>
-      [$it(1..2) -> merge] !
-      $it(3..-1) -> #
-  end mergePairs
-
-  templates mergeAll
-    <[](0)>
-      $it !
-    <[](1)>
-      $it(1) !
-    <>
-      [ $it -> mergePairs ] -> #
-  end mergeAll
-
-  $it -> [ $it... -> [ $it ] ] -> mergeAll !
+  <[](0..1)> $it!
+  <>
+    def half: $it::length / 2;
+    [$it(1..$half) -> mergesort, $it($half+1..-1) -> mergesort] -> merge !
 end mergesort
 
 [4,5,3,8,1,2,6,7,9,8,5] -> mergesort -> !OUT::write

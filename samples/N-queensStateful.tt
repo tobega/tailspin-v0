@@ -35,11 +35,12 @@ templates queens
     freeMaxs: [1..$n*2 -> 1],
     freeMins: [1..$n*2 -> 1],
     queenRows: [1..$n -> -1] };
-  1 -> placeQueen -> void
-  $@.queenRows !
+  1 -> placeQueen -> (<1> $@queens.queenRows ! <> 'non-existent'!)!
 end queens
 
 'A solution to the 8 queens problem is $(8 -> queens)
 ' -> !OUT::write
 'A solution to the 4 queens problem is $(4 -> queens)
+' -> !OUT::write
+'A solution to the 3 queens problem is $(3 -> queens)
 ' -> !OUT::write
