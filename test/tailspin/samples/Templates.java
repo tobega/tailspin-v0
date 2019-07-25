@@ -168,6 +168,19 @@ class Templates {
   }
 
   @Test
+  void arrayTemplateMatch() throws Exception {
+    String program = "[2..4] -> [i](<?($i <3>)> 'i' ! <3> 'it' ! <> 'neither' !) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[neither, it, i]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void arrayTemplates2D() throws Exception {
     String program = "[[2..4], [3..5]] -> [i,j](($i * $it) + $j !) -> !OUT::write";
     Tailspin runner =

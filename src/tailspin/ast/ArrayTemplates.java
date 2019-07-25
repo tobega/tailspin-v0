@@ -46,7 +46,7 @@ public class ArrayTemplates implements Expression {
       for (dimCounters[lastIdx] = 0; dimCounters[lastIdx] < dimLists[lastIdx].size(); dimCounters[lastIdx]++) {
         Map<String, Object> counters = new HashMap<>();
         for (int i = 0; i < loopVariables.size(); i++) {
-          counters.put(loopVariables.get(i), dimCounters[i] + 1);
+          counters.put(loopVariables.get(i), (long) dimCounters[i] + 1);
         }
         Object itemIt = dimLists[lastIdx].get(dimCounters[lastIdx]);
         results[lastIdx].addAll(templates.run(itemIt, counters));
