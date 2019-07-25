@@ -194,6 +194,19 @@ class Templates {
   }
 
   @Test
+  void arrayTemplates3D() throws Exception {
+    String program = "[[[2..4], [3..5]], [[1,3,5], [2,4,6]]] -> [i,j,k](($i * $k) + $j * $it !) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[[3, 5, 7], [7, 10, 13]], [[3, 7, 11], [6, 12, 18]]]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void multipleTransforms() throws Exception {
     String program = "1 -> (<> 2!) -> (<> 3!) -> !OUT::write";
     Tailspin runner =

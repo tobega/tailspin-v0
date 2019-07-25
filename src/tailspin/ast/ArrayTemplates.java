@@ -37,7 +37,7 @@ public class ArrayTemplates implements Expression {
     List[] results = new List[loopVariables.size()];
     results[0] = new ArrayList<>();
     for (int i = 1; i < loopVariables.size(); i++) {
-      dimLists[i] = (List<Object>) dimLists[0].get(0);
+      dimLists[i] = (List<Object>) dimLists[i-1].get(0);
       results[i] = new ArrayList<>();
     }
     int[] dimCounters = new int[loopVariables.size()];
