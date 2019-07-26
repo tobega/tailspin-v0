@@ -2,13 +2,8 @@
 // Only numbers below one sextillion are considered
 
 templates isEban
-  composer eban
-    <valid|not>
-    valid: <'([246]|[3456][0246])(0[03456][0246])*$$'>
-    not: (<'[0-9]+'>)
-  end eban
   def number: $it;
-  '$it;' -> eban -> $number !
+  '$it;' -> (<'([246]|[3456][0246])(0[03456][0246])*$$'> $it !) -> $number !
 end isEban
 
 def small: [1..1000 -> isEban];
