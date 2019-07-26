@@ -6,6 +6,14 @@ templates isEban
   '$it;' -> (<'([246]|[3456][0246])(0[03456][0246])*$$'> $it !) -> $number !
 end isEban
 
+//Alternatively with numbers
+templates isEban2
+  def number: $it;
+  $it -> (<1..> $it!) -> #
+  <0> $number !
+  <?($it mod 1000 <0|2|4|6|30..66?($it mod 10 <0|2|4|6>)>)> $it / 1000 -> #
+end isEban2
+
 def small: [1..1000 -> isEban];
 $small -> !OUT::write
 '
