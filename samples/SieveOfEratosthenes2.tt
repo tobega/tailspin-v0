@@ -7,7 +7,7 @@ templates sieve
 
   <?($@($it) <1>)>
     def prime2: $it * $it;
-    $prime2..$limit:$it -> (@sieve($it): 0;) -> void
+    $prime2..$limit:$it -> @sieve($it): 0;
 end sieve
 
 1000 -> sieve... ->  '$it; ' -> !OUT::write
