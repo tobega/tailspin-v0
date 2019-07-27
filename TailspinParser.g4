@@ -82,7 +82,7 @@ blockExpression: blockStatement
 resultValue: valueChain ResultMarker;
 blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
-stateAssignment: Merge? (At|NamedAt) reference Colon valueProduction SemiColon;
+stateAssignment: (valueChain To)? Merge? (At|NamedAt) reference Colon valueProduction SemiColon;
 
 valueChain: source
   | source transform

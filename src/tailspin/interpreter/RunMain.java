@@ -374,10 +374,14 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public StateAssignment visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
+  public Expression visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
     String stateContext = ctx.NamedAt() == null ? "" : ctx.NamedAt().getText().substring(1);
     Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
-    return new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, ctx.Merge() != null);
+    StateAssignment stateAssignment = new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, ctx.Merge() != null);
+    if (ctx.valueChain() != null) {
+      return new SinkValueChain(visitValueChain(ctx.valueChain()), stateAssignment);
+    }
+    return stateAssignment;
   }
 
   @Override

@@ -118,6 +118,8 @@ To produce output from your program, see [the system objects](#the-system-object
 
 Sinks often entail [side effects](#side-effects)
 
+In templates, there is a special sink that sets the [templates state](#templates-state).
+
 ### Emit value
 Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
 result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues
@@ -290,6 +292,8 @@ a surrounding outer templates object's state, you can append the templates name,
 The local state is also deeply modifiable so you could change just a field of the state object, e.g. `@.field: _value chain_;` or `@name.field: _value chain_;`,
 or a position in an array, e.g. `@name(2;5): _value_ chain_;`. A sequenceof variables can also be assigned to an array slice,
 e.g. `@(2..4): 1..3;`
+
+A state modification works like a [sink](#sinks).
 
 A modifiable local state reference can be a collector for the [merge operator](#merge-operator), which then
 mutates the state, e.g. `..|@: _value chain_;`.
