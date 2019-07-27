@@ -260,7 +260,7 @@ public abstract class Reference {
       Object idx = dimensionValue.evaluate(it, scope);
       Object dimensionResult;
       if (idx instanceof Number) {
-        int index = (int) javaizeArrayIndex(((Number) idx).intValue(), array.size());
+        int index = javaizeArrayIndex(((Number) idx).intValue(), array.size()).intValue();
         dimensionResult = operation.invoke(array, index);
       } else if (idx instanceof RangeGenerator) {
         dimensionResult = ((RangeGenerator) idx)
@@ -296,11 +296,12 @@ public abstract class Reference {
       }
     }
 
-    private long javaizeArrayIndex(int index, int size) {
+    private Long javaizeArrayIndex(int index, int size) {
+      if (index == 0) return null;
       if (index < 0) {
-        return index + size;
+        return (long) index + size;
       } else {
-        return index - 1;
+        return (long) index - 1;
       }
     }
 

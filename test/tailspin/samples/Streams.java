@@ -130,4 +130,43 @@ class Streams {
 
     assertEquals("a 2 ", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void iterateNegativeBounds() throws IOException {
+    String program = "-3..-1 -> 'a $it; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a -3 a -2 a -1 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateNegativeStartBound() throws IOException {
+    String program = "-1..1 -> 'a $it; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a -1 a 0 a 1 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateNegativeEndBound() throws IOException {
+    String program = "1..-1:-1 -> 'a $it; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a 1 a 0 a -1 ", output.toString(StandardCharsets.UTF_8));
+  }
 }

@@ -410,8 +410,47 @@ class Arrays {
   }
 
   @Test
-  void rangeDereferenceBeyondLast() throws IOException {
+  void rangeDereferenceStartBeyondLast() throws IOException {
     String program = "def a: [1,2,3];\n -1 -> $a($it+1..-1)  -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeDereferenceEndBeyondLast() throws IOException {
+    String program = "def a: [1,2,3];\n -1 -> $a(1..$it+1)  -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeDereferenceEndBeforeFirst() throws IOException {
+    String program = "def a: [1,2,3];\n 1 -> $a(1..$it-1)  -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeDereferenceStartBeforeFirst() throws IOException {
+    String program = "def a: [1,2,3];\n 1 -> $a($it-1..-1)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

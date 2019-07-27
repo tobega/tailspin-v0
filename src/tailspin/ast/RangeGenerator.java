@@ -27,9 +27,9 @@ public class RangeGenerator implements Expression {
     if (increment == 0) {
       throw new IllegalArgumentException("Cannot produce range with zero increment");
     }
-    long start = boundTransform.apply(((Number) lowerBound.value.evaluate(it, scope)).longValue());
-    long end = boundTransform.apply(((Number) upperBound.value.evaluate(it, scope)).longValue());
-    if (start < 0 || (increment > 0 && start > end) || (increment < 0 && start < end)) {
+    Long start = boundTransform.apply(((Number) lowerBound.value.evaluate(it, scope)).longValue());
+    Long end = boundTransform.apply(((Number) upperBound.value.evaluate(it, scope)).longValue());
+    if (start == null || end == null || (increment > 0 && start > end) || (increment < 0 && start < end)) {
       return Stream.empty();
     }
     return Stream.iterate(
