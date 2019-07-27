@@ -377,7 +377,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   public StateAssignment visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
     String stateContext = ctx.NamedAt() == null ? "" : ctx.NamedAt().getText().substring(1);
     Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
-    return new StateAssignment(visitValueChain(ctx.valueChain()), reference, ctx.Merge() != null);
+    return new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, ctx.Merge() != null);
   }
 
   @Override
@@ -493,7 +493,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
     String identifier = ctx.Key().getText().replace(":", "");
-    return new Definition(identifier, Value.of(visitValueChain(ctx.valueChain())));
+    return new Definition(identifier, Value.of(visitValueProduction(ctx.valueProduction())));
   }
 
   @Override
@@ -517,7 +517,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       return new StringInterpolation(visitDereferenceValue(ctx.dereferenceValue()));
     }
     if (ctx.interpolateEvaluate() != null) {
-      return new StringInterpolation(visitValueChain(ctx.interpolateEvaluate().valueChain()));
+      return new StringInterpolation(visitValueProduction(ctx.interpolateEvaluate().valueProduction()));
     }
     if (ctx.characterCode() != null) {
       return new CodedCharacter(visitArithmeticExpression(ctx.characterCode().arithmeticExpression()));
@@ -547,7 +547,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       return new IntegerExpression(isNegative, visitDereferenceValue(ctx.dereferenceValue()));
     }
     if (ctx.LeftParen() != null) {
-      return new IntegerExpression(false, visitValueChain(ctx.valueChain()));
+      return new IntegerExpression(false, visitValueProduction(ctx.valueProduction()));
     }
     if (ctx.additiveOperator() != null) {
       Value left = (Value) visit(ctx.arithmeticExpression(0));
@@ -656,7 +656,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.dereferenceValue() != null) {
       return visitDereferenceValue(ctx.dereferenceValue());
     }
-    return visitValueChain(ctx.valueChain());
+    return visitValueProduction(ctx.valueProduction());
   }
 
   @Override

@@ -824,4 +824,34 @@ class Templates {
 
     assertEquals("5", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void defineFromSendToMatchers() throws Exception {
+    String program =
+        "templates bar\ndef foo: $it -> #;\n$foo!\n <1> 2! <> 0!\nend bar\n"
+            + "1 -> bar -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void stateAssignedFromSendToMatchers() throws Exception {
+    String program =
+        "templates bar\n@: $it -> #;\n$@!\n <1> 2! <> 0!\nend bar\n"
+            + "1 -> bar -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
 }

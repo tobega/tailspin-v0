@@ -94,7 +94,7 @@ Once the standard input is closed (end of file, ctrl-D) it produces the stream o
 
 ### Dereference
 An identifier can be defined to represent a value, e.g. `def myValue: _value chain_;` where \_value chain\_ should be a _value chain_
-that produces the desired value.
+that produces the single desired value.
 Then the value can be retrieved as a source itself by a dereference which is done by simply writing the
 identifier prefixed by a dollar sign, e.g. `$myValue`
 
@@ -144,16 +144,15 @@ each with a _block_. A matcher block can be just the word `void`, which indicate
 
 A block is simply a series of value chains that either dry up, with no value for the next stage;
 produce a value (or several) that gets emitted out of the template (by `!`); sends a value to a [sink](#sinks); or,
-most important, __sends a value to the [matchers](#matchers)__
+most important, by the `#` marker, __sends a value to the [matchers](#matchers)__
 
 The initial block is executed with the value passed into the template accessible as the
 current value, `$it`, at the beginning of each chain. If no initial block is provided, the current
 value is sent to the [matchers](#matchers).
 
-_Current limitations_: You cannot have an empty match block nor an empty templates object.
+You cannot have an empty match block nor an empty templates object, but you can specify `void` as a do-nothing action.
 
-_Possible future directions_: There may be some default behaviour applied if no matching matcher
-is found, perhaps to just deconstruct the object and sent its children to the matchers in turn.
+Inside a templates object, sending to templates can be used as an additional type of _value chain_ for most value productions.
 
 #### Defined templates
 Templates can be defined with an identifier as a top-level statement or inside another templates object.

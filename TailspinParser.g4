@@ -8,7 +8,7 @@ packageDefinition: Package IDENTIFIER;
 
 dependency: Import stringLiteral;
 
-statement: Def Key valueChain SemiColon                  # definition
+statement: Def Key valueProduction SemiColon                  # definition
   | valueChain To sink                                   # valueChainToSink
   | StartTemplatesDefinition IDENTIFIER parameterDefinitions? templatesBody EndDefinition IDENTIFIER # templatesDefinition
   | StartProcessorDefinition IDENTIFIER parameterDefinitions? block EndDefinition IDENTIFIER # processorDefinition
@@ -45,7 +45,7 @@ valueProduction: sendToTemplates | valueChain;
 structureLiteral: LeftBrace (keyValues (Comma keyValues)*)? RightBrace;
 
 keyValues: keyValue
-  | valueChain
+  | valueProduction
   | dereferenceValue
 ;
 
@@ -82,7 +82,7 @@ blockExpression: blockStatement
 resultValue: valueChain ResultMarker;
 blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
-stateAssignment: Merge? (At|NamedAt) reference Colon valueChain SemiColon;
+stateAssignment: Merge? (At|NamedAt) reference Colon valueProduction SemiColon;
 
 valueChain: source
   | source transform
@@ -128,10 +128,10 @@ stringInterpolate: interpolateEvaluate|(dereferenceValue EndStringInterpolate)|c
 
 characterCode: StartCharacterCode arithmeticExpression EndStringInterpolate;
 
-interpolateEvaluate: StartStringEvaluate valueChain RightParen;
+interpolateEvaluate: StartStringEvaluate valueProduction RightParen;
 
 arithmeticExpression: integerLiteral
-  | LeftParen valueChain RightParen
+  | LeftParen valueProduction RightParen
   | additiveOperator? dereferenceValue
   | arithmeticExpression multiplicativeOperator arithmeticExpression
   | arithmeticExpression additiveOperator arithmeticExpression

@@ -331,6 +331,19 @@ class Strings {
   }
 
   @Test
+  void interpolateSendToMatchers() throws Exception {
+    String program = "templates foo '$($it -> #)' ! <1> 'one' ! <2> 'two' ! end foo\n" + "1..3 -> foo -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("onetwo", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void lexerMunchParentheses() throws Exception {
     String program = "'(2)' -> !OUT::write";
     Tailspin runner =
