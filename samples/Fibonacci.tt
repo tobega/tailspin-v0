@@ -1,15 +1,11 @@
 templates nthFibonacci
-  <0..>
-    { N: $it, n0: 0, n1: 1, sign: 1 } -> #
-  <..-1>
-    { N: -$it, n0: 0, n1: 1, sign: -1 } -> #
-
+  { N: $it, n0: 0, n1: 1 } -> #
   <{ N: <0> }>
     $it.n0 !
-  <{ sign: <1>}>
-    { N: $it.N - 1, n0: $it.n1, n1: $it.n0 + $it.n1, sign: 1} -> #
-  <{ sign: <-1>}>
-    { N: $it.N - 1, n1: $it.n0, n0: $it.n1 - $it.n0, sign: -1} -> #
+  <{ N: <1..>}>
+    { N: $it.N - 1, n0: $it.n1, n1: $it.n0 + $it.n1} -> #
+  <>
+    { N: $it.N + 1, n1: $it.n0, n0: $it.n1 - $it.n0} -> #
 end nthFibonacci
 
 8 -> nthFibonacci -> '$it;
