@@ -366,7 +366,7 @@ class Templates {
   @Test
   void higherOrderFunction() throws Exception {
     String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp@{discriminator:} $ -> $discriminator -> # <1> 'yes' ! <> 'no' ! end comp\n"
+        + "templates comp@{discriminator:} $ -> discriminator -> # <1> 'yes' ! <> 'no' ! end comp\n"
         + "1..6 -> comp@{discriminator: low} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -379,9 +379,22 @@ class Templates {
   }
 
   @Test
+  void throwOnDereferenceFunction() throws Exception {
+    String program = "templates low <..3> 1 ! <> 0 ! end low\n"
+        + "templates comp@{discriminator:} $ -> $discriminator -> # <1> 'yes' ! <> 'no' ! end comp\n"
+        + "1..6 -> comp@{discriminator: low} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void functionOfFunction() throws Exception {
     String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp@{discriminator:} $ -> $discriminator -> # <1> 'yes' ! <0> 'no' ! <> $ ! end comp\n"
+        + "templates comp@{discriminator:} $ -> discriminator -> # <1> 'yes' ! <0> 'no' ! <> $ ! end comp\n"
         + "templates meta@{f:} $ -> f@{discriminator: low} ! end meta\n"
         + "1..6 -> meta@{f: comp} -> !OUT::write";
     Tailspin runner =

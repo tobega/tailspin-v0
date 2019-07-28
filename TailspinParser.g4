@@ -185,7 +185,6 @@ identifier: IDENTIFIER | keyword;
 
 keyword: Package
   | Import
-//No, we don't allow  | Void, it creates ambiguity between sink and templates call
   | Def
   | StartTemplatesDefinition
   | StartComposerDefinition

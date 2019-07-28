@@ -1,6 +1,7 @@
 package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
@@ -188,7 +189,7 @@ class Strings {
 
   @Test
   void interpolateTemplates() throws Exception {
-    String program = "templates foo <1> 'one' ! end foo\n" + "1 -> '$foo; $; $foo;' -> !OUT::write";
+    String program = "templates foo <1> 'one' ! end foo\n" + "1 -> '$->foo; $; $->foo;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -201,7 +202,7 @@ class Strings {
 
   @Test
   void interpolateTemplatesWithNoMatch() throws Exception {
-    String program = "templates foo <2> 'two'! end foo\n" + "1 -> '$foo; $; $foo;' -> !OUT::write";
+    String program = "templates foo <2> 'two'! end foo\n" + "1 -> '$->foo; $; $->foo;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -215,7 +216,7 @@ class Strings {
   @Test
   void interpolateTemplatesWithNoResult() throws Exception {
     String program =
-        "templates foo <1> 'one' -> !OUT::write end foo\n" + "1 -> '$foo; $; $foo;' -> !OUT::write";
+        "templates foo <1> 'one' -> !OUT::write end foo\n" + "1 -> '$->foo; $; $->foo;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -224,6 +225,18 @@ class Strings {
     runner.run(input, output, List.of());
 
     assertEquals("oneone 1 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void throwOnDereferenceTemplates() throws Exception {
+    String program =
+        "templates foo <1> 'one' -> !OUT::write end foo\n" + "1 -> '$foo;' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
