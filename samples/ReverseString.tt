@@ -1,5 +1,5 @@
 templates reverse
-  '$([ $it... ] -> $it(-1..1:-1)...)' !
+  '$:[ $... ] -> $(-1..1:-1)...;' !
 end reverse
 
 'asdf' -> reverse -> !OUT::write

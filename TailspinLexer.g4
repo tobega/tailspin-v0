@@ -10,7 +10,7 @@ Package: 'package';
 
 Import: 'import';
 
-Void: 'void';
+Void: '!VOID';
 
 Def: 'def' [ \r\t\n];
 
@@ -22,11 +22,7 @@ SinkReference: ResultMarker (DeleteState| At? IDENTIFIER?);
 
 At: '@';
 
-NamedAt: '@' IDENTIFIER;
-
 Colon: ':';
-
-Key: IDENTIFIER ':';
 
 Message: '::' IDENTIFIER;
 
@@ -128,11 +124,9 @@ END_REGEX: '\'' -> popMode;
 
 mode IN_STRING;
 
-StartStringEvaluate: '$(' -> pushMode(DEFAULT_MODE);
-
 StartCharacterCode: '$#' { stringInterpolate++; } -> pushMode(DEFAULT_MODE);
 
-StartStringInterpolate: Dereference { stringInterpolate++; } -> pushMode(DEFAULT_MODE), type(Dereference);
+StartStringInterpolate: '$' { stringInterpolate++; } -> pushMode(DEFAULT_MODE);
 
 STRING_TEXT: STRING_CHAR+;
 

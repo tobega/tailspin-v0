@@ -14,5 +14,5 @@ composer words
   word: <~WS> <WS>?
 end words
 
-$input... -> '$($it -> words -> $it(-1..1:-1)...)
+$input... -> '$ -> words -> $(-1..1:-1)...;
 ' -> !OUT::write

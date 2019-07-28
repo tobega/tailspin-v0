@@ -1,19 +1,19 @@
 templates distinctPerms
   templates perms
-    <[](1)> $it(1) !
+    <[](1)> $(1) !
     <>
-      def elements: $it;
-      1..$it::length -> (
-        def k: $it;
+      def elements: $;
+      1..$::length -> (
+        def k: $;
         def tail: $elements -> [i](
-          <?($i <$k>)> $it -> (<[](2..)> $it(2..-1)!) !
-          <> $it!
+          <?($i <$k>)> $ -> (<[](2..)> $(2..-1)!) !
+          <> $!
         );
-        $tail -> perms -> [$elements($k;1), $it...] !
+        $tail -> perms -> [$elements($k;1), $...] !
       ) !
   end perms
-  $it -> [i]([1..$it -> $i] !) -> perms !
+  $ -> [i]([1..$ -> $i] !) -> perms !
 end distinctPerms
 
 def alpha: ['ABC'...];
-[[2,3,1] -> distinctPerms -> '$($alpha($it)...)' ] -> !OUT::write
+[[2,3,1] -> distinctPerms -> '$alpha($)...;' ] -> !OUT::write

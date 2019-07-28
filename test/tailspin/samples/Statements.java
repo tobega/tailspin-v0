@@ -136,7 +136,7 @@ class Statements {
 
   @Test
   void chain() throws Exception {
-    String program = "'World!' -> 'Hello $it;' -> !OUT::write";
+    String program = "'World!' -> 'Hello $;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -177,7 +177,7 @@ class Statements {
 
   @Test
   void definedSymbolFromValueChain() throws Exception {
-    String program = "def helloWorld: 'World!' -> 'Hello $it;' ;\n $helloWorld -> !OUT::write\n";
+    String program = "def helloWorld: 'World!' -> 'Hello $;' ;\n $helloWorld -> !OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -214,7 +214,7 @@ class Statements {
 
   @Test
   void voidSink() throws Exception {
-    String program = "'Hello World' -> void";
+    String program = "'Hello World' -> !VOID";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -241,7 +241,7 @@ class Statements {
   @Test
   void systemNanoCount() throws Exception {
     String program = "def start: $SYS::nanoCount;\n"
-        + "[1..100 -> $SYS::nanoCount - $start] -> $it(-1) -> (<0~..> 1 !) -> !OUT::write";
+        + "[1..100 -> $SYS::nanoCount - $start] -> $(-1) -> (<0~..> 1 !) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -255,7 +255,7 @@ class Statements {
   @ExtendWith(TempDirectory.class)
   @Test
   void importPackage(@TempDirectory.TempDir Path dir) throws Exception {
-    String dep = "package dep\ntemplates quote '\"$it;\"' ! end quote";
+    String dep = "package dep\ntemplates quote '\"$;\"' ! end quote";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     String program = "import 'dep'\n 1 -> dep/quote -> !OUT::write";
@@ -272,8 +272,8 @@ class Statements {
   @ExtendWith(TempDirectory.class)
   @Test
   void packageTemplatesRunInPackageScope(@TempDirectory.TempDir Path dir) throws Exception {
-    String dep = "package dep\ntemplates quote '\"$it;\"' ! end quote\n"
-        + "templates addQuote $it -> quote ! end addQuote";
+    String dep = "package dep\ntemplates quote '\"$;\"' ! end quote\n"
+        + "templates addQuote $ -> quote ! end addQuote";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     String program = "import 'dep'\n 1 -> dep/addQuote -> !OUT::write";
@@ -290,7 +290,7 @@ class Statements {
   @Test
   void dynamicDereferenceInCorrectScope() throws Exception {
     String program =
-        "def foo: 2;\n [4,5,6] -> $it($foo) -> !OUT::write";
+        "def foo: 2;\n [4,5,6] -> $($foo) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -303,7 +303,7 @@ class Statements {
 
   @Test
   void noIt() throws Exception {
-    String program = "$it -> !OUT::write";
+    String program = "$ -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -314,7 +314,7 @@ class Statements {
 
   @Test
   void noItAfterValueChain() throws Exception {
-    String program = "1 -> [$it] -> !OUT::write\n$it -> !OUT::write";
+    String program = "1 -> [$] -> !OUT::write\n$ -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

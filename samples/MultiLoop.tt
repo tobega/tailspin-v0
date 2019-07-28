@@ -2,16 +2,16 @@ def x: ['a', 'b', 'c'];
 def y: ['A', 'B', 'C'];
 def z: [1, 2, 3];
 
-1..$x::length -> '$x($it);$y($it);$z($it);
+1..$x::length -> '$x($);$y($);$z($);
 ' -> !OUT::write
 
 templates transpose
-  def a: $it;
-  def n: $it(1)::length;
-  [ 1..$n -> $a(1..-1; $it) ] !
+  def a: $;
+  def n: $(1)::length;
+  [ 1..$n -> $a(1..-1; $) ] !
 end transpose
 
-[$x, $y, $z] -> transpose... -> '$($it...)
+[$x, $y, $z] -> transpose... -> '$...;
 ' -> !OUT::write
 
 def u: ['a', 'b'];
@@ -20,15 +20,15 @@ def w: [1];
 
 templates transpose2
   @: [];
-  $it... -> [i](
-    <?($i <..$@transpose2::length>)> ..|@transpose2($i): $it;
-    <> ..|@transpose2: [$it];) -> void
+  $... -> [i](
+    <?($i <..$@transpose2::length>)> ..|@transpose2($i): $;
+    <> ..|@transpose2: [$];) -> !VOID
   $@ !
 end transpose2
 
-[$x, $y, $z] -> transpose2... -> '$($it...)
+[$x, $y, $z] -> transpose2... -> '$...;
 ' -> !OUT::write
 
-[$u,$v,$w] -> transpose2... -> '$($it...)
+[$u,$v,$w] -> transpose2... -> '$...;
 ' -> !OUT::write
 

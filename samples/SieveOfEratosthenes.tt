@@ -1,23 +1,23 @@
 templates sieve
-  def limit: $it;
+  def limit: $;
   @: [ 2..$limit ];
   1 -> #
   $@ !
 
-  <..$@::length ?($@($it) * $@($it) <..$limit>)>
+  <..$@::length ?($@($) * $@($) <..$limit>)>
     templates sift
-      def prime: $it;
+      def prime: $;
       @: $prime * $prime;
       @sieve: [ $@sieve... -> # ];
       <..~$@>
-        $it !
+        $ !
       <$@~..>
         @: $@ + $prime;
-        $it -> #
+        $ -> #
     end sift
 
-    $@($it) -> sift !
-    $it + 1 -> #
+    $@($) -> sift !
+    $ + 1 -> #
 end sieve
 
-1000 -> sieve ...->  '$it; ' -> !OUT::write
+1000 -> sieve ...->  '$; ' -> !OUT::write

@@ -1,8 +1,8 @@
 processor Stack
-  @: $it;
+  @: $;
 
   templates push
-    ..|@Stack: $it;
+    ..|@Stack: $;
   end push
 
   templates peek
@@ -22,7 +22,7 @@ end Stack
 
 def myStack: [1] -> Stack;
 
-2 -> $myStack::push -> void
+2 -> $myStack::push -> !VOID
 
 '$myStack::empty; $myStack::pop;
 ' -> !OUT::write
@@ -31,7 +31,7 @@ def myStack: [1] -> Stack;
 '$myStack::empty;
 ' -> !OUT::write
 
-3 -> $myStack::push -> void
+3 -> $myStack::push -> !VOID
 '$myStack::empty; $myStack::peek;
 ' -> !OUT::write
 '$myStack::empty; $myStack::pop;

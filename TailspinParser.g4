@@ -4,18 +4,20 @@ options { tokenVocab = TailspinLexer; }
 
 program: packageDefinition? dependency* statement (statement)* EOF;
 
-packageDefinition: Package IDENTIFIER;
+packageDefinition: Package identifier;
 
 dependency: Import stringLiteral;
 
-statement: Def Key valueProduction SemiColon                  # definition
+statement: Def key valueProduction SemiColon                  # definition
   | valueChain To sink                                   # valueChainToSink
-  | StartTemplatesDefinition IDENTIFIER parameterDefinitions? templatesBody EndDefinition IDENTIFIER # templatesDefinition
-  | StartProcessorDefinition IDENTIFIER parameterDefinitions? block EndDefinition IDENTIFIER # processorDefinition
-  | StartComposerDefinition IDENTIFIER composerBody EndDefinition IDENTIFIER # composerDefinition
+  | StartTemplatesDefinition identifier parameterDefinitions? templatesBody EndDefinition identifier # templatesDefinition
+  | StartProcessorDefinition identifier parameterDefinitions? block EndDefinition identifier # processorDefinition
+  | StartComposerDefinition identifier composerBody EndDefinition identifier # composerDefinition
 ;
 
-parameterDefinitions: At LeftBrace (Key Comma?)+ RightBrace;
+key: identifier Colon;
+
+parameterDefinitions: At LeftBrace (key Comma?)+ RightBrace;
 
 source: dereferenceValue
   | stringLiteral
@@ -49,21 +51,21 @@ keyValues: keyValue
   | dereferenceValue
 ;
 
-keyValue: Key valueProduction;
+keyValue: key valueProduction;
 
 templates: source                        # literalTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
   | transformCall                        # callDefinedTransform
-  | LeftBracket IDENTIFIER (Comma IDENTIFIER)* RightBracket LeftParen templatesBody RightParen # arrayTemplates
+  | LeftBracket identifier (Comma identifier)* RightBracket LeftParen templatesBody RightParen # arrayTemplates
 ;
 
 sink: (SinkReference reference message?) | Void;
 
-transformCall: IDENTIFIER (At parameterValues)?;
+transformCall: identifier (At parameterValues)?;
 
 parameterValues: LeftBrace (parameterValue Comma?)+ RightBrace;
 
-parameterValue: Key (valueChain|transformCall);
+parameterValue: key (valueChain|transformCall);
 
 templatesBody: block matchTemplate*
   | matchTemplate+
@@ -82,7 +84,7 @@ blockExpression: blockStatement
 resultValue: valueChain ResultMarker;
 blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
-stateAssignment: (valueChain To)? Merge? (At|NamedAt) reference Colon valueProduction SemiColon;
+stateAssignment: (valueChain To)? Merge? (At identifier?) reference Colon valueProduction SemiColon;
 
 valueChain: source
   | source transform
@@ -101,7 +103,7 @@ typeMatch: dereferenceValue           # objectEquals
   | arithmeticExpression              # integerEquals
   | rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
-  | LeftBrace (Key matcher Comma?)* RightBrace # structureMatch
+  | LeftBrace (key matcher Comma?)* RightBrace # structureMatch
   | Invert condition                  # invertMatch
   | LeftBracket RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
 ;
@@ -124,11 +126,12 @@ stringLiteral: START_STRING stringContent* END_STRING;
 
 stringContent: stringInterpolate | STRING_TEXT;
 
-stringInterpolate: interpolateEvaluate|(dereferenceValue EndStringInterpolate)|characterCode;
+stringInterpolate: interpolateEvaluate|characterCode;
 
 characterCode: StartCharacterCode arithmeticExpression EndStringInterpolate;
 
-interpolateEvaluate: StartStringEvaluate valueProduction RightParen;
+interpolateEvaluate: StartStringInterpolate (At? identifier? reference message? | Colon source)
+  transform? (To TemplateMatch)? EndStringInterpolate;
 
 arithmeticExpression: integerLiteral
   | LeftParen valueProduction RightParen
@@ -144,7 +147,7 @@ multiplicativeOperator: Star | Slash | Mod;
 composerBody: compositionSequence definedCompositionSequence*
 ;
 
-definedCompositionSequence: Key compositionSequence
+definedCompositionSequence: key compositionSequence
 ;
 
 compositionSequence: compositionSkipRule* (compositionComponent+|structureMemberMatchers)
@@ -162,7 +165,7 @@ structureMemberMatcher: compositionSkipRule* (tokenMatcher|compositionKeyValue);
 
 tokenMatcher: StartMatcher compositionToken (Else compositionToken)* EndMatcher multiplier? transform?;
 
-compositionToken: Invert? (IDENTIFIER|stringLiteral);
+compositionToken: Invert? (identifier|stringLiteral);
 
 multiplier: Plus | Star | Question
   | Equal (PositiveInteger|Dereference)
@@ -170,10 +173,23 @@ multiplier: Plus | Star | Question
 
 compositionSkipRule: LeftParen compositionCapture+ RightParen;
 
-compositionCapture: (Def Key)? compositionMatcher;
+compositionCapture: (Def key)? compositionMatcher;
 
-compositionKeyValue: (Key|compositionKey) compositionSkipRule* compositionComponent Comma?;
+compositionKeyValue: (key|compositionKey) compositionSkipRule* compositionComponent Comma?;
 
 compositionKey: tokenMatcher Colon;
 
 compositionComponent: (compositionMatcher|compositionSkipRule) compositionSkipRule*;
+
+identifier: IDENTIFIER | keyword;
+
+keyword: Package
+  | Import
+//No, we don't allow  | Void, it creates ambiguity between sink and templates call
+  | Def
+  | StartTemplatesDefinition
+  | StartComposerDefinition
+  | StartProcessorDefinition
+  | EndDefinition
+  | Mod
+;

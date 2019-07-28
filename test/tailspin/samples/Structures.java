@@ -27,7 +27,7 @@ class Structures {
 
   @Test
   void fieldDerefence() throws IOException {
-    String program = "{ a: 0, b: 1 } -> ($it.a ! $it.b !) -> !OUT::write";
+    String program = "{ a: 0, b: 1 } -> ($.a ! $.b !) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -40,7 +40,7 @@ class Structures {
 
   @Test
   void literalTransform() throws IOException {
-    String program = "1 -> { a: $it - 1, b: $it } -> !OUT::write";
+    String program = "1 -> { a: $ - 1, b: $ } -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -53,7 +53,7 @@ class Structures {
 
   @Test
   void fieldDerefenceTransform() throws IOException {
-    String program = "{ a: 5, b: 1 } -> $it.a -> !OUT::write";
+    String program = "{ a: 5, b: 1 } -> $.a -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -66,7 +66,7 @@ class Structures {
 
   @Test
   void fieldArrayDerefenceTransform() throws IOException {
-    String program = "{ a: [1,5,8] } -> $it.a(2) -> !OUT::write";
+    String program = "{ a: [1,5,8] } -> $.a(2) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -105,7 +105,7 @@ class Structures {
 
   @Test
   void restructureLiteral() throws IOException {
-    String program = "{b:2} -> {a: 1, $it...} -> !OUT::write";
+    String program = "{b:2} -> {a: 1, $...} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -118,7 +118,7 @@ class Structures {
 
   @Test
   void overrideDefaultValues() throws IOException {
-    String program = "{b:2} -> {b: 1, $it...} -> !OUT::write";
+    String program = "{b:2} -> {b: 1, $...} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -131,7 +131,7 @@ class Structures {
 
   @Test
   void overrideItValues() throws IOException {
-    String program = "{b:2} -> {$it..., b: 1} -> !OUT::write";
+    String program = "{b:2} -> {$..., b: 1} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -144,7 +144,7 @@ class Structures {
 
   @Test
   void reconstructPrefersValueChainToDereference() throws IOException {
-    String program = "[{b:2}] -> {$it(1)..., b: 1} -> !OUT::write";
+    String program = "[{b:2}] -> {$(1)..., b: 1} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -157,7 +157,7 @@ class Structures {
 
   @Test
   void deconstruct() throws IOException {
-    String program = "{ a: 1, b: 2 }... -> '$it;\n' -> !OUT::write";
+    String program = "{ a: 1, b: 2 }... -> '$;\n' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -170,7 +170,7 @@ class Structures {
 
   @Test
   void restructureKeyedValues() throws IOException {
-    String program = "{ a: 1, b: 2 } -> {$it...} -> !OUT::write";
+    String program = "{ a: 1, b: 2 } -> {$...} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -183,7 +183,7 @@ class Structures {
 
   @Test
   void valueProductionViaTemplates() throws Exception {
-    String program = "3 -> ({ a: 1..$it -> # } ! <2> $it!) -> !OUT::write";
+    String program = "3 -> ({ a: 1..$ -> # } ! <2> $!) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -196,7 +196,7 @@ class Structures {
 
   @Test
   void keyedValueProductionViaSendToMatchers() throws Exception {
-    String program = "3 -> ({ 1..$it -> # } ! <> (last: $it)!) -> !OUT::write";
+    String program = "3 -> ({ 1..$ -> # } ! <> (last: $)!) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -222,7 +222,7 @@ class Structures {
 
   @Test
   void freeKeyedValueRestructure() throws IOException {
-    String program = "(a: 1) -> {$it} -> !OUT::write";
+    String program = "(a: 1) -> {$} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -248,7 +248,7 @@ class Structures {
 
   @Test
   void keywordAsKey() throws IOException {
-    String program = "{mod: 1} -> $it.mod -> (<1> 'yes'!) -> !OUT::write";
+    String program = "{mod: 1} -> $.mod -> (<1> 'yes'!) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -261,7 +261,7 @@ class Structures {
 
   @Test
   void partsOfKeyedValue() throws IOException {
-    String program = "(a: 1) -> '\"$it::key;--$it::value;\"' -> !OUT::write";
+    String program = "(a: 1) -> '\"$::key;--$::value;\"' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

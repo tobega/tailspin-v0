@@ -2,5 +2,5 @@
 ' -> !OUT::write
 
 // Reads all lines of the input before continuing, so you need to press ctrl-D or cmd-D at end
-$IN::lines -> 'Hello $it;!
+$IN::lines -> 'Hello $;!
 ' -> !OUT::write

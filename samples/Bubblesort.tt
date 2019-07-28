@@ -1,21 +1,21 @@
 templates bubblesort
   templates bubble
     @: 1;
-    1..$it-1 -> #
+    1..$-1 -> #
     $@ !
-    <?($@bubblesort($it+1) <..~$@bubblesort($it)>)>
-      @: $it;
+    <?($@bubblesort($+1) <..~$@bubblesort($)>)>
+      @: $;
       def temp: $@bubblesort($@);
       @bubblesort($@): $@bubblesort($@+1);
       @bubblesort($@+1): $temp;
   end bubble
 
-  @: $it;
-  $it::length -> #
+  @: $;
+  $::length -> #
   $@ !
 
   <2..>
-    $it -> bubble -> #
+    $ -> bubble -> #
 end bubblesort
 
 [4,5,3,8,1,2,6,7,9,8,5] -> bubblesort -> !OUT::write

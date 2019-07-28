@@ -2,5 +2,5 @@ composer nums
   [ (<WS>?) <INT> (<WS>) <INT> (<WS>?) ]
 end nums
 
-$IN::lines -> nums -> $it(1) + $it(2) -> '$it;
+$IN::lines -> nums -> $(1) + $(2) -> '$;
 ' -> !OUT::write

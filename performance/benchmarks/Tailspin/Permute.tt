@@ -4,22 +4,22 @@ import 'harness'
 templates permute
   templates derange
     @permute.count: $@permute.count + 1;
-    $it -> #
+    $ -> #
     <1..>
-      def n: $it;
+      def n: $;
       templates swap
-        def i: $it;
+        def i: $;
         def temp: $@permute.v($n);
         @permute.v($n): $@permute.v($i);
         @permute.v($i): $temp;
       end swap
-      $n - 1 -> derange -> void
-      $n..1:-1 -> ($it -> swap -> void
-        $n - 1 -> derange -> void
-        $it -> swap -> void) -> void
+      $n - 1 -> derange -> !VOID
+      $n..1:-1 -> ($ -> swap -> !VOID
+        $n - 1 -> derange -> !VOID
+        $ -> swap -> !VOID) -> !VOID
   end derange
-  @: { count: 0, v: [1..$it]};
-  $it -> derange -> void
+  @: { count: 0, v: [1..$]};
+  $ -> derange -> !VOID
   $@.count !
 end permute
 
@@ -29,4 +29,4 @@ templates runAndVerify
   <> 0 !
 end runAndVerify
 
-1 -> harness/run@{name: 'Permute', benchmark:runAndVerify} -> void
+1 -> harness/run@{name: 'Permute', benchmark:runAndVerify} -> !VOID

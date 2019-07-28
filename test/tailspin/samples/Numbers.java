@@ -221,7 +221,7 @@ class Numbers {
 
   @Test
   void arithmeticTransform() throws IOException {
-    String program = "5 -> $it + 2 -> !OUT::write";
+    String program = "5 -> $ + 2 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -234,7 +234,7 @@ class Numbers {
 
   @Test
   void subtractDereferences() throws IOException {
-    String program = "5 -> $it - $it -> !OUT::write";
+    String program = "5 -> $ - $ -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -247,7 +247,7 @@ class Numbers {
 
   @Test
   void subtractDereferencesInTemplates() throws IOException {
-    String program = "5 -> ($it - $it !) -> !OUT::write";
+    String program = "5 -> ($ - $ !) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -260,7 +260,7 @@ class Numbers {
 
   @Test
   void subtractDereferencesInMatchBlock() throws IOException {
-    String program = "templates a\n<> $it - $it !\n end a\n 5 -> a -> !OUT::write";
+    String program = "templates a\n<> $ - $ !\n end a\n 5 -> a -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -286,7 +286,7 @@ class Numbers {
 
   @Test
   void valueChainInExpression() throws IOException {
-    String program = "templates add $it + 1 ! end add\n 5 - (2 -> add) -> !OUT::write";
+    String program = "templates add $ + 1 ! end add\n 5 - (2 -> add) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -299,7 +299,7 @@ class Numbers {
 
   @Test
   void valueChainStartsExpression() throws IOException {
-    String program = "templates add $it + 1 ! end add\n (5 -> add) - 2 -> !OUT::write";
+    String program = "templates add $ + 1 ! end add\n (5 -> add) - 2 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -312,7 +312,7 @@ class Numbers {
 
   @Test
   void sendToTemplatesInExpression() throws IOException {
-    String program = "templates foo 5 - ($it -> #)!\n<> 4! end foo\n 2 -> foo -> !OUT::write";
+    String program = "templates foo 5 - ($ -> #)!\n<> 4! end foo\n 2 -> foo -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

@@ -2,7 +2,7 @@ import 'harness'
 
 // This is not an idiomatic way to do this in Tailspin, unless you really need mutable elements in the list
 processor Element
-  @: {val: $it};
+  @: {val: $};
 
   templates length
     <?($@Element <{next:<>}>)>
@@ -12,41 +12,41 @@ processor Element
   end length
 
   templates setNext
-    ..|@Element: {next: $it};
+    ..|@Element: {next: $};
   end setNext
 
   templates getNext
-    $@Element -> (<{next:<>}> $it.next!) !
+    $@Element -> (<{next:<>}> $.next!) !
   end getNext
 end Element
 
 templates makeList
   <0~..>
-    def element: $it -> Element;
-    $it - 1 -> makeList -> $element::setNext -> void
+    def element: $ -> Element;
+    $ - 1 -> makeList -> $element::setNext -> !VOID
     $element !
 end makeList
 
 templates isShorterThan
   <{x:<>, y:<>}>
-    { $it.x::getNext -> {x: $it}..., $it.y::getNext -> {y:$it}... } -> #
+    { $.x::getNext -> {x: $}..., $.y::getNext -> {y:$}... } -> #
   <{y:<>}> 1 !
   <> 0 !
 end isShorterThan
 
 templates tail
-  <?({x: $it(2), y: $it(1)} -> isShorterThan <1>)>
-    [ [$it(1)::getNext, $it(2), $it(3)] -> tail,
-      [$it(2)::getNext, $it(3), $it(2)] -> tail,
-      [$it(3)::getNext, $it(1), $it(2)] -> tail] -> tail !
+  <?({x: $(2), y: $(1)} -> isShorterThan <1>)>
+    [ [$(1)::getNext, $(2), $(3)] -> tail,
+      [$(2)::getNext, $(3), $(2)] -> tail,
+      [$(3)::getNext, $(1), $(2)] -> tail] -> tail !
   <>
-    $it(3) !
+    $(3) !
 end tail
 
 templates runAndVerify
-  [15 -> makeList, 10 -> makeList, 6 -> makeList] -> tail -> $it::length -> #
+  [15 -> makeList, 10 -> makeList, 6 -> makeList] -> tail -> $::length -> #
   <10> 1 !
   <> 0 !
 end runAndVerify
 
-1 -> harness/run@{name: 'List', benchmark:runAndVerify} -> void
+1 -> harness/run@{name: 'List', benchmark:runAndVerify} -> !VOID

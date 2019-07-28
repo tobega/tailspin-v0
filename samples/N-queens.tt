@@ -1,23 +1,23 @@
 templates queens
-  def n: $it;
+  def n: $;
   templates addColumn
-    def prev: $it;
+    def prev: $;
     templates addIfPossible
-      def row: $it;
-      def minor: $it - $prev::length - 1;
-      def major: $it + $prev::length + 1;
+      def row: $;
+      def minor: $ - $prev::length - 1;
+      def major: $ + $prev::length + 1;
        // If any element of prev matches row, array is non-empty and no result proceeds past the first line
        // Similar for the major and minor diagonals
       $prev -> [i](<$row> 0 !) -> (<[](0)> $prev !)
-            -> [i](<?($it - $i <$minor>)> 0 !) -> (<[](0)> $prev !)
-            -> [i](<?($it + $i <$major>)> 0 !) -> (<[](0)> $prev !)
+            -> [i](<?($ - $i <$minor>)> 0 !) -> (<[](0)> $prev !)
+            -> [i](<?($ + $i <$major>)> 0 !) -> (<[](0)> $prev !)
             -> [ $prev..., $row] !
     end addIfPossible
     1..$n -> addIfPossible !
   end addColumn
-  1..$n -> [$it] -> #
-  <[]($n)> $it !
-  <> $it -> addColumn -> #
+  1..$n -> [$] -> #
+  <[]($n)> $ !
+  <> $ -> addColumn -> #
 end queens
 
 def solutions: [ 8 -> queens ];
@@ -25,8 +25,8 @@ def solutions: [ 8 -> queens ];
 ' -> !OUT::write
 
 def columns: ['abcdefgh'...];
-'One of them is $($solutions(1) -> [i]('$columns($i);$it;' !))
+'One of them is $solutions(1) -> [i]('$columns($i);$;' !);
 ' -> !OUT::write
 
-'For 3 queens there are $([3 -> queens] -> $it::length) solutions
+'For 3 queens there are $:[3 -> queens] -> $::length; solutions
 ' -> !OUT::write

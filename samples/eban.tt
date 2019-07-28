@@ -2,16 +2,16 @@
 // Only numbers below one sextillion are considered
 
 templates isEban
-  def number: $it;
-  '$it;' -> (<'([246]|[3456][0246])(0[03456][0246])*$$'> $it !) -> $number !
+  def number: $;
+  '$;' -> (<'([246]|[3456][0246])(0[03456][0246])*$$'> $ !) -> $number !
 end isEban
 
 //Alternatively with numbers
 templates isEban2
-  def number: $it;
-  $it -> (<1..> $it!) -> #
+  def number: $;
+  $ -> (<1..> $!) -> #
   <0> $number !
-  <?($it mod 1000 <0|2|4|6|30..66?($it mod 10 <0|2|4|6>)>)> $it / 1000 -> #
+  <?($ mod 1000 <0|2|4|6|30..66?($ mod 10 <0|2|4|6>)>)> $ / 1000 -> #
 end isEban2
 
 def small: [1..1000 -> isEban];
@@ -28,18 +28,18 @@ There are $next::length; eban numbers between 1000 and 4000 (inclusive)
 
 ' -> !OUT::write
 '
-There are $([1..10000 -> isEban] -> $it::length) eban numbers up to and including 10 000
+There are $:[1..10000 -> isEban] -> $::length; eban numbers up to and including 10 000
 
 ' -> !OUT::write
 '
-There are $([1..100000 -> isEban] -> $it::length) eban numbers up to and including 100 000
+There are $:[1..100000 -> isEban] -> $::length; eban numbers up to and including 100 000
 
 ' -> !OUT::write
 '
-There are $([1..1000000 -> isEban] -> $it::length) eban numbers up to and including 1 000 000
+There are $:[1..1000000 -> isEban] -> $::length; eban numbers up to and including 1 000 000
 
 ' -> !OUT::write
 '
-There are $([1..10000000 -> isEban] -> $it::length) eban numbers up to and including 10 000 000
+There are $:[1..10000000 -> isEban] -> $::length; eban numbers up to and including 10 000 000
 
 ' -> !OUT::write

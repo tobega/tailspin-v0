@@ -64,6 +64,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitComposerDefinition(TailspinParser.ComposerDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#key}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitKey(TailspinParser.KeyContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#parameterDefinitions}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -488,4 +494,16 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCompositionComponent(TailspinParser.CompositionComponentContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#identifier}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIdentifier(TailspinParser.IdentifierContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#keyword}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitKeyword(TailspinParser.KeywordContext ctx);
 }

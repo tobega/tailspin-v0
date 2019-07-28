@@ -7,7 +7,7 @@ templates hexToInt
     <'[Aa]'> 10! <'[Bb]'> 11! <'[Cc]'> 12! <'[Dd]'> 13! <'[Ee]'> 14! <'[Ff]'> 15!
   end hexDigit
   @: 0;
-  $it... -> hexDigit -> @: $@ * 16 + $it;
+  $... -> hexDigit -> @: $@ * 16 + $;
   $@ !
 end hexToInt
 
@@ -16,7 +16,7 @@ composer jsonParser
   value: (<WS>?) <string|number|object|array|true|false|null> (<WS>?)
 
   string: (<'"'>) <chars>  (<'"'>)
-  chars: [ <quote|backslash|slash|backspace|formfeed|linefeed|return|tab|unicode|'[^"]'>* ] -> '$($it...)'
+  chars: [ <quote|backslash|slash|backspace|formfeed|linefeed|return|tab|unicode|'[^"]'>* ] -> '$...;'
   quote: <'\\"'> -> '"'
   backslash: <'\\\\'> -> '\'
   slash: <'\\/'> -> '/'
@@ -25,7 +25,7 @@ composer jsonParser
   linefeed: <'\\n'> -> '$#10;'
   return: <'\\r'> -> '$#13;'
   tab: <'\\t'> -> '$#9;'
-  unicode: (<'\\u'>) <'[0-9A-Fa-f]{4}'> -> hexToInt -> '$#$it;'
+  unicode: (<'\\u'>) <'[0-9A-Fa-f]{4}'> -> hexToInt -> '$#$;'
 
   number: <'-?(0|[1-9][0-9]*)(\.[0-9]+)?((e|E)(\+|-)?[0-9]+)?'> // TODO: represent this other than string
 
@@ -45,7 +45,7 @@ end jsonParser
 
 templates printJson
   templates printKeyValue
-    '$($it::key -> printJson): $($it::value -> printJson)' !
+    '$::key -> printJson;: $::value -> printJson;' !
   end printKeyValue
   templates encodeChars
     <'"'> '\"' !
@@ -56,23 +56,23 @@ templates printJson
     <'$#10;'> '\n' !
     <'$#13;'> '\r' !
     <'$#9;'> '\t' !
-    <> $it !
+    <> $ !
   end encodeChars
-  $it -> #
+  $ -> #
   <[]>
-    '[$($it(1) -> printJson)$($it(2..-1)... -> ', $($it -> printJson)')]' !
+    '[$(1) -> printJson;$(2..-1)... -> ', $ -> printJson;';]' !
   <{}>
-    [ $it... ] -> '{$($it(1) -> printKeyValue)$($it(2..-1)... -> ', $($it -> printKeyValue)')}' !
+    [ $... ] -> '{$(1) -> printKeyValue;$(2..-1)... -> ', $ -> printKeyValue;';}' !
   <..0|0..>
-    '$it;'!
+    '$;'!
   <'.*'>
-    [ $it... -> encodeChars ] -> '"$($it...)"' !
+    [ $... -> encodeChars ] -> '"$...;"' !
   <> 'WTF!' !
   // Other types do not yet exist in Tailspin
 end printJson
 
-'{ "foo": 1, "bar": [10, "apples"] }' -> jsonParser -> '$it.bar(2);
+'{ "foo": 1, "bar": [10, "apples"] }' -> jsonParser -> '$.bar(2);
 ' -> !OUT::write
 
-{ blue: [1,2], ocean: 'water' } -> printJson -> '$it;
+{ blue: [1,2], ocean: 'water' } -> printJson -> '$;
 ' -> !OUT::write

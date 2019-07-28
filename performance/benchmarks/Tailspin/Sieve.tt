@@ -1,13 +1,13 @@
 import 'harness'
 
 templates sieve
-  def size: $it;
+  def size: $;
   @: {primeCount: 0, flags: [ 1..$size -> 1 ]};
   2..$size -> #
   $@.primeCount !
-  <?($@.flags($it) <1>)>
+  <?($@.flags($) <1>)>
     @.primeCount: $@.primeCount + 1;
-    $it+$it..$size:$it -> (@sieve.flags($it): 0;) -> void
+    $+$..$size:$ -> (@sieve.flags($): 0;) -> !VOID
 end sieve
 
 templates runAndVerify
@@ -16,4 +16,4 @@ templates runAndVerify
   <> 0 !
 end runAndVerify
 
-1 -> harness/run@{name: 'List', benchmark:runAndVerify} -> void
+1 -> harness/run@{name: 'List', benchmark:runAndVerify} -> !VOID

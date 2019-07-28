@@ -14,9 +14,9 @@ class Processor {
   void simple() throws Exception {
     String program =
         "processor Holder\n"
-            + "@: $it;\n"
+            + "@: $;\n"
             + "templates add\n"
-            + "  $it + $@Holder !\n"
+            + "  $ + $@Holder !\n"
             + "end add\n"
             + "end Holder\n"
             + "def five: 5 -> Holder;\n"
@@ -32,15 +32,36 @@ class Processor {
   }
 
   @Test
+  void stringInterpolateMessage() throws Exception {
+    String program =
+        "processor Holder\n"
+            + "@: $;\n"
+            + "templates add\n"
+            + "  $ + $@Holder !\n"
+            + "end add\n"
+            + "end Holder\n"
+            + "def five: 5 -> Holder;\n"
+            + "1..3 -> '$five::add;' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("678", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void parametrizedProcessor() throws Exception {
     String program =
         "templates add@{x:}\n"
-            + "  $it + $x !\n"
+            + "  $ + $x !\n"
             + "end add\n"
             + "processor Holder@{op:}\n"
-            + "@: $it;\n"
+            + "@: $;\n"
             + "templates do\n"
-            + "  $it -> op@{x:$@Holder} !\n"
+            + "  $ -> op@{x:$@Holder} !\n"
             + "end do\n"
             + "end Holder\n"
             + "def addFive: 5 -> Holder@{op:add};\n"
@@ -59,12 +80,12 @@ class Processor {
   void parametrizedMessage() throws Exception {
     String program =
         "templates add@{x:}\n"
-            + "  $it + $x !\n"
+            + "  $ + $x !\n"
             + "end add\n"
             + "processor Holder\n"
-            + "@: $it;\n"
+            + "@: $;\n"
             + "templates do@{op:}\n"
-            + "  $it -> op@{x:$@Holder} !\n"
+            + "  $ -> op@{x:$@Holder} !\n"
             + "end do\n"
             + "end Holder\n"
             + "def five: 5 -> Holder;\n"

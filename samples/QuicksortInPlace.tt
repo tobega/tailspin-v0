@@ -1,35 +1,35 @@
 templates quicksort
   templates partial
-    def first: $it(1);
-    def last: $it(2);
+    def first: $(1);
+    def last: $(2);
     def pivot: $@quicksort($first);
-    [ $it(1) + 1, $it(2)  ] -> #
+    [ $(1) + 1, $(2)  ] -> #
 
-    <?($it(2) <..~$it(1)>)>
-      def limit: $it(2);
+    <?($(2) <..~$(1)>)>
+      def limit: $(2);
       @quicksort($first): $@quicksort($limit);
       @quicksort($limit): $pivot;
       [ $first, $limit - 1 ] !
       [ $limit + 1, $last ] !
 
-    <?($@quicksort($it(2)) <$pivot~..>)>
-      [ $it(1), $it(2) - 1] -> #
+    <?($@quicksort($(2)) <$pivot~..>)>
+      [ $(1), $(2) - 1] -> #
 
-    <?($@quicksort($it(1)) <..$pivot>)>
-      [ $it(1) + 1, $it(2)] -> #
+    <?($@quicksort($(1)) <..$pivot>)>
+      [ $(1) + 1, $(2)] -> #
 
     <>
-      def temp: $@quicksort($it(1));
-      @quicksort($it(1)): $@quicksort($it(2));
-      @quicksort($it(2)): $temp;
-      [ $it(1) + 1, $it(2) - 1] -> #
+      def temp: $@quicksort($(1));
+      @quicksort($(1)): $@quicksort($(2));
+      @quicksort($(2)): $temp;
+      [ $(1) + 1, $(2) - 1] -> #
   end partial
-  @: $it;
+  @: $;
   [1, $@::length] -> #
   $@ !
 
-  <?($it(1) <..~$it(2)>)>
-    $it -> partial -> #
+  <?($(1) <..~$(2)>)>
+    $ -> partial -> #
 end quicksort
 
 [4,5,3,8,1,2,6,7,9,8,5] -> quicksort -> !OUT::write

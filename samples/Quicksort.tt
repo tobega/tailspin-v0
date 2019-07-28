@@ -1,16 +1,16 @@
 templates quicksort
   @: [];
-  $it -> #
+  $ -> #
   <[](2..)>
-    def pivot: $it(1);
-    [ [ $it(2..-1)... -> (
+    def pivot: $(1);
+    [ [ $(2..-1)... -> (
       <..$pivot>
-        $it !
+        $ !
       <>
-        ..|@quicksort: $it;
+        ..|@quicksort: $;
      )] -> quicksort..., $pivot, $@ -> quicksort... ] !
    <>
-     $it !
+     $ !
 end quicksort
 
 [4,5,3,8,1,2,6,7,9,8,5] -> quicksort -> !OUT::write

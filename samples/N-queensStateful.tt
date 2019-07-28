@@ -1,34 +1,34 @@
 templates queens
-  def n: $it;
+  def n: $;
   templates getRowColumn
-    <?($@queens.freeRows($it.r) <0>)> 0 !
-    <?($@queens.freeMaxs($it.r + $it.c) <0>)> 0 !
-    <?($@queens.freeMins($it.c - $it.r + $n) <0>)> 0 !
+    <?($@queens.freeRows($.r) <0>)> 0 !
+    <?($@queens.freeMaxs($.r + $.c) <0>)> 0 !
+    <?($@queens.freeMins($.c - $.r + $n) <0>)> 0 !
     <> 1!
   end getRowColumn
 
   templates setRowColumn
-    def p: $it;
+    def p: $;
     @queens.freeRows($p.r): $p.val;
     @queens.freeMaxs($p.c + $p.r): $p.val;
     @queens.freeMins($p.c - $p.r + $n): $p.val;
   end setRowColumn
 
   templates placeQueen
-    def c: $it;
+    def c: $;
     1 -> #
     <-1> 1! // Use -1 to signal successful completion
     <$n+1> 0 !
-    <?({r: $it, c: $c} -> getRowColumn <1>)>
-      def r: $it;
+    <?({r: $, c: $c} -> getRowColumn <1>)>
+      def r: $;
       @queens.queenRows($r): $c;
-      {r: $it, c: $c, val: 0} -> setRowColumn -> void
+      {r: $, c: $c, val: 0} -> setRowColumn -> !VOID
       $c -> (<$n> -1!
         <?($c + 1 -> placeQueen <1>)> -1!
         <>
-          {r: $r, c: $c, val: 1} -> setRowColumn -> void
+          {r: $r, c: $c, val: 1} -> setRowColumn -> !VOID
           $r + 1 !) -> #
-    <> $it + 1 -> #
+    <> $ + 1 -> #
   end placeQueen
 
   @: { freeRows: [1..$n -> 1],
@@ -38,9 +38,9 @@ templates queens
   1 -> placeQueen -> (<1> $@queens.queenRows ! <> 'non-existent'!)!
 end queens
 
-'A solution to the 8 queens problem is $(8 -> queens)
+'A solution to the 8 queens problem is $:8 -> queens;
 ' -> !OUT::write
-'A solution to the 4 queens problem is $(4 -> queens)
+'A solution to the 4 queens problem is $:4 -> queens;
 ' -> !OUT::write
-'A solution to the 3 queens problem is $(3 -> queens)
+'A solution to the 3 queens problem is $:3 -> queens;
 ' -> !OUT::write

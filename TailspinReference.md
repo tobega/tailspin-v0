@@ -10,15 +10,19 @@ _Current limitations_: The current implementation cannot handle very deep recurs
 A typical tailspin statement starts with a [source](#sources) for a value,
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
 (a.k.a a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you can append an
-exclamation point `!` to emit the resulting value. The current value, referred to as `$it`, at each
+exclamation point `!` to emit the resulting value into the outer calling context.
+
+The _current value_, referred to as "it" and written as `$`, at each
 stage is simply the value produced by the stage before. At the start of a top-level statement,
-`$it` is undefined.
+`$` is undefined.
 
-A transform is typically a [templates](#templates) object where the block to be executed is
-decided by a [matcher](#matchers) on the current value (referred to as `$it`).
+A transform is a function which only takes one value as input (the _current value_) and can emit a
+variable amount of values, even no value at all, into the [stream](#streams). It is typically a [literal expression](#sources)
+to create a different value or a defined [templates](#templates) object where the block to be executed is
+decided by a [matcher](#matchers) condition on the _current value_.
 
-Note that at each step of a value chain, any number of values may be emitted for each input value.
-If no values are emitted from a step, the processing of that value chain ends.
+Note that at each step of a _value chain_, any number of values may be emitted for each input value.
+If no values are emitted from a step, the processing of that _value chain_ ends.
 
 Whitespace works as a separator but is ignored.
 
@@ -29,7 +33,7 @@ Comments are started with `//` and continue to the end of the line.
 
 ## Side effects
 The current specification is that each step of a _value chain_ is executed
-for all of the values of a stream `$it` before the next step is evaluated. This may change.
+for all of the values of a stream `$` before the next step is evaluated. This may change.
 
 ## Command line arguments
 Command line arguments are available as a list of strings in the predefined value args, accessible as `$args`.
@@ -50,8 +54,12 @@ what the symbol identified as `name` currently is defined as. If you need a doll
 just double it up, e.g. `'The price is $$5'`. If you need a semi-colon in your string right after your
 identifier, you need to double it up, e.g. `Hello $name;;`.
 
-Interpolation can also execute a _value chain_ by putting it in parenthesis after the dollar sign,
-e.g. `The total price is $$ $($itemPrice * $quantity)`.
+Interpolating the _current value_ simply becomes `$;`. In cases where you don't want to use the _current value_,
+or can't because you're at the top level, and you don't want to access a defined value, you can put a colon
+right after the dollar sign, e.g. `'$:5*8;'` gives you the string `'40'`
+
+Interpolation can also execute a _value chain_ by adding transforms, even sending to templates if in a templates context,
+e.g. `The total price is $$ $ -> $ * $quantity;` or `$:1..3 -> #`.
 
 ### Arithmetic expression
 The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference).
@@ -106,7 +114,7 @@ A symbol may not change its value in the same scope, but it may be shadowed in a
 Note that templates have a modifiable state value that can be dereferenced, see [templates state](#templates-state)
 
 ## Sinks
-A sink is a place where a value "disappears" and the value chain ends.
+A sink is a place where a value "disappears" and the _value chain_ ends.
 
 A symbol definition (or a state modification) has a semi-colon `;` at the end that could be considered to be a sink captures the value into the symbol (or state).
 
@@ -128,13 +136,13 @@ elsewhere in the program, so it is not really a sink as such.
 Note also that emitting a value does not end the execution of the templates block and you are free to emit multiple values.
 
 ## Transforms
-Transforms take the current value (or each value separately from a [stream](#streams)) and convert
+Transforms take the _current value_ (or each value separately from a [stream](#streams)) and convert
 it into another value (or no value, or a stream of values) that is then passed to the next stage in the
 chain, to ultimately end up in a [sink](#sinks).
 
 ### Literal transform
 The preferred tailspin way to create new things is by a declarative literal expression. Most of the things
-listed as [sources](#sources) qualify as transforms if they reference the _current value_ `$it`.
+listed as [sources](#sources) qualify as transforms if they reference the _current value_ `$`.
 
 ### Deconstructor
 A deconstructor is a transform that works on [arrays](#arrays) by flowing the elements out of an array
@@ -144,13 +152,13 @@ into a [stream](#streams), e.g. `[4,7,9]...` will create a stream of the values 
 A templates object consists of an optional _initial block_ and an optional sequence of [matchers](#matchers),
 each with a _block_. A matcher block can be just the word `void`, which indicates that nothing should happen for this case.
 
-A block is simply a series of value chains that either dry up, with no value for the next stage;
+A block is simply a series of _value chains_ that either dry up, with no value for the next stage;
 produce a value (or several) that gets emitted out of the template (by `!`); sends a value to a [sink](#sinks); or,
 most important, by the `#` marker, __sends a value to the [matchers](#matchers)__
 
 The initial block is executed with the value passed into the template accessible as the
-current value, `$it`, at the beginning of each chain. If no initial block is provided, the current
-value is sent to the [matchers](#matchers).
+_current value_, `$`, at the beginning of each chain. If no initial block is defined, the current
+value is sent to the [matchers](#matchers) as if the initial block was just the statement `$ -> #`.
 
 You cannot have an empty match block nor an empty templates object, but you can specify `void` as a do-nothing action.
 
@@ -162,7 +170,7 @@ The definition starts with `templates _identifier_` and ends with `end _identifi
 is the name you wish to assign, e.g.
 ```
 templates add1
-  $it + 1
+  $ + 1
 end add1
 ```
 
@@ -170,7 +178,7 @@ Defined templates can have parameters that vary the way they execute. Parameters
 by an at-sign and a list of keys inside braces (similar to a structure literal), and are dereferenced as defined values, e.g.
 ```
 templates add@{addend:}
-  $it + $addend
+  $ + $addend
 end add
 ```
 
@@ -180,15 +188,15 @@ where the keys in the structure must match the defined parameters, e.g. with the
 
 #### Inline templates
 Templates can be defined inline by just wrapping a templates body in parentheses, e.g.
-`$it -> (<0> 'zero')` will output `zero` if `$it` was `0`
+`$ -> (<0> 'zero'!)` will output `zero` if `$` was `0` (but will not output anything at all otherwise)
 
 #### Array templates
 Array templates is a convenient way to process [array](#arrays) elements individually together with
 their index in the array. They are created by prefixing an [inline templates](#inline-templates)
 definition with an identifier for the index within brackets,
-e.g. `[4,5,6] -> [i]($it + $i)` will produce the value `[5,7,9]`.
+e.g. `[4,5,6] -> [i]($ + $i)` will produce the value `[5,7,9]`.
 Multiple dimensions also work, provided that the array structure has at least as many dimensions as specified.
-e.g `[[1,2,3],[4,5,6]] -> [i,j]($it * $i + $j)` gives `[[2,4,6],[9,12,15]]`
+e.g `[[1,2,3],[4,5,6]] -> [i,j]($ * $i + $j)` gives `[[2,4,6],[9,12,15]]`
 
 ### Composer
 A composer takes a string and composes it into other objects according to the specified pattern.
@@ -229,7 +237,7 @@ Several exclusive choices can be specified for a composition matcher, separated 
 A composition matcher (or a composed array or structure) can be sent through a series of [transforms](#transforms) to convert the parsed value, e.g.
 ```
 templates minutes
-  $it.h * 60 + $it.m !
+  $.h * 60 + $.m !
 end minutes
 composer time
   { h: <hour>, (<' and '>) m: <minute> } -> minutes
@@ -242,8 +250,8 @@ will print "73"
 
 ## Matchers
 A matcher is a condition enclosed by angle brackets. A sequence of matchers is evaluated from the
-start to the end, where the first matcher that matches the current value will have its block
-executed for that current value.
+start to the end, where the first matcher that matches the _current value_ will have its block
+executed for that _current value_.
 * Empty condition always matches `<>`
 * Value equals, a [dereferenced value](#dereference) matches according to standard rules of equality
 * Numeric condition, [arithmetic expression](#arithmetic-expression) matches if equal, e.g. `<5>` for "equals 5"
@@ -276,12 +284,12 @@ A matcher block can be simply the word `void` to indicate this case.
 ### Such-that conditions
 Sometimes you want to match relations between parts of a structure or values at certain array positions, then you can
 use a number of such-that conditions either after or instead of the main condition. E.g.
-* Array where first and second elements are equal: `<[]?($it(1)<$it(2)>)>`
-* Structure where the elements obey the relation a <= b <= c: `<?($it.a<..$it.b>)?($it.b<..$it.c>)>`
+* Array where first and second elements are equal: `<[]?($(1)<$(2)>)>`
+* Structure where the elements obey the relation a <= b <= c: `<?($.a<..$.b>)?($.b<..$.c>)>`
 
 Such-that conditions can also be applied to transforms of the value. Note that those transforms must yield a single value for matching.
 
-Note that a such-that conditions shifts the focus so that `$it` becomes the thing being matched. This makes no difference at
+Note that a such-that conditions shifts the focus so that `$` becomes the thing being matched. This makes no difference at
 the top level but matters in nested such-thats.
 
 ## Templates state
@@ -311,7 +319,7 @@ Slightly different things happen depending on what type of object is used as a c
  * An array: append the stream to the end of the array.
  
 ### Delete operator
-The delete operator, `^`, can be applied to the state to remove either the entire state or parts of it. The current value of
+The delete operator, `^`, can be applied to the state to remove either the entire state or parts of it. The value of
 the removed entity is used as a [source](#sources). E.g. if @ is `[4,5,6]` then `^@(1)` will produce `4` and leave
 @ as `[5,6]`
 
@@ -326,29 +334,32 @@ Streams can be captured into a string by surrounding them in a [string literal](
 
 Streams of [key-value pairs](#keyed-values) can be captured in a [structure literal](#structure-literal).
 
+A stream can dry up when there are no values output at all from a processing stage and then no further processing is
+done in the current _value chain_.
+
 ## Arrays
 Arrays are an ordered list of objects that can be turned into a [stream](#streams) by a [deconstructor](#deconstructor).
 
-To access elements of an array, append a selector within parentheses, e.g. `$it(3)` to get the third element of the current array value.
+To access elements of an array, append a selector within parentheses, e.g. `$(3)` to get the third element of the current array value.
 The first element of an array has selector `1`. Elements can also be selected counting from the end
 of the array by negative selectors, e.g. the last element of an array can be accessed by selector `-1`.
 
 A new array can be created by selecting from an existing array by a [range literal](#range-literal).
 Negative start or end values are interpreted as from the end of the array.
-E.g. `$it(2..-2:3)` would select every third element starting at the second element and ending on or before
+E.g. `$(2..-2:3)` would select every third element starting at the second element and ending on or before
 the second last element. As usual, you can leave out the increment which defaults to 1.
 
-A new array can be created by selecting from an existing array with an array, e.g. `$it([3,1,5])`
+A new array can be created by selecting from an existing array with an array, e.g. `$([3,1,5])`
 would select the third element, followed by the first element and last the fifth element.
 
 All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semi-colon `;`, e.g.
-`$it(1..3; 2)` to select the second element of each of the first three dimensions (returns a one-dimensional array of size 3,
+`$(1..3; 2)` to select the second element of each of the first three dimensions (returns a one-dimensional array of size 3,
 although the elements could be arrays). Selecting only a few dimensions will select everything from the remaining dimensions
 as a new array, but you cannot dereference it immediately in the same step.
 
 It is an error to select elements outside the range of a dimension. However, impossible ranges are legal but result in an empty array.
 In particular, zero is allowed in both the start and end of a range to always give an empty result,
-to cater for using length as the end index `$it(1..$it::length)` when length is zero and taking the tail of the array after the last index, e.g. `$a($it+1..-1)` when _it_ is _-1_.
+to cater for using length as the end index `$(1..$::length)` when length is zero and taking the tail of the array after the last index, e.g. `$a($+1..-1)` when _it_ is _-1_.
 
 An array is a built-in processor that responds to the following messages:
 * `::length` returns the length of the first dimension.
@@ -356,7 +367,7 @@ An array is a built-in processor that responds to the following messages:
 ## Structures
 A structure is a collection of named values without any inherent order. The field values of a structure
 can be accessed by appending a dot and the field key identifier to the [dereference](#dereference) of the structure.
-E.g. if the structure `{ a: 1 }` is the _current value_, the value `1` can be accessed by `$it.a`.
+E.g. if the structure `{ a: 1 }` is the _current value_, the value `1` can be accessed by `$.a`.
 
 ### Keyed values
 A structure can be [deconstructed](#deconstructor) into a stream of keyed values (or key-value pairs).
@@ -383,7 +394,7 @@ By convention, a processor definition should have an identifier starting with a 
 
 ### Messages
 A message is sent to a processor by getting a reference to the processor and appending two colons and the message identifier,
-e.g. `$it::length` to get the length of an array that is the _current value_.
+e.g. `$::length` to get the length of an array that is the _current value_.
 
 Processor messages are implemented as [defined templates](#defined-templates) within the processor which then
 run within the scope of the processor instance. Therefore messages can also take parameters.

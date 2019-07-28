@@ -14,7 +14,7 @@ import tailspin.Tailspin;
 class Streams {
   @Test
   void iterate() throws IOException {
-    String program = "1..3 -> 'a $it; ' -> !OUT::write";
+    String program = "1..3 -> 'a $; ' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -27,7 +27,7 @@ class Streams {
 
   @Test
   void iterateIncrement() throws IOException {
-    String program = "1..6:2 -> 'a $it; ' -> !OUT::write";
+    String program = "1..6:2 -> 'a $; ' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -40,7 +40,7 @@ class Streams {
 
   @Test
   void iterateBackwards() throws IOException {
-    String program = "3..1:-1 -> 'a $it; ' -> !OUT::write";
+    String program = "3..1:-1 -> 'a $; ' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -53,7 +53,7 @@ class Streams {
 
   @Test
   void iterateZeroIncrementIllegal() {
-    String program = "1..3:0 -> 'a $it; ' -> !OUT::write";
+    String program = "1..3:0 -> 'a $; ' -> !OUT::write";
     try {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -68,7 +68,7 @@ class Streams {
 
   @Test
   void iterateTransformLimit() throws IOException {
-    String program = "5 -> 1..$it -> !OUT::write";
+    String program = "5 -> 1..$ -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -81,7 +81,7 @@ class Streams {
 
   @Test
   void iterateTransformIncrement() throws IOException {
-    String program = "5 -> 10..20:$it -> !OUT::write";
+    String program = "5 -> 10..20:$ -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -94,7 +94,7 @@ class Streams {
 
   @Test
   void iterateExclusiveStart() throws IOException {
-    String program = "1~..3 -> 'a $it; ' -> !OUT::write";
+    String program = "1~..3 -> 'a $; ' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -107,7 +107,7 @@ class Streams {
 
   @Test
   void iterateExclusiveEnd() throws IOException {
-    String program = "1..~3 -> 'a $it; ' -> !OUT::write";
+    String program = "1..~3 -> 'a $; ' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -120,7 +120,7 @@ class Streams {
 
   @Test
   void iterateExclusiveBoth() throws IOException {
-    String program = "1~..~3 -> 'a $it; ' -> !OUT::write";
+    String program = "1~..~3 -> 'a $; ' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -133,7 +133,7 @@ class Streams {
 
   @Test
   void iterateNegativeBounds() throws IOException {
-    String program = "-3..-1 -> 'a $it; ' -> !OUT::write";
+    String program = "-3..-1 -> 'a $; ' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -146,7 +146,7 @@ class Streams {
 
   @Test
   void iterateNegativeStartBound() throws IOException {
-    String program = "-1..1 -> 'a $it; ' -> !OUT::write";
+    String program = "-1..1 -> 'a $; ' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -159,7 +159,7 @@ class Streams {
 
   @Test
   void iterateNegativeEndBound() throws IOException {
-    String program = "1..-1:-1 -> 'a $it; ' -> !OUT::write";
+    String program = "1..-1:-1 -> 'a $; ' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

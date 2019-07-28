@@ -4,7 +4,7 @@ end tokens
 
 templates replace@{a:,b:}
   <$a> $b !
-  <> $it !
+  <> $ !
 end replace
 
 '' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write

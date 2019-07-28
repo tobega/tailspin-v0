@@ -9,7 +9,7 @@ templates hexToInt
     <'[Aa]'> 10! <'[Bb]'> 11! <'[Cc]'> 12! <'[Dd]'> 13! <'[Ee]'> 14! <'[Ff]'> 15!
   end hexDigit
   @: 0;
-  $it... -> hexDigit -> @: $@ * 16 + $it;
+  $... -> hexDigit -> @: $@ * 16 + $;
   $@ !
 end hexToInt
 
@@ -18,7 +18,7 @@ composer jsonParser
   value: (<WS>?) <string|number|object|array|true|false|null> (<WS>?)
 
   string: (<'"'>) <chars>  (<'"'>)
-  chars: [ <quote|backslash|slash|backspace|formfeed|linefeed|return|tab|unicode|'[^"]'>* ] -> '$($it...)'
+  chars: [ <quote|backslash|slash|backspace|formfeed|linefeed|return|tab|unicode|'[^"]'>* ] -> '$...;'
   quote: <'\\"'> -> '"'
   backslash: <'\\\\'> -> '\'
   slash: <'\\/'> -> '/'
@@ -27,7 +27,7 @@ composer jsonParser
   linefeed: <'\\n'> -> '$#10;'
   return: <'\\r'> -> '$#13;'
   tab: <'\\t'> -> '$#9;'
-  unicode: (<'\\u'>) <'[0-9A-Fa-f]{4}'> -> hexToInt -> '$#$it;'
+  unicode: (<'\\u'>) <'[0-9A-Fa-f]{4}'> -> hexToInt -> '$#$;'
 
   number: <'-?(0|[1-9][0-9]*)(\.[0-9]+)?((e|E)(\+|-)?[0-9]+)?'> // TODO: represent this other than string
 
@@ -51,5 +51,5 @@ templates runAndVerify
   <> 0 !
 end runAndVerify
 
-1 -> harness/run@{name: 'Json', benchmark:runAndVerify} -> void
+1 -> harness/run@{name: 'Json', benchmark:runAndVerify} -> !VOID
 
