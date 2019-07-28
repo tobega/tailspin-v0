@@ -103,7 +103,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     try {
       Tailspin dep = Tailspin.parse(Files.newInputStream(depPath));
       @SuppressWarnings("unchecked")
-      List<String> args = (List<String>) scope.resolveValue("args");
+      List<String> args = (List<String>) scope.resolveValue("ARGS");
       // deps should not read from input
       ByteArrayInputStream emptyInput = new ByteArrayInputStream(new byte[0]);
       BasicScope depScope = dep.run(scope.basePath(), emptyInput, scope.getOutput(), args);

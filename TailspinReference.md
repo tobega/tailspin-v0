@@ -36,7 +36,7 @@ The current specification is that each step of a _value chain_ is executed
 for all of the values of a stream `$` before the next step is evaluated. This may change.
 
 ## Command line arguments
-Command line arguments are available as a list of strings in the predefined value args, accessible as `$args`.
+Command line arguments are available as a list of strings in the predefined value ARGS, accessible as `$ARGS`.
 
 ## Sources
 A source is the simplest _value chain_, simply producing a value.

@@ -99,7 +99,7 @@ public class BasicScope implements Scope {
   List<Map.Entry<String, Object>> getExportedDefinitions() {
     return definitions.entrySet().stream()
         .filter(e -> !e.getKey().contains("/"))
-        .filter(e -> !e.getKey().equals("args"))
+        .filter(e -> !e.getKey().equals("ARGS"))
         .filter(e -> !e.getKey().equals("SYS"))
         .collect(Collectors.toList());
   }

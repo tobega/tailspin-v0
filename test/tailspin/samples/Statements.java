@@ -227,7 +227,7 @@ class Statements {
 
   @Test
   void commandLineArgs() throws Exception {
-    String program = "$args -> !OUT::write";
+    String program = "$ARGS -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

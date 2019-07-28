@@ -24,8 +24,8 @@ templates run@{name:, benchmark:}
   'Starting $name; benchmark ...
 ' -> !OUT::write
   @: 0;
-  def specs: { iterations: $args::length -> (<1..> $args(1) -> toInt ! <> 1!),
-               innerIterations: $args::length -> (<2..> $args(2) -> toInt ! <> 1!)
+  def specs: { iterations: $ARGS::length -> (<1..> $ARGS(1) -> toInt ! <> 1!),
+               innerIterations: $ARGS::length -> (<2..> $ARGS(2) -> toInt ! <> 1!)
              };
   1..$specs.iterations -> ($specs.innerIterations -> measure -> !VOID) -> !VOID
   '$name;: iterations=$specs.iterations; average: $:$@run / $specs.iterations;us total: $@run;us

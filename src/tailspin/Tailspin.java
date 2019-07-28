@@ -57,7 +57,7 @@ public class Tailspin {
   public BasicScope run(Path basePath, InputStream input, OutputStream output, List<String> args) {
     // System.out.println(program.toStringTree());
     BasicScope scope = new BasicScope(input, output, basePath);
-    scope.defineValue("args", args);
+    scope.defineValue("ARGS", args);
     scope.defineValue("SYS", new SystemProcessor(scope));
     scope.defineValue("IN", new StdinProcessor(scope));
     scope.defineValue("OUT", new StdoutProcessor(scope));
