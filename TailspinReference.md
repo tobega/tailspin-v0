@@ -118,7 +118,7 @@ A sink is a place where a value "disappears" and the _value chain_ ends.
 
 A symbol definition (or a state modification) has a semi-colon `;` at the end that could be considered to be a sink captures the value into the symbol (or state).
 
-`-> void` is a special sink which is used to ignore the values from a chain (or to mark that the chain is not expected to produce values).
+`-> !VOID` is a special sink which is used to ignore the values from a chain (or to mark that the chain is not expected to produce values).
 
 Defined sinks are accessed by prepending the identifier reference with an exclamation point `!` (instead of the `$` otherwise used).
 
@@ -150,7 +150,7 @@ into a [stream](#streams), e.g. `[4,7,9]...` will create a stream of the values 
  
 ### Templates
 A templates object consists of an optional _initial block_ and an optional sequence of [matchers](#matchers),
-each with a _block_. A matcher block can be just the word `void`, which indicates that nothing should happen for this case.
+each with a _block_. A matcher block can be just the word `!VOID`, which indicates that nothing should happen for this case.
 
 A block is simply a series of _value chains_ that either dry up, with no value for the next stage;
 produce a value (or several) that gets emitted out of the template (by `!`); sends a value to a [sink](#sinks); or,
@@ -160,7 +160,7 @@ The initial block is executed with the value passed into the template accessible
 _current value_, `$`, at the beginning of each chain. If no initial block is defined, the current
 value is sent to the [matchers](#matchers) as if the initial block was just the statement `$ -> #`.
 
-You cannot have an empty match block nor an empty templates object, but you can specify `void` as a do-nothing action.
+You cannot have an empty match block nor an empty templates object, but you can specify `!VOID` as a do-nothing action.
 
 Inside a templates object, sending to templates can be used as an additional type of _value chain_ for most value productions.
 
@@ -279,7 +279,7 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
 
 ### Do-nothing block (guard clause)
 Sometimes it is easier or clearer to specify conditions which you don't want to do anything with.
-A matcher block can be simply the word `void` to indicate this case.
+A matcher block can be simply the word `!VOID` to indicate this case.
   
 ### Such-that conditions
 Sometimes you want to match relations between parts of a structure or values at certain array positions, then you can
