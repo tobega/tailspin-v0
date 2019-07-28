@@ -9,5 +9,5 @@ templates sayWords
   $input.words... -> maybeSay !
 end sayWords
 
-[ 1..$input.N -> '$sayWords;' ] -> [i](<''> $i ! <> $ !) -> '$;
+[ 1..$input.N -> '$->sayWords;' ] -> [i](<''> $i ! <> $ !) -> '$;
 ' -> !OUT::write

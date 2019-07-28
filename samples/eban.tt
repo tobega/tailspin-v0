@@ -1,18 +1,18 @@
 // An eban number is a number that does not contain any letter 'e' when written out in american english
 // Only numbers below one sextillion are considered
 
-templates isEban
+templates isEban1
   def number: $;
   '$;' -> (<'([246]|[3456][0246])(0[03456][0246])*$$'> $ !) -> $number !
-end isEban
+end isEban1
 
 //Alternatively with numbers
-templates isEban2
+templates isEban
   def number: $;
   $ -> (<1..> $!) -> #
   <0> $number !
   <?($ mod 1000 <0|2|4|6|30..66?($ mod 10 <0|2|4|6>)>)> $ / 1000 -> #
-end isEban2
+end isEban
 
 def small: [1..1000 -> isEban];
 $small -> !OUT::write
