@@ -59,7 +59,9 @@ or can't because you're at the top level, and you don't want to access a defined
 right after the dollar sign, e.g. `'$:5*8;'` gives you the string `'40'`
 
 Interpolation can also execute a _value chain_ by adding transforms, even sending to templates if in a templates context,
-e.g. `The total price is $$ $ -> $ * $quantity;` or `$:1..3 -> #`.
+e.g. `The total price is $$ $ -> $ * $quantity;` or `$:1..3 -> #`. Note that when you evaluate a [processor message](#processors),
+you can reference it directly, like `'$p::message;'` if the message does not require input, otherwise you need to use it as a transform,
+that is like `'$->$p::message;'`.
 
 ### Arithmetic expression
 The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference).

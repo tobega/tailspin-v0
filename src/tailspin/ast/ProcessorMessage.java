@@ -12,12 +12,14 @@ import tailspin.interpreter.Scope;
 import tailspin.types.ProcessorInstance;
 
 public class ProcessorMessage implements Expression {
+  private final boolean asTransform;
   private final DereferenceValue dereferenceValue;
   private final String message;
   private final Map<String, Value> parameters;
 
-  public ProcessorMessage(DereferenceValue dereferenceValue, String message,
+  public ProcessorMessage(boolean asTransform, DereferenceValue dereferenceValue, String message,
       Map<String, Value> parameters) {
+    this.asTransform = asTransform;
     this.dereferenceValue = dereferenceValue;
     this.message = message;
     this.parameters = parameters;
@@ -29,7 +31,7 @@ public class ProcessorMessage implements Expression {
         .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().evaluate(it, scope)))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     Object receiver = oneValue(dereferenceValue.run(it, scope));
-    return sendMessage(receiver, resolvedParams, it);
+    return sendMessage(receiver, resolvedParams, asTransform ? it : null);
   }
 
   private Queue<Object> sendMessage(Object receiver, Map<String, Object> resolvedParams, Object it) {
