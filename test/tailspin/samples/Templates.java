@@ -882,4 +882,42 @@ class Templates {
 
     assertEquals("6", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void source() throws Exception {
+    String program =
+        "source nums\n1..3 !\nend nums\n"
+            + "$nums -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("123", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void sink() throws Exception {
+    String program =
+        "sink decorate\n'=$;=' -> !OUT::write\nend decorate\n"
+            + "1..3 -> !decorate";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("=1==2==3=", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void noMessageToDeleteReference() {
+    String program =
+        "templates bad\n@: [$];\n^@::length !\nend bad\n"
+            + "1 -> bad -> !OUT::write";
+    assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
 }

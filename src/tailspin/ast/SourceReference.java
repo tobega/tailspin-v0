@@ -1,21 +1,20 @@
 package tailspin.ast;
 
+import java.util.Map;
 import java.util.Queue;
 import tailspin.interpreter.Scope;
 import tailspin.interpreter.Transform;
 
-public class DereferenceValue implements Expression {
+public class SourceReference implements Expression {
   private final Reference reference;
-  private final boolean isDelete;
 
-  public DereferenceValue(Reference reference, boolean isDelete) {
+  public SourceReference(Reference reference) {
     this.reference = reference;
-    this.isDelete = isDelete;
   }
 
   @Override
   public Queue<Object> run(Object it, Scope scope) {
-    Object value = isDelete ? reference.deleteValue(it, scope) : reference.getValue(it, scope);
+    Object value = reference.getValue(it, scope);
     if (value == null) {
       throw new NullPointerException("No value defined for " + reference);
     }
@@ -23,7 +22,7 @@ public class DereferenceValue implements Expression {
       value = Reference.copy(value);
     }
     if (value instanceof Transform) {
-      throw new IllegalStateException("Attempt to dereference transform " + reference);
+      return ((Transform) value).run(null, Map.of());
     }
     return Expression.queueOf(value);
   }

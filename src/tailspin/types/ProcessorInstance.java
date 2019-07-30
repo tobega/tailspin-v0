@@ -1,10 +1,9 @@
 package tailspin.types;
 
 import java.util.Map;
-import java.util.Queue;
+import tailspin.interpreter.CurriedTemplates;
 import tailspin.interpreter.Scope;
 import tailspin.interpreter.Transform;
-import tailspin.interpreter.TransformCall;
 
 public class ProcessorInstance {
   final Scope scope;
@@ -13,9 +12,11 @@ public class ProcessorInstance {
     this.scope = scope;
   }
 
-  public Queue<Object> receiveMessage(String message, Object it,
-      Map<String, Object> parameters) {
+  public Transform resolveMessage(String message, Map<String, Object> parameters) {
     Transform transform = (Transform) scope.resolveValue(message);
-    return new TransformCall(transform, parameters).run(it, Map.of());
+    if (transform == null) {
+      throw new NullPointerException("Unknown message " + message);
+    }
+    return new CurriedTemplates(transform, parameters);
   }
 }

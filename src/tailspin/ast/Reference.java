@@ -9,11 +9,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
 
-public abstract class Reference {
+public abstract class Reference implements Value {
   public abstract Object getValue(Object it, Scope scope);
   public abstract Object deleteValue(Object it, Scope scope);
   public abstract boolean isMutable();
   public abstract void setValue(Queue<Object> value, Object it, Scope scope);
+
+  @Override
+  public Object evaluate(Object it, Scope scope) {
+    return getValue(it, scope);
+  }
 
   public Reference field(String fieldIdentifier) {
     return new FieldReference(this, fieldIdentifier);

@@ -6,15 +6,15 @@ import tailspin.interpreter.Scope;
 import tailspin.interpreter.Transform;
 
 public class TemplatesCall implements Expression {
-  private final TemplatesReference templatesReference;
+  private final Reference templatesReference;
 
-  public TemplatesCall(TemplatesReference templatesReference) {
+  public TemplatesCall(Reference templatesReference) {
     this.templatesReference = templatesReference;
   }
 
   @Override
   public Queue<Object> run(Object it, Scope blockScope) {
-    Transform transform = templatesReference.evaluate(it, blockScope);
+    Transform transform = (Transform) templatesReference.getValue(it, blockScope);
     return transform.run(it, Map.of());
   }
 }

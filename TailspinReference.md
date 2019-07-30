@@ -115,6 +115,15 @@ A symbol may not change its value in the same scope, but it may be shadowed in a
 
 Note that templates have a modifiable state value that can be dereferenced, see [templates state](#templates-state)
 
+### Defined sources
+Sometimes you would like to just output a value from a [processor](#processors) or perform some complex operation without needing any particular input.
+In such a case you can define a source, which is very much like a [defined template](#defined-templates) except that
+the declaration starts with the word `source` instead.
+
+A defined source must, of course, have an _initial block_ and will not have any valid value for the _current value_ at the start of each statement.
+
+A defined source is called by dereferencing the given identifier with a dollar sign, e.g. `$mySource`.
+
 ## Sinks
 A sink is a place where a value "disappears" and the _value chain_ ends.
 
@@ -122,13 +131,22 @@ A symbol definition (or a state modification) has a semi-colon `;` at the end th
 
 `-> !VOID` is a special sink which is used to ignore the values from a chain (or to mark that the chain is not expected to produce values).
 
-Defined sinks are accessed by prepending the identifier reference with an exclamation point `!` (instead of the `$` otherwise used).
-
-To produce output from your program, see [the system objects](#the-system-objects), e.g. `OUT`
+Some [sinks are defined](#defined-sinks) by the programmer. Others are defined by the system, e.g. to produce output from your program. See [the system objects](#the-system-objects), e.g. `OUT`
 
 Sinks often entail [side effects](#side-effects)
 
 In templates, there is a special sink that sets the [templates state](#templates-state).
+
+### Defined sinks
+Sometimes you would like to process a value before sending it to other sinks, e.g. the state of the surrounding [processor](#processors),
+or the surrounding [templates state](#templates-state), or just process a value before writing it to output.
+
+In such a case you can define a sink, which is very much like a [defined template](#defined-templates) except that
+the declaration starts with the word `sink` instead.
+
+A defined sink may not emit any values.
+
+Defined sinks are called by prepending the identifier reference with an exclamation point `!` (instead of the `$` otherwise used).
 
 ### Emit value
 Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
@@ -155,7 +173,7 @@ A templates object consists of an optional _initial block_ and an optional seque
 each with a _block_. A matcher block can be just the word `!VOID`, which indicates that nothing should happen for this case.
 
 A block is simply a series of _value chains_ that either dry up, with no value for the next stage;
-produce a value (or several) that gets emitted out of the template (by `!`); sends a value to a [sink](#sinks); or,
+produce a value (or several) that gets [emitted](#emit-value) out of the template (by `!`); sends a value to a [sink](#sinks); or,
 most important, by the `#` marker, __sends a value to the [matchers](#matchers)__
 
 The initial block is executed with the value passed into the template accessible as the
@@ -183,6 +201,11 @@ templates add@{addend:}
   $ + $addend
 end add
 ```
+
+Templates are normally called as [transforms](#transforms) by just writing the identifier after an arrow "-> myTemplates",
+which will send the _current value_ at that point in the chain as input to the templates. Note that it is currently not an error
+to refuse to use the input _current value_ but such templates should preferably be called a [source](#defined-sources) instead
+and accessed as such.
 
 To call templates with parameters, set the values after the identifier by an at-sign and a [structure literal](#structure-literal)
 where the keys in the structure must match the defined parameters, e.g. with the above definition
@@ -380,10 +403,12 @@ To send the keyed value through a transform, put it in parentheses, so `(a: 1) -
 
 ## Processors
 A processor is an object that is more complex than simply data. It would normally have some
-state that could possibly change. To interact with processors, you send [messages](#messages) to them.
+state that is kept over time (several accesses) and could possibly change.
+The processor object itseelf can be obtained and passed around as a value by dereferencing the associated identifier/state.
+To interact with the defined templates/sources/sinks of processors, you send [messages](#messages) to them.
 
 Internally in the processor, state is accessed like the [local state of templates](#templates-state), but with the processor name.
-The processor state is, however, permanent as long as the processor object is retaned.
+The processor state is, however, permanent as long as the processor object is retained.
 
 A processor definition looks similar to a templates object but the definition starts with the word `processor` instead.
 Also, there are no match templates. The initial block is used to define state and values for the processor instance
@@ -396,9 +421,10 @@ By convention, a processor definition should have an identifier starting with a 
 
 ### Messages
 A message is sent to a processor by getting a reference to the processor and appending two colons and the message identifier,
-e.g. `$::length` to get the length of an array that is the _current value_.
+e.g. `$::length` to get the length of an array that is the _current value_. Note that the reference shoult be prepended with `$`
+if the message represents a source, with `!` if the message represents a sink and with nothing if it is a transform template.
 
-Processor messages are implemented as [defined templates](#defined-templates) within the processor which then
+Processor messages are implemented as [defined templates](#defined-templates), [defined sources](#defined-sources) or [defined sinks](#defined-sinks) within the processor which then
 run within the scope of the processor instance. Therefore messages can also take parameters.
 
 ## The System objects

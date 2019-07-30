@@ -2,13 +2,14 @@ package tailspin.interpreter;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import tailspin.ast.Expression;
 
 class DereferenceSubComposer implements SubComposer {
-  private final String identifier;
+  private final Expression source;
   private final Scope scope;
 
-  DereferenceSubComposer(String identifier, Scope scope) {
-    this.identifier = identifier;
+  DereferenceSubComposer(Expression source, Scope scope) {
+    this.source = source;
     this.scope = scope;
   }
 
@@ -19,9 +20,7 @@ class DereferenceSubComposer implements SubComposer {
 
   @Override
   public Queue<Object> getValues() {
-    Queue<Object> result = new ArrayDeque<>();
-    result.add(scope.resolveValue(identifier));
-    return result;
+    return new ArrayDeque<>(source.run(null, scope));
   }
 
   @Override

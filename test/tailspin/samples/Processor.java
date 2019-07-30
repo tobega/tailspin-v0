@@ -21,7 +21,7 @@ class Processor {
             + "end add\n"
             + "end Holder\n"
             + "def five: 5 -> Holder;\n"
-            + "1..3 -> $five::add -> !OUT::write";
+            + "1..3 -> five::add -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -65,7 +65,7 @@ class Processor {
             + "end Holder\n"
             + "def five: 5 -> Holder;\n"
             + "templates good\n"
-            + "  $->$five::add !\n"
+            + "  $->five::add !\n"
             + "end good\n"
             + "1..3 -> good -> !OUT::write";
     Tailspin runner =
@@ -79,6 +79,30 @@ class Processor {
   }
 
   @Test
+  void noThisAccessAtStartOfChainOK() throws Exception {
+    String program =
+        "processor Holder\n"
+            + "@: $;\n"
+            + "templates value\n"
+            + "  $@Holder !\n"
+            + "end value\n"
+            + "end Holder\n"
+            + "def five: 5 -> Holder;\n"
+            + "templates good\n"
+            + "  $five::value !\n"
+            + "end good\n"
+            + "1..3 -> good -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("555", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void stringInterpolateMessage() throws Exception {
     String program =
         "processor Holder\n"
@@ -88,7 +112,7 @@ class Processor {
             + "end add\n"
             + "end Holder\n"
             + "def five: 5 -> Holder;\n"
-            + "1..3 -> '$->$five::add;' -> !OUT::write";
+            + "1..3 -> '$->five::add;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -112,7 +136,7 @@ class Processor {
             + "end do\n"
             + "end Holder\n"
             + "def addFive: 5 -> Holder@{op:add};\n"
-            + "1..3 -> $addFive::do -> !OUT::write";
+            + "1..3 -> addFive::do -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -136,7 +160,7 @@ class Processor {
             + "end do\n"
             + "end Holder\n"
             + "def five: 5 -> Holder;\n"
-            + "1..3 -> $five::do@{op:add} -> !OUT::write";
+            + "1..3 -> five::do@{op:add} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -145,5 +169,47 @@ class Processor {
     runner.run(input, output, List.of());
 
     assertEquals("678", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void sink() throws Exception {
+    String program =
+        "processor Holder\n"
+            + "@: $;\n"
+            + "sink add\n"
+            + "  $ + $@Holder -> !OUT::write\n"
+            + "end add\n"
+            + "end Holder\n"
+            + "def five: 5 -> Holder;\n"
+            + "1..3 -> !five::add";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("678", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void source() throws Exception {
+    String program =
+        "processor Holder\n"
+            + "@: $;\n"
+            + "source value\n"
+            + "  $@Holder !\n"
+            + "end value\n"
+            + "end Holder\n"
+            + "def five: 5 -> Holder;\n"
+            + "1..3 -> $five::value -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("555", output.toString(StandardCharsets.UTF_8));
   }
 }

@@ -82,11 +82,17 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSource(TailspinParser.SourceContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#dereferenceValue}.
+	 * Visit a parse tree produced by {@link TailspinParser#sourceReference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitDereferenceValue(TailspinParser.DereferenceValueContext ctx);
+	T visitSourceReference(TailspinParser.SourceReferenceContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#deleteState}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDeleteState(TailspinParser.DeleteStateContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#reference}.
 	 * @param ctx the parse tree
@@ -111,12 +117,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitDimensionReference(TailspinParser.DimensionReferenceContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TailspinParser#message}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMessage(TailspinParser.MessageContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#arrayLiteral}.
 	 * @param ctx the parse tree
@@ -182,11 +182,11 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSink(TailspinParser.SinkContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#transformCall}.
+	 * Visit a parse tree produced by {@link TailspinParser#templatesReference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitTransformCall(TailspinParser.TransformCallContext ctx);
+	T visitTemplatesReference(TailspinParser.TemplatesReferenceContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#parameterValues}.
 	 * @param ctx the parse tree

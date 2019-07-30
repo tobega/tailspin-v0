@@ -18,7 +18,11 @@ To: '->';
 
 ResultMarker: '!';
 
-SinkReference: ResultMarker (DeleteState| At? IDENTIFIER?);
+SinkReference: ResultMarker (At IDENTIFIER? | IDENTIFIER);
+
+SourceReference: '$' At? IDENTIFIER?;
+
+DeleteState: '^' At IDENTIFIER?;
 
 At: '@';
 
@@ -38,8 +42,6 @@ Deconstructor: '...';
 
 Merge: '..|';
 
-DeleteState: '^' At IDENTIFIER?;
-
 Invert: '~';
 
 LeftParen: '(' -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
@@ -58,6 +60,10 @@ StartMatcher: '<';
 
 StartTemplatesDefinition: 'templates';
 
+StartSourceDefinition: 'source';
+
+StartSinkDefinition: 'sink';
+
 StartComposerDefinition: 'composer' ;
 
 StartProcessorDefinition: 'processor';
@@ -65,8 +71,6 @@ StartProcessorDefinition: 'processor';
 EndDefinition: 'end';
 
 TemplateMatch: '#';
-
-Dereference: '$' At? IDENTIFIER?;
 
 Range: '..';
 

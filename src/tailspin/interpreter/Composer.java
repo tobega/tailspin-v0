@@ -128,7 +128,7 @@ public class Composer implements Transform {
       return new AnySubComposer(resolveSpec(((AnyComposition) spec).compositionSpec, scope));
     }
     if (spec instanceof DereferenceComposition) {
-      return new DereferenceSubComposer(((DereferenceComposition) spec).identifier, scope);
+      return new DereferenceSubComposer(((DereferenceComposition) spec).source, scope);
     }
     if (spec instanceof CaptureComposition) {
       CaptureComposition captureComposition = (CaptureComposition) spec;
@@ -137,7 +137,7 @@ public class Composer implements Transform {
     }
     if (spec instanceof CountComposition) {
       CountComposition countSpec = (CountComposition) spec;
-      return new CountSubComposer(resolveSpec(countSpec.compositionSpec, scope), countSpec.count, countSpec.identifier, scope);
+      return new CountSubComposer(resolveSpec(countSpec.compositionSpec, scope), countSpec.count, scope);
     }
     if (spec instanceof Constant) {
       return new ConstantSubComposer(((Constant) spec).value);
@@ -243,10 +243,10 @@ public class Composer implements Transform {
   }
 
   static class DereferenceComposition implements CompositionSpec {
-    private final String identifier;
+    private final Expression source;
 
-    DereferenceComposition(String identifier) {
-      this.identifier = identifier;
+    DereferenceComposition(Expression source) {
+      this.source = source;
     }
   }
 
@@ -262,13 +262,11 @@ public class Composer implements Transform {
 
   static class CountComposition implements CompositionSpec {
     private final CompositionSpec compositionSpec;
-    private final Integer count;
-    private final String identifier;
+    private final Value count;
 
-    CountComposition(CompositionSpec compositionSpec, Integer count, String identifier) {
+    CountComposition(CompositionSpec compositionSpec, Value count) {
       this.compositionSpec = compositionSpec;
       this.count = count;
-      this.identifier = identifier;
     }
   }
 

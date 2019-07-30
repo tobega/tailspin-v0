@@ -10,7 +10,7 @@ dependency: Import stringLiteral;
 
 statement: Def key valueProduction SemiColon                  # definition
   | valueChain To sink                                   # valueChainToSink
-  | StartTemplatesDefinition identifier parameterDefinitions? templatesBody EndDefinition identifier # templatesDefinition
+  | (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) identifier parameterDefinitions? templatesBody EndDefinition identifier # templatesDefinition
   | StartProcessorDefinition identifier parameterDefinitions? block EndDefinition identifier # processorDefinition
   | StartComposerDefinition identifier composerBody EndDefinition identifier # composerDefinition
 ;
@@ -19,7 +19,8 @@ key: identifier Colon;
 
 parameterDefinitions: At LeftBrace (key Comma?)+ RightBrace;
 
-source: dereferenceValue
+source: sourceReference
+  | deleteState
   | stringLiteral
   | rangeLiteral
   | arrayLiteral
@@ -28,7 +29,9 @@ source: dereferenceValue
   | arithmeticExpression
 ;
 
-dereferenceValue: (Dereference|DeleteState) reference message?;
+sourceReference: SourceReference reference Message? parameterValues?;
+
+deleteState: DeleteState reference;
 
 reference: (LeftParen arrayReference RightParen)? structureReference*;
 
@@ -36,9 +39,7 @@ structureReference: FieldReference (LeftParen arrayReference RightParen)?;
 
 arrayReference: dimensionReference (SemiColon dimensionReference)*;
 
-dimensionReference: dereferenceValue|arithmeticExpression|rangeLiteral|arrayLiteral;
-
-message: Message (At parameterValues)?;
+dimensionReference: sourceReference|arithmeticExpression|rangeLiteral|arrayLiteral;
 
 arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valueProduction)* RightBracket;
 
@@ -48,24 +49,24 @@ structureLiteral: LeftBrace (keyValues (Comma keyValues)*)? RightBrace;
 
 keyValues: keyValue
   | valueProduction
-  | dereferenceValue
+  | sourceReference
 ;
 
 keyValue: key valueProduction;
 
 templates: source                        # literalTemplates
   | LeftParen templatesBody RightParen   # inlineTemplates
-  | transformCall                        # callDefinedTransform
+  | templatesReference                        # callDefinedTransform
   | LeftBracket identifier (Comma identifier)* RightBracket LeftParen templatesBody RightParen # arrayTemplates
 ;
 
-sink: (SinkReference reference message?) | Void;
+sink: (SinkReference reference Message? parameterValues?) | Void;
 
-transformCall: identifier (At parameterValues)?;
+templatesReference: identifier reference Message? parameterValues?;
 
-parameterValues: LeftBrace (parameterValue Comma?)+ RightBrace;
+parameterValues: At LeftBrace (parameterValue Comma?)+ RightBrace;
 
-parameterValue: key (valueChain|transformCall);
+parameterValue: key (valueChain|templatesReference);
 
 templatesBody: block matchTemplate*
   | matchTemplate+
@@ -99,7 +100,7 @@ matcher: StartMatcher condition (Else condition)* EndMatcher;
 
 condition: typeMatch? suchThat*;
 
-typeMatch: dereferenceValue           # objectEquals
+typeMatch: sourceReference           # objectEquals
   | arithmeticExpression              # integerEquals
   | rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
@@ -112,9 +113,9 @@ rangeBounds: lowerBound? Range upperBound?;
 
 suchThat: BeginSuchThat valueChain matcher RightParen;
 
-lowerBound: (dereferenceValue|arithmeticExpression|stringLiteral) Invert?;
+lowerBound: (sourceReference|arithmeticExpression|stringLiteral) Invert?;
 
-upperBound: Invert? (dereferenceValue|arithmeticExpression|stringLiteral);
+upperBound: Invert? (sourceReference|arithmeticExpression|stringLiteral);
 
 rangeLiteral: lowerBound? Range upperBound? (Colon arithmeticExpression)?;
 
@@ -130,12 +131,12 @@ stringInterpolate: interpolateEvaluate|characterCode;
 
 characterCode: StartCharacterCode arithmeticExpression EndStringInterpolate;
 
-interpolateEvaluate: StartStringInterpolate (At? identifier? reference message? | Colon source)
+interpolateEvaluate: StartStringInterpolate (At? identifier? reference Message? parameterValues? | Colon source)
   transform? (To TemplateMatch)? EndStringInterpolate;
 
 arithmeticExpression: integerLiteral
   | LeftParen valueProduction RightParen
-  | additiveOperator? dereferenceValue
+  | additiveOperator? sourceReference
   | arithmeticExpression multiplicativeOperator arithmeticExpression
   | arithmeticExpression additiveOperator arithmeticExpression
 ;
@@ -156,7 +157,7 @@ compositionSequence: compositionSkipRule* (compositionComponent+|structureMember
 compositionMatcher: tokenMatcher
   | LeftBracket compositionSequence RightBracket transform?
   | LeftBrace compositionSkipRule* structureMemberMatchers? RightBrace transform?
-  | Dereference
+  | sourceReference
 ;
 
 structureMemberMatchers: structureMemberMatcher (Comma structureMemberMatcher)*;
@@ -168,7 +169,7 @@ tokenMatcher: StartMatcher compositionToken (Else compositionToken)* EndMatcher 
 compositionToken: Invert? (identifier|stringLiteral);
 
 multiplier: Plus | Star | Question
-  | Equal (PositiveInteger|Dereference)
+  | Equal (PositiveInteger|sourceReference)
 ;
 
 compositionSkipRule: LeftParen compositionCapture+ RightParen;
@@ -187,6 +188,8 @@ keyword: Package
   | Import
   | Def
   | StartTemplatesDefinition
+  | StartSourceDefinition
+  | StartSinkDefinition
   | StartComposerDefinition
   | StartProcessorDefinition
   | EndDefinition

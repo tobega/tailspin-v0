@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
-public class TransformCall implements Transform {
+public class CurriedTemplates implements Transform {
   private final Transform transform;
   private final Map<String, Object> parameters;
 
-  public TransformCall(Transform transform, Map<String, Object> parameters) {
+  public CurriedTemplates(Transform transform, Map<String, Object> parameters) {
     this.transform = transform;
     this.parameters = parameters;
   }

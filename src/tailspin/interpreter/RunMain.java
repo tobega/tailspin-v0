@@ -6,15 +6,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
@@ -32,7 +28,7 @@ import tailspin.ast.ComposerDefinition;
 import tailspin.ast.Condition;
 import tailspin.ast.Deconstructor;
 import tailspin.ast.Definition;
-import tailspin.ast.DereferenceValue;
+import tailspin.ast.DeleteState;
 import tailspin.ast.Equality;
 import tailspin.ast.Expression;
 import tailspin.ast.InlineTemplates;
@@ -47,7 +43,9 @@ import tailspin.ast.RangeMatch;
 import tailspin.ast.Reference;
 import tailspin.ast.RegexpMatch;
 import tailspin.ast.SendToTemplates;
+import tailspin.ast.SinkReference;
 import tailspin.ast.SinkValueChain;
+import tailspin.ast.SourceReference;
 import tailspin.ast.StateAssignment;
 import tailspin.ast.StringConstant;
 import tailspin.ast.StringInterpolation;
@@ -131,21 +129,20 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.keyValue() != null) {
       return Expression.wrap(visitKeyValue(ctx.keyValue()));
     }
-    Expression source = visitSource(false, ctx.source());
+    Expression source = visitSource(ctx.source());
     return new ChainStage(source, ctx.transform() == null ? null : visitTransform(ctx.transform()));
   }
 
   @Override
   public Expression visitSource(TailspinParser.SourceContext ctx) {
-    throw new IllegalStateException("Call to raw visitSource method");
-  }
-
-  public Expression visitSource(boolean asTransform, TailspinParser.SourceContext ctx) {
     if (ctx.stringLiteral() != null) {
       return Expression.wrap(visitStringLiteral(ctx.stringLiteral()));
     }
-    if (ctx.dereferenceValue() != null) {
-      return visitDereferenceValue(asTransform, ctx.dereferenceValue());
+    if (ctx.sourceReference() != null) {
+      return visitSourceReference(ctx.sourceReference());
+    }
+    if (ctx.deleteState() != null) {
+      return Expression.wrap(visitDeleteState(ctx.deleteState()));
     }
     if (ctx.arithmeticExpression() != null) {
       return Expression.wrap(visitArithmeticExpression(ctx.arithmeticExpression()));
@@ -165,34 +162,25 @@ public class RunMain extends TailspinParserBaseVisitor {
     throw new UnsupportedOperationException(ctx.toString());
   }
 
-  Queue<Object> queueOf(Object generated) {
-    Queue<Object> result = new ArrayDeque<>();
-    if (generated instanceof Stream) {
-      ((Stream<?>) generated).forEach(result::add);
-    } else if (generated instanceof Queue) {
-      result.addAll((Collection<?>) generated);
-    } else {
-      result.add(generated);
-    }
-    return result;
-  }
-
   @Override
-  public Expression visitDereferenceValue(TailspinParser.DereferenceValueContext ctx) {
-    throw new IllegalStateException("Visit to raw dereferenceValue attempted");
+  public Expression visitSourceReference(TailspinParser.SourceReferenceContext ctx) {
+    String identifier = ctx.SourceReference().getText().substring(1);
+    return createSourceReference(identifier, ctx.reference(), ctx.Message(), ctx.parameterValues());
   }
 
-  public Expression visitDereferenceValue(boolean asTransform, TailspinParser.DereferenceValueContext ctx) {
-    boolean isDelete = ctx.DeleteState() != null;
-    TerminalNode dereference = isDelete ? ctx.DeleteState() : ctx.Dereference();
-    String identifier = dereference.getText().substring(1);
-    Reference reference = getReference(ctx.reference(), identifier);
-    DereferenceValue dereferenceValue = new DereferenceValue(reference, isDelete);
-    if (ctx.message() != null) {
-      return new ProcessorMessage(asTransform, dereferenceValue, ctx.message().Message().getText().substring(2),
-          visitParameterValues(ctx.message().parameterValues()));
+  private Expression createSourceReference(String identifier,
+      TailspinParser.ReferenceContext refCtx, TerminalNode message,
+      TailspinParser.ParameterValuesContext paramCtx) {
+    Reference reference = getReference(refCtx, identifier);
+    Map<String, Value> parameters = visitParameterValues(paramCtx);
+    if (message != null) {
+      reference = new ProcessorMessage(
+          reference, message.getText().substring(2),
+          parameters);
+    } else if (!parameters.isEmpty()) {
+      reference = new TemplatesReference(reference, parameters);
     }
-    return dereferenceValue;
+    return new SourceReference(reference);
   }
 
   private Reference getReference(TailspinParser.ReferenceContext ctx, String identifier) {
@@ -238,8 +226,8 @@ public class RunMain extends TailspinParserBaseVisitor {
         dimensions.add(new ArrayDimensionRange(visitRangeLiteral(dimCtx.rangeLiteral())));
       } else if (dimCtx.arrayLiteral() != null) {
         dimensions.add(visitArrayLiteral(dimCtx.arrayLiteral()));
-      } else if (dimCtx.dereferenceValue() != null) {
-        dimensions.add(Value.of(visitDereferenceValue(false, dimCtx.dereferenceValue())));
+      } else if (dimCtx.sourceReference() != null) {
+        dimensions.add(Value.of(visitSourceReference(dimCtx.sourceReference())));
       } else {
         throw new UnsupportedOperationException(
             "Unknown way to dereference array at "
@@ -252,22 +240,24 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
+  public Value visitDeleteState(TailspinParser.DeleteStateContext ctx) {
+    String stateContext = ctx.DeleteState().getText().substring(1);
+    Reference reference = getReference(ctx.reference(), stateContext);
+    return new DeleteState(reference);
+  }
+
+  @Override
   public Expression visitSink(TailspinParser.SinkContext ctx) {
     if (ctx.SinkReference() != null) {
       String identifier = ctx.SinkReference().getText().substring(1);
-      boolean isDelete = false;
-      if (identifier.charAt(0) == '^') {
-        identifier = identifier.substring(1);
-        isDelete = true;
-      }
       Reference reference = getReference(ctx.reference(), identifier);
-      DereferenceValue dereferenceValue = new DereferenceValue(reference, isDelete);
-      if (ctx.message() != null) {
-        return new ProcessorMessage(true,
-            dereferenceValue, ctx.message().Message().getText().substring(2),
-            visitParameterValues(ctx.message().parameterValues()));
+      Map<String, Value> parameters = visitParameterValues(ctx.parameterValues());
+      if (ctx.Message() != null) {
+        reference = new ProcessorMessage(
+            reference, ctx.Message().getText().substring(2),
+            parameters);
       }
-      return dereferenceValue;
+      return new SinkReference(reference, parameters);
     }
     return null;
   }
@@ -319,7 +309,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Condition visitObjectEquals(TailspinParser.ObjectEqualsContext ctx) {
-    return new Equality(Value.of(visitDereferenceValue(false, ctx.dereferenceValue())));
+    return new Equality(Value.of(visitSourceReference(ctx.sourceReference())));
   }
 
   @Override
@@ -450,16 +440,22 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Expression visitCallDefinedTransform(TailspinParser.CallDefinedTransformContext ctx) {
-    return new TemplatesCall(visitTransformCall(ctx.transformCall()));
+    return new TemplatesCall(visitTemplatesReference(ctx.templatesReference()));
   }
 
   @Override
-  public TemplatesReference visitTransformCall(TailspinParser.TransformCallContext ctx) {
+  public Reference visitTemplatesReference(TailspinParser.TemplatesReferenceContext ctx) {
     String name = ctx.identifier().getText();
+    Reference reference = getReference(ctx.reference(), name);
     Map<String, Value> parameters = ctx.parameterValues() != null
         ? visitParameterValues(ctx.parameterValues())
         : Map.of();
-    return new TemplatesReference(name, parameters);
+    if (ctx.Message() != null) {
+      return new ProcessorMessage(
+          reference, ctx.Message().getText().substring(2),
+          parameters);
+    }
+    return new TemplatesReference(reference, parameters);
   }
 
   @Override
@@ -479,8 +475,9 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.valueChain() != null) {
       return new KeyValue(key, Value.of(visitValueChain(ctx.valueChain())));
     }
-    if (ctx.transformCall() != null) {
-      return new KeyValue(key, visitTransformCall(ctx.transformCall()));
+    if (ctx.templatesReference() != null) {
+      Reference reference = visitTemplatesReference(ctx.templatesReference());
+      return new KeyValue(key, reference);
     }
     throw new IllegalArgumentException("Unknown parameter value " + ctx.getText());
   }
@@ -500,7 +497,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Expression visitLiteralTemplates(TailspinParser.LiteralTemplatesContext ctx) {
-    return visitSource(true, ctx.source());
+    return visitSource(ctx.source());
   }
 
   @Override
@@ -539,20 +536,10 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Value visitInterpolateEvaluate(TailspinParser.InterpolateEvaluateContext ctx) {
     Expression interpolation;
     if (ctx.Colon() != null) {
-      interpolation = visitSource(false, ctx.source());
+      interpolation = visitSource(ctx.source());
     } else {
       String identifier = (ctx.At() == null ? "" : "@") + (ctx.identifier() == null ? "" : ctx.identifier().getText());
-      Reference reference = getReference(ctx.reference(), identifier);
-      DereferenceValue dereferenceValue = new DereferenceValue(reference, false);
-      if (ctx.message() != null) {
-        interpolation =
-            new ProcessorMessage(
-                false, dereferenceValue,
-                ctx.message().Message().getText().substring(2),
-                visitParameterValues(ctx.message().parameterValues()));
-      } else {
-        interpolation = dereferenceValue;
-      }
+      interpolation = createSourceReference(identifier, ctx.reference(), ctx.Message(), ctx.parameterValues());
     }
     if (ctx.transform() != null) {
       interpolation = new ChainStage(interpolation, visitTransform(ctx.transform()));
@@ -580,9 +567,9 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Value visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
-    if (ctx.dereferenceValue() != null) {
+    if (ctx.sourceReference() != null) {
       boolean isNegative = ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-");
-      return new IntegerExpression(isNegative, visitDereferenceValue(false, ctx.dereferenceValue()));
+      return new IntegerExpression(isNegative, visitSourceReference(ctx.sourceReference()));
     }
     if (ctx.LeftParen() != null) {
       return new IntegerExpression(false, visitValueProduction(ctx.valueProduction()));
@@ -629,8 +616,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Bound visitLowerBound(TailspinParser.LowerBoundContext ctx) {
     Value bound;
-    if (ctx.dereferenceValue() != null) {
-      bound = Value.of(visitDereferenceValue(false, ctx.dereferenceValue()));
+    if (ctx.sourceReference() != null) {
+      bound = Value.of(visitSourceReference(ctx.sourceReference()));
     } else if (ctx.arithmeticExpression() != null) {
       bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
@@ -645,8 +632,8 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Bound visitUpperBound(TailspinParser.UpperBoundContext ctx) {
     Value bound;
-    if (ctx.dereferenceValue() != null) {
-      bound = Value.of(visitDereferenceValue(false, ctx.dereferenceValue()));
+    if (ctx.sourceReference() != null) {
+      bound = Value.of(visitSourceReference(ctx.sourceReference()));
     } else if (ctx.arithmeticExpression() != null) {
       bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
@@ -691,8 +678,8 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.keyValue() != null) {
       return Expression.wrap(visitKeyValue(ctx.keyValue()));
     }
-    if (ctx.dereferenceValue() != null) {
-      return visitDereferenceValue(false, ctx.dereferenceValue());
+    if (ctx.sourceReference() != null) {
+      return visitSourceReference(ctx.sourceReference());
     }
     return visitValueProduction(ctx.valueProduction());
   }
@@ -777,9 +764,9 @@ public class RunMain extends TailspinParserBaseVisitor {
       return new Composer.StructureComposition(contents, visitTransform(ctx.transform()));
     } else if (ctx.tokenMatcher() != null) {
       return visitTokenMatcher(ctx.tokenMatcher());
-    } else if (ctx.Dereference() != null) {
-      String identifier = ctx.Dereference().getText().substring(1);
-      return new Composer.DereferenceComposition(identifier);
+    } else if (ctx.sourceReference() != null) {
+      Expression source = visitSourceReference(ctx.sourceReference());
+      return new Composer.DereferenceComposition(source);
     } else {
       throw new UnsupportedOperationException("Unknown type of composition matcher");
     }
@@ -837,9 +824,13 @@ public class RunMain extends TailspinParserBaseVisitor {
       case "*": return new Composer.AnyComposition(compositionSpec);
     }
     if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
-    Integer amount = ctx.PositiveInteger() == null ? null : Integer.valueOf(ctx.PositiveInteger().getText());
-    String identifier = ctx.Dereference() == null ? null : ctx.Dereference().getText().substring(1);
-    return new Composer.CountComposition(compositionSpec, amount, identifier);
+    Value count;
+    if (ctx.PositiveInteger() != null) {
+      count = new IntegerConstant(Long.parseLong(ctx.PositiveInteger().getText()));
+    } else {
+      count = Value.of(visitSourceReference(ctx.sourceReference()));
+    }
+    return new Composer.CountComposition(compositionSpec, count);
   }
 
   @Override
