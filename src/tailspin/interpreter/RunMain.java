@@ -256,8 +256,10 @@ public class RunMain extends TailspinParserBaseVisitor {
         reference = new ProcessorMessage(
             reference, ctx.Message().getText().substring(2),
             parameters);
+      } else if (!parameters.isEmpty()) {
+        reference = new TemplatesReference(reference, parameters);
       }
-      return new SinkReference(reference, parameters);
+      return new SinkReference(reference);
     }
     return null;
   }
