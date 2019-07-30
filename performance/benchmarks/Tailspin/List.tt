@@ -4,18 +4,19 @@ import 'harness'
 processor Element
   @: {val: $};
 
-  templates length
-    <?($@Element <{next:<>}>)>
+  source length
+    $@Element -> #
+    <{next:<>}>
       1 + $@Element.next::length !
     <>
       1 !
   end length
 
-  templates setNext
+  sink setNext
     ..|@Element: {next: $};
   end setNext
 
-  templates getNext
+  source getNext
     $@Element -> (<{next:<>}> $.next!) !
   end getNext
 end Element
@@ -23,7 +24,7 @@ end Element
 templates makeList
   <0~..>
     def element: $ -> Element;
-    $ - 1 -> makeList -> $element::setNext -> !VOID
+    $ - 1 -> makeList -> !element::setNext
     $element !
 end makeList
 

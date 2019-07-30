@@ -7,7 +7,7 @@ templates queens
     <> 1!
   end getRowColumn
 
-  templates setRowColumn
+  sink setRowColumn
     def p: $;
     @queens.freeRows($p.r): $p.val;
     @queens.freeMaxs($p.c + $p.r): $p.val;
@@ -22,11 +22,11 @@ templates queens
     <?({r: $, c: $c} -> getRowColumn <1>)>
       def r: $;
       @queens.queenRows($r): $c;
-      {r: $, c: $c, val: 0} -> setRowColumn -> !VOID
+      {r: $, c: $c, val: 0} -> !setRowColumn
       $c -> (<$n> -1!
         <?($c + 1 -> placeQueen <1>)> -1!
         <>
-          {r: $r, c: $c, val: 1} -> setRowColumn -> !VOID
+          {r: $r, c: $c, val: 1} -> !setRowColumn
           $r + 1 !) -> #
     <> $ + 1 -> #
   end placeQueen
