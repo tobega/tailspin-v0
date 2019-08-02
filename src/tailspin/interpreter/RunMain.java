@@ -29,6 +29,7 @@ import tailspin.ast.Condition;
 import tailspin.ast.Deconstructor;
 import tailspin.ast.Definition;
 import tailspin.ast.DeleteState;
+import tailspin.ast.DimensionReference;
 import tailspin.ast.Equality;
 import tailspin.ast.Expression;
 import tailspin.ast.InlineTemplates;
@@ -36,6 +37,7 @@ import tailspin.ast.IntegerConstant;
 import tailspin.ast.IntegerExpression;
 import tailspin.ast.InvertMatch;
 import tailspin.ast.KeyValueExpression;
+import tailspin.ast.MultiValueDimension;
 import tailspin.ast.ProcessorDefinition;
 import tailspin.ast.ProcessorMessage;
 import tailspin.ast.RangeGenerator;
@@ -43,6 +45,7 @@ import tailspin.ast.RangeMatch;
 import tailspin.ast.Reference;
 import tailspin.ast.RegexpMatch;
 import tailspin.ast.SendToTemplates;
+import tailspin.ast.SimpleDimensionReference;
 import tailspin.ast.SinkReference;
 import tailspin.ast.SinkValueChain;
 import tailspin.ast.SourceReference;
@@ -218,25 +221,42 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   private Reference resolveArrayDereference(TailspinParser.ArrayReferenceContext ctx, Reference reference) {
-    List<Value> dimensions = new ArrayList<>();
+    List<DimensionReference> dimensions = new ArrayList<>();
     for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
-      if (dimCtx.arithmeticExpression() != null) {
-        dimensions.add(visitArithmeticExpression(dimCtx.arithmeticExpression()));
-      } else if (dimCtx.rangeLiteral() != null) {
-        dimensions.add(new ArrayDimensionRange(visitRangeLiteral(dimCtx.rangeLiteral())));
-      } else if (dimCtx.arrayLiteral() != null) {
-        dimensions.add(visitArrayLiteral(dimCtx.arrayLiteral()));
-      } else if (dimCtx.sourceReference() != null) {
-        dimensions.add(Value.of(visitSourceReference(dimCtx.sourceReference())));
+      if (dimCtx.simpleDimension() != null) {
+        dimensions.add(visitSimpleDimension(true, dimCtx.simpleDimension()));
       } else {
-        throw new UnsupportedOperationException(
-            "Unknown way to dereference array at "
-                + ctx.getStart().getLine()
-                + ":"
-                + ctx.getStart().getCharPositionInLine() + " " + ctx.getText());
+        dimensions.add(visitMultiValueDimension(dimCtx.multiValueDimension()));
       }
     }
     return reference.array(dimensions);
+  }
+
+  private DimensionReference visitSimpleDimension(boolean autoDeconstructArray, TailspinParser.SimpleDimensionContext ctx) {
+    if (ctx.arithmeticExpression() != null) {
+      return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()),
+          autoDeconstructArray, 0);
+    } else if (ctx.rangeLiteral() != null) {
+      return new ArrayDimensionRange(visitRangeLiteral(ctx.rangeLiteral()));
+    } else if (ctx.sourceReference() != null) {
+      return new SimpleDimensionReference(Value.of(visitSourceReference(ctx.sourceReference())),
+          autoDeconstructArray, ctx.Deconstructor().size());
+    } else {
+      throw new UnsupportedOperationException(
+          "Unknown way to dereference array at "
+              + ctx.getStart().getLine()
+              + ":"
+              + ctx.getStart().getCharPositionInLine() + " " + ctx.getText());
+    }
+  }
+
+  @Override
+  public DimensionReference visitMultiValueDimension(TailspinParser.MultiValueDimensionContext ctx) {
+    List<DimensionReference> values = new ArrayList<>();
+    for (TailspinParser.SimpleDimensionContext sctx : ctx.simpleDimension()) {
+      values.add(visitSimpleDimension(false, sctx));
+    }
+    return new MultiValueDimension(values);
   }
 
   @Override

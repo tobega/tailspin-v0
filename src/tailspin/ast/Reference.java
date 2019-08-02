@@ -24,7 +24,7 @@ public abstract class Reference implements Value {
     return new FieldReference(this, fieldIdentifier);
   }
 
-  public Reference array(List<Value> dimensions) {
+  public Reference array(List<DimensionReference> dimensions) {
     return new ArrayReference(this, dimensions);
   }
 
@@ -209,9 +209,9 @@ public abstract class Reference implements Value {
 
   private static class ArrayReference extends Reference {
     private final Reference parent;
-    private final List<Value> dimensions;
+    private final List<DimensionReference> dimensions;
 
-    private ArrayReference(Reference parent, List<Value> dimensions) {
+    private ArrayReference(Reference parent, List<DimensionReference> dimensions) {
       this.parent = parent;
       this.dimensions = dimensions;
     }
@@ -261,21 +261,14 @@ public abstract class Reference implements Value {
     private Object resolveDimensionDereference(int currentDereference, List<Object> array,
         ArrayOperation bottomOperation, Object it, Scope scope) {
       ArrayOperation operation = currentDereference == dimensions.size() - 1 ? bottomOperation : List::get;
-      Value dimensionValue = dimensions.get(currentDereference);
-      Object idx = dimensionValue.evaluate(it, scope);
+      DimensionReference dimensionReference = dimensions.get(currentDereference);
+      Object idx = dimensionReference.getIndices(array.size(), it, scope);
       Object dimensionResult;
       if (idx instanceof Number) {
-        int index = javaizeArrayIndex(((Number) idx).intValue(), array.size()).intValue();
-        dimensionResult = operation.invoke(array, index);
-      } else if (idx instanceof RangeGenerator) {
-        dimensionResult = ((RangeGenerator) idx)
-            .stream(i -> javaizeArrayIndex(i.intValue(), array.size()), it, scope)
-            .map(i -> operation.invoke(array, i.intValue()));
-      } else if (idx instanceof List) {
-        @SuppressWarnings("unchecked")
-        List<Number> permutation = (List<Number>) idx;
-        dimensionResult =
-            permutation.stream().map(i -> javaizeArrayIndex(i.intValue(), array.size())).map(i -> operation.invoke(array, i.intValue()));
+        dimensionResult = operation.invoke(array, ((Number) idx).intValue());
+      } else if (idx instanceof Stream) {
+        dimensionResult = ((Stream<?>) idx)
+            .map(i -> operation.invoke(array, ((Number) i).intValue()));
       } else {
           throw new UnsupportedOperationException(
               "Unable to dereference array by "

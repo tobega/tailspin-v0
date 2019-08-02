@@ -19,7 +19,7 @@ public class Deconstructor implements Expression {
     return getDeconstructedStream(it).collect(Collectors.toCollection(ArrayDeque::new));
   }
 
-  private Stream<?> getDeconstructedStream(Object it) {
+  Stream<?> getDeconstructedStream(Object it) {
     if (it instanceof List) {
       return ((List<?>) it).stream();
     } else if (it instanceof String) {

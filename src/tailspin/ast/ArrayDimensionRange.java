@@ -2,7 +2,7 @@ package tailspin.ast;
 
 import tailspin.interpreter.Scope;
 
-public class ArrayDimensionRange implements Value {
+public class ArrayDimensionRange implements DimensionReference {
 
   private final RangeGenerator rangeGenerator;
 
@@ -11,7 +11,8 @@ public class ArrayDimensionRange implements Value {
   }
 
   @Override
-  public Object evaluate(Object it, Scope scope) {
-    return rangeGenerator;
+  public Object getIndices(int size, Object it, Scope scope) {
+    return  rangeGenerator
+        .stream(i -> DimensionReference.resolveIndex(i.intValue(), size), it, scope);
   }
 }

@@ -10,7 +10,8 @@ _Current limitations_: The current implementation cannot handle very deep recurs
 A typical tailspin statement starts with a [source](#sources) for a value,
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
 (a.k.a a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you can append an
-exclamation point `!` to emit the resulting value into the outer calling context.
+exclamation point `!` to emit the resulting value into the outer calling context (this corresponds to a "yield"
+in a generator in other languages).
 
 The _current value_, referred to as "it" and written as `$`, at each
 stage is simply the value produced by the stage before. At the start of a top-level statement,
@@ -90,6 +91,8 @@ a [stream](#streams) of _value chains_, separated by commas, and ends with a rig
 Each _value chain_ may produce a stream of values, which will be flat-mapped into the array.
 E.g. `[1,2,3,4,5]` and `[1..3, 4..5]` and `[1..5]` all produce an array of size 5 containing the numbers 1 to 5.
 
+You can nest array literals inside array literals to produce multi-dimensional arrays.
+
 ### Structure literal
 A structure literal produces a [structure](#structures) value. It starts with a left brace, followed by
 literal key-value pairs or expressions generating [streams](#streams) of key-value pairs, separated by commas, and ends with a right brace.
@@ -151,7 +154,7 @@ Defined sinks are called by prepending the identifier reference with an exclamat
 ### Emit value
 Something that could be considered a local sink is in a [templates](#templates) block where a value is emitted out into the
 result stream of the calling context. It is marked by an exclamation point `!`. Of course, the value in this case continues
-elsewhere in the program, so it is not really a sink as such.
+elsewhere in the program, so it is not really a sink as such. (Compare with "yield" in other languages.)
 
 Note also that emitting a value does not end the execution of the templates block and you are free to emit multiple values.
 
@@ -375,7 +378,12 @@ E.g. `$(2..-2:3)` would select every third element starting at the second elemen
 the second last element. As usual, you can leave out the increment which defaults to 1.
 
 A new array can be created by selecting from an existing array with an array, e.g. `$([3,1,5])`
-would select the third element, followed by the first element and last the fifth element.
+would select the third element, followed by the first element and last the fifth element. You can also include
+ranges in the array, e.g. `$([-1, 1..-2])` to rotate the last element to the beginning.
+
+An array or integer for index can be obtained from a value [dereference](#dereference), and you can optionally
+append [deconstructors](#deconstructor) after the dereference. Dereferences can also be included in the array selector
+above, but must result in a single integer or be followed by deconstructors to produce a stream of integers.
 
 All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semi-colon `;`, e.g.
 `$(1..3; 2)` to select the second element of each of the first three dimensions (returns a one-dimensional array of size 3,
