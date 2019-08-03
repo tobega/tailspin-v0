@@ -1,5 +1,7 @@
 package tailspin.ast;
 
+import static tailspin.ast.Expression.queueOf;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +15,7 @@ public abstract class Reference implements Value {
   public abstract Object getValue(Object it, Scope scope);
   public abstract Object deleteValue(Object it, Scope scope);
   public abstract boolean isMutable();
-  public abstract void setValue(Queue<Object> value, Object it, Scope scope);
+  public abstract void setValue(boolean merge, Queue<Object> value, Object it, Scope scope);
 
   @Override
   public Object evaluate(Object it, Scope scope) {
@@ -52,7 +54,7 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(Queue<Object> value, Object it, Scope scope) {
+    public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
       throw new UnsupportedOperationException("'it' is not mutable");
     }
 
@@ -93,7 +95,7 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(Queue<Object> value, Object it, Scope scope) {
+    public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
       throw new UnsupportedOperationException(identifier + " is not mutable");
     }
 
@@ -128,8 +130,12 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(Queue<Object> value, Object it, Scope scope) {
-      scope.setState(stateContext, copy(value.remove()));
+    public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
+      if (merge) {
+        collect(value, scope.getState(stateContext));
+      } else {
+        scope.setState(stateContext, copy(value.remove()));
+      }
     }
 
     @Override
@@ -192,13 +198,17 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(Queue<Object> value, Object it, Scope scope) {
+    public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
-      @SuppressWarnings("unchecked")
-      Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
-      structure.put(fieldIdentifier, Reference.copy(value.remove()));
+      if (merge) {
+        collect(value, getValue(it, scope));
+      } else {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
+        structure.put(fieldIdentifier, Reference.copy(value.remove()));
+      }
     }
 
     @Override
@@ -239,14 +249,39 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(Queue<Object> value, Object it, Scope scope) {
+    public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
       @SuppressWarnings("unchecked")
       List<Object> array = (List<Object>) parent.getValue(it, scope);
-      resolveDimensionDereference(0, array, (a, i) -> a.set(i, copy(value.remove())),
-          it, scope);
+      if (merge) {
+        class Merger implements ArrayOperation {
+          int invocations = 0;
+          List<Object> lastArray;
+          int lastIndex;
+
+          @Override
+          public Object invoke(List<Object> array, int index) {
+            invocations++;
+            lastArray = array;
+            lastIndex = index;
+            collect(queueOf(copy(value.remove())), array.get(index));
+            return null;
+          }
+
+          void resolveSingleElementMergeMany() {
+            if (invocations == 1) {
+              collect(value, lastArray.get(lastIndex));
+            }
+          }
+        }
+        Merger merger = new Merger();
+        resolveDimensionDereference(0, array, merger, it, scope);
+        merger.resolveSingleElementMergeMany();
+      } else {
+        resolveDimensionDereference(0, array, (a, i) -> a.set(i, copy(value.remove())), it, scope);
+      }
     }
 
     @Override
@@ -293,15 +328,37 @@ public abstract class Reference implements Value {
         return resolveDimensionDereference(currentDereference + 1, previousDimension, bottomOperation, it, scope);
       }
     }
+  }
 
-    private Long javaizeArrayIndex(int index, int size) {
-      if (index == 0) return null;
-      if (index < 0) {
-        return (long) index + size;
-      } else {
-        return (long) index - 1;
-      }
+  void collect(Queue<Object> it, Object collector) {
+    if (collector instanceof Map) {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> collectorMap = (Map<String, Object>) collector;
+      it.forEach(
+          m -> {
+            if (m instanceof Map) {
+              @SuppressWarnings("unchecked")
+              Map<String, Object> itMap = (Map<String, Object>) m;
+              collectorMap.putAll(itMap);
+            } else {
+              @SuppressWarnings("unchecked")
+              Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) m;
+              collectorMap.put(itEntry.getKey(), itEntry.getValue());
+            }
+          });
+      it.clear();
+    } else if (collector instanceof StringBuilder) {
+      // TODO: something is rotten in the state of Denmark
+      StringBuilder sbCollector = (StringBuilder) collector;
+      it.forEach(s -> sbCollector.append(s.toString()));
+      collector = sbCollector.toString();
+    } else if (collector instanceof List) {
+      @SuppressWarnings("unchecked")
+      List<Object> collectorList = (List<Object>) collector;
+      collectorList.addAll(it);
+      it.clear();
+    } else {
+      throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
     }
-
   }
 }

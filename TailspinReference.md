@@ -343,8 +343,12 @@ Slightly different things happen depending on what type of object is used as a c
  * A structure: the stream must be a stream of structures or keyed values (or just one structure or keyed value) and the result is that of
  the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
  if @ is `{a:1, b:1}` `..|@: {a:2, c:2};` results in @ being `{a:2, b:1, c:2}`
- * A string: append the stream to the end of the string.
  * An array: append the stream to the end of the array.
+ 
+ If the merge operator is applied to an array slice, each element of the array slice gets merged with one element from the stream.
+ Note the difference between `..|@: 1..3;`, which appends 1, 2 and 3 to the end of the state array,
+ and `..|@(1..-1): 1..3;` which merges 1 to the first element of the state array, 2 to the second and three to the third.
+ If the size of the slice and the size of the stream aren't the same, an error is thrown.
  
 ### Delete operator
 The delete operator, `^`, can be applied to the state to remove either the entire state or parts of it. The value of

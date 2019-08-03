@@ -450,7 +450,7 @@ class Templates {
   }
 
   @Test
-  void restructureMutateStateStructure() throws Exception {
+  void mergeStateStructure() throws Exception {
     String program =
         "templates state\n@: { a: 0, b: 0};\n..|@: {b: $, c: 2};\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
     Tailspin runner =
@@ -461,6 +461,48 @@ class Templates {
     runner.run(input, output, List.of());
 
     assertEquals("{a=0, b=1, c=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mergeStateField() throws Exception {
+    String program =
+        "templates state\n@: { a: []};\n..|@.a: 1..3;\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a=[1, 2, 3]}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mergeStateArrayElementArray() throws Exception {
+    String program =
+        "templates state\n@: [[],[]];\n..|@(2): 1..3;\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[], [1, 2, 3]]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mergeStateArrayElementStructure() throws Exception {
+    String program =
+        "templates state\n@: [{a:0}, {a:1}];\n..|@(2): {b: $, c: 2};\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{a=0}, {a=1, b=1, c=2}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -881,6 +923,92 @@ class Templates {
     runner.run(input, output, List.of());
 
     assertEquals("6", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void streamMergeStateArray() throws Exception {
+    String program =
+        "templates bar\n@: [5..7];\n1..3 -> ..|@: $;\n$@!\nend bar\n"
+            + "3 -> bar -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[5, 6, 7, 1, 2, 3]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMergeStateArray() throws Exception {
+    String program =
+        "templates bar\n@: [5..7];\n[1..3] -> ..|@: $...;\n$@!\nend bar\n"
+            + "3 -> bar -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[5, 6, 7, 1, 2, 3]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMergeStateSliceArrays() throws Exception {
+    String program =
+        "templates bar\n@: [[5],[6],[7]];\n[1..3] -> ..|@(1..3): $...;\n$@!\nend bar\n"
+            + "3 -> bar -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[5, 1], [6, 2], [7, 3]]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMergeStateSliceStructures() throws Exception {
+    String program =
+        "templates bar\n@: [{},{},{}];\n[{x:1},{y:2}] -> ..|@(2..3): $...;\n$@!\nend bar\n"
+            + "3 -> bar -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{}, {x=1}, {y=2}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayMergeStateSliceValuesFails() throws Exception {
+    String program =
+        "templates bar\n@: [5..7];\n[1..3] -> ..|@(1..3): $...;\n$@!\nend bar\n"
+            + "3 -> bar -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void streamMergeStateSliceArraysFails() throws Exception {
+    String program =
+        "templates bar\n@: [[5],[6],[7]];\n1..3 -> ..|@(1..3): $;\n$@!\nend bar\n"
+            + "3 -> bar -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test

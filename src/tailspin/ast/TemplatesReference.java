@@ -37,7 +37,7 @@ public class TemplatesReference extends Reference {
   }
 
   @Override
-  public void setValue(Queue<Object> value, Object it, Scope scope) {
+  public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
     throw new IllegalStateException();
   }
 }
