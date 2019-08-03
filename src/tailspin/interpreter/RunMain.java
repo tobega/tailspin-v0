@@ -399,7 +399,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Expression visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
     String stateContext = ctx.identifier() == null ? "" : ctx.identifier().getText();
     Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
-    StateAssignment stateAssignment = new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, ctx.Merge() != null);
+    StateAssignment stateAssignment = new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, ctx.Range() != null);
     if (ctx.valueChain() != null) {
       return new SinkValueChain(visitValueChain(ctx.valueChain()), stateAssignment);
     }
