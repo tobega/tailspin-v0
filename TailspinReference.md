@@ -271,6 +271,9 @@ end time
 ```
 will print "73"
 
+A composer can have [state](#templates-state) that can be set initially as the first statement before the main pattern. It can be updated in skip compositions,
+optionally with a value stream from a matcher. It can be accessed in the usual way.
+
 ## Matchers
 A matcher is a condition enclosed by angle brackets. A sequence of matchers is evaluated from the
 start to the end, where the first matcher that matches the _current value_ will have its block

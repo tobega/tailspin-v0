@@ -89,7 +89,9 @@ blockExpression: blockStatement
 resultValue: valueChain ResultMarker;
 blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
-stateAssignment: (valueChain To)? (Range Else)? (At identifier?) reference Colon valueProduction SemiColon;
+stateAssignment: (valueChain To)? stateSink;
+
+stateSink: (Range Else)? (At identifier?) reference Colon valueProduction SemiColon;
 
 valueChain: source
   | source transform
@@ -148,7 +150,7 @@ additiveOperator: Plus | Minus;
 
 multiplicativeOperator: Star | Slash | Mod;
 
-composerBody: compositionSequence definedCompositionSequence*
+composerBody: stateAssignment? compositionSequence definedCompositionSequence*
 ;
 
 definedCompositionSequence: key compositionSequence
@@ -177,7 +179,7 @@ multiplier: Plus | Star | Question
 
 compositionSkipRule: LeftParen compositionCapture+ RightParen;
 
-compositionCapture: (Def key)? compositionMatcher;
+compositionCapture: ((Def key)? compositionMatcher)|((compositionMatcher To)? stateSink);
 
 compositionKeyValue: (key|compositionKey) compositionSkipRule* compositionComponent Comma?;
 

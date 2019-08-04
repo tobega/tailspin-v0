@@ -12,6 +12,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import tailspin.ast.Expression;
+import tailspin.ast.StateAssignment;
 import tailspin.ast.Value;
 
 public class Composer implements Transform {
@@ -25,13 +26,17 @@ public class Composer implements Transform {
   }
 
   private final Scope definingScope;
+  private final Expression stateAssignment;
   private final List<CompositionSpec> specs;
   private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
   private final Map<String, List<CompositionSpec>> definedSequences;
+  private String scopeName = "";
 
-  public Composer(Scope definingScope, List<CompositionSpec> specs,
+  public Composer(Scope definingScope, /* @Nullable */ Expression stateAssignment,
+      List<CompositionSpec> specs,
       Map<String, List<CompositionSpec>> definedSequences) {
     this.definingScope = definingScope;
+    this.stateAssignment = stateAssignment;
     this.specs = specs;
     this.definedSequences = definedSequences;
   }
@@ -39,6 +44,9 @@ public class Composer implements Transform {
   @Override
   public Queue<Object> run(Object it, Map<String, Object> parameters) {
     TransformScope scope = createTransformScope(it, parameters);
+    if (stateAssignment != null) {
+      stateAssignment.run(null, scope);
+    }
     ArrayDeque<Object> result = new ArrayDeque<>();
     String s = (String) it;
     for (CompositionSpec spec : specs) {
@@ -56,7 +64,7 @@ public class Composer implements Transform {
   }
 
   private TransformScope createTransformScope(Object it, Map<String, Object> parameters) {
-    TransformScope scope = new TransformScope(definingScope, "");
+    TransformScope scope = new TransformScope(definingScope, scopeName);
     scope.setIt(queueOf(it));
     int foundParameters = 0;
     for (ExpectedParameter expectedParameter : expectedParameters) {
@@ -75,6 +83,10 @@ public class Composer implements Transform {
 
   public void expectParameters(List<ExpectedParameter> parameters) {
     expectedParameters.addAll(parameters);
+  }
+
+  void setScopeContext(String name) {
+    scopeName = name;
   }
 
   private class ScopedSequenceSubComposer implements SubComposer {
@@ -169,6 +181,12 @@ public class Composer implements Transform {
     if (spec instanceof TransformComposition) {
       TransformComposition transformSpec = (TransformComposition) spec;
       return new TransformSubComposer(resolveSpec(transformSpec.compositionSpec, scope), transformSpec.transform, scope);
+    }
+    if (spec instanceof StateAssignmentComposition) {
+      StateAssignmentComposition stateSpec = (StateAssignmentComposition) spec;
+      SubComposer value = stateSpec.value == null ? null : resolveSpec(stateSpec.value, scope);
+      return new StateAssignmentSubComposer(value, stateSpec.stateAssignment,
+          scope);
     }
     throw new UnsupportedOperationException("Unknown composition spec " + spec.getClass().getSimpleName());
   }
@@ -311,6 +329,16 @@ public class Composer implements Transform {
 
     InverseComposition(CompositionSpec compositionSpec) {
       this.compositionSpec = compositionSpec;
+    }
+  }
+
+  static class StateAssignmentComposition implements CompositionSpec {
+    private final CompositionSpec value;
+    private final StateAssignment stateAssignment;
+
+    public StateAssignmentComposition(/* @Nullable */ CompositionSpec value, StateAssignment stateAssignment) {
+      this.value = value;
+      this.stateAssignment = stateAssignment;
     }
   }
 }

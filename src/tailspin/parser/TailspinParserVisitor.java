@@ -260,6 +260,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStateAssignment(TailspinParser.StateAssignmentContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#stateSink}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStateSink(TailspinParser.StateSinkContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#valueChain}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

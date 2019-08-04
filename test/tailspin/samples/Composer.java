@@ -951,4 +951,57 @@ class Composer {
 
     assertEquals("[a=word]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void simpleState() throws IOException {
+    String program = "composer state\n"
+        + "@: 0;\n"
+        + "{ word: <hello>, flag: $@ }\n"
+        + "hello: <'.*'>\n"
+        + "end state\n"
+        + "'hello' -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{flag=0, word=hello}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void setStateInRule() throws IOException {
+    String program = "composer state\n"
+        + "@: 0;\n"
+        + "{ word: <hello>, flag: $@ }\n"
+        + "hello: (@: 1;) <'.*'>\n"
+        + "end state\n"
+        + "'hello' -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{flag=1, word=hello}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void setStateFromMatch() throws IOException {
+    String program = "composer state\n"
+        + "<hello> $@\n"
+        + "hello: ({word: <'.*'>} -> @:$;)\n"
+        + "end state\n"
+        + "'hello' -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{word=hello}", output.toString(StandardCharsets.UTF_8));
+  }
 }

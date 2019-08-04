@@ -67,6 +67,7 @@ import tailspin.parser.TailspinParser.CompositionSequenceContext;
 import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
 import tailspin.parser.TailspinParser.DimensionReferenceContext;
 import tailspin.parser.TailspinParser.KeyValuesContext;
+import tailspin.parser.TailspinParser.StateSinkContext;
 import tailspin.parser.TailspinParser.ValueProductionContext;
 import tailspin.parser.TailspinParserBaseVisitor;
 
@@ -394,13 +395,18 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Expression visitStateAssignment(TailspinParser.StateAssignmentContext ctx) {
-    String stateContext = ctx.identifier() == null ? "" : ctx.identifier().getText();
-    Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
-    StateAssignment stateAssignment = new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, ctx.Range() != null);
+    StateAssignment stateAssignment = visitStateSink(ctx.stateSink());
     if (ctx.valueChain() != null) {
       return new SinkValueChain(visitValueChain(ctx.valueChain()), stateAssignment);
     }
     return stateAssignment;
+  }
+
+  @Override
+  public StateAssignment visitStateSink(StateSinkContext ctx) {
+    String stateContext = ctx.identifier() == null ? "" : ctx.identifier().getText();
+    Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
+    return new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, ctx.Range() != null);
   }
 
   @Override
@@ -718,7 +724,11 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
     composerDefinition.expectParameters(visitParameterDefinitions(ctx.parameterDefinitions()));
-    return new Definition(name, (it, scope) -> composerDefinition.define(scope));
+    return new Definition(name, (it, scope) -> {
+      Composer composer = composerDefinition.define(scope);
+      composer.setScopeContext(name);
+      return composer;
+    });
   }
 
   @Override
@@ -728,7 +738,8 @@ public class RunMain extends TailspinParserBaseVisitor {
       String key = definition.key().identifier().getText();
       definedSequences.put(key, visitCompositionSequence(definition.compositionSequence()));
     }
-    return new ComposerDefinition(visitCompositionSequence(ctx.compositionSequence()), definedSequences);
+    Expression stateAssignment = ctx.stateAssignment() == null ? null : visitStateAssignment(ctx.stateAssignment());
+    return new ComposerDefinition(stateAssignment, visitCompositionSequence(ctx.compositionSequence()), definedSequences);
   }
 
   @Override
@@ -766,13 +777,17 @@ public class RunMain extends TailspinParserBaseVisitor {
     if (ctx.key() != null) {
       String identifier = ctx.key().identifier().getText();
       value = new Composer.CaptureComposition(identifier, value);
+    } else if (ctx.stateSink() != null){
+      value = new Composer.StateAssignmentComposition(value, visitStateSink(ctx.stateSink()));
     }
     return value;
   }
 
   @Override
-  public CompositionSpec visitCompositionMatcher(
-      TailspinParser.CompositionMatcherContext ctx) {
+  public CompositionSpec visitCompositionMatcher(TailspinParser.CompositionMatcherContext ctx) {
+    if (ctx == null) {
+      return null;
+    }
     CompositionSpec spec;
     if (ctx.LeftBracket() != null) {
       spec = new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()));
