@@ -6,12 +6,11 @@ templates queens
       def row: $;
       def minor: $ - $prev::length - 1;
       def major: $ + $prev::length + 1;
-       // If any element of prev matches row, array is non-empty and no result proceeds past the first line
-       // Similar for the major and minor diagonals
-      $prev -> [i](<$row> 0 !) -> (<[](0)> $prev !)
-            -> [i](<?($ - $i <$minor>)> 0 !) -> (<[](0)> $prev !)
-            -> [i](<?($ + $i <$major>)> 0 !) -> (<[](0)> $prev !)
-            -> [ $prev..., $row] !
+      // If prev is not an array that contains row, send it on...
+      $prev -> (<~[<$row>]> $ !)
+            -> (<?($ -> [i]($ - $i !) <~[<$minor>]>)> $ !)
+            -> (<?($ -> [i]($ + $i !) <~[<$major>]>)> $ !)
+            -> [ $..., $row] !
     end addIfPossible
     1..$n -> addIfPossible !
   end addColumn
