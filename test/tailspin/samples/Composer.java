@@ -832,4 +832,38 @@ class Composer {
 
     assertEquals("[55, 1, 55, 0]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void matchCapturedValue() throws IOException {
+    String program = "composer bounds\n"
+        + "(def bound: <'.'>) <~'$bound;'> (<'$bound;'>)\n"
+        + "end bounds\n"
+        + "'/word/' -> bounds -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("word", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void parameters() throws IOException {
+    String program = "composer split@{separator:}\n"
+        + "[ <token>* ]\n"
+        + "token: <~sep> (<sep>?)\n"
+        + "sep: <'$separator;'>\n"
+        + "end split\n"
+        + "'ab;cd;e' -> split@{separator:';'} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[ab, cd, e]", output.toString(StandardCharsets.UTF_8));
+  }
 }

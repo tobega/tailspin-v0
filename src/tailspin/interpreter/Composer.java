@@ -1,6 +1,9 @@
 package tailspin.interpreter;
 
+import static tailspin.ast.Expression.queueOf;
+
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,7 @@ public class Composer implements Transform {
 
   private final Scope definingScope;
   private final List<CompositionSpec> specs;
+  private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
   private final Map<String, List<CompositionSpec>> definedSequences;
 
   public Composer(Scope definingScope, List<CompositionSpec> specs,
@@ -34,7 +38,7 @@ public class Composer implements Transform {
 
   @Override
   public Queue<Object> run(Object it, Map<String, Object> parameters) {
-    TransformScope scope = new TransformScope(definingScope, "");
+    TransformScope scope = createTransformScope(it, parameters);
     ArrayDeque<Object> result = new ArrayDeque<>();
     String s = (String) it;
     for (CompositionSpec spec : specs) {
@@ -49,6 +53,28 @@ public class Composer implements Transform {
       throw new IllegalStateException("Composer did not use entire string. Remaining:'" + s + "'");
     }
     return result;
+  }
+
+  private TransformScope createTransformScope(Object it, Map<String, Object> parameters) {
+    TransformScope scope = new TransformScope(definingScope, "");
+    scope.setIt(queueOf(it));
+    int foundParameters = 0;
+    for (ExpectedParameter expectedParameter : expectedParameters) {
+      if (parameters.containsKey(expectedParameter.name)) {
+        foundParameters++;
+        scope.defineValue(expectedParameter.name, parameters.get(expectedParameter.name));
+      } else {
+        throw new IllegalArgumentException("Missing parameter " + expectedParameter.name + " to " + scope.scopeContext);
+      }
+    }
+    if (foundParameters != parameters.size()) {
+      throw new IllegalArgumentException("Too many parameters for " + scope.scopeContext + ":\n" + parameters);
+    }
+    return scope;
+  }
+
+  public void expectParameters(List<ExpectedParameter> parameters) {
+    expectedParameters.addAll(parameters);
   }
 
   private class PendingSequenceSubComposer implements SubComposer {

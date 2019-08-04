@@ -1,28 +1,25 @@
-composer tokens
-  <'(Julius Caesar|.)'>*
-end tokens
-
-templates replace@{a:,b:}
-  <$a> $b !
-  <> $ !
+composer replace@{a:,b:}
+  [ <replace|not>* ] -> '$...;'
+  replace: <'$a;'> -> $b
+  not: <~replace>
 end replace
 
-'' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
+'' -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
 '
 ' -> !OUT::write
 
-'A' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
+'A' -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
 '
 ' -> !OUT::write
 
-'Julius Caesar' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
+'Julius Caesar' -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
 '
 ' -> !OUT::write
 
-'Julius Caesar invaded Britain' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
+'Julius Caesar invaded Britain' -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
 '
 ' -> !OUT::write
 
-'Brutus killed Julius Caesar, his friend.' -> tokens -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
+'Brutus killed Julius Caesar, his friend.' -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write
 '
 ' -> !OUT::write

@@ -718,6 +718,7 @@ public class RunMain extends TailspinParserBaseVisitor {
           "Mismatched end " + ctx.identifier(1).getText() + " for parser " + name);
     }
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
+    composerDefinition.expectParameters(visitParameterDefinitions(ctx.parameterDefinitions()));
     return new Definition(name, (it, scope) -> composerDefinition.define(scope));
   }
 

@@ -12,7 +12,7 @@ statement: Def key valueProduction SemiColon                  # definition
   | valueChain To sink                                   # valueChainToSink
   | (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) identifier parameterDefinitions? templatesBody EndDefinition identifier # templatesDefinition
   | StartProcessorDefinition identifier parameterDefinitions? block EndDefinition identifier # processorDefinition
-  | StartComposerDefinition identifier composerBody EndDefinition identifier # composerDefinition
+  | StartComposerDefinition identifier parameterDefinitions? composerBody EndDefinition identifier # composerDefinition
 ;
 
 key: identifier Colon;

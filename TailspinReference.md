@@ -25,7 +25,7 @@ decided by a [matcher](#matchers) condition on the _current value_.
 Note that at each step of a _value chain_, any number of values may be emitted for each input value.
 If no values are emitted from a step, the processing of that _value chain_ ends.
 
-Whitespace works as a separator but is ignored.
+Whitespace works as a separator but is otherwise ignored.
 
 Language constructs are designed to be as like the value they match or produce as possible.
 Rather than using control flow keywords, you would in tailspin produce streams of values in a declarative way.
@@ -130,7 +130,7 @@ A defined source is called by dereferencing the given identifier with a dollar s
 ## Sinks
 A sink is a place where a value "disappears" and the _value chain_ ends.
 
-A symbol definition (or a state modification) has a semi-colon `;` at the end that could be considered to be a sink captures the value into the symbol (or state).
+A symbol definition (or a state modification) has a semi-colon `;` at the end that could be considered to be a  that captures the value into the symbol (or state).
 
 `-> !VOID` is a special sink which is used to ignore the values from a chain (or to mark that the chain is not expected to produce values).
 
@@ -186,6 +186,7 @@ value is sent to the [matchers](#matchers) as if the initial block was just the 
 You cannot have an empty match block nor an empty templates object, but you can specify `!VOID` as a do-nothing action.
 
 Inside a templates object, sending to templates can be used as an additional type of _value chain_ for most value productions.
+Note that the send to templates ends the _value chain_ and the result at that point will be whatever the matchers and their blocks determine.
 
 #### Defined templates
 Templates can be defined with an identifier as a top-level statement or inside another templates object.
@@ -197,22 +198,12 @@ templates add1
 end add1
 ```
 
-Defined templates can have parameters that vary the way they execute. Parameters are defined just after the identifier
-by an at-sign and a list of keys inside braces (similar to a structure literal), and are dereferenced as defined values, e.g.
-```
-templates add@{addend:}
-  $ + $addend
-end add
-```
-
 Templates are normally called as [transforms](#transforms) by just writing the identifier after an arrow "-> myTemplates",
 which will send the _current value_ at that point in the chain as input to the templates. Note that it is currently not an error
 to refuse to use the input _current value_ but such templates should preferably be called a [source](#defined-sources) instead
 and accessed as such.
 
-To call templates with parameters, set the values after the identifier by an at-sign and a [structure literal](#structure-literal)
-where the keys in the structure must match the defined parameters, e.g. with the above definition
-`3 -> add@{addend: 4} -> stdout` will print `7`.
+You can specify [parameters](#parameters) to modify/control certain aspects of the execution.
 
 #### Inline templates
 Templates can be defined inline by just wrapping a templates body in parentheses, e.g.
@@ -231,7 +222,8 @@ A composer takes a string and composes it into other objects according to the sp
 A pattern consists of a sequence of result-constructing symbols and composition matchers. Sequences may be put in
 parentheses to indicate that they should not be output.
 
-The composer definition starts with `composer _identifier_` and ends with `end _identifier_`.
+The composer definition starts with `composer _identifier_` and ends with `end _identifier_`. A composer can
+also be modified by [parameters](#parameters).
 
 The main pattern is given first, but may be followed by named sub-patterns that are used within the composer.
 
@@ -260,7 +252,7 @@ A composition matcher can be negated by a tilde just inside the bracket, e.g. `<
 A skipped value may be captured by prefixing the matcher with `def _identifier_:`, e.g. `(def val: <INT>)` will not output the parsed integer at that location
 but captures it as `val`. This value may be output later as `$val`.
 
-Several choices can be specified for a composition matcher, separated by a pipe "|", e.g. `<INT|string|'x[0-9]'>`. These are tried in order from left to right.
+Several choices can be specified for a composition matcher, separated by a pipe "|", e.g. `<INT|point|'x[0-9]'>`. These are tried in order from left to right.
 Note that a negation by tilde inside the angle bracket negates the whole bracket, so it would match characters until any one of the listed choices would match,
 e.g. `<~WS|INT>` would match everything up until the next whitespace or number is encountered.
 
@@ -325,8 +317,8 @@ use a number of such-that conditions either after or instead of the main conditi
 
 Such-that conditions can also be applied to transforms of the value. Note that those transforms must yield a single value for matching.
 
-Note that a such-that conditions shifts the focus so that `$` becomes the thing being matched. This makes no difference at
-the top level but matters in nested such-thats.
+A such-that enables you to meaningfully use `$` in the match condition as the original thing you are matching, while the condition is tested
+against the produced or transformed value. When you nest these conditions, the focus (value of $) will change.
 
 ## Templates state
 A [templates](#templates) object has modifiable local temporary state, valid for the processing of one input value,
@@ -362,6 +354,23 @@ Slightly different things happen depending on what type of object is used as a c
 The delete operator, `^`, can be applied to the state to remove either the entire state or parts of it. The value of
 the removed entity is used as a [source](#sources). E.g. if @ is `[4,5,6]` then `^@(1)` will produce `4` and leave
 @ as `[5,6]`
+
+## Parameters
+Defined [templates](#defined-templates) (or [composers](#composer) or [processors](#processors)) can have parameters that vary the way they execute. Parameters are defined just after the identifier
+by an at-sign and a list of keys inside braces (similar to a structure literal), and are used as defined values, e.g.
+```
+templates add@{addend:}
+  $ + $addend
+end add
+```
+
+While parameters could be thought of (and can be used) as input to the templates, input should normally be thought of as coming
+from the _current value_, while parameters modify the way the input is handled. Most significantly, other templates can be passed as parameters,
+but cannot be passed as input.
+
+To call templates with parameters, set the values after the identifier by an at-sign and a [structure literal](#structure-literal)
+where the keys in the structure must match the defined parameters, e.g. with the above definition
+`3 -> add@{addend: 4} -> stdout` will print `7`.
 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by
@@ -435,7 +444,7 @@ Also, there are no match templates. The initial block is used to define state an
 that will be returned from using the processor definition as a transform.
 All templates defined are considered to be messages that the processor instance can handle.
 
-Processors can have parameters just like [defined templates](#defined-templates).
+Processors can have [parameters](#parameters) that modify their behaviour.
 
 By convention, a processor definition should have an identifier starting with a capital letter.
 
