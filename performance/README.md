@@ -9,6 +9,28 @@ Progress measured in how many times slower than Java. The variance on tailspin r
 |[2019-07-23](#2019-07-23)|118|3259|4176|6646|1064|
 |[2019-07-24](#2019-07-24)|149|1865|2546|4185|1197|
 |[2019-07-24b](#2019-07-24b)|144|590|1495|847|940|
+|[2019-08-04](#2019-08-04)|179|877|1010|1195|605|
+
+## 2019-08-04
+No specific performance-related work but lots of syntax updates/improvements
+
+|Benchmark|Mean runtime us|
+|---|---|
+Json     Java| 12.1
+Json     Node | 13.6
+Json     Tailspin | 2170.3
+List     Java  | 1.5
+List     Node |2.7
+List     Tailspin |1316.2
+Permute  Java| 0.7
+Permute  Node |1.4
+Permute  Tailspin | 706.7
+Queens   Java |1.2
+Queens   Node | 2.3
+Queens   Tailspin |1433.9
+Sieve    Java | 1.1
+Sieve    Node | 2.4
+Sieve    Tailspin | 665.8
 
 ## 2019-07-24b
 After matchers were converted to AST and with increased number of iterations in benchmarks
