@@ -375,13 +375,15 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Condition visitArrayMatch(TailspinParser.ArrayMatchContext ctx) {
+    List<Condition> contentMatchers = ctx.matcher().stream().map(this::visitMatcher)
+        .collect(Collectors.toList());
     Condition lengthCondition = null;
     if (ctx.rangeBounds() != null) {
       lengthCondition = visitRangeBounds(ctx.rangeBounds());
     } else if (ctx.arithmeticExpression() != null) {
       lengthCondition = new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
     }
-    return new ArrayMatch(lengthCondition);
+    return new ArrayMatch(lengthCondition, contentMatchers);
   }
 
   @Override

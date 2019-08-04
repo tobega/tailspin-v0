@@ -110,7 +110,7 @@ typeMatch: sourceReference           # objectEquals
   | stringLiteral                          # regexpMatch
   | LeftBrace (key matcher Comma?)* RightBrace # structureMatch
   | Invert condition                  # invertMatch
-  | LeftBracket RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
+  | LeftBracket matcher? (Comma matcher)* RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
 ;
 
 rangeBounds: lowerBound? Range upperBound?;

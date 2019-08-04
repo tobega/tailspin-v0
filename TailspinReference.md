@@ -302,8 +302,13 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   * `<{a:<0>, b:<1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
   whatever other fields it might have.
 * Inverse match, to match the opposite of a conditon, just put a tilde inside the angle bracket, e.g. `<~5>`
+* If either of several conditions is acceptable, just list the acceptable conditions inside the angle brackets separated by `|` as a logical "or".
+  The conditions are tried in order, stopping after the first true condition. E.g. `<'apple'|'orange'>` will be true for both 'apple' and 'orange'.
 * Array match, given as `<[]>` matches if the _current value_ is an array. A match can also be restricted to arrays
-  of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`
+  of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`.
+  Conditions on array content are written inside the brackets, separated by commas. They test if there is any element that fulfils the condition.
+  E.g. `<[<3|5>]>` tests if there is any element that is either a 3 or a 5, while `<[<3>,<5>]>` tests that the array contains at least one each of 3 and 5.
+  Beware, though, that a single element could match more than one condition.
 
 ### Do-nothing block (guard clause)
 Sometimes it is easier or clearer to specify conditions which you don't want to do anything with.
