@@ -866,4 +866,89 @@ class Composer {
 
     assertEquals("[ab, cd, e]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void recaptureValue() throws IOException {
+    String program = "composer bounds\n"
+        + "[<bounded>*]"
+        + "bounded: (def bound: <'.'>) <~'$bound;'> (<'$bound;'>)\n"
+        + "end bounds\n"
+        + "'/word/;other;' -> bounds -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[word, other]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void recaptureValueArray() throws IOException {
+    String program = "composer bounds\n"
+        + "[<bounded>*]"
+        + "bounded: [(def bound: <'.'>) <~'$bound;'> (<'$bound;'>)]\n"
+        + "end bounds\n"
+        + "'/word/;other;' -> bounds -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[word], [other]]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void captureValueArrayInSequenceScope() throws IOException {
+    String program = "composer foo\n"
+        + "<bar>"
+        + "bar: [(def bound: <'.'>) <~'$bound;'>] (<'$bound;'>)\n"
+        + "end foo\n"
+        + "'/word/' -> foo -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[word]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void recaptureValueStructure() throws IOException {
+    String program = "composer bounds\n"
+        + "[<bounded>*]"
+        + "bounded: { (def bound: <'.'>) a:<~'$bound;'> (<'$bound;'>)}\n"
+        + "end bounds\n"
+        + "'/word/' -> bounds -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{a=word}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void recaptureValueKeyValue() throws IOException {
+    String program = "composer bounds\n"
+        + "[<bounded>*]"
+        + "bounded: a: (def bound: <'.'>) <~'$bound;'> (<'$bound;'>)\n"
+        + "end bounds\n"
+        + "'/word/' -> bounds -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[a=word]", output.toString(StandardCharsets.UTF_8));
+  }
 }

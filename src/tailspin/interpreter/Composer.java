@@ -77,19 +77,19 @@ public class Composer implements Transform {
     expectedParameters.addAll(parameters);
   }
 
-  private class PendingSequenceSubComposer implements SubComposer {
+  private class ScopedSequenceSubComposer implements SubComposer {
     private final List<CompositionSpec> compositionSpecs;
     private final Scope scope;
     SequenceSubComposer sequenceSubComposer;
 
-    PendingSequenceSubComposer(List<CompositionSpec> compositionSpecs, Scope scope) {
+    ScopedSequenceSubComposer(List<CompositionSpec> compositionSpecs, Scope scope) {
       this.compositionSpecs = compositionSpecs;
       this.scope = scope;
     }
 
     @Override
     public String nibble(String s) {
-      sequenceSubComposer = new SequenceSubComposer(resolveSpecs(compositionSpecs, new NestedScope(scope)));
+      sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope), Composer.this::resolveSpec);
       return sequenceSubComposer.nibble(s);
     }
 
@@ -111,7 +111,7 @@ public class Composer implements Transform {
       NamedComposition namedSpec = (NamedComposition) spec;
       String name = namedSpec.namedPattern;
       if (definedSequences.containsKey(name)) {
-        return new PendingSequenceSubComposer(definedSequences.get(name), scope);
+        return new ScopedSequenceSubComposer(definedSequences.get(name), scope);
       }
       return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name));
     }
@@ -129,15 +129,15 @@ public class Composer implements Transform {
     }
     if (spec instanceof ArrayComposition) {
       ArrayComposition arraySpec = (ArrayComposition) spec;
-      return new ArraySubComposer(resolveSpecs(arraySpec.itemSpecs, scope));
+      return new ArraySubComposer(new SequenceSubComposer(arraySpec.itemSpecs, scope, this::resolveSpec));
     }
     if (spec instanceof StructureComposition) {
       StructureComposition structureSpec = (StructureComposition) spec;
-      return new StructureSubComposer(resolveSpecs(structureSpec.contents, scope));
+      return new StructureSubComposer(new SequenceSubComposer(structureSpec.contents, scope, this::resolveSpec));
     }
     if (spec instanceof KeyValueComposition) {
       KeyValueComposition keyValueSpec = (KeyValueComposition) spec;
-      return new KeyValueSubComposer(resolveSpec(keyValueSpec.key, scope), resolveSpecs(keyValueSpec.valueMatch, scope));
+      return new KeyValueSubComposer(resolveSpec(keyValueSpec.key, scope), new SequenceSubComposer(keyValueSpec.valueMatch, scope, this::resolveSpec));
     }
     if (spec instanceof OptionalComposition) {
       return new OptionalSubComposer(resolveSpec(((OptionalComposition) spec).compositionSpec, scope));
@@ -177,8 +177,6 @@ public class Composer implements Transform {
     return specs.stream().map(spec -> resolveSpec(spec, scope)).collect(
         Collectors.toList());
   }
-
-  public interface CompositionSpec {}
 
   static class NamedComposition implements CompositionSpec {
     private final String namedPattern;

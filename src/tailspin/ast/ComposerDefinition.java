@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import tailspin.interpreter.Composer;
-import tailspin.interpreter.Composer.CompositionSpec;
+import tailspin.interpreter.CompositionSpec;
 import tailspin.interpreter.ExpectedParameter;
 import tailspin.interpreter.Scope;
 

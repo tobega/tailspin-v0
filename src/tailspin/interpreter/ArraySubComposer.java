@@ -1,45 +1,29 @@
 package tailspin.interpreter;
 
-import java.util.ArrayDeque;
+import static tailspin.ast.Expression.queueOf;
+
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
 
 public class ArraySubComposer implements SubComposer {
-  private final List<SubComposer> itemComposers;
+  private final SequenceSubComposer items;
 
-  private List<Object> value;
-  private boolean satisfied = false;
-
-  ArraySubComposer(List<SubComposer> itemComposers) {
-    this.itemComposers = itemComposers;
+  ArraySubComposer(SequenceSubComposer items) {
+    this.items = items;
   }
 
   @Override
   public String nibble(String s) {
-    value = new ArrayList<>();
-    satisfied = true;
-    for (SubComposer subComposer : itemComposers) {
-      s = subComposer.nibble(s);
-      satisfied &= subComposer.isSatisfied();
-      if (subComposer.isSatisfied()) {
-        value.addAll(subComposer.getValues());
-      }
-    }
-    return s;
+    return items.nibble(s);
   }
 
   @Override
   public Queue<Object> getValues() {
-    Queue<Object> result = new ArrayDeque<>();
-    result.add(value);
-    value = null;
-    satisfied = false;
-    return result;
+    return queueOf(new ArrayList<>(items.getValues()));
   }
 
   @Override
   public boolean isSatisfied() {
-    return  satisfied;
+    return  items.isSatisfied();
   }
 }

@@ -3,14 +3,19 @@ package tailspin.interpreter;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
+import tailspin.interpreter.CompositionSpec.Resolver;
 
 public class SequenceSubComposer implements SubComposer {
-  private final List<SubComposer> subComposers;
+  private final List<CompositionSpec> sequence;
+  private final Scope scope;
+  private final Resolver resolver;
   private Queue<Object> value;
   private boolean satisfied = false;
 
-  SequenceSubComposer(List<SubComposer> subComposers) {
-    this.subComposers = subComposers;
+  public SequenceSubComposer(List<CompositionSpec> sequence, Scope scope, CompositionSpec.Resolver resolver) {
+    this.sequence = sequence;
+    this.scope = scope;
+    this.resolver = resolver;
   }
 
   @Override
@@ -18,7 +23,8 @@ public class SequenceSubComposer implements SubComposer {
     String originalS = s;
     value = new ArrayDeque<>();
     satisfied = true;
-    for (SubComposer subComposer : subComposers) {
+    for (CompositionSpec spec : sequence) {
+      SubComposer subComposer = resolver.resolveSpec(spec, scope);
       s = subComposer.nibble(s);
       satisfied &= subComposer.isSatisfied();
       if (subComposer.isSatisfied()) {

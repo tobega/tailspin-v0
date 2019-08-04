@@ -60,7 +60,6 @@ import tailspin.ast.TemplatesDefinition;
 import tailspin.ast.TemplatesReference;
 import tailspin.ast.Value;
 import tailspin.ast.ValueMatcher;
-import tailspin.interpreter.Composer.CompositionSpec;
 import tailspin.interpreter.Composer.InverseComposition;
 import tailspin.interpreter.Composer.TransformComposition;
 import tailspin.parser.TailspinParser;

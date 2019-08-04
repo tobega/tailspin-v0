@@ -1,63 +1,50 @@
 package tailspin.interpreter;
 
-import java.util.ArrayDeque;
-import java.util.List;
+import static tailspin.ast.Expression.queueOf;
+
 import java.util.Queue;
 
 class KeyValueSubComposer implements SubComposer {
   private final SubComposer keyComposer;
-  private final List<SubComposer> valueSubComposers;
-  private String key;
-  private Object value;
-  private boolean satisfied = false;
+  private final SequenceSubComposer valueComposer;
 
-  KeyValueSubComposer(SubComposer keyComposer, List<SubComposer> valueSubComposers) {
+  KeyValueSubComposer(SubComposer keyComposer, SequenceSubComposer valueComposer) {
     this.keyComposer = keyComposer;
-    this.valueSubComposers = valueSubComposers;
+    this.valueComposer = valueComposer;
   }
 
   @Override
   public String nibble(String s) {
+    String originalS = s;
     s = keyComposer.nibble(s);
     if (!keyComposer.isSatisfied()) {
-      return s;
+      return originalS;
     }
-    Queue<Object> keys = keyComposer.getValues();
-    if (keys.size() != 1) {
-      throw new IllegalArgumentException("Only one key allowed for a keyed value, not " + keys);
-    }
-    key = (String) keys.peek();
-    satisfied = true;
-    for (SubComposer subComposer : valueSubComposers) {
-      s = subComposer.nibble(s);
-      satisfied &= subComposer.isSatisfied();
-      if (subComposer.isSatisfied()) {
-        Queue<Object> values = subComposer.getValues();
-        if (values.size() > 1) {
-          throw new IllegalStateException("A keyed value can only have one value, not " + values);
-        }
-        if (values.size() == 1) {
-          if (value != null) {
-            throw new IllegalStateException("A keyed value can only have one value, not " + value + " and " + values.peek());
-          }
-          value = values.peek();
-        }
-      }
+    s = valueComposer.nibble(s);
+    if (!valueComposer.isSatisfied()) {
+      keyComposer.getValues(); // Do we need to flush here?
+      return originalS;
     }
     return s;
   }
 
   @Override
   public Queue<Object> getValues() {
-    Queue<Object> result = new ArrayDeque<>();
-    result.add(new KeyValue(key, value));
-    value = null;
-    satisfied = false;
-    return result;
+    Queue<Object> keys = keyComposer.getValues();
+    if (keys.size() != 1) {
+      throw new IllegalArgumentException("Only one key allowed for a keyed value, not " + keys);
+    }
+    String key = (String) keys.peek();
+    Queue<Object> values = valueComposer.getValues();
+    if (values.size() != 1) {
+      throw new IllegalArgumentException("A keyed value can only have one value, not " + values);
+    }
+    Object value = values.peek();
+    return queueOf(new KeyValue(key, value));
   }
 
   @Override
   public boolean isSatisfied() {
-    return  satisfied;
+    return  keyComposer.isSatisfied() && valueComposer.isSatisfied();
   }
 }
