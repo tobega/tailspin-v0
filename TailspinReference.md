@@ -260,7 +260,9 @@ A composition matcher can be negated by a tilde just inside the bracket, e.g. `<
 A skipped value may be captured by prefixing the matcher with `def _identifier_:`, e.g. `(def val: <INT>)` will not output the parsed integer at that location
 but captures it as `val`. This value may be output later as `$val`.
 
-Several exclusive choices can be specified for a composition matcher, separated by a pipe "|", e.g. `<INT|string|'x[0-9]'>`. These are tried in order from left to right.
+Several choices can be specified for a composition matcher, separated by a pipe "|", e.g. `<INT|string|'x[0-9]'>`. These are tried in order from left to right.
+Note that a negation by tilde inside the angle bracket negates the whole bracket, so it would match characters until any one of the listed choices would match,
+e.g. `<~WS|INT>` would match everything up until the next whitespace or number is encountered.
 
 A composition matcher (or a composed array or structure) can be sent through a series of [transforms](#transforms) to convert the parsed value, e.g.
 ```
@@ -301,9 +303,10 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   * `<{a: <>}>` matches any structure that has a field `a`, whatever its value
   * `<{a:<0>, b:<1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
   whatever other fields it might have.
-* Inverse match, to match the opposite of a conditon, just put a tilde inside the angle bracket, e.g. `<~5>`
 * If either of several conditions is acceptable, just list the acceptable conditions inside the angle brackets separated by `|` as a logical "or".
   The conditions are tried in order, stopping after the first true condition. E.g. `<'apple'|'orange'>` will be true for both 'apple' and 'orange'.
+* Inverse match, to match the opposite of a conditon, just put a tilde inside the angle bracket, e.g. `<~5>`
+  Note that inverse is applied to the entire expression within the angle brackets so `<~'apple'|'orange'>` will be false for both 'apple' and 'orange'.
 * Array match, given as `<[]>` matches if the _current value_ is an array. A match can also be restricted to arrays
   of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`.
   Conditions on array content are written inside the brackets, separated by commas. They test if there is any element that fulfils the condition.

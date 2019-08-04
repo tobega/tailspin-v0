@@ -4,9 +4,12 @@ import java.util.List;
 import tailspin.interpreter.Scope;
 
 public class AnyOf implements Condition {
+
+  private final boolean invert;
   private final List<Condition> alternativeConditions;
 
-  public AnyOf(List<Condition> alternativeConditions) {
+  public AnyOf(boolean invert, List<Condition> alternativeConditions) {
+    this.invert = invert;
     this.alternativeConditions = alternativeConditions;
   }
 
@@ -14,9 +17,9 @@ public class AnyOf implements Condition {
   public boolean matches(Object toMatch, Object it, Scope scope) {
     for (Condition condition : alternativeConditions) {
       if (condition.matches(toMatch, it, scope)) {
-        return true;
+        return !invert;
       }
     }
-    return false;
+    return invert;
   }
 }

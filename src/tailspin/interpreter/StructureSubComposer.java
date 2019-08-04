@@ -8,14 +8,12 @@ import java.util.TreeMap;
 
 class StructureSubComposer implements SubComposer {
   private final List<SubComposer> subComposers;
-  private final ComposerTransform composerTransform;
 
   private Map<String, Object> value;
   private boolean satisfied = false;
 
-  StructureSubComposer(List<SubComposer> subComposers, ComposerTransform composerTransform) {
+  StructureSubComposer(List<SubComposer> subComposers) {
     this.subComposers = subComposers;
-    this.composerTransform = composerTransform;
   }
 
   @Override
@@ -41,7 +39,7 @@ class StructureSubComposer implements SubComposer {
     result.add(value);
     value = null;
     satisfied = false;
-    return composerTransform.convert(result);
+    return result;
   }
 
   @Override

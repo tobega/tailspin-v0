@@ -87,32 +87,27 @@ public class Composer implements Transform {
       if (definedSequences.containsKey(name)) {
         return new PendingSequenceSubComposer(definedSequences.get(name), scope);
       }
-      return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name),
-          namedSpec.invert);
+      return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name));
     }
     if (spec instanceof RegexComposition) {
       RegexComposition regexSpec = (RegexComposition) spec;
       // Note that we do not allow regex interpolations to reference $it. What would that even mean?
-      return new RegexpSubComposer(Pattern.compile((String) regexSpec.pattern.evaluate(null, scope)), Function.identity(),
-          regexSpec.invert);
+      return new RegexpSubComposer(Pattern.compile((String) regexSpec.pattern.evaluate(null, scope)), Function.identity());
     }
     if (spec instanceof SkipComposition) {
       return new SkipSubComposer(resolveSpecs(((SkipComposition) spec).skipSpecs, scope));
     }
     if (spec instanceof ChoiceComposition) {
       ChoiceComposition choiceSpec = (ChoiceComposition) spec;
-      return new ChoiceSubComposer(resolveSpecs(choiceSpec.choices, scope),
-          new ComposerTransform(choiceSpec.transform, scope));
+      return new ChoiceSubComposer(resolveSpecs(choiceSpec.choices, scope));
     }
     if (spec instanceof ArrayComposition) {
       ArrayComposition arraySpec = (ArrayComposition) spec;
-      return new ArraySubComposer(resolveSpecs(arraySpec.itemSpecs, scope),
-          new ComposerTransform(arraySpec.transform, scope));
+      return new ArraySubComposer(resolveSpecs(arraySpec.itemSpecs, scope));
     }
     if (spec instanceof StructureComposition) {
       StructureComposition structureSpec = (StructureComposition) spec;
-      return new StructureSubComposer(resolveSpecs(structureSpec.contents, scope),
-          new ComposerTransform(structureSpec.transform, scope));
+      return new StructureSubComposer(resolveSpecs(structureSpec.contents, scope));
     }
     if (spec instanceof KeyValueComposition) {
       KeyValueComposition keyValueSpec = (KeyValueComposition) spec;
@@ -142,6 +137,13 @@ public class Composer implements Transform {
     if (spec instanceof Constant) {
       return new ConstantSubComposer(((Constant) spec).value);
     }
+    if (spec instanceof InverseComposition) {
+      return new InvertSubComposer(resolveSpec(((InverseComposition) spec).compositionSpec, scope));
+    }
+    if (spec instanceof TransformComposition) {
+      TransformComposition transformSpec = (TransformComposition) spec;
+      return new TransformSubComposer(resolveSpec(transformSpec.compositionSpec, scope), transformSpec.transform, scope);
+    }
     throw new UnsupportedOperationException("Unknown composition spec " + spec.getClass().getSimpleName());
   }
 
@@ -154,21 +156,17 @@ public class Composer implements Transform {
 
   static class NamedComposition implements CompositionSpec {
     private final String namedPattern;
-    private final boolean invert;
 
-    NamedComposition(String namedPattern, boolean invert) {
+    NamedComposition(String namedPattern) {
       this.namedPattern = namedPattern;
-      this.invert = invert;
     }
   }
 
   static class RegexComposition implements CompositionSpec {
     private final Value pattern;
-    private final boolean invert;
 
-    RegexComposition(Value pattern, boolean invert) {
+    RegexComposition(Value pattern) {
       this.pattern = pattern;
-      this.invert = invert;
     }
   }
 
@@ -182,11 +180,9 @@ public class Composer implements Transform {
 
   static class ArrayComposition implements CompositionSpec {
     private final List<CompositionSpec> itemSpecs;
-    private final Expression transform;
 
-    ArrayComposition(List<CompositionSpec> itemSpecs, Expression transform) {
+    ArrayComposition(List<CompositionSpec> itemSpecs) {
       this.itemSpecs = itemSpecs;
-      this.transform = transform;
     }
   }
 
@@ -216,11 +212,9 @@ public class Composer implements Transform {
 
   static class StructureComposition implements CompositionSpec {
     private final List<CompositionSpec> contents;
-    private final Expression transform;
 
-    StructureComposition(List<CompositionSpec> contents, Expression transform) {
+    StructureComposition(List<CompositionSpec> contents) {
       this.contents = contents;
-      this.transform = transform;
     }
   }
 
@@ -272,11 +266,27 @@ public class Composer implements Transform {
 
   static class ChoiceComposition implements CompositionSpec {
     private final List<CompositionSpec> choices;
+
+    ChoiceComposition(List<CompositionSpec> choices) {
+      this.choices = choices;
+    }
+  }
+
+  static class TransformComposition implements CompositionSpec {
+    private final CompositionSpec compositionSpec;
     private final Expression transform;
 
-    ChoiceComposition(List<CompositionSpec> choices, Expression transform) {
-      this.choices = choices;
+    TransformComposition(CompositionSpec compositionSpec, Expression transform) {
+      this.compositionSpec = compositionSpec;
       this.transform = transform;
+    }
+  }
+
+  static class InverseComposition implements CompositionSpec {
+    private final CompositionSpec compositionSpec;
+
+    InverseComposition(CompositionSpec compositionSpec) {
+      this.compositionSpec = compositionSpec;
     }
   }
 }

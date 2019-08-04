@@ -35,7 +35,6 @@ import tailspin.ast.Expression;
 import tailspin.ast.InlineTemplates;
 import tailspin.ast.IntegerConstant;
 import tailspin.ast.IntegerExpression;
-import tailspin.ast.InvertMatch;
 import tailspin.ast.KeyValueExpression;
 import tailspin.ast.MultiValueDimension;
 import tailspin.ast.ProcessorDefinition;
@@ -62,6 +61,8 @@ import tailspin.ast.TemplatesReference;
 import tailspin.ast.Value;
 import tailspin.ast.ValueMatcher;
 import tailspin.interpreter.Composer.CompositionSpec;
+import tailspin.interpreter.Composer.InverseComposition;
+import tailspin.interpreter.Composer.TransformComposition;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
 import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
@@ -314,7 +315,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public AnyOf visitMatcher(TailspinParser.MatcherContext ctx) {
-    return new AnyOf(ctx.condition().stream().map(this::visitCondition).collect(Collectors.toList()));
+    return new AnyOf(ctx.Invert() != null, ctx.condition().stream().map(this::visitCondition).collect(Collectors.toList()));
   }
 
   @Override
@@ -366,11 +367,6 @@ public class RunMain extends TailspinParserBaseVisitor {
       keyMatchers.put(key, matcher);
     }
     return new StructureMatch(keyMatchers);
-  }
-
-  @Override
-  public Condition visitInvertMatch(TailspinParser.InvertMatchContext ctx) {
-    return new InvertMatch(visitCondition(ctx.condition()));
   }
 
   @Override
@@ -777,22 +773,28 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public CompositionSpec visitCompositionMatcher(
       TailspinParser.CompositionMatcherContext ctx) {
+    CompositionSpec spec;
     if (ctx.LeftBracket() != null) {
-      return new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()), visitTransform(ctx.transform()));
+      spec = new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()));
     } else if (ctx.LeftBrace() != null) {
       List<CompositionSpec> contents = new ArrayList<>();
       ctx.compositionSkipRule().forEach(s -> contents.add(visitCompositionSkipRule(s)));
       if (ctx.structureMemberMatchers() != null) {
         contents.addAll(visitStructureMemberMatchers(ctx.structureMemberMatchers()));
       }
-      return new Composer.StructureComposition(contents, visitTransform(ctx.transform()));
+      spec = new Composer.StructureComposition(contents);
     } else if (ctx.tokenMatcher() != null) {
-      return visitTokenMatcher(ctx.tokenMatcher());
+      spec = visitTokenMatcher(ctx.tokenMatcher());
     } else if (ctx.sourceReference() != null) {
       Expression source = visitSourceReference(ctx.sourceReference());
-      return new Composer.DereferenceComposition(source);
+      spec = new Composer.DereferenceComposition(source);
     } else {
       throw new UnsupportedOperationException("Unknown type of composition matcher");
+    }
+    if (ctx.transform() != null) {
+      return new TransformComposition(spec, visitTransform(ctx.transform()));
+    } else {
+      return spec;
     }
   }
 
@@ -820,7 +822,10 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public CompositionSpec visitTokenMatcher(TailspinParser.TokenMatcherContext ctx) {
     CompositionSpec compositionSpec = new Composer.ChoiceComposition(ctx.compositionToken().stream()
-        .map(this::visitCompositionToken).collect(Collectors.toList()), visitTransform(ctx.transform()));
+        .map(this::visitCompositionToken).collect(Collectors.toList()));
+    if (ctx.Invert() != null) {
+      compositionSpec = new InverseComposition(compositionSpec);
+    }
     if (ctx.multiplier() == null) return compositionSpec;
     return resolveMultiplier(ctx.multiplier(), compositionSpec);
   }
@@ -830,10 +835,10 @@ public class RunMain extends TailspinParserBaseVisitor {
     CompositionSpec compositionSpec;
     if (ctx.identifier() != null) {
       String matchRule = ctx.identifier().getText();
-      compositionSpec = new Composer.NamedComposition(matchRule, ctx.Invert() != null);
+      compositionSpec = new Composer.NamedComposition(matchRule);
     } else if (ctx.stringLiteral() != null) {
       Value regex = visitStringLiteral(ctx.stringLiteral());
-      compositionSpec = new Composer.RegexComposition(regex, ctx.Invert() != null);
+      compositionSpec = new Composer.RegexComposition(regex);
     } else {
       throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());
     }

@@ -9,27 +9,17 @@ import java.util.regex.Pattern;
 class RegexpSubComposer implements SubComposer {
   private final Pattern pattern;
   private final Function<? super String, Object> valueCreator;
-  private final boolean invert;
   private String latestValue;
 
-  RegexpSubComposer(Pattern pattern, Function<? super String, Object> valueCreator, boolean invert) {
+  RegexpSubComposer(Pattern pattern, Function<? super String, Object> valueCreator) {
     this.pattern = pattern;
     this.valueCreator = valueCreator;
-    this.invert = invert;
   }
 
   @Override
   public String nibble(String s) {
     Matcher matcher = pattern.matcher(s);
-    if (invert) {
-      if (matcher.find()) {
-        latestValue = s.substring(0, matcher.start());
-        s = s.substring(matcher.start());
-      } else {
-        latestValue = s;
-        s = "";
-      }
-    } else if (matcher.lookingAt()) {
+    if (matcher.lookingAt()) {
       latestValue = matcher.group();
       return s.substring(matcher.end());
     }

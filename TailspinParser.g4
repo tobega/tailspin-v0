@@ -100,7 +100,7 @@ transform: To templates transform?
   | Deconstructor transform?
 ;
 
-matcher: StartMatcher condition (Else condition)* EndMatcher;
+matcher: StartMatcher Invert? condition (Else condition)* EndMatcher;
 
 condition: typeMatch? suchThat*;
 
@@ -109,7 +109,6 @@ typeMatch: sourceReference           # objectEquals
   | rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key matcher Comma?)* RightBrace # structureMatch
-  | Invert condition                  # invertMatch
   | LeftBracket matcher? (Comma matcher)* RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
 ;
 
@@ -158,19 +157,19 @@ definedCompositionSequence: key compositionSequence
 compositionSequence: compositionSkipRule* (compositionComponent+|structureMemberMatchers)
 ;
 
-compositionMatcher: tokenMatcher
-  | LeftBracket compositionSequence RightBracket transform?
-  | LeftBrace compositionSkipRule* structureMemberMatchers? RightBrace transform?
-  | sourceReference
+compositionMatcher: (tokenMatcher
+  | LeftBracket compositionSequence RightBracket
+  | LeftBrace compositionSkipRule* structureMemberMatchers? RightBrace
+  | sourceReference) transform?
 ;
 
 structureMemberMatchers: structureMemberMatcher (Comma structureMemberMatcher)*;
 
 structureMemberMatcher: compositionSkipRule* (tokenMatcher|compositionKeyValue);
 
-tokenMatcher: StartMatcher compositionToken (Else compositionToken)* EndMatcher multiplier? transform?;
+tokenMatcher: StartMatcher Invert? compositionToken (Else compositionToken)* EndMatcher multiplier?;
 
-compositionToken: Invert? (identifier|stringLiteral);
+compositionToken: (identifier|stringLiteral);
 
 multiplier: Plus | Star | Question
   | Equal (PositiveInteger|sourceReference)

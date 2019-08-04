@@ -5,15 +5,12 @@ import java.util.Queue;
 
 public class ChoiceSubComposer implements SubComposer {
   private final List<SubComposer> optionComposers;
-  private final ComposerTransform composerTransform;
 
   private Queue<Object> value;
   private boolean satisfied = false;
 
-  ChoiceSubComposer(List<SubComposer> optionComposers,
-      ComposerTransform composerTransform) {
+  ChoiceSubComposer(List<SubComposer> optionComposers) {
     this.optionComposers = optionComposers;
-    this.composerTransform = composerTransform;
   }
 
   @Override
@@ -35,7 +32,7 @@ public class ChoiceSubComposer implements SubComposer {
     Queue<Object> result = value;
     value = null;
     satisfied = false;
-    return composerTransform.convert(result);
+    return result;
   }
 
   @Override
