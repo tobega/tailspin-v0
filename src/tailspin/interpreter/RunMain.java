@@ -470,7 +470,8 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Reference visitTemplatesReference(TailspinParser.TemplatesReferenceContext ctx) {
-    String name = ctx.identifier().getText();
+    String name = (ctx.At() == null ? "" : ctx.At().getText())
+        + (ctx.identifier() == null? "" : ctx.identifier().getText());
     Reference reference = getReference(ctx.reference(), name);
     Map<String, Value> parameters = ctx.parameterValues() != null
         ? visitParameterValues(ctx.parameterValues())

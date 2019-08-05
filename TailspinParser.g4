@@ -66,7 +66,7 @@ templates: source                        # literalTemplates
 
 sink: (SinkReference reference Message? parameterValues?) | Void;
 
-templatesReference: identifier reference Message? parameterValues?;
+templatesReference: (At | At? identifier) reference Message? parameterValues?;
 
 parameterValues: At LeftBrace (parameterValue Comma?)+ RightBrace;
 
