@@ -17,7 +17,7 @@ class Composer {
     String program = "composer int\n"
         + "<INT>\n"
         + "end int\n"
-        + "'23' -> int -> $ + 12 -> !OUT::write";
+        + "'23' -> int -> (<23> $!) -> $ + 12 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
