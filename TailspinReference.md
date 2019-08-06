@@ -62,7 +62,7 @@ right after the dollar sign, e.g. `'$:5*8;'` gives you the string `'40'`
 Interpolation can also execute a _value chain_ by adding transforms, even sending to templates if in a templates context,
 e.g. `The total price is $$ $ -> $ * $quantity;` or `$:1..3 -> #`. Note that when you evaluate a [processor message](#processors),
 you can reference it directly, like `'$p::message;'` if the message does not require input, otherwise you need to use it as a transform,
-that is like `'$->$p::message;'`.
+that is like `'$->p::message;'`. Note that we now reference the message expression without the $.
 
 ### Arithmetic expression
 The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference).
@@ -396,19 +396,22 @@ Arrays are an ordered list of objects that can be turned into a [stream](#stream
 To access elements of an array, append a selector within parentheses, e.g. `$(3)` to get the third element of the current array value.
 The first element of an array has selector `1`. Elements can also be selected counting from the end
 of the array by negative selectors, e.g. the last element of an array can be accessed by selector `-1`.
+Of course, the selector may be an arithmetic expression.
 
 A new array can be created by selecting from an existing array by a [range literal](#range-literal).
 Negative start or end values are interpreted as from the end of the array.
 E.g. `$(2..-2:3)` would select every third element starting at the second element and ending on or before
 the second last element. As usual, you can leave out the increment which defaults to 1.
 
+An array or integer for index can be obtained from a value [dereference](#dereference), and you can optionally
+append one or more [deconstructors](#deconstructor) after the dereference. The result must be an integer or a stream
+of integers, or a single array of integers.
+
 A new array can be created by selecting from an existing array with an array, e.g. `$([3,1,5])`
 would select the third element, followed by the first element and last the fifth element. You can also include
-ranges in the array, e.g. `$([-1, 1..-2])` to rotate the last element to the beginning.
-
-An array or integer for index can be obtained from a value [dereference](#dereference), and you can optionally
-append [deconstructors](#deconstructor) after the dereference. Dereferences can also be included in the array selector
-above, but must result in a single integer or be followed by deconstructors to produce a stream of integers.
+ranges in the array, e.g. `$([-1, 1..-2])` to rotate the last element to the beginning. Note that the only allowed
+elements in an literal array selector are the same ones that are allowed as direct selectors with the
+further restriction that a dereference may not give an array result.
 
 All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semi-colon `;`, e.g.
 `$(1..3; 2)` to select the second element of each of the first three dimensions (returns a one-dimensional array of size 3,
