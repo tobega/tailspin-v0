@@ -68,6 +68,8 @@ StartProcessorDefinition: 'processor';
 
 EndDefinition: 'end';
 
+Rule: 'rule';
+
 TemplateMatch: '#';
 
 Range: '..';

@@ -13,34 +13,34 @@ end hexToInt
 
 composer jsonParser
   <value>
-  value: (<WS>?) <string|number|object|array|true|false|null> (<WS>?)
+  rule value: (<WS>?) <string|number|object|array|true|false|null> (<WS>?)
 
-  string: (<'"'>) <chars>  (<'"'>)
-  chars: [ <quote|backslash|slash|backspace|formfeed|linefeed|return|tab|unicode|'[^"]'>* ] -> '$...;'
-  quote: <'\\"'> -> '"'
-  backslash: <'\\\\'> -> '\'
-  slash: <'\\/'> -> '/'
-  backspace: <'\\b'> -> '$#8;'
-  formfeed: <'\\f'> -> '$#12;'
-  linefeed: <'\\n'> -> '$#10;'
-  return: <'\\r'> -> '$#13;'
-  tab: <'\\t'> -> '$#9;'
-  unicode: (<'\\u'>) <'[0-9A-Fa-f]{4}'> -> hexToInt -> '$#$;'
+  rule string: (<'"'>) <chars>  (<'"'>)
+  rule chars: [ <quote|backslash|slash|backspace|formfeed|linefeed|return|tab|unicode|'[^"]'>* ] -> '$...;'
+  rule quote: <'\\"'> -> '"'
+  rule backslash: <'\\\\'> -> '\'
+  rule slash: <'\\/'> -> '/'
+  rule backspace: <'\\b'> -> '$#8;'
+  rule formfeed: <'\\f'> -> '$#12;'
+  rule linefeed: <'\\n'> -> '$#10;'
+  rule return: <'\\r'> -> '$#13;'
+  rule tab: <'\\t'> -> '$#9;'
+  rule unicode: (<'\\u'>) <'[0-9A-Fa-f]{4}'> -> hexToInt -> '$#$;'
 
-  number: <'-?(0|[1-9][0-9]*)(\.[0-9]+)?((e|E)(\+|-)?[0-9]+)?'> // TODO: represent this other than string
+  rule number: <'-?(0|[1-9][0-9]*)(\.[0-9]+)?((e|E)(\+|-)?[0-9]+)?'> // TODO: represent this other than string
 
-  object: (<'\{'> <WS>?) { <keyValues>? } (<'}'>)
-  keyValues: <keyValue> <followingKeyValue>*
-  keyValue: <string>: (<WS>? <':'>) <value>
-  followingKeyValue: (<','> <WS>?) <keyValue>
+  rule object: (<'\{'> <WS>?) { <keyValues>? } (<'}'>)
+  rule keyValues: <keyValue> <followingKeyValue>*
+  rule keyValue: <string>: (<WS>? <':'>) <value>
+  rule followingKeyValue: (<','> <WS>?) <keyValue>
 
-  array: (<'\['>) [ <arrayValues>? ] (<']'>)
-  arrayValues: <value> <followingArrayValue>*
-  followingArrayValue: (<','>) <value>
+  rule array: (<'\['>) [ <arrayValues>? ] (<']'>)
+  rule arrayValues: <value> <followingArrayValue>*
+  rule followingArrayValue: (<','>) <value>
 
-  true: <'true'> // TODO: represent this other than string
-  false: <'false'> // TODO: represent this other than string
-  null: <'null'> // TODO: represent this other than string
+  rule true: <'true'> // TODO: represent this other than string
+  rule false: <'false'> // TODO: represent this other than string
+  rule null: <'null'> // TODO: represent this other than string
 end jsonParser
 
 templates printJson

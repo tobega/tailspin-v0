@@ -12,7 +12,6 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import tailspin.ast.Expression;
-import tailspin.ast.StateAssignment;
 import tailspin.ast.Value;
 
 public class Composer implements Transform {
@@ -124,6 +123,9 @@ public class Composer implements Transform {
       String name = namedSpec.namedPattern;
       if (definedSequences.containsKey(name)) {
         return new ScopedSequenceSubComposer(definedSequences.get(name), scope);
+      }
+      if (!namedPatterns.containsKey(name)) {
+        throw new IllegalArgumentException("Unknown composition rule " + name);
       }
       return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name));
     }
@@ -334,9 +336,9 @@ public class Composer implements Transform {
 
   static class StateAssignmentComposition implements CompositionSpec {
     private final CompositionSpec value;
-    private final StateAssignment stateAssignment;
+    private final Expression stateAssignment;
 
-    public StateAssignmentComposition(/* @Nullable */ CompositionSpec value, StateAssignment stateAssignment) {
+    public StateAssignmentComposition(/* @Nullable */ CompositionSpec value, Expression stateAssignment) {
       this.value = value;
       this.stateAssignment = stateAssignment;
     }

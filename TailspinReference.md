@@ -225,19 +225,20 @@ parentheses to indicate that they should not be output.
 The composer definition starts with `composer _identifier_` and ends with `end _identifier_`. A composer can
 also be modified by [parameters](#parameters).
 
-The main pattern is given first, but may be followed by named sub-patterns that are used within the composer.
+The main pattern is given first, but may be followed by named sub-patterns (rules) that are used within the composer. To define a rule,
+start with the keyword "rule" followed by an identifier of your choosing, followed by a colon (':') and then a pattern.
 
 E.g. to compose a string of text like `'Line(Point(5,7),Point(13,9))'` into the array of structures `[{x:5,y:7},{x:13,y:9}]`:
 ```
 composer line
   (<'Line\('>) [ <point>, (<','>) <point> ] (<')'>)
-  point: (<'Point\('>) { x: <INT> (<','>), y: <INT> } (<')'>)
+  rule point: (<'Point\('>) { x: <INT> (<','>), y: <INT> } (<')'>)
 end line
 ```
 
 Composition matchers can be string literals containing regexp patterns [(currently) according to java Pattern](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html).
 
-Other composition matchers are the ones defined in the composer as sub-patterns.
+Other composition matchers are the ones defined in the composer as sub-patterns (rules).
 
 There are also built-in composition matchers like `<INT>` which parses an integer and `<WS>` for a sequence of whitespace characters.
 
@@ -249,7 +250,7 @@ A composition matcher can have a multiplier qualifier after it:
 
 A composition matcher can be negated by a tilde just inside the bracket, e.g. `<~WS>`, which will match everything up until the next matching pattern.
 
-A skipped value may be captured by prefixing the matcher with `def _identifier_:`, e.g. `(def val: <INT>)` will not output the parsed integer at that location
+A skipped value may be captured by prefixing the matcher with `def _identifier_:` and ending the capturing expression with a semi-colon (';'), e.g. `(def val: <INT>;)` will not output the parsed integer at that location
 but captures it as `val`. This value may be output later as `$val`. Values captured at the top level may be visible to named sub-patterns if
 it is captured before entering the sub-pattern. Values captured in named sub-patterns are only visible to later matchers in the same sub-pattern.
 
@@ -264,8 +265,8 @@ templates minutes
 end minutes
 composer time
   { h: <hour>, (<' and '>) m: <minute> } -> minutes
-  hour: <'(one|two)'> -> (<'one'> 1 ! <'two'> 2 !) (<' hours?'>)
-  minute: <INT> (<' minutes?'>)
+  rule hour: <'(one|two)'> -> (<'one'> 1 ! <'two'> 2 !) (<' hours?'>)
+  rule minute: <INT> (<' minutes?'>)
 end time
 'one hour and 13 minutes' -> time -> stdout
 ```

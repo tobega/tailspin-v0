@@ -2,14 +2,13 @@ package tailspin.interpreter;
 
 import java.util.Queue;
 import tailspin.ast.Expression;
-import tailspin.ast.StateAssignment;
 
 public class StateAssignmentSubComposer implements SubComposer {
   private final SubComposer value;
-  private final StateAssignment stateAssignment;
+  private final Expression stateAssignment;
   private final Scope scope;
 
-  public StateAssignmentSubComposer(SubComposer value, StateAssignment stateAssignment,
+  public StateAssignmentSubComposer(SubComposer value, Expression stateAssignment,
       Scope scope) {
     this.value = value;
     this.stateAssignment = stateAssignment;

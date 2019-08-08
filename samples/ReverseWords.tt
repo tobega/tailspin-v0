@@ -11,7 +11,7 @@ def input: ['---------- Ice and Fire ------------',
 
 composer words
   [ <word>* ]
-  word: <~WS> <WS>?
+  rule word: <~WS> <WS>?
 end words
 
 $input... -> '$ -> words -> $(-1..1:-1)...;

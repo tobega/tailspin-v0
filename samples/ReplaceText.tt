@@ -1,7 +1,7 @@
 composer replace@{a:,b:}
   [ <replace|not>* ] -> '$...;'
-  replace: <'$a;'> -> $b
-  not: <~replace>
+  rule replace: <'$a;'> -> $b
+  rule not: <~replace>
 end replace
 
 '' -> replace@{a:'Julius Caesar', b:'Mark Anthony'} -> !OUT::write

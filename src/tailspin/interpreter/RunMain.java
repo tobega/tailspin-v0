@@ -746,12 +746,21 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public List<CompositionSpec> visitCompositionSequence(CompositionSequenceContext ctx) {
     List<CompositionSpec> result = new ArrayList<>();
+    if (ctx.compositionComponents() != null) {
+      result.addAll(visitCompositionComponents(ctx.compositionComponents()));
+    } else {
+      ctx.compositionSkipRule().forEach(r -> result.add(visitCompositionSkipRule(r)));
+    }
+    return result;
+  }
+
+  @Override
+  public List<CompositionSpec> visitCompositionComponents(TailspinParser.CompositionComponentsContext ctx) {
+    List<CompositionSpec> result = new ArrayList<>();
     ctx.compositionSkipRule().forEach(s -> result.add(visitCompositionSkipRule(s)));
-    ctx.compositionComponent().stream()
-        .map(this::visitCompositionComponent)
-        .forEach(result::addAll);
-    if (ctx.structureMemberMatchers() != null) {
-      result.addAll(visitStructureMemberMatchers(ctx.structureMemberMatchers()));
+    result.addAll(visitCompositionComponent(ctx.compositionComponent()));
+    if (ctx.compositionComponents() != null) {
+      result.addAll(visitCompositionComponents(ctx.compositionComponents()));
     }
     return result;
   }
@@ -780,6 +789,8 @@ public class RunMain extends TailspinParserBaseVisitor {
       value = new Composer.CaptureComposition(identifier, value);
     } else if (ctx.stateSink() != null){
       value = new Composer.StateAssignmentComposition(value, visitStateSink(ctx.stateSink()));
+    } else if (ctx.stateAssignment() != null) {
+      value = new Composer.StateAssignmentComposition(null, visitStateAssignment(ctx.stateAssignment()));
     }
     return value;
   }
@@ -791,12 +802,19 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
     CompositionSpec spec;
     if (ctx.LeftBracket() != null) {
-      spec = new Composer.ArrayComposition(visitCompositionSequence(ctx.compositionSequence()));
+      List<CompositionSpec> contents = new ArrayList<>();
+      if (ctx.compositionSequence() != null) {
+        contents.addAll(visitCompositionSequence(ctx.compositionSequence()));
+      } else {
+        contents.add(visitCompositionSkipRule(ctx.compositionSkipRule()));
+      }
+      spec = new Composer.ArrayComposition(contents);
     } else if (ctx.LeftBrace() != null) {
       List<CompositionSpec> contents = new ArrayList<>();
-      ctx.compositionSkipRule().forEach(s -> contents.add(visitCompositionSkipRule(s)));
       if (ctx.structureMemberMatchers() != null) {
         contents.addAll(visitStructureMemberMatchers(ctx.structureMemberMatchers()));
+      } else {
+        contents.add(visitCompositionSkipRule(ctx.compositionSkipRule()));
       }
       spec = new Composer.StructureComposition(contents);
     } else if (ctx.tokenMatcher() != null) {
@@ -804,6 +822,8 @@ public class RunMain extends TailspinParserBaseVisitor {
     } else if (ctx.sourceReference() != null) {
       Expression source = visitSourceReference(ctx.sourceReference());
       spec = new Composer.DereferenceComposition(source);
+    } else if (ctx.compositionKeyValue() != null) {
+      spec = visitCompositionKeyValue(ctx.compositionKeyValue());
     } else {
       throw new UnsupportedOperationException("Unknown type of composition matcher");
     }
@@ -816,9 +836,13 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public List<CompositionSpec> visitStructureMemberMatchers(TailspinParser.StructureMemberMatchersContext ctx) {
-    List<CompositionSpec> members = new ArrayList<>();
-    ctx.structureMemberMatcher().forEach(k -> members.addAll(visitStructureMemberMatcher(k)));
-    return members;
+    List<CompositionSpec> result = new ArrayList<>();
+    ctx.compositionSkipRule().forEach(s -> result.add(visitCompositionSkipRule(s)));
+    result.addAll(visitStructureMemberMatcher(ctx.structureMemberMatcher()));
+    if (ctx.structureMemberMatchers() != null) {
+      result.addAll(visitStructureMemberMatchers(ctx.structureMemberMatchers()));
+    }
+    return result;
   }
 
   @Override

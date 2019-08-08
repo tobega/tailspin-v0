@@ -440,6 +440,18 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCompositionSequence(TailspinParser.CompositionSequenceContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#compositionComponents}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompositionComponents(TailspinParser.CompositionComponentsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#compositionComponent}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompositionComponent(TailspinParser.CompositionComponentContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#compositionMatcher}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -499,12 +511,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCompositionKey(TailspinParser.CompositionKeyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TailspinParser#compositionComponent}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitCompositionComponent(TailspinParser.CompositionComponentContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#identifier}.
 	 * @param ctx the parse tree

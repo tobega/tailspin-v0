@@ -153,21 +153,27 @@ multiplicativeOperator: Star | Slash | Mod;
 composerBody: stateAssignment? compositionSequence definedCompositionSequence*
 ;
 
-definedCompositionSequence: key compositionSequence
+definedCompositionSequence: Rule key compositionSequence
 ;
 
-compositionSequence: compositionSkipRule* (compositionComponent+|structureMemberMatchers)
+compositionSequence: compositionComponents
+| compositionSkipRule+
 ;
+
+compositionComponents: compositionSkipRule* compositionComponent (Comma? compositionComponents)?;
+
+compositionComponent: compositionMatcher compositionSkipRule*;
 
 compositionMatcher: (tokenMatcher
-  | LeftBracket compositionSequence RightBracket
-  | LeftBrace compositionSkipRule* structureMemberMatchers? RightBrace
-  | sourceReference) transform?
+  | LeftBracket (compositionSequence|compositionSkipRule)? RightBracket
+  | LeftBrace (structureMemberMatchers|compositionSkipRule)? RightBrace
+  | sourceReference
+  | compositionKeyValue) transform?
 ;
 
-structureMemberMatchers: structureMemberMatcher (Comma structureMemberMatcher)*;
+structureMemberMatchers: compositionSkipRule* structureMemberMatcher (Comma? structureMemberMatchers)?;
 
-structureMemberMatcher: compositionSkipRule* (tokenMatcher|compositionKeyValue);
+structureMemberMatcher: (tokenMatcher|compositionKeyValue) compositionSkipRule*;
 
 tokenMatcher: StartMatcher Invert? compositionToken (Else compositionToken)* EndMatcher multiplier?;
 
@@ -179,13 +185,11 @@ multiplier: Plus | Star | Question
 
 compositionSkipRule: LeftParen compositionCapture+ RightParen;
 
-compositionCapture: ((Def key)? compositionMatcher)|((compositionMatcher To)? stateSink);
+compositionCapture: (Def key compositionMatcher SemiColon)|(compositionMatcher (To stateSink)?)|stateAssignment;
 
-compositionKeyValue: (key|compositionKey) compositionSkipRule* compositionComponent Comma?;
+compositionKeyValue: (key|compositionKey) compositionSkipRule* compositionComponent;
 
 compositionKey: tokenMatcher Colon;
-
-compositionComponent: (compositionMatcher|compositionSkipRule) compositionSkipRule*;
 
 identifier: IDENTIFIER | keyword;
 
@@ -199,4 +203,5 @@ keyword: Package
   | StartProcessorDefinition
   | EndDefinition
   | Mod
+  | Rule
 ;
