@@ -2,14 +2,42 @@ Performance benchmarks based on (copied from) https://github.com/smarr/are-we-fa
 
 Progress measured in how many times slower than Java. The variance on tailspin runs seems crazy, so I don't know what this really says.
 
-|Date|Json|List|Permute|Queens|Sieve|
-|---|---|---|---|---|---|
-|[2019-07-12](#2019-07-12)|136|2129|
-|[2019-07-16](#2019-07-16)|132|2030|4631|    |2169|
-|[2019-07-23](#2019-07-23)|118|3259|4176|6646|1064|
-|[2019-07-24](#2019-07-24)|149|1865|2546|4185|1197|
-|[2019-07-24b](#2019-07-24b)|144|590|1495|847|940|
-|[2019-08-04](#2019-08-04)|179|877|1010|1195|605|
+|Date|Implementation|Json|List|Permute|Queens|Sieve|
+|---|---|---|---|---|---|---|
+|[2019-07-12](#2019-07-12)||136|2129|
+|[2019-07-16](#2019-07-16)||132|2030|4631|    |2169|
+|[2019-07-23](#2019-07-23)||118|3259|4176|6646|1064|
+|[2019-07-24](#2019-07-24)||149|1865|2546|4185|1197|
+|[2019-07-24b](#2019-07-24b)||144|590|1495|847|940|
+|[2019-08-04](#2019-08-04)||179|877|1010|1195|605|
+|[2019-08-18](#2019-08-18)|Interpreted|136|561|2087|1205|725|
+|[2019-08-18](#2019-08-18)|Truffle|158|798|1172|1382|748|
+
+## 2019-08-18
+No changes, but added an implementation running on truffle/graalvm, no optimizations yet
+
+|Benchmark|Mean runtime us|
+|---|---|
+Json     Java | 12.8
+Json     Node | 13.6
+Json     Tailspin | 1739.9
+Json     Tailspin-truffle | 2026.1
+List     Java  | 1.7
+List     Node  |  3.0
+List     Tailspin  |  954.3
+List     Tailspin-truffle | 1357.0
+Permute  Java  |  0.8
+Permute  Node  |  1.4
+Permute  Tailspin  | 1669.2
+Permute  Tailspin-truffle | 937.7
+Queens   Java  |  1.4
+Queens   Node   | 2.4
+Queens   Tailspin  | 1686.5
+Queens   Tailspin-truffle |  1934.9
+Sieve    Java  |  1.1
+Sieve    Node  | 2.5
+Sieve    Tailspin  | 797.2
+Sieve    Tailspin-truffle | 823.0
 
 ## 2019-08-04
 No specific performance-related work but lots of syntax updates/improvements

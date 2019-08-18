@@ -17,8 +17,7 @@ public class SystemProcessor extends ProcessorInstance {
     return (it, params) -> {
       Queue<Object> result = new ArrayDeque<>();
       if (message.equals("nanoCount")) {
-        // TODO: make long the number used
-        result.add((int) (System.nanoTime() & (0x8fffffff)));
+        result.add(System.nanoTime());
       } else {
         throw new UnsupportedOperationException("Unknown SYS message " + message);
       }

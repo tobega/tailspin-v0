@@ -10,6 +10,8 @@ The syntax has been mainly determined to be sane and runnable.
 
 Work is now focused on improving speed and moving away from the purely interpreted implementation.
 
+Current work is [implementing tailspin on truffle/graalvm](https://github.com/tobega/tailspin-truffle)
+
 ## Code samples
 Small code samples can be found in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
 Development is driven by code snippets in the [test/tailspin/samples folder](https://github.com/tobega/tailspin-v0/tree/master/test/tailspin/samples).
