@@ -14,6 +14,33 @@ Progress measured in how many times slower than Java. The variance on tailspin r
 |[2019-08-18](#2019-08-18)|Truffle|158|798|1172|1382|748|
 |[2019-09-08](#2019-09-08)|Interpreted|156|846|1001|1206|558|
 |[2019-09-08](#2019-09-08)|Truffle|158|1371|1459|1574|945|
+|[2019-09-15](#2019-09-15)|Truffle|158|1483|1672|1462|966|
+
+## 2019-09-15
+Truffle-ized arithmetic operations. Run on machine 2.
+
+|Benchmark|Mean runtime us|
+|---|---|
+Json     Java|10.9
+Json     Node|14.4
+Json     Tailspin|1653.8
+Json     Tailspin-truffle|1727.0
+List     Java | 1.2
+List     Node |2.5
+List     Tailspin| 1032.0
+List     Tailspin-truffle|1779.4
+Permute  Java | 0.7
+Permute  Node | 1.2
+Permute  Tailspin  | 717.9
+Permute  Tailspin-truffle| 1170.6
+Queens   Java  | 1.2
+Queens   Node  | 2.1
+Queens   Tailspin|1417.2
+Queens   Tailspin-truffle|1754.4
+Sieve    Java|1.0
+Sieve    Node |2.5
+Sieve    Tailspin |560.7
+Sieve    Tailspin-truffle|966.1
 
 ## 2019-09-08
 Converted the truffle version to fully use truffle frames. No optimizations yet. Run on another machine.
