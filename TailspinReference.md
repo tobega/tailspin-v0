@@ -9,9 +9,9 @@ _Current limitations_: The current implementation cannot handle very deep recurs
 ## Basic structure
 A typical tailspin statement starts with a [source](#sources) for a value,
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
-(a.k.a a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you can append an
-exclamation point `!` to emit the resulting value into the outer calling context (this corresponds to a "yield"
-in a generator in other languages).
+(a.k.a a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you can end with an
+exclamation point `!` to emit the resulting value into the outer calling context (this is similar to a "yield"
+in a generator in other languages, except that the processing continues right away).
 
 The _current value_, referred to as "it" and written as `$`, at each
 stage is simply the value produced by the stage before. At the start of a top-level statement,
@@ -23,7 +23,8 @@ to create a different value or a defined [templates](#templates) object where th
 decided by a [matcher](#matchers) condition on the _current value_.
 
 Note that at each step of a _value chain_, any number of values may be emitted for each input value.
-If no values are emitted from a step, the processing of that _value chain_ ends.
+If no values are emitted from a step, the processing of that _value chain_ ends. Note that "no value" 
+is the complete absence of a value, there is no placeholder no-value-value like "null".
 
 Whitespace works as a separator but is otherwise ignored.
 
@@ -34,7 +35,7 @@ Comments are started with `//` and continue to the end of the line.
 
 ## Side effects
 The current specification is that each step of a _value chain_ is executed
-for all of the values of a stream `$` before the next step is evaluated. This may change.
+for all of the values of a stream of current values, `$`, before the next step is evaluated. This may change.
 
 ## Command line arguments
 Command line arguments are available as a list of strings in the predefined value ARGS, accessible as `$ARGS`.
@@ -60,7 +61,7 @@ or can't because you're at the top level, and you don't want to access a defined
 right after the dollar sign, e.g. `'$:5*8;'` gives you the string `'40'`
 
 Interpolation can also execute a _value chain_ by adding transforms, even sending to templates if in a templates context,
-e.g. `The total price is $$ $ -> $ * $quantity;` or `$:1..3 -> #`. Note that when you evaluate a [processor message](#processors),
+e.g. `The total price is $$ $ -> $ * $quantity;` or `$:1..3 -> #;`. Note that when you evaluate a [processor message](#processors),
 you can reference it directly, like `'$p::message;'` if the message does not require input, otherwise you need to use it as a transform,
 that is like `'$->p::message;'`. Note that we now reference the message expression without the $.
 
