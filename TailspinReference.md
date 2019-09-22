@@ -468,6 +468,7 @@ run within the scope of the processor instance. Therefore messages can also take
 ## The System objects
 A predefined symbol `SYS` can be used to access certain system-defined functions:
 * `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
+* `$N -> SYS::randomInt` returns an integer value modulo N
 
 `IN` accesses user data entered in the terminal (or data from the unix standard input pipe).
 * `$IN::lines` Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).

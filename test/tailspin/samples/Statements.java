@@ -252,6 +252,25 @@ class Statements {
     assertEquals("1", output.toString(StandardCharsets.UTF_8));
   }
 
+  @Test
+  void systemRandomInt() throws Exception {
+    String program = "def vals: [ 1..100 -> 10 -> SYS::randomInt];\n"
+        + "$vals -> (<~[<10..>]> 1!) -> !OUT::write\n"
+        + "$vals -> (<~[<..-1>]> -1!) -> !OUT::write\n"
+        + "0..9 -> (<?($vals <[<$>]>)> $!) -> !OUT::write\n"
+        // The below might fail very rarely
+        + "$vals -> [i]($i mod 10 - $ !) -> (@: $(1); $(2..-1)... -> @: $@ + $; $@!) -> (<-50..50> 50!) ->!OUT::write\n"
+        + "$vals -> [i]($i mod 10 - $ !) -> (<[<~0>]> 0!) ->!OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1-10123456789500", output.toString(StandardCharsets.UTF_8));
+  }
+
   @ExtendWith(TempDirectory.class)
   @Test
   void importPackage(@TempDirectory.TempDir Path dir) throws Exception {
