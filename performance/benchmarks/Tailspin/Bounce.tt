@@ -1,0 +1,59 @@
+import 'harness'
+
+processor Random
+  @: 74755;
+  source next
+    @Random: ($@Random * 1309 + 13849) mod 65536;
+    $@Random !
+  end next
+end Random
+
+processor Ball@{random:}
+  @: {
+    x: $random::next mod 500,
+    y: $random::next mod 500,
+    xVel: ($random::next mod 300) - 150,
+    yVel: ($random::next mod 300) - 150
+  };
+  source bounce
+    def xLimit: 500;
+    def yLimit: 500;
+    @: 0;
+    @Ball.x: $@Ball.x + $@Ball.xVel -> (
+      <$xLimit~..>
+        $xLimit !
+        @Ball.xVel: $@Ball.xVel -> (<..0> $! <> -$!);
+        @bounce: 1;
+      <..~0>
+        0 !
+        @Ball.xVel: $@Ball.xVel -> (<..0> -$! <> $!);
+        @bounce: 1;
+      <> $!);
+    @Ball.y: $@Ball.y + $@Ball.yVel -> (
+      <$yLimit~..>
+        $yLimit !
+        @Ball.yVel: $@Ball.yVel -> (<..0> $! <> -$!);
+        @bounce: 1;
+      <..~0>
+        0 !
+        @Ball.yVel: $@Ball.yVel -> (<..0> -$! <> $!);
+        @bounce: 1;
+      <> $!);
+    $@bounce !
+  end bounce
+end Ball
+
+templates runAndVerify
+  def random: $Random;
+  def ballCount: 100;
+  @: 0;
+  def balls: [1..$ballCount -> $Ball@{random: $random}];
+  1..50 -> (
+    $balls... -> @runAndVerify: $@runAndVerify + $::bounce;
+  ) -> !VOID
+  $@ -> #
+  <1331> 1 !
+  <> 0 !
+end runAndVerify
+
+1 -> harness/run@{name: 'Bounce', benchmark:runAndVerify} -> !VOID

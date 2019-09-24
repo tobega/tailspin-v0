@@ -2,19 +2,51 @@ Performance benchmarks based on (copied from) https://github.com/smarr/are-we-fa
 
 Progress measured in how many times slower than Java. The variance on tailspin runs seems crazy, so I don't know what this really says.
 
-|Date|Implementation|Json|List|Permute|Queens|Sieve|
-|---|---|---|---|---|---|---|
-|[2019-07-12](#2019-07-12)| |136|2129|
-|[2019-07-16](#2019-07-16)| |132|2030|4631|    |2169|
-|[2019-07-23](#2019-07-23)| |118|3259|4176|6646|1064|
-|[2019-07-24](#2019-07-24)| |149|1865|2546|4185|1197|
-|[2019-07-24b](#2019-07-24b)| |144|590|1495|847|940|
-|[2019-08-04](#2019-08-04)| |179|877|1010|1195|605|
-|[2019-08-18](#2019-08-18)|Interpreted|136|561|2087|1205|725|
-|[2019-08-18](#2019-08-18)|Truffle|158|798|1172|1382|748|
-|[2019-09-08](#2019-09-08)|Interpreted|156|846|1001|1206|558|
-|[2019-09-08](#2019-09-08)|Truffle|158|1371|1459|1574|945|
-|[2019-09-15](#2019-09-15)|Truffle|158|1483|1672|1462|966|
+|Date|Implementation|Bounce|Json|List|Permute|Queens|Sieve|
+|---|---|---|---|---|---|---|---|
+|[2019-07-12](#2019-07-12)| | |136|2129|
+|[2019-07-16](#2019-07-16)| | |132|2030|4631|    |2169|
+|[2019-07-23](#2019-07-23)| | |118|3259|4176|6646|1064|
+|[2019-07-24](#2019-07-24)| | |149|1865|2546|4185|1197|
+|[2019-07-24b](#2019-07-24b)| | |144|590|1495|847|940|
+|[2019-08-04](#2019-08-04)| | |179|877|1010|1195|605|
+|[2019-08-18](#2019-08-18)|Interpreted| |136|561|2087|1205|725|
+|[2019-08-18](#2019-08-18)|Truffle| |158|798|1172|1382|748|
+|[2019-09-08](#2019-09-08)|Interpreted| |156|846|1001|1206|558|
+|[2019-09-08](#2019-09-08)|Truffle| |158|1371|1459|1574|945|
+|[2019-09-15](#2019-09-15)|Truffle| |158|1483|1672|1462|966|
+|[2019-09-24](#2019-09-24)|Interpreted|1543|151|786|1289|1351|575|
+|[2019-09-24](#2019-09-24)|Truffle|2563|162|1441|1941|1977|1081|
+
+## 2019-09-24
+Added Bounce benchmark. Recompiled truffle. Run on machine 1.
+
+|Benchmark|Mean runtime us|
+|---|---|
+Bounce   Java |1.1
+Bounce   Node |2.2
+Bounce   Tailspin |1697.8
+Bounce   Tailspin-truffle|2819.6
+Json     Java |12.0
+Json     Node | 14.0
+Json     Tailspin |1809.4
+Json     Tailspin-truffle | 1942.1
+List     Java |1.5
+List     Node | 2.9
+List     Tailspin | 1178.8
+List     Tailspin-truffle |2161.8
+Permute  Java | 0.7
+Permute  Node |1.4
+Permute  Tailspin | 902.5
+Permute  Tailspin-truffle | 1359.0
+Queens   Java  |1.2
+Queens   Node | 2.4
+Queens   Tailspin |1621.1
+Queens   Tailspin-truffle | 2372.4
+Sieve    Java | 1.2
+Sieve    Node | 2.4
+Sieve    Tailspin | 689.6
+Sieve    Tailspin-truffle | 1297.5
 
 ## 2019-09-15
 Truffle-ized arithmetic operations. Run on machine 2.
