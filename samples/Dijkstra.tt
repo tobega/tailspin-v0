@@ -1,0 +1,33 @@
+templates shortestPaths@{graph:}
+  @: [];
+  [ {to: $, distance: 0, path:[]} ] -> #
+  <[](0)> $@ !
+  <>
+    def closest: $ -> (@: $(1); $(2..-1)... -> # $@! <?($.distance <..~$@.distance>)> @: $;);
+    $closest -> ..|@: $;
+    def path: [ $closest.path..., $closest.to ];
+    [ $... -> (<?($.to <~$closest.to>)> $!),
+      $graph... -> (def to: $.edge(2); $ -> #
+          <?($.edge(1) <$closest.to>) ?($@shortestPaths <~[<{to: <$to>}>]>)> $!)
+        -> { to: $.edge(2), distance: $.cost + $closest.distance, path: $path} ] -> #
+end shortestPaths
+
+def edges: [
+  { edge: ['a', 'b'], cost: 7 },
+  { edge: ['a', 'c'], cost: 9 },
+  { edge: ['a', 'f'], cost: 14 },
+  { edge: ['b', 'c'], cost: 10 },
+  { edge: ['b', 'd'], cost: 15 },
+  { edge: ['c', 'd'], cost: 11 },
+  { edge: ['c', 'f'], cost: 2 },
+  { edge: ['d', 'e'], cost: 6 },
+  { edge: ['e', 'f'], cost: 9 }];
+
+def fromA: 'a' -> shortestPaths@{graph: $edges};
+
+$fromA... -> (<{to:<'e'>}> $!) -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..-1);
+' -> !OUT::write
+
+$fromA... -> (<{to:<'f'>}> $!) -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..-1);
+' -> !OUT::write
+
