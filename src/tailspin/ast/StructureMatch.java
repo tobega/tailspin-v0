@@ -20,7 +20,7 @@ public class StructureMatch implements Condition {
         return false;
       }
       Object valueToMatch = mapToMatch.get(keyMatch.getKey());
-      if (!keyMatch.getValue().matches(valueToMatch, mapToMatch, scope)) {
+      if (!keyMatch.getValue().matches(valueToMatch, it, scope)) {
         return false;
       }
     }

@@ -7,8 +7,7 @@ templates shortestPaths@{graph:}
     $closest -> ..|@: $;
     def path: [ $closest.path..., $closest.to ];
     [ $... -> (<?($.to <~$closest.to>)> $!),
-      $graph... -> (def to: $.edge(2); $ -> #
-          <?($.edge(1) <$closest.to>) ?($@shortestPaths <~[<{to: <$to>}>]>)> $!)
+      $graph... -> (<?($.edge(1) <$closest.to>) ?($@shortestPaths <~[<{to: <$.edge(2)>}>]>)> $!)
         -> { to: $.edge(2), distance: $.cost + $closest.distance, path: $path} ] -> #
 end shortestPaths
 

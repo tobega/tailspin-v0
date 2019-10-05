@@ -310,6 +310,10 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   Conditions on array content are written inside the brackets, separated by commas. They test if there is any element that fulfils the condition.
   E.g. `<[<3|5>]>` tests if there is any element that is either a 3 or a 5, while `<[<3>,<5>]>` tests that the array contains at least one each of 3 and 5.
   Beware, though, that a single element could match more than one condition.
+  
+Note that when nesting down matchers for fields and array contents, the _current value_ denoted by `$` will still refer to
+the original item to be matched by the outer match expression. To change perspective so that `$` should represent
+the value at the current level of the match, use a [such-that condition](#such-that-conditions)
 
 ### Do-nothing block (guard clause)
 Sometimes it is easier or clearer to specify conditions which you don't want to do anything with.
@@ -324,7 +328,9 @@ use a number of such-that conditions either after or instead of the main conditi
 Such-that conditions can also be applied to transforms of the value. Note that those transforms must yield a single value for matching.
 
 A such-that enables you to meaningfully use `$` in the match condition as the original thing you are matching, while the condition is tested
-against the produced or transformed value. When you nest these conditions, the focus (value of $) will change.
+against the produced or transformed value.
+ 
+Note that a such-that will change the perspective of the _current value_ so that `$` will represent the value being matched by the closest enclosing matcher.
 
 ## Templates state
 A [templates](#templates) object has modifiable local temporary state, valid for the processing of one input value,

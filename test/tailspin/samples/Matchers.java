@@ -154,6 +154,45 @@ class Matchers {
   }
 
   @Test
+  void structureFieldMatchKeepsPerspectiveOfIt() throws Exception {
+    String program = "{ a: {x: 1, y:2}, b: 2 } -> (<{ b:<$.a.y> }> 'yes'! <> 'no'!) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deepStructureFieldMatchKeepsPerspectiveOfIt() throws Exception {
+    String program = "{ a: {x: 1, y:2}, b: 2 } -> (<{ a:<{y: <$.b>}> }> 'yes'! <> 'no'!) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deepStructureFieldMatchSuchThatChangesPerspectiveOfIt() throws Exception {
+    String program = "{ a: {x: 1, y:2}, b: 2 } -> (<{ a:<?($.y <$.x..>)> }> 'yes'! <> 'no'!) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void rangeMatchDereference() throws Exception {
     String program = "def mid: 3;\n1..6 -> (<..$mid> 'L'! <> 'H'!) -> !OUT::write";
     Tailspin runner =
@@ -638,6 +677,32 @@ class Matchers {
   @Test
   void arrayContainsNoneOfTheAlternatives() throws Exception {
     String program = "[3, 5, 1] -> (<~[<0|2>]> 'yes'! <> 'no'!) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayContainsKeepsPerspectiveOfIt() throws Exception {
+    String program = "def a:[{x:1}]; 1 -> (<?($a <[<{x: <$>}>]>)> 'yes'! <> 'no'!) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayContainsSuchThatChangesPerspectiveOfIt() throws Exception {
+    String program = "[{x:1, y:1}] -> (<[<?($.x <$.y>)>]> 'yes'! <> 'no'!) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
