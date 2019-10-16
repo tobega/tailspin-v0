@@ -10,7 +10,17 @@ The syntax has been mainly determined to be sane and runnable.
 
 Work is now focused on improving speed and moving away from the purely interpreted implementation.
 
-Current work is [implementing tailspin on truffle/graalvm](https://github.com/tobega/tailspin-truffle)
+Current work, going slow, currently stalled, is [implementing tailspin on truffle/graalvm](https://github.com/tobega/tailspin-truffle)
+
+Next up is adding relvars (see [reldb](https://reldb.org) and the Third Manifesto)
+
+After that, probably support for any string symbol/identifier/key for object properties, json-like.
+
+Thinking about how everything could be first-class objects.
+
+Thinking about if and how reflection could work.
+
+Thinking about if and how to add some macro ability.
 
 ## Code samples
 Small code samples can be found in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
