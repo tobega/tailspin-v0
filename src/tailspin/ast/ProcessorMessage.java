@@ -33,7 +33,7 @@ public class ProcessorMessage extends Reference {
   private Transform resolveMessage(Object receiver, Map<String, Object> resolvedParams) {
     if (receiver instanceof List) {
       if (message.equals("length")) {
-        return (it, params) -> Expression.queueOf(((List<?>) receiver).size());
+        return (it, params) -> Expression.queueOf(((Number)((List<?>) receiver).size()).longValue());
       } else {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
