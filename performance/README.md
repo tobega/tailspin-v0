@@ -2,8 +2,8 @@ Performance benchmarks based on (copied from) https://github.com/smarr/are-we-fa
 
 Progress measured in how many times slower than Java. The variance on tailspin runs seems crazy, so I don't know what this really says.
 
-|Date|Implementation|Bounce|Json|List|Permute|Queens|Sieve|
-|---|---|---|---|---|---|---|---|
+|Date|Implementation|Bounce|Json|List|Permute|Queens|Sieve|Towers|
+|---|---|---|---|---|---|---|---|---|
 |[2019-07-12](#2019-07-12)| | |136|2129|
 |[2019-07-16](#2019-07-16)| | |132|2030|4631|    |2169|
 |[2019-07-23](#2019-07-23)| | |118|3259|4176|6646|1064|
@@ -17,6 +17,41 @@ Progress measured in how many times slower than Java. The variance on tailspin r
 |[2019-09-15](#2019-09-15)|Truffle| |158|1483|1672|1462|966|
 |[2019-09-24](#2019-09-24)|Interpreted|1543|151|786|1289|1351|575|
 |[2019-09-24](#2019-09-24)|Truffle|2563|162|1441|1941|1977|1081|
+|[2019-10-20](#2019-10-20)|Interpreted|1636|157|659|1307|1381|621|1034|
+
+## 2019-10-20
+Added Towers benchmark. Better tailspin code in List benchmark. Run on machine 1.
+
+|Benchmark|Mean runtime us|
+|---|---|
+Bounce   Java|1.2
+Bounce   Node |2.2
+Bounce   Tailspin |1962.7
+Bounce   Tailspin-truffle|3011.5
+Json     Java | 12.3
+Json     Node |16.4
+Json     Tailspin | 1936.3
+Json     Tailspin-truffle | 2061.4
+List     Java | 1.7
+List     Node | 3.2
+List     Tailspin | 1120.3
+List     Tailspin-truffle | 2029.7
+Permute  Java  | 0.8
+Permute  Node  |1.4
+Permute  Tailspin |1045.6
+Permute  Tailspin-truffle | 1542.9
+Queens   Java |1.4
+Queens   Node |2.7
+Queens   Tailspin |1933.9
+Queens   Tailspin-truffle | 2651.7
+Sieve    Java | 1.3
+Sieve    Node |2.8
+Sieve    Tailspin | 807.1
+Sieve    Tailspin-truffle | 1461.8
+Towers   Java | 1.5
+Towers   Node | 2.9
+Towers   Tailspin |1551.6
+Towers   Tailspin-truffle |2060.3
 
 ## 2019-09-24
 Added Bounce benchmark. Recompiled truffle. Run on machine 1.

@@ -1,0 +1,37 @@
+import 'harness'
+
+// Tailspin doesn't have nulls, which the java and javscript implementatios rely on
+// So this is more Tailspin-like
+templates towers
+  @: {piles: [[$..0:-1 -> $], [], []], moves: 0};
+  sink pushDisk@{pile:}
+    <$@towers.piles($pile)..> $@ ! // Actually throws, there is no $@
+    <> ..|@towers.piles($pile): $;
+  end pushDisk
+  templates popDisk
+    ^@towers.piles($; -1) !
+  end popDisk
+  sink moveTopDisk@{to:}
+    $ -> popDisk -> !pushDisk@{pile: $to}
+    @towers.moves: $@towers.moves + 1;
+  end moveTopDisk
+  sink moveDisks
+    def what: $;
+    $.disks -> #
+    <1> $what.from -> !moveTopDisk@{to: $what.to}
+    <> def otherPile: 6 - $what.from - $what.to;
+      {disks: $ - 1, from: $what.from, to: $otherPile }  -> !moveDisks
+      $what.from -> !moveTopDisk@{to: $what.to}
+      {disks: $ - 1, from: $otherPile, to: $what.to }  -> !moveDisks
+  end moveDisks
+  {disks: 13, from: 1, to: 2} -> !moveDisks
+  $@.moves !
+end towers
+
+templates runAndVerify
+  13 -> towers -> #
+  <8191> 1 !
+  <> 0 !
+end runAndVerify
+
+1 -> harness/run@{name: 'List', benchmark:runAndVerify} -> !VOID

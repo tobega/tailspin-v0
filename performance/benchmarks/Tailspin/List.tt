@@ -30,7 +30,7 @@ end makeList
 
 templates isShorterThan
   <{x:<>, y:<>}>
-    { $.x::getNext -> {x: $}..., $.y::getNext -> {y:$}... } -> #
+    { $.x::getNext -> (x: $), $.y::getNext -> (y: $) } -> #
   <{y:<>}> 1 !
   <> 0 !
 end isShorterThan
