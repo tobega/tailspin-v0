@@ -12,7 +12,7 @@ templates run@{name:, benchmark:}
     $@ -> #
     <1>
       def endTime: $SYS::nanoCount;
-      def runTime: ($endTime - $startTime) / 1000;
+      def runTime: ($endTime - $startTime) ~/ 1000;
       '$name;: iterations=1 runtime: $runTime;us
 ' -> !OUT::write
       @run: $@run + $runTime;
@@ -28,7 +28,7 @@ templates run@{name:, benchmark:}
                innerIterations: $ARGS::length -> (<2..> $ARGS(2) -> toInt ! <> 1!)
              };
   1..$specs.iterations -> ($specs.innerIterations -> measure -> !VOID) -> !VOID
-  '$name;: iterations=$specs.iterations; average: $:$@run / $specs.iterations;us total: $@run;us
+  '$name;: iterations=$specs.iterations; average: $:$@run ~/ $specs.iterations;us total: $@run;us
 
 ' -> !OUT::write
 end run
