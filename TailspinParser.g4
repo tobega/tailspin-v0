@@ -148,7 +148,7 @@ arithmeticExpression: integerLiteral
 
 additiveOperator: Plus | Minus;
 
-multiplicativeOperator: Star | Slash | Mod;
+multiplicativeOperator: Star | TruncateDivide | Mod;
 
 composerBody: stateAssignment? compositionSequence definedCompositionSequence*
 ;

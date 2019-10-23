@@ -38,7 +38,7 @@ null
 '+'
 '-'
 '*'
-'/'
+'~/'
 'mod'
 '?'
 '='
@@ -98,7 +98,7 @@ Range
 Plus
 Minus
 Star
-Slash
+TruncateDivide
 Mod
 Question
 Equal

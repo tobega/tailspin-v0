@@ -618,7 +618,7 @@ public class RunMain extends TailspinParserBaseVisitor {
       switch (operation) {
         case "*":
           return new ArithmeticOperation(left, ArithmeticOperation.Op.Multiply, right);
-        case "/":
+        case "~/":
           return new ArithmeticOperation(left, ArithmeticOperation.Op.DivideTruncate, right);
         case "mod":
           return new ArithmeticOperation(left, ArithmeticOperation.Op.Modulo, right);

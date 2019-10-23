@@ -36,7 +36,7 @@ Range=35
 Plus=36
 Minus=37
 Star=38
-Slash=39
+TruncateDivide=39
 Mod=40
 Question=41
 Equal=42
@@ -86,7 +86,7 @@ END_STRING=57
 '+'=36
 '-'=37
 '*'=38
-'/'=39
+'~/'=39
 'mod'=40
 '?'=41
 '='=42

@@ -90,8 +90,8 @@ class Numbers {
   }
 
   @Test
-  void divide() throws IOException {
-    String program = "15 / 3 -> !OUT::write";
+  void truncateDivide() throws IOException {
+    String program = "15 ~/ 3 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -156,7 +156,7 @@ class Numbers {
 
   @Test
   void precedence() throws IOException {
-    String program = "2 * 3 + 16 / 4 - 50 mod 24 -> !OUT::write";
+    String program = "2 * 3 + 16 ~/ 4 - 50 mod 24 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -338,11 +338,11 @@ class Numbers {
   }
 
   @Test
-  void divisionSign() throws IOException {
-    String program = "2 / 1 -> !OUT::write\n"
-        + "-2 / 1 -> !OUT::write\n"
-        + "-2 / -1 -> !OUT::write\n"
-        + "2 / -1 -> !OUT::write";
+  void truncateDivisionSign() throws IOException {
+    String program = "2 ~/ 1 -> !OUT::write\n"
+        + "-2 ~/ 1 -> !OUT::write\n"
+        + "-2 ~/ -1 -> !OUT::write\n"
+        + "2 ~/ -1 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

@@ -80,7 +80,7 @@ Minus: '-';
 
 Star: '*';
 
-Slash: '/';
+TruncateDivide: '~/';
 
 Mod: 'mod';
 

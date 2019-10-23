@@ -67,9 +67,9 @@ that is like `'$->p::message;'`. Note that we now reference the message expressi
 
 ### Arithmetic expression
 The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference).
-Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 / 4`:
+Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 * multiplication `*`
-* division `/` (which truncates to the integer closest to 0)
+* truncation division `~/` (which truncates to the integer closest to 0)
 * mathematical modulo, `mod`, which gives the positive number r = n mod q such that |r| < |q| and n = k*q + r for some k.
 * addition `+`
 * subtraction `-`

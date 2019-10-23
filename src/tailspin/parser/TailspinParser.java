@@ -24,10 +24,11 @@ public class TailspinParser extends Parser {
 		LeftBrace=24, RightBrace=25, StartMatcher=26, StartTemplatesDefinition=27, 
 		StartSourceDefinition=28, StartSinkDefinition=29, StartComposerDefinition=30, 
 		StartProcessorDefinition=31, EndDefinition=32, Rule=33, TemplateMatch=34, 
-		Range=35, Plus=36, Minus=37, Star=38, Slash=39, Mod=40, Question=41, Equal=42, 
-		Zero=43, PositiveInteger=44, START_STRING=45, IDENTIFIER=46, WS=47, Else=48, 
-		EndMatcher=49, BeginSuchThat=50, Comment=51, REGEX_TEXT=52, END_REGEX=53, 
-		StartCharacterCode=54, StartStringInterpolate=55, STRING_TEXT=56, END_STRING=57;
+		Range=35, Plus=36, Minus=37, Star=38, TruncateDivide=39, Mod=40, Question=41, 
+		Equal=42, Zero=43, PositiveInteger=44, START_STRING=45, IDENTIFIER=46, 
+		WS=47, Else=48, EndMatcher=49, BeginSuchThat=50, Comment=51, REGEX_TEXT=52, 
+		END_REGEX=53, StartCharacterCode=54, StartStringInterpolate=55, STRING_TEXT=56, 
+		END_STRING=57;
 	public static final int
 		RULE_program = 0, RULE_packageDefinition = 1, RULE_dependency = 2, RULE_statement = 3, 
 		RULE_key = 4, RULE_parameterDefinitions = 5, RULE_source = 6, RULE_sourceReference = 7, 
@@ -80,7 +81,7 @@ public class TailspinParser extends Parser {
 			null, null, null, "'@'", "':'", null, null, null, "';'", "','", "'...'", 
 			"'~'", "'('", "')'", "'['", "']'", "'{'", "'}'", "'<'", "'templates'", 
 			"'source'", "'sink'", "'composer'", "'processor'", "'end'", "'rule'", 
-			"'#'", "'..'", "'+'", "'-'", "'*'", "'/'", "'mod'", "'?'", "'='", "'0'", 
+			"'#'", "'..'", "'+'", "'-'", "'*'", "'~/'", "'mod'", "'?'", "'='", "'0'", 
 			null, null, null, null, "'|'", "'>'", "'?('"
 		};
 	}
@@ -94,9 +95,9 @@ public class TailspinParser extends Parser {
 			"RightBrace", "StartMatcher", "StartTemplatesDefinition", "StartSourceDefinition", 
 			"StartSinkDefinition", "StartComposerDefinition", "StartProcessorDefinition", 
 			"EndDefinition", "Rule", "TemplateMatch", "Range", "Plus", "Minus", "Star", 
-			"Slash", "Mod", "Question", "Equal", "Zero", "PositiveInteger", "START_STRING", 
-			"IDENTIFIER", "WS", "Else", "EndMatcher", "BeginSuchThat", "Comment", 
-			"REGEX_TEXT", "END_REGEX", "StartCharacterCode", "StartStringInterpolate", 
+			"TruncateDivide", "Mod", "Question", "Equal", "Zero", "PositiveInteger", 
+			"START_STRING", "IDENTIFIER", "WS", "Else", "EndMatcher", "BeginSuchThat", 
+			"Comment", "REGEX_TEXT", "END_REGEX", "StartCharacterCode", "StartStringInterpolate", 
 			"STRING_TEXT", "END_STRING"
 		};
 	}
@@ -4171,7 +4172,7 @@ public class TailspinParser extends Parser {
 
 	public static class MultiplicativeOperatorContext extends ParserRuleContext {
 		public TerminalNode Star() { return getToken(TailspinParser.Star, 0); }
-		public TerminalNode Slash() { return getToken(TailspinParser.Slash, 0); }
+		public TerminalNode TruncateDivide() { return getToken(TailspinParser.TruncateDivide, 0); }
 		public TerminalNode Mod() { return getToken(TailspinParser.Mod, 0); }
 		public MultiplicativeOperatorContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -4193,7 +4194,7 @@ public class TailspinParser extends Parser {
 			{
 			setState(663);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Star) | (1L << Slash) | (1L << Mod))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Star) | (1L << TruncateDivide) | (1L << Mod))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {

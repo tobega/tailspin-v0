@@ -15,7 +15,7 @@ templates mergesort
 
   <[](0..1)> $!
   <>
-    def half: $::length / 2;
+    def half: $::length ~/ 2;
     [$(1..$half) -> mergesort, $($half+1..-1) -> mergesort] -> merge !
 end mergesort
 
