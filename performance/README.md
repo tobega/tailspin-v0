@@ -18,6 +18,41 @@ Progress measured in how many times slower than Java. The variance on tailspin r
 |[2019-09-24](#2019-09-24)|Interpreted|1543|151|786|1289|1351|575|
 |[2019-09-24](#2019-09-24)|Truffle|2563|162|1441|1941|1977|1081|
 |[2019-10-20](#2019-10-20)|Interpreted|1636|157|659|1307|1381|621|1034|
+|[2019-10-27](#2019-10.27)|Truffle|1958.3|166.7|1044|1499|1452|921|1183|
+
+## 2019-10-27
+Actually doing -XX:+UseJVMCICompiler makes truffle suck less. Run on machine 1.
+
+|Benchmark|Mean runtime us|
+|---|---|
+Bounce   Java |1.2
+Bounce   Node |  2.3
+Bounce   Tailspin | 1844.7
+Bounce   Tailspin-truffle |  2350.5
+Json     Java  |  13.0
+Json     Node  | 16.8
+Json     Tailspin  | 2014.3
+Json     Tailspin-truffle |  2167.1
+List     Java | 1.7
+List     Node | 3.2
+List     Tailspin | 1071.9
+List     Tailspin-truffle | 1774.1
+Permute  Java | 0.8
+Permute  Node | 1.5
+Permute  Tailspin | 1084.2
+Permute  Tailspin-truffle | 1199.5
+Queens   Java  | 1.5
+Queens   Node  | 2.5
+Queens   Tailspin | 1843.4
+Queens   Tailspin-truffle | 2178.4
+Sieve    Java | 1.3
+Sieve    Node | 3.0
+Sieve    Tailspin | 773.9
+Sieve    Tailspin-truffle| 1197.0
+Towers   Java  | 1.5
+Towers   Node  | 2.6
+Towers   Tailspin  | 1484.2
+Towers   Tailspin-truffle | 1774.0
 
 ## 2019-10-20
 Added Towers benchmark. Better tailspin code in List benchmark. Run on machine 1.
