@@ -9,7 +9,6 @@ import java.util.Queue;
  * <p>A ResultIterator may be returned, in which case it should replace the current iterator in the calling program</p>
  */
 public interface ResultIterator {
-  ResultIterator EMPTY = () -> null;
   Object getNextResult();
 
   static Queue<Object> toQueue(ResultIterator ri) {
@@ -23,5 +22,27 @@ public interface ResultIterator {
       }
     }
     return results;
+  }
+
+  static ResultIterator prefix(ResultIterator prefix, ResultIterator suffix) {
+    return new ResultIterator() {
+      ResultIterator current = prefix;
+
+      @Override
+      public Object getNextResult() {
+        Object result = null;
+        while (result == null) {
+          result = current.getNextResult();
+          if (result == null) {
+            return suffix;
+          }
+          if (result instanceof ResultIterator) {
+            current = (ResultIterator) result;
+            result = null;
+          }
+        }
+        return result;
+      }
+    };
   }
 }
