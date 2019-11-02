@@ -7,14 +7,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
 
-class NestedScope implements Scope {
+public class NestedScope implements Scope {
   private final Scope parentScope;
 
   private final Map<String, Object> definitions = new HashMap<>();
 
   private Queue<Object> it;
 
-  NestedScope(Scope parentScope) {
+  public NestedScope(Scope parentScope) {
     this.parentScope = parentScope;
   }
 

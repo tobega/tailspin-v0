@@ -2,6 +2,7 @@ package tailspin.ast;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
 import tailspin.interpreter.Templates;
 import tailspin.interpreter.TransformScope;
@@ -19,7 +20,8 @@ public class SendToTemplates implements Expression {
     Templates templates = transformScope.getTemplates();
     Queue<Object> result = new ArrayDeque<>();
     valueChain.run(it, blockScope).forEach(item ->
-      result.addAll(templates.matchTemplates(item, transformScope)));
+      result.addAll(templates.matchTemplates(item, transformScope)
+          .map(b -> b.run(item, new NestedScope(transformScope))).orElse(Expression.EMPTY_RESULT)));
     return result;
   }
 

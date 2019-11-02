@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Queue;
 import tailspin.interpreter.Scope;
 
-public class Block {
+public class Block implements Expression {
   private final List<Expression> blockExpressions;
 
   public Block(List<Expression> blockExpressions) {

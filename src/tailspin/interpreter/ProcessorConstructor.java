@@ -3,8 +3,10 @@ package tailspin.interpreter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Queue;
 import tailspin.ast.Block;
+import tailspin.ast.Expression;
 import tailspin.types.ProcessorInstance;
 
 public class ProcessorConstructor extends Templates {
@@ -22,7 +24,7 @@ public class ProcessorConstructor extends Templates {
   }
 
   @Override
-  public Queue<Object> matchTemplates(Object it, Scope scope) {
+  public Optional<Expression> matchTemplates(Object it, Scope scope) {
     throw new UnsupportedOperationException("Cannot send to templates in");
   }
 }

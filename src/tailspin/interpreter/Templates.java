@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import static tailspin.ast.Expression.EMPTY_RESULT;
 import static tailspin.ast.Expression.queueOf;
 
 import java.util.ArrayList;
@@ -54,17 +55,17 @@ public class Templates implements Transform {
     if (block != null) {
       return block.run(it, scope);
     } else {
-      return matchTemplates(it, scope);
+      return matchTemplates(it, scope).map(b -> b.run(it, new NestedScope(scope))).orElse(EMPTY_RESULT);
     }
   }
 
-  public Queue<Object> matchTemplates(Object it, Scope scope) {
+  public Optional<Expression> matchTemplates(Object it, Scope scope) {
     if (it == null) {
       throw new NullPointerException("Attempt to use templates " + scopeName + " as a source");
     }
     Optional<MatchTemplate> match =
         matchTemplates.stream().filter(m -> m.matcher.matches(it, it, scope)).findFirst();
-    return match.map(m -> m.block.run(it, new NestedScope(scope))).orElse(Expression.EMPTY_RESULT);
+    return match.map(m -> m.block);
   }
 
   public void expectParameters(List<ExpectedParameter> parameters) {
