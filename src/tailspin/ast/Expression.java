@@ -1,5 +1,7 @@
 package tailspin.ast;
 
+import static tailspin.ast.ResultIterator.toQueue;
+
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Queue;
@@ -9,10 +11,23 @@ import tailspin.interpreter.Scope;
 public interface Expression {
   Queue<Object> EMPTY_RESULT = new ArrayDeque<>();
 
-  Queue<Object> run(Object it, Scope blockScope);
+  default Queue<Object> run(Object it, Scope blockScope) {
+    ResultIterator ri = getResults(it, blockScope);
+    return toQueue(ri);
+  }
+
+  default ResultIterator getResults(Object it, Scope blockScope) {
+    Queue<Object> results = run(it, blockScope);
+    return results::poll;
+  }
 
   static Expression wrap(Value value) {
-    return (it, scope) -> queueOf(value.evaluate(it, scope));
+    return new Expression() {
+      @Override
+      public Queue<Object> run(Object it, Scope blockScope) {
+        return queueOf(value.evaluate(it, blockScope));
+      }
+    };
   }
 
   static Queue<Object> queueOf(Object generated) {
