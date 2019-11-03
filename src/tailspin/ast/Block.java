@@ -19,7 +19,11 @@ public class Block implements Expression {
         if (i >= blockExpressions.size()) {
           return null;
         }
-        return ResultIterator.prefix(blockExpressions.get(i++).getResults(it, blockScope), this);
+        ResultIterator results = blockExpressions.get(i++).getResults(it, blockScope);
+        if (i == blockExpressions.size()) {
+          return results;
+        }
+        return ResultIterator.prefix(results, this);
       }
     };
   }

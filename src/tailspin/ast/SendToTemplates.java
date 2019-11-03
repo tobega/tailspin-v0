@@ -28,6 +28,9 @@ public class SendToTemplates implements Expression {
           }
           Optional<ResultIterator> r = templates.matchTemplates(item, transformScope);
           if (r.isPresent()) {
+            if (items.isEmpty()) {
+              return r.get();
+            }
             return ResultIterator.prefix(r.get(), this);
           }
         }
