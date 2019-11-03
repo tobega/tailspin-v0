@@ -19,6 +19,34 @@ Progress measured in how many times slower than Java. The variance on tailspin r
 |[2019-09-24](#2019-09-24)|Truffle|2563|162|1441|1941|1977|1081|
 |[2019-10-20](#2019-10-20)|Interpreted|1636|157|659|1307|1381|621|1034|
 |[2019-10-27](#2019-10.27)|Truffle|1958.3|166.7|1044|1499|1452|921|1183|
+|[2019-11-03](#2019-11-03)|Interpreted|1399|157|699|1452|1432|609|986|
+
+## 2019-11-03
+After applying some tail-call-flattening code. Run on machine 1.
+
+|Benchmark|Mean runtime us|
+|---|---|
+Bounce   Java| 1.2
+Bounce   Node |2.1
+Bounce   Tailspin|1678.9
+Json     Java | 12.0
+Json     Node | 13.7
+Json     Tailspin |1878.8
+List     Java | 1.5
+List     Node | 2.6
+List     Tailspin |1048.6
+Permute  Java | 0.7
+Permute  Node  | 1.4
+Permute  Tailspin |1016.5
+Queens   Java | 1.2
+Queens   Node | 2.4
+Queens   Tailspin | 1718.1
+Sieve    Java | 1.2
+Sieve    Node | 2.4
+Sieve    Tailspin | 730.7
+Towers   Java | 1.4
+Towers   Node | 2.4
+Towers   Tailspin |1380.3
 
 ## 2019-10-27
 Actually doing -XX:+UseJVMCICompiler makes truffle suck less. Run on machine 1.
