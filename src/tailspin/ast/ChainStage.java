@@ -25,7 +25,11 @@ public class ChainStage implements Expression {
   }
 
   public Queue<Object> runAll(Queue<Object> its, Scope scope) {
-    return its.stream().flatMap(it -> run(it, scope).stream())
+    Queue<Object> nextValue = its.stream().flatMap(it -> currentExpression.run(it, scope).stream())
         .collect(Collectors.toCollection(ArrayDeque::new));
+    if (nextStage != null) {
+      nextValue = nextStage.runAll(nextValue, scope);
+    }
+    return nextValue;
   }
 }

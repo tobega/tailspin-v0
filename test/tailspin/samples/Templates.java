@@ -1077,4 +1077,22 @@ class Templates {
 
     assertEquals("3", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void previousStepsMustBeCompletedBeforeStartingNext() throws Exception {
+    String program =
+        "templates state\n"
+            + "1..3 -> (<> @state: 1; $!) -> (<?($@state <$>)> !VOID\n"
+            + "  <> @state:$+1; $!) !"
+            + "\nend state\n"
+            + "1 -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
 }
