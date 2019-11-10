@@ -499,4 +499,17 @@ class Arrays {
 
     assertEquals("yes", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void hashCodeEquals() throws IOException {
+    String program = "def hc: [1,5,3] -> $::hashCode; [1,5,3] -> $::hashCode - $hc -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("0", output.toString(StandardCharsets.UTF_8));
+  }
 }

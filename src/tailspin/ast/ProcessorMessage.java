@@ -31,7 +31,11 @@ public class ProcessorMessage extends Reference {
   }
 
   private Transform resolveMessage(Object receiver, Map<String, Object> resolvedParams) {
-    if (receiver instanceof List) {
+    if (receiver instanceof ProcessorInstance) {
+      return  ((ProcessorInstance) receiver).resolveMessage(message, resolvedParams);
+    } else if (message.equals("hashCode")) {
+      return (it, params) -> Expression.queueOf(((Number) receiver.hashCode()).longValue());
+    } else if (receiver instanceof List) {
       if (message.equals("length")) {
         return (it, params) -> Expression.queueOf(((Number)((List<?>) receiver).size()).longValue());
       } else {
@@ -45,8 +49,6 @@ public class ProcessorMessage extends Reference {
       } else {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
-    } else if (receiver instanceof ProcessorInstance) {
-      return  ((ProcessorInstance) receiver).resolveMessage(message, resolvedParams);
     } else {
       throw new UnsupportedOperationException("Unimplemented processor type " + receiver.getClass().getSimpleName());
     }
