@@ -12,13 +12,18 @@ public interface Expression {
   Queue<Object> EMPTY_RESULT = new ArrayDeque<>();
 
   default Queue<Object> run(Object it, Scope blockScope) {
-    ResultIterator ri = getResults(it, blockScope);
-    return toQueue(ri);
+    return queueOf(getResults(it, blockScope));
   }
 
-  default ResultIterator getResults(Object it, Scope blockScope) {
+  default Object getResults(Object it, Scope blockScope) {
     Queue<Object> results = run(it, blockScope);
-    return results::poll;
+    if (results.isEmpty()) {
+      return null;
+    }
+    if (results.size() == 1) {
+      return results.poll();
+    }
+    return (ResultIterator) results::poll;
   }
 
   static Expression wrap(Value value) {
@@ -32,6 +37,9 @@ public interface Expression {
 
   static Queue<Object> queueOf(Object generated) {
     if (generated == null) return EMPTY_RESULT;
+    if (generated instanceof ResultIterator) {
+      return toQueue((ResultIterator) generated);
+    }
     Queue<Object> result = new ArrayDeque<>();
     if (generated instanceof Stream) {
       ((Stream<?>) generated).forEach(result::add);

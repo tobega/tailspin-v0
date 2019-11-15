@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import tailspin.ast.Block;
-import tailspin.ast.ResultIterator;
 import tailspin.types.ProcessorInstance;
 
 public class ProcessorConstructor extends Templates {
@@ -24,7 +23,7 @@ public class ProcessorConstructor extends Templates {
   }
 
   @Override
-  public Optional<ResultIterator> matchTemplates(Object it, Scope scope) {
+  public Optional<Object> matchTemplates(Object it, Scope scope) {
     throw new UnsupportedOperationException("Cannot send to templates in");
   }
 }

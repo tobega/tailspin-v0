@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import tailspin.ast.Block;
-import tailspin.ast.ResultIterator;
+import tailspin.ast.Expression;
 
 public class Templates implements Transform {
   private final Scope definingScope;
@@ -55,11 +55,11 @@ public class Templates implements Transform {
     if (block != null) {
       return block.run(it, scope);
     } else {
-      return matchTemplates(it, scope).map(ResultIterator::toQueue).orElse(EMPTY_RESULT);
+      return matchTemplates(it, scope).map(Expression::queueOf).orElse(EMPTY_RESULT);
     }
   }
 
-  public Optional<ResultIterator> matchTemplates(Object it, Scope scope) {
+  public Optional<Object> matchTemplates(Object it, Scope scope) {
     if (it == null) {
       throw new NullPointerException("Attempt to use templates " + scopeName + " as a source");
     }

@@ -14,10 +14,16 @@ public class SendToTemplates implements Expression {
   }
 
   @Override
-  public ResultIterator getResults(Object it, Scope blockScope) {
+  public Object getResults(Object it, Scope blockScope) {
     TransformScope transformScope = findTransformScope(blockScope);
     Templates templates = transformScope.getTemplates();
     Queue<Object> items = valueChain.run(it, blockScope);
+    if (items.isEmpty()) {
+      return null;
+    }
+    if (items.size() == 1) {
+      return templates.matchTemplates(items.poll(), transformScope).orElse(null);
+    }
     return new ResultIterator() {
       @Override
       public Object getNextResult() {
@@ -26,12 +32,16 @@ public class SendToTemplates implements Expression {
           if (item == null) {
             return null;
           }
-          Optional<ResultIterator> r = templates.matchTemplates(item, transformScope);
+          Optional<Object> r = templates.matchTemplates(item, transformScope);
           if (r.isPresent()) {
             if (items.isEmpty()) {
               return r.get();
             }
-            return ResultIterator.prefix(r.get(), this);
+            Object results = r.get();
+            if (results instanceof ResultIterator) {
+              return ResultIterator.prefix((ResultIterator) results, this);
+            }
+            return results;
           }
         }
       }

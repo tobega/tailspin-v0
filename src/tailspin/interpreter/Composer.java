@@ -131,7 +131,7 @@ public class Composer implements Transform {
     }
     if (spec instanceof RegexComposition) {
       RegexComposition regexSpec = (RegexComposition) spec;
-      // Note that we do not allow regex interpolations to reference $it. What would that even mean?
+      // Note that we do not allow regex interpolations to reference $. What would that even mean?
       return new RegexpSubComposer(Pattern.compile((String) regexSpec.pattern.evaluate(null, scope)), Function.identity());
     }
     if (spec instanceof SkipComposition) {
@@ -338,7 +338,7 @@ public class Composer implements Transform {
     private final CompositionSpec value;
     private final Expression stateAssignment;
 
-    public StateAssignmentComposition(/* @Nullable */ CompositionSpec value, Expression stateAssignment) {
+    StateAssignmentComposition(/* @Nullable */ CompositionSpec value, Expression stateAssignment) {
       this.value = value;
       this.stateAssignment = stateAssignment;
     }

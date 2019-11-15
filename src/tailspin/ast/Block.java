@@ -11,19 +11,26 @@ public class Block implements Expression {
   }
 
   @Override
-  public ResultIterator getResults(Object it, Scope blockScope) {
+  public Object getResults(Object it, Scope blockScope) {
     return new ResultIterator() {
       int i = 0;
+
       @Override
       public Object getNextResult() {
-        if (i >= blockExpressions.size()) {
-          return null;
+        Object results = null;
+        while (results == null) {
+          if (i >= blockExpressions.size()) {
+            return null;
+          }
+          results = blockExpressions.get(i++).getResults(it, blockScope);
         }
-        ResultIterator results = blockExpressions.get(i++).getResults(it, blockScope);
         if (i == blockExpressions.size()) {
           return results;
         }
-        return ResultIterator.prefix(results, this);
+        if (results instanceof ResultIterator) {
+          return ResultIterator.prefix((ResultIterator) results, this);
+        }
+        return results;
       }
     };
   }
