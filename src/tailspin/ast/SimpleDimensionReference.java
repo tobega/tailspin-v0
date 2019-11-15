@@ -20,9 +20,10 @@ public class SimpleDimensionReference implements DimensionReference {
   public Object getIndices(int size, Object it, Scope scope) {
     Object value = simpleValue.getResults(it, scope);
     if (deconstructorCount != 0) {
+      // TODO: optimize to more direct result iterators
       Stream<?> result = Stream.of(value);
       for (int i = 0; i < deconstructorCount; i++) {
-        result = result.flatMap(Deconstructor.INSTANCE::getDeconstructedStream);
+        result = result.flatMap(v -> Expression.queueOf(Deconstructor.INSTANCE.getDeconstructedStream(v)).stream());
       }
       return result.map(i -> DimensionReference.resolveIndex(((Number) i).intValue(), size));
     } else if (autoDeconstructArray && value instanceof List) {

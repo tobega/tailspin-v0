@@ -1,11 +1,9 @@
 package tailspin.ast;
 
 import java.util.ArrayDeque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import tailspin.interpreter.KeyValue;
 import tailspin.interpreter.Scope;
 
@@ -15,14 +13,30 @@ public class Deconstructor implements Expression {
   private Deconstructor() {}
 
   @Override
-  public Queue<Object> run(Object it, Scope blockScope) {
-    return getDeconstructedStream(it).collect(Collectors.toCollection(ArrayDeque::new));
+  public ResultIterator getResults(Object it, Scope blockScope) {
+    return getDeconstructedStream(it);
   }
 
-  Stream<?> getDeconstructedStream(Object it) {
+  @SuppressWarnings("unchecked")
+  ResultIterator getDeconstructedStream(Object it) {
     if (it instanceof List) {
-      return ((List<?>) it).stream();
+      if (((List) it).isEmpty()) {
+        return null;
+      }
+      Iterator<Object> iterator = ((List<Object>) it).iterator();
+      return new ResultIterator() {
+        @Override
+        public Object getNextResult() {
+          if (!iterator.hasNext()) {
+            return null;
+          }
+          return iterator.next();
+        }
+      };
     } else if (it instanceof String) {
+      if (((String) it).isEmpty()) {
+        return null;
+      }
       ArrayDeque<String> deconstructed = new ArrayDeque<>();
       for (char c : ((String) it).toCharArray()) {
         int type = Character.getType(c);
@@ -35,11 +49,24 @@ public class Deconstructor implements Expression {
           deconstructed.add(String.valueOf(c));
         }
       }
-      return deconstructed.stream();
+      return deconstructed::poll;
     } else if (it instanceof Map) {
       @SuppressWarnings("unchecked")
-      Map<String, ?> map = (Map<String, ?>) it;
-      return map.entrySet().stream().map(e -> new KeyValue(e.getKey(), e.getValue()));
+      Map<String, Object> map = (Map<String, Object>) it;
+      if (map.isEmpty()) {
+        return null;
+      }
+      Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
+      return new ResultIterator() {
+        @Override
+        public Object getNextResult() {
+          if (!iterator.hasNext()) {
+            return null;
+          }
+          Map.Entry<String, Object> e = iterator.next();
+          return new KeyValue(e.getKey(), e.getValue());
+        }
+      };
     } else {
       throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
     }

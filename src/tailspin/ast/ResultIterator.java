@@ -2,6 +2,7 @@ package tailspin.ast;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.function.Consumer;
 
 /**
  * Yields the results of the underlying Expression one at a time, ending with null.
@@ -13,7 +14,7 @@ public interface ResultIterator {
 
   static Queue<Object> toQueue(ResultIterator ri) {
     Queue<Object> results = new ArrayDeque<>();
-    appendToQueue(results, ri);
+    apply(results::offer, ri);
     return results;
   }
 
@@ -39,13 +40,13 @@ public interface ResultIterator {
     };
   }
 
-  static void appendToQueue(Queue<Object> results, ResultIterator ri) {
+  static void apply(Consumer<Object> receiver, ResultIterator ri) {
     Object r;
     while ((r = ri.getNextResult()) != null) {
       if (r instanceof ResultIterator) {
         ri = (ResultIterator) r;
       } else {
-        results.offer(r);
+        receiver.accept(r);
       }
     }
   }

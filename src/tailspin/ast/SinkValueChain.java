@@ -15,14 +15,15 @@ public class SinkValueChain implements Expression {
   }
 
   @Override
-  public Queue<Object> run(Object it, Scope scope) {
-    Queue<Object> values = valueChain.run(it, scope);
+  public Object getResults(Object it, Scope scope) {
+    // We have to pull through all values before we start sinking any.
+    Queue<Object> values = Expression.queueOf(valueChain.getResults(it, scope));
     if (sink != null) values.forEach(v -> {
       Object nothing = sink.getResults(v, scope);
       if (nothing != null) {
         throw new IllegalStateException("Non-sink message " + sink + " called");
       }
     });
-    return EMPTY_RESULT;
+    return null;
   }
 }

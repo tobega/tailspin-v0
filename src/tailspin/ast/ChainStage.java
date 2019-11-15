@@ -40,7 +40,8 @@ public class ChainStage implements Expression {
         continue;
       }
       if (nextValue instanceof ResultIterator) {
-        // I think we need to iterate through and resolve values
+        // We have to iterate through and resolve values because all values need to
+        // pass previous stage before any go to the next
         if (result == null) {
           result = ResultIterator.toQueue((ResultIterator) nextValue);
           continue;
@@ -48,7 +49,7 @@ public class ChainStage implements Expression {
         if (!(result instanceof Queue)) {
           result = Expression.queueOf(result);
         }
-        ResultIterator.appendToQueue((Queue<Object>) result, (ResultIterator) nextValue);
+        ResultIterator.apply(((Queue<Object>) result)::offer, (ResultIterator) nextValue);
         continue;
       }
       if (result == null) {

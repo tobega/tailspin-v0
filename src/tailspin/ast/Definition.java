@@ -1,6 +1,5 @@
 package tailspin.ast;
 
-import java.util.Queue;
 import tailspin.interpreter.Scope;
 
 public class Definition implements Expression {
@@ -13,8 +12,8 @@ public class Definition implements Expression {
   }
 
   @Override
-  public Queue<Object> run(Object it, Scope blockScope) {
+  public Object getResults(Object it, Scope blockScope) {
     blockScope.defineValue(identifier, value.getResults(it, blockScope));
-    return EMPTY_RESULT;
+    return null;
   }
 }
