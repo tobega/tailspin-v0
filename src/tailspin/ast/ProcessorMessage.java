@@ -34,18 +34,18 @@ public class ProcessorMessage extends Reference {
     if (receiver instanceof ProcessorInstance) {
       return  ((ProcessorInstance) receiver).resolveMessage(message, resolvedParams);
     } else if (message.equals("hashCode")) {
-      return (it, params) -> Expression.queueOf(((Number) receiver.hashCode()).longValue());
+      return (it, params) -> ((Number) receiver.hashCode()).longValue();
     } else if (receiver instanceof List) {
       if (message.equals("length")) {
-        return (it, params) -> Expression.queueOf(((Number)((List<?>) receiver).size()).longValue());
+        return (it, params) -> ((Number)((List<?>) receiver).size()).longValue();
       } else {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
     } else if (receiver instanceof KeyValue) {
       if (message.equals("key")) {
-        return (it, params) -> Expression.queueOf(((KeyValue) receiver).getKey());
+        return (it, params) -> ((KeyValue) receiver).getKey();
       } else if (message.equals("value")) {
-        return (it, params) -> Expression.queueOf(((KeyValue) receiver).getValue());
+        return (it, params) -> ((KeyValue) receiver).getValue();
       } else {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }

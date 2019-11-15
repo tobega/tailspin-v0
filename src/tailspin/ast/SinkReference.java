@@ -1,7 +1,6 @@
 package tailspin.ast;
 
 import java.util.Map;
-import java.util.Queue;
 import tailspin.interpreter.Scope;
 import tailspin.interpreter.Transform;
 
@@ -13,15 +12,18 @@ public class SinkReference implements Expression {
   }
 
   @Override
-  public Queue<Object> run(Object it, Scope scope) {
+  public Object getResults(Object it, Scope scope) {
     Transform transform = (Transform) reference.getValue(it, scope);
     if (transform == null) {
       throw new NullPointerException("No sink defined for " + reference);
     }
-    Queue<Object> sunk = transform.run(it, Map.of());
-    if (!sunk.isEmpty()) {
+    Object sunk = transform.getResults(it, Map.of());
+    if (sunk instanceof ResultIterator) {
+      sunk = ((ResultIterator) sunk).getNextResult();
+    }
+    if (sunk != null) {
       throw new IllegalStateException("Sink " + reference + " emitted values");
     }
-    return EMPTY_RESULT;
+    return null;
   }
 }

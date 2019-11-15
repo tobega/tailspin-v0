@@ -1,7 +1,5 @@
 package tailspin.types;
 
-import static tailspin.ast.Expression.EMPTY_RESULT;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -25,7 +23,7 @@ public class StdoutProcessor extends ProcessorInstance {
       } else {
         throw new UnsupportedOperationException("Unknown OUT message " + message);
       }
-      return EMPTY_RESULT;
+      return null;
     };
   }
 }

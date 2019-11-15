@@ -1,15 +1,12 @@
 package tailspin.interpreter;
 
-import static tailspin.ast.Expression.EMPTY_RESULT;
 import static tailspin.ast.Expression.queueOf;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Queue;
 import tailspin.ast.Block;
-import tailspin.ast.Expression;
 
 public class Templates implements Transform {
   private final Scope definingScope;
@@ -27,7 +24,7 @@ public class Templates implements Transform {
   }
 
   @Override
-  public Queue<Object> run(Object it, Map<String, Object> parameters) {
+  public Object getResults(Object it, Map<String, Object> parameters) {
     TransformScope scope = createTransformScope(it, parameters);
     return runInScope(it, scope);
   }
@@ -51,11 +48,11 @@ public class Templates implements Transform {
     return scope;
   }
 
-  Queue<Object> runInScope(Object it, TransformScope scope) {
+  Object runInScope(Object it, TransformScope scope) {
     if (block != null) {
-      return block.run(it, scope);
+      return block.getResults(it, scope);
     } else {
-      return matchTemplates(it, scope).map(Expression::queueOf).orElse(EMPTY_RESULT);
+      return matchTemplates(it, scope).orElse(null);
     }
   }
 

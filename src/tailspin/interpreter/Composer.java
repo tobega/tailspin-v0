@@ -12,6 +12,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import tailspin.ast.Expression;
+import tailspin.ast.ResultIterator;
 import tailspin.ast.Value;
 
 public class Composer implements Transform {
@@ -41,10 +42,10 @@ public class Composer implements Transform {
   }
 
   @Override
-  public Queue<Object> run(Object it, Map<String, Object> parameters) {
+  public Object getResults(Object it, Map<String, Object> parameters) {
     TransformScope scope = createTransformScope(it, parameters);
     if (stateAssignment != null) {
-      stateAssignment.run(null, scope);
+      stateAssignment.getResults(null, scope);
     }
     ArrayDeque<Object> result = new ArrayDeque<>();
     String s = (String) it;
@@ -59,7 +60,7 @@ public class Composer implements Transform {
     if (!s.isEmpty()) {
       throw new IllegalStateException("Composer did not use entire string. Remaining:'" + s + "'");
     }
-    return result;
+    return (ResultIterator) result::poll;
   }
 
   private TransformScope createTransformScope(Object it, Map<String, Object> parameters) {

@@ -1,7 +1,6 @@
 package tailspin.ast;
 
 import java.util.Map;
-import java.util.Queue;
 import tailspin.interpreter.Scope;
 import tailspin.interpreter.Transform;
 
@@ -13,8 +12,8 @@ public class TemplatesCall implements Expression {
   }
 
   @Override
-  public Queue<Object> run(Object it, Scope blockScope) {
+  public Object getResults(Object it, Scope blockScope) {
     Transform transform = (Transform) templatesReference.getValue(it, blockScope);
-    return transform.run(it, Map.of());
+    return transform.getResults(it, Map.of());
   }
 }

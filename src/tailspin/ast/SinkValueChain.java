@@ -18,8 +18,8 @@ public class SinkValueChain implements Expression {
   public Queue<Object> run(Object it, Scope scope) {
     Queue<Object> values = valueChain.run(it, scope);
     if (sink != null) values.forEach(v -> {
-      Queue<Object> nothing = sink.run(v, scope);
-      if (nothing != null && !nothing.isEmpty()) {
+      Object nothing = sink.getResults(v, scope);
+      if (nothing != null) {
         throw new IllegalStateException("Non-sink message " + sink + " called");
       }
     });

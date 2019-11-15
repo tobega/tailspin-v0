@@ -1,7 +1,6 @@
 package tailspin.ast;
 
 import java.util.Map;
-import java.util.Queue;
 import tailspin.interpreter.Scope;
 
 public class InlineTemplates implements Expression {
@@ -12,7 +11,7 @@ public class InlineTemplates implements Expression {
   }
 
   @Override
-  public Queue<Object> run(Object it, Scope definingScope) {
-    return templatesDefinition.define(definingScope).run(it, Map.of());
+  public Object getResults(Object it, Scope definingScope) {
+    return templatesDefinition.define(definingScope).getResults(it, Map.of());
   }
 }

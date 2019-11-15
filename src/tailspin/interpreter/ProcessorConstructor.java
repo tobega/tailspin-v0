@@ -1,11 +1,10 @@
 package tailspin.interpreter;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Queue;
 import tailspin.ast.Block;
+import tailspin.ast.ResultIterator;
 import tailspin.types.ProcessorInstance;
 
 public class ProcessorConstructor extends Templates {
@@ -14,12 +13,20 @@ public class ProcessorConstructor extends Templates {
   }
 
   @Override
-  public Queue<Object> run(Object it, Map<String, Object> parameters) {
+  public Object getResults(Object it, Map<String, Object> parameters) {
     TransformScope scope = createTransformScope(it, parameters);
-    runInScope(it, scope);
-    Queue<Object> result = new ArrayDeque<>();
-    result.add(new ProcessorInstance(scope));
-    return result;
+    Object results = runInScope(it, scope);
+    // TODO: assert everything null
+    if (results instanceof ResultIterator) {
+      ResultIterator ri = (ResultIterator) results;
+      Object r;
+      while ((r = ri.getNextResult()) != null) {
+        if (r instanceof ResultIterator) {
+          ri = (ResultIterator) r;
+        }
+      }
+    }
+    return new ProcessorInstance(scope);
   }
 
   @Override

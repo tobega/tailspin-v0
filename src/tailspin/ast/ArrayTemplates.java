@@ -48,7 +48,7 @@ public class ArrayTemplates implements Expression {
           counters.put(loopVariables.get(i), (long) dimCounters[i] + 1);
         }
         Object itemIt = dimLists[lastIdx].get(dimCounters[lastIdx]);
-        results[lastIdx].addAll(templates.run(itemIt, counters));
+        results[lastIdx].addAll(Expression.queueOf(templates.getResults(itemIt, counters)));
       }
       int idx = lastIdx - 1;
       while (idx >= 0) {
