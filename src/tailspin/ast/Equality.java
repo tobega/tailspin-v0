@@ -12,6 +12,6 @@ public class Equality implements Condition {
 
   @Override
   public boolean matches(Object toMatch, Object it, Scope scope) {
-    return Objects.equals(toMatch, value.evaluate(it, scope));
+    return Objects.equals(toMatch, value.getResults(it, scope));
   }
 }

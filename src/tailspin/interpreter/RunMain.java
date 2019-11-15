@@ -99,7 +99,7 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public Object visitDependency(TailspinParser.DependencyContext ctx) {
-    String dependency = (String) visitStringLiteral(ctx.stringLiteral()).evaluate(Expression.atMostOneValue(scope.getIt()), scope);
+    String dependency = (String) visitStringLiteral(ctx.stringLiteral()).getResults(Expression.atMostOneValue(scope.getIt()), scope);
     String dependencyName = dependency.substring(dependency.lastIndexOf('/') + 1);
     Path depPath = scope.basePath().resolve(dependency + ".tt");
     try {
@@ -131,7 +131,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Expression visitValueChain(TailspinParser.ValueChainContext ctx) {
     if (ctx.keyValue() != null) {
-      return Expression.wrap(visitKeyValue(ctx.keyValue()));
+      return visitKeyValue(ctx.keyValue());
     }
     Expression source = visitSource(ctx.source());
     return new ChainStage(source, ctx.transform() == null ? null : visitTransform(ctx.transform()));
@@ -140,28 +140,28 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Expression visitSource(TailspinParser.SourceContext ctx) {
     if (ctx.stringLiteral() != null) {
-      return Expression.wrap(visitStringLiteral(ctx.stringLiteral()));
+      return visitStringLiteral(ctx.stringLiteral());
     }
     if (ctx.sourceReference() != null) {
       return visitSourceReference(ctx.sourceReference());
     }
     if (ctx.deleteState() != null) {
-      return Expression.wrap(visitDeleteState(ctx.deleteState()));
+      return visitDeleteState(ctx.deleteState());
     }
     if (ctx.arithmeticExpression() != null) {
-      return Expression.wrap(visitArithmeticExpression(ctx.arithmeticExpression()));
+      return visitArithmeticExpression(ctx.arithmeticExpression());
     }
     if (ctx.rangeLiteral() != null) {
       return visitRangeLiteral(ctx.rangeLiteral());
     }
     if (ctx.arrayLiteral() != null) {
-      return Expression.wrap(visitArrayLiteral(ctx.arrayLiteral()));
+      return visitArrayLiteral(ctx.arrayLiteral());
     }
     if (ctx.structureLiteral() != null) {
-      return Expression.wrap(visitStructureLiteral(ctx.structureLiteral()));
+      return visitStructureLiteral(ctx.structureLiteral());
     }
     if (ctx.LeftParen() != null) {
-      return Expression.wrap(visitKeyValue(ctx.keyValue()));
+      return visitKeyValue(ctx.keyValue());
     }
     throw new UnsupportedOperationException(ctx.toString());
   }
@@ -702,7 +702,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Expression visitKeyValues(KeyValuesContext ctx) {
     if (ctx.keyValue() != null) {
-      return Expression.wrap(visitKeyValue(ctx.keyValue()));
+      return visitKeyValue(ctx.keyValue());
     }
     if (ctx.sourceReference() != null) {
       return visitSourceReference(ctx.sourceReference());

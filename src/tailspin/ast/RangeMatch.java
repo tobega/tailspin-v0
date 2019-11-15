@@ -16,14 +16,14 @@ public class RangeMatch implements Condition {
   public boolean matches(Object toMatch, Object it, Scope scope) {
     try {
       if (lowerBound != null) {
-        Object low = lowerBound.value.evaluate(it, scope);
+        Object low = lowerBound.value.getResults(it, scope);
         Comparison comparison = compare(toMatch, low);
         if (comparison == Comparison.INCOMPARABLE) return false;
         if (comparison == Comparison.LESS) return false;
         if (!lowerBound.inclusive && comparison == Comparison.EQUAL) return false;
       }
       if (upperBound != null) {
-        Object high = upperBound.value.evaluate(it, scope);
+        Object high = upperBound.value.getResults(it, scope);
         Comparison comparison = compare(toMatch, high);
         if (comparison == Comparison.INCOMPARABLE) return false;
         if (comparison == Comparison.GREATER) return false;
@@ -44,7 +44,7 @@ public class RangeMatch implements Condition {
     }
   }
 
-  Comparison compare(Object lhs, Object rhs) {
+  private Comparison compare(Object lhs, Object rhs) {
     if ((lhs instanceof String) && (rhs instanceof String)) {
       return Comparison.of(((String) lhs).compareTo((String) rhs));
     } else if ((lhs instanceof Number) && (rhs instanceof Number)) {

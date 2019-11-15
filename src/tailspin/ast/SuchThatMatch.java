@@ -11,8 +11,8 @@ public class SuchThatMatch {
     this.matcher = matcher;
   }
 
-  public boolean resolveValue(Object toMatch, Scope scope) {
-    Object value = lhs.evaluate(toMatch, scope);
+  boolean resolveValue(Object toMatch, Scope scope) {
+    Object value = lhs.getResults(toMatch, scope);
     return matcher.matches(value, toMatch, scope);
   }
 }

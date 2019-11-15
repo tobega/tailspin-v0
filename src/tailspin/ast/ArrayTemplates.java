@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.stream.Collectors;
 import tailspin.interpreter.ExpectedParameter;
 import tailspin.interpreter.Scope;
@@ -20,11 +19,11 @@ public class ArrayTemplates implements Expression {
   }
 
   @Override
-  public Queue<Object> run(Object it, Scope definingScope) {
+  public Object getResults(Object it, Scope definingScope) {
     Templates templates = templatesDefinition.define(definingScope);
     templates.expectParameters(loopVariables.stream().map(ExpectedParameter::new)
         .collect(Collectors.toList()));
-    return Expression.queueOf(runArrayTemplate(it, templates));
+    return runArrayTemplate(it, templates);
   }
 
   @SuppressWarnings("unchecked")

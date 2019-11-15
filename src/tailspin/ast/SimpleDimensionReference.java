@@ -18,7 +18,7 @@ public class SimpleDimensionReference implements DimensionReference {
 
   @Override
   public Object getIndices(int size, Object it, Scope scope) {
-    Object value = simpleValue.evaluate(it, scope);
+    Object value = simpleValue.getResults(it, scope);
     if (deconstructorCount != 0) {
       Stream<?> result = Stream.of(value);
       for (int i = 0; i < deconstructorCount; i++) {

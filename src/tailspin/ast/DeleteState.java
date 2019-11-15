@@ -10,7 +10,7 @@ public class DeleteState implements Value {
   }
 
   @Override
-  public Object evaluate(Object it, Scope scope) {
+  public Object getResults(Object it, Scope scope) {
     Object value = reference.deleteValue(it, scope);
     if (value == null) {
       throw new NullPointerException("Attempt to delete non-existent state " + reference);

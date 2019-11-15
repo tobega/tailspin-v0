@@ -12,8 +12,8 @@ public class IntegerExpression implements Value {
   }
 
   @Override
-  public Long evaluate(Object it, Scope scope) {
-    long value = ((Number) Value.oneValue(dereferenceValue.run(it, scope))).longValue();
+  public Long getResults(Object it, Scope scope) {
+    long value = ((Number) Value.oneValue(dereferenceValue.getResults(it, scope))).longValue();
     return isNegative ? -value : value;
   }
 }

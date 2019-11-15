@@ -11,7 +11,7 @@ public class StringInterpolation implements Value {
   }
 
   @Override
-  public Object evaluate(Object it, Scope scope) {
+  public Object getResults(Object it, Scope scope) {
     return expression.run(it, scope).stream()
         .map(Object::toString)
         .collect(Collectors.joining());

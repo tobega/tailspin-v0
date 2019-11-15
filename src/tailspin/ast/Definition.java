@@ -14,7 +14,7 @@ public class Definition implements Expression {
 
   @Override
   public Queue<Object> run(Object it, Scope blockScope) {
-    blockScope.defineValue(identifier, value.evaluate(it, blockScope));
+    blockScope.defineValue(identifier, value.getResults(it, blockScope));
     return EMPTY_RESULT;
   }
 }

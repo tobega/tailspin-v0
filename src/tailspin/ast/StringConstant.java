@@ -10,7 +10,7 @@ public class StringConstant implements Value {
   }
 
   @Override
-  public Object evaluate(Object it, Scope scope) {
+  public Object getResults(Object it, Scope scope) {
     return value;
   }
 }

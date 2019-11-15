@@ -13,7 +13,7 @@ public class KeyValueExpression implements Value {
   }
 
   @Override
-  public KeyValue evaluate(Object it, Scope scope) {
-    return new KeyValue(key, value.evaluate(it, scope));
+  public KeyValue getResults(Object it, Scope scope) {
+    return new KeyValue(key, value.getResults(it, scope));
   }
 }

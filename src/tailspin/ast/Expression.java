@@ -4,6 +4,7 @@ import static tailspin.ast.ResultIterator.toQueue;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.Queue;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
@@ -15,6 +16,10 @@ public interface Expression {
     return queueOf(getResults(it, blockScope));
   }
 
+  /**
+   * Returns null if there are no results, a ResultIterator if there are more than one result,
+   * else the single result.
+   */
   default Object getResults(Object it, Scope blockScope) {
     Queue<Object> results = run(it, blockScope);
     if (results.isEmpty()) {
@@ -26,21 +31,12 @@ public interface Expression {
     return (ResultIterator) results::poll;
   }
 
-  static Expression wrap(Value value) {
-    return new Expression() {
-      @Override
-      public Queue<Object> run(Object it, Scope blockScope) {
-        return queueOf(value.evaluate(it, blockScope));
-      }
-    };
-  }
-
   static Queue<Object> queueOf(Object generated) {
     if (generated == null) return EMPTY_RESULT;
     if (generated instanceof ResultIterator) {
       return toQueue((ResultIterator) generated);
     }
-    Queue<Object> result = new ArrayDeque<>();
+    Deque<Object> result = new ArrayDeque<>();
     if (generated instanceof Stream) {
       ((Stream<?>) generated).forEach(result::add);
     } else if (generated instanceof Queue) {

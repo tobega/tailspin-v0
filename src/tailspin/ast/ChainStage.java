@@ -1,8 +1,6 @@
 package tailspin.ast;
 
-import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
 
 public class ChainStage implements Expression {
@@ -16,20 +14,55 @@ public class ChainStage implements Expression {
   }
 
   @Override
-  public Queue<Object> run(Object it, Scope blockScope) {
-    Queue<Object> nextValue = currentExpression.run(it, blockScope);
-    if (nextStage != null) {
-      nextValue = nextStage.runAll(nextValue, blockScope);
+  public Object getResults(Object it, Scope blockScope) {
+    Object nextValue = currentExpression.getResults(it, blockScope);
+    return runNextStage(nextValue, blockScope);
+  }
+
+  private Object runNextStage(Object nextValue, Scope blockScope) {
+    if (nextValue != null && nextStage != null) {
+      if (nextValue instanceof ResultIterator) {
+        nextValue = nextStage.runAll((ResultIterator) nextValue, blockScope);
+      } else {
+        nextValue = nextStage.getResults(nextValue, blockScope);
+      }
     }
     return nextValue;
   }
 
-  public Queue<Object> runAll(Queue<Object> its, Scope scope) {
-    Queue<Object> nextValue = its.stream().flatMap(it -> currentExpression.run(it, scope).stream())
-        .collect(Collectors.toCollection(ArrayDeque::new));
-    if (nextStage != null) {
-      nextValue = nextStage.runAll(nextValue, scope);
+  @SuppressWarnings("unchecked")
+  private Object runAll(ResultIterator its, Scope scope) {
+    Object result = null;
+    Object it;
+    while ((it = its.getNextResult()) != null) {
+      Object nextValue = currentExpression.getResults(it, scope);
+      if (nextValue == null) {
+        continue;
+      }
+      if (nextValue instanceof ResultIterator) {
+        // I think we need to iterate through and resolve values
+        if (result == null) {
+          result = ResultIterator.toQueue((ResultIterator) nextValue);
+          continue;
+        }
+        if (!(result instanceof Queue)) {
+          result = Expression.queueOf(result);
+        }
+        ResultIterator.appendToQueue((Queue<Object>) result, (ResultIterator) nextValue);
+        continue;
+      }
+      if (result == null) {
+        result = nextValue;
+        continue;
+      }
+      if (!(result instanceof Queue)) {
+        result = Expression.queueOf(result);
+      }
+      ((Queue<Object>) result).add(nextValue);
     }
-    return nextValue;
+    if (result instanceof Queue) {
+      result = (ResultIterator) ((Queue) result)::poll;
+    }
+    return runNextStage(result, scope);
   }
 }

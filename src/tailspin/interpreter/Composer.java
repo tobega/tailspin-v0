@@ -132,7 +132,7 @@ public class Composer implements Transform {
     if (spec instanceof RegexComposition) {
       RegexComposition regexSpec = (RegexComposition) spec;
       // Note that we do not allow regex interpolations to reference $. What would that even mean?
-      return new RegexpSubComposer(Pattern.compile((String) regexSpec.pattern.evaluate(null, scope)), Function.identity());
+      return new RegexpSubComposer(Pattern.compile((String) regexSpec.pattern.getResults(null, scope)), Function.identity());
     }
     if (spec instanceof SkipComposition) {
       return new SkipSubComposer(resolveSpecs(((SkipComposition) spec).skipSpecs, scope));

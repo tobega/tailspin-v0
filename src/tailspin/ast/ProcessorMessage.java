@@ -24,7 +24,7 @@ public class ProcessorMessage extends Reference {
   @Override
   public Transform getValue(Object it, Scope scope) {
     Map<String, Object> resolvedParams = parameters.entrySet().stream()
-        .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().evaluate(it, scope)))
+        .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().getResults(it, scope)))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     Object receiver = reference.getValue(it, scope);
     return resolveMessage(receiver, resolvedParams);

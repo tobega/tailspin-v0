@@ -10,7 +10,7 @@ public class CodedCharacter implements Value {
   }
 
   @Override
-  public Object evaluate(Object it, Scope scope) {
-    return Character.toString(((Number) code.evaluate(it, scope)).intValue());
+  public Object getResults(Object it, Scope scope) {
+    return Character.toString(((Number) code.getResults(it, scope)).intValue());
   }
 }

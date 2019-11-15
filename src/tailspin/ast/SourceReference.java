@@ -1,7 +1,6 @@
 package tailspin.ast;
 
 import java.util.Map;
-import java.util.Queue;
 import tailspin.interpreter.Scope;
 import tailspin.interpreter.Transform;
 
@@ -13,7 +12,7 @@ public class SourceReference implements Expression {
   }
 
   @Override
-  public Queue<Object> run(Object it, Scope scope) {
+  public Object getResults(Object it, Scope scope) {
     Object value = reference.getValue(it, scope);
     if (value == null) {
       throw new NullPointerException("No value defined for " + reference);
@@ -22,8 +21,8 @@ public class SourceReference implements Expression {
       value = Reference.copy(value);
     }
     if (value instanceof Transform) {
-      return ((Transform) value).run(null, Map.of());
+      return (ResultIterator) ((Transform) value).run(null, Map.of())::poll;
     }
-    return Expression.queueOf(value);
+    return value;
   }
 }

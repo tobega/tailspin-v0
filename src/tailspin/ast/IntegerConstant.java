@@ -10,7 +10,7 @@ public class IntegerConstant implements Value {
   }
 
   @Override
-  public Long evaluate(Object it, Scope scope) {
+  public Long getResults(Object it, Scope scope) {
     return value;
   }
 }

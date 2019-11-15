@@ -12,7 +12,7 @@ public class ArrayLiteral implements Value {
   }
 
   @Override
-  public Object evaluate(Object it, Scope scope) {
+  public Object getResults(Object it, Scope scope) {
     return valueProductions.stream()
         .flatMap(vp -> vp.run(it, scope).stream())
         .collect(Collectors.toList());

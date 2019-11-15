@@ -23,12 +23,12 @@ public class RangeGenerator implements Expression {
   }
 
   public Stream<Long> stream(Function<Long, Long> boundTransform, Object it, Scope scope) {
-    long increment = step == null ? 1 : ((Number) step.evaluate(it, scope)).longValue();
+    long increment = step == null ? 1 : ((Number) step.getResults(it, scope)).longValue();
     if (increment == 0) {
       throw new IllegalArgumentException("Cannot produce range with zero increment");
     }
-    Long start = boundTransform.apply(((Number) lowerBound.value.evaluate(it, scope)).longValue());
-    Long end = boundTransform.apply(((Number) upperBound.value.evaluate(it, scope)).longValue());
+    Long start = boundTransform.apply(((Number) lowerBound.value.getResults(it, scope)).longValue());
+    Long end = boundTransform.apply(((Number) upperBound.value.getResults(it, scope)).longValue());
     if (start == null || end == null || (increment > 0 && start > end) || (increment < 0 && start < end)) {
       return Stream.empty();
     }

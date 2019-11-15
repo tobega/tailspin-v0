@@ -21,7 +21,7 @@ public class CountSubComposer implements SubComposer {
   @Override
   public String nibble(String s) {
     if (required == null) {
-      required = ((Number) count.evaluate(null, scope)).longValue();
+      required = ((Number) count.getResults(null, scope)).longValue();
     }
     values = new ArrayDeque<>();
     for (int i = 0; !s.isEmpty() && i < required; i++) {

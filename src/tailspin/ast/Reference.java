@@ -18,7 +18,7 @@ public abstract class Reference implements Value {
   public abstract void setValue(boolean merge, Queue<Object> value, Object it, Scope scope);
 
   @Override
-  public Object evaluate(Object it, Scope scope) {
+  public Object getResults(Object it, Scope scope) {
     return getValue(it, scope);
   }
 
@@ -347,11 +347,6 @@ public abstract class Reference implements Value {
             }
           });
       it.clear();
-    } else if (collector instanceof StringBuilder) {
-      // TODO: something is rotten in the state of Denmark
-      StringBuilder sbCollector = (StringBuilder) collector;
-      it.forEach(s -> sbCollector.append(s.toString()));
-      collector = sbCollector.toString();
     } else if (collector instanceof List) {
       @SuppressWarnings("unchecked")
       List<Object> collectorList = (List<Object>) collector;

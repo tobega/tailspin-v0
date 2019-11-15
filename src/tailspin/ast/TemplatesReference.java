@@ -21,7 +21,7 @@ public class TemplatesReference extends Reference {
   public CurriedTemplates getValue(Object it, Scope scope) {
     Transform transform = (Transform) reference.getValue(it, scope);
     Map<String, Object> resolvedParameters = parameters.entrySet().stream()
-        .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().evaluate(it, scope)))
+        .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().getResults(it, scope)))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     return new CurriedTemplates(transform, resolvedParameters);
   }

@@ -3,18 +3,28 @@ package tailspin.ast;
 import java.util.Queue;
 import tailspin.interpreter.Scope;
 
-public interface Value {
+public interface Value extends Expression {
 
-  Object evaluate(Object it, Scope scope);
+  Object getResults(Object it, Scope scope);
 
   static Value of(Expression expression) {
     return (it, scope) -> oneValue(expression.run(it, scope));
   }
 
-  static Object oneValue(Queue<Object> itStream) {
-    if (itStream.size() != 1) {
-      throw new AssertionError("Expected exactly one value but was " + itStream);
+  static Object oneValue(Object value) {
+    if (value instanceof Queue) {
+      if (((Queue) value).size() != 1) {
+        throw new AssertionError("Expected exactly one value but was " + value);
+      }
+      return ((Queue) value).peek();
     }
-    return itStream.peek();
+    if (value instanceof ResultIterator) {
+      Object result = ((ResultIterator) value).getNextResult();
+      if (((ResultIterator) value).getNextResult() != null) {
+        throw new AssertionError("Expected exactly one value but was " + value);
+      }
+      return result;
+    }
+    return value;
   }
 }

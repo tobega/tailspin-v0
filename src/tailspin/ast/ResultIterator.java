@@ -12,15 +12,8 @@ public interface ResultIterator {
   Object getNextResult();
 
   static Queue<Object> toQueue(ResultIterator ri) {
-    java.util.Queue<java.lang.Object> results = new ArrayDeque<>();
-    java.lang.Object r;
-    while ((r = ri.getNextResult()) != null) {
-      if (r instanceof ResultIterator) {
-        ri = (ResultIterator) r;
-      } else {
-        results.offer(r);
-      }
-    }
+    Queue<Object> results = new ArrayDeque<>();
+    appendToQueue(results, ri);
     return results;
   }
 
@@ -44,5 +37,16 @@ public interface ResultIterator {
         return result;
       }
     };
+  }
+
+  static void appendToQueue(Queue<Object> results, ResultIterator ri) {
+    Object r;
+    while ((r = ri.getNextResult()) != null) {
+      if (r instanceof ResultIterator) {
+        ri = (ResultIterator) r;
+      } else {
+        results.offer(r);
+      }
+    }
   }
 }

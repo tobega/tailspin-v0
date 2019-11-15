@@ -50,7 +50,7 @@ public class ArithmeticOperation implements Value {
     public abstract long apply(long left, long right);
   }
   @Override
-  public Object evaluate(Object it, Scope scope) {
-    return op.apply((long) left.evaluate(it, scope), (long) right.evaluate(it, scope));
+  public Object getResults(Object it, Scope scope) {
+    return op.apply((long) left.getResults(it, scope), (long) right.getResults(it, scope));
   }
 }
