@@ -18,7 +18,7 @@ public class SinkReference implements Expression {
       throw new NullPointerException("No sink defined for " + reference);
     }
     Object sunk = transform.getResults(it, Map.of());
-    if (sunk instanceof ResultIterator) {
+    while (sunk instanceof DelayedExecution) {
       sunk = ((ResultIterator) sunk).getNextResult();
     }
     if (sunk != null) {

@@ -16,6 +16,10 @@ public class ChainStage implements Expression {
   @Override
   public Object getResults(Object it, Scope blockScope) {
     Object nextValue = currentExpression.getResults(it, blockScope);
+    if (nextValue instanceof DelayedExecution) {
+      // Resolve all values before running next stage
+      nextValue = (ResultIterator) ResultIterator.toQueue((ResultIterator) nextValue)::poll;
+    }
     return runNextStage(nextValue, blockScope);
   }
 

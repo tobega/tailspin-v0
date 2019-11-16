@@ -24,7 +24,7 @@ public class SendToTemplates implements Expression {
     if (items.size() == 1) {
       return templates.matchTemplates(items.poll(), transformScope).orElse(null);
     }
-    return new ResultIterator() {
+    return new DelayedExecution() {
       @Override
       public Object getNextResult() {
         while (true) {

@@ -1,6 +1,6 @@
 import 'harness'
 
-// Tailspin doesn't have nulls, which the java and javscript implementatios rely on
+// Tailspin doesn't have nulls, which the java and javascript implementations rely on
 // So this is more Tailspin-like
 templates towers
   @: {piles: [[$..0:-1 -> $], [], []], moves: 0};
@@ -34,4 +34,4 @@ templates runAndVerify
   <> 0 !
 end runAndVerify
 
-1 -> harness/run@{name: 'List', benchmark:runAndVerify} -> !VOID
+1 -> harness/run@{name: 'Towers', benchmark:runAndVerify} -> !VOID

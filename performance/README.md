@@ -18,8 +18,36 @@ Progress measured in how many times slower than Java. The variance on tailspin r
 |[2019-09-24](#2019-09-24)|Interpreted|1543|151|786|1289|1351|575|
 |[2019-09-24](#2019-09-24)|Truffle|2563|162|1441|1941|1977|1081|
 |[2019-10-20](#2019-10-20)|Interpreted|1636|157|659|1307|1381|621|1034|
-|[2019-10-27](#2019-10.27)|Truffle|1958.3|166.7|1044|1499|1452|921|1183|
+|[2019-10-27](#2019-10-27)|Truffle|1958.3|166.7|1044|1499|1452|921|1183|
 |[2019-11-03](#2019-11-03)|Interpreted|1399|157|699|1452|1432|609|986|
+|[2019-11-16](#2019-11-16)|Interpreted|1354|154|580|1041|1271|628|937|
+
+## 2019-11-16
+Continued refactoring to result iterators. Run on machine 2.
+
+|Benchmark|Mean runtime us|
+|---|---|
+Bounce   Java|0.9
+Bounce   Node |5.6
+Bounce   Tailspin |1218.2
+Json     Java  |10.9
+Json     Node | 14.6
+Json     Tailspin|1674.7
+List     Java | 1.2
+List     Node | 2.4
+List     Tailspin |696.2
+Permute  Java | 0.7
+Permute  Node | 1.2
+Permute  Tailspin | 728.8
+Queens   Java |1.1
+Queens   Node | 2.1
+Queens   Tailspin|1397.6
+Sieve    Java | 1.0
+Sieve    Node | 2.5
+Sieve    Tailspin| 627.5
+Towers   Java| 1.2
+Towers   Node | 2.2
+Towers   Tailspin|1124.5
 
 ## 2019-11-03
 After applying some tail-call-flattening code. Run on machine 1.

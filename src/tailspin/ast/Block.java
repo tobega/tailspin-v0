@@ -12,7 +12,7 @@ public class Block implements Expression {
 
   @Override
   public Object getResults(Object it, Scope blockScope) {
-    return new ResultIterator() {
+    return new DelayedExecution() {
       int i = 0;
 
       @Override
