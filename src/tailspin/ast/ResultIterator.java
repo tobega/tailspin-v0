@@ -1,8 +1,10 @@
 package tailspin.ast;
 
 import java.util.ArrayDeque;
+import java.util.Iterator;
 import java.util.Queue;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Yields the results of the underlying Expression one at a time, ending with null.
@@ -32,7 +34,7 @@ public interface ResultIterator {
           }
           if (result instanceof ResultIterator) {
             current = (ResultIterator) result;
-            return this;
+            result = null;
           }
         }
         return result;
@@ -49,5 +51,87 @@ public interface ResultIterator {
         receiver.accept(r);
       }
     }
+  }
+
+  static Object resolveResult(Object result, Object nextValue) {
+    if (result == null) {
+      return nextValue;
+    }
+    if (nextValue == null) {
+      return result;
+    }
+    if (!(result instanceof QueueResult)) {
+      QueueResult qr = new QueueResult();
+      qr.append(result);
+      result = qr;
+    }
+    ((QueueResult) result).append(nextValue);
+    return result;
+  }
+
+  class QueueResult implements ResultIterator {
+    private final Queue<Object> results;
+    ResultIterator nested;
+
+    QueueResult() {
+      results = new ArrayDeque<>();
+    }
+
+    @Override
+    public Object getNextResult() {
+      while (true) {
+        if (nested != null) {
+          Object result = nested.getNextResult();
+          if (result instanceof ResultIterator) {
+            nested = (ResultIterator) result;
+            continue;
+          } else if (result == null) {
+            nested = null;
+            // fall through
+          } else {
+            return result;
+          }
+        }
+        Object result = results.poll();
+        if (result instanceof ResultIterator) {
+          nested = (ResultIterator) result;
+        } else {
+          return result;
+        }
+      }
+    }
+
+    public void append(Object nextValue) {
+      results.add(nextValue);
+    }
+  }
+
+  class Decorated implements ResultIterator {
+    private final ResultIterator ri;
+    private final Function<Object, Object> transform;
+
+    Decorated(ResultIterator ri,
+        Function<Object, Object> transform) {
+      this.ri = ri;
+      this.transform = transform;
+    }
+
+    @Override
+    public Object getNextResult() {
+      Object result = ri.getNextResult();
+      if (result == null) {
+        return result;
+      }
+      return transform.apply(result);
+    }
+  }
+
+  static ResultIterator ofIterator(Iterator iterator) {
+    return () -> {
+      if (!iterator.hasNext()) {
+        return null;
+      }
+      return iterator.next();
+    };
   }
 }

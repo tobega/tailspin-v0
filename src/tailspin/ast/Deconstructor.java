@@ -23,16 +23,7 @@ public class Deconstructor implements Expression {
       if (((List) it).isEmpty()) {
         return null;
       }
-      Iterator<Object> iterator = ((List<Object>) it).iterator();
-      return new ResultIterator() {
-        @Override
-        public Object getNextResult() {
-          if (!iterator.hasNext()) {
-            return null;
-          }
-          return iterator.next();
-        }
-      };
+      return ResultIterator.ofIterator(((List<Object>) it).iterator());
     } else if (it instanceof String) {
       if (((String) it).isEmpty()) {
         return null;
@@ -57,15 +48,12 @@ public class Deconstructor implements Expression {
         return null;
       }
       Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
-      return new ResultIterator() {
-        @Override
-        public Object getNextResult() {
-          if (!iterator.hasNext()) {
-            return null;
-          }
-          Map.Entry<String, Object> e = iterator.next();
-          return new KeyValue(e.getKey(), e.getValue());
+      return () -> {
+        if (!iterator.hasNext()) {
+          return null;
         }
+        Map.Entry<String, Object> e = iterator.next();
+        return new KeyValue(e.getKey(), e.getValue());
       };
     } else {
       throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());

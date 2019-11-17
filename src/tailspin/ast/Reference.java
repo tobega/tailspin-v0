@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
 
 public abstract class Reference implements Value {
@@ -331,6 +330,7 @@ public abstract class Reference implements Value {
       Object invoke(List<Object> array, int index);
     }
 
+    @SuppressWarnings("unchecked")
     private Object resolveDimensionDereference(int currentDereference, List<Object> array,
         ArrayOperation bottomOperation, Object it, Scope scope) {
       ArrayOperation operation = currentDereference == dimensions.size() - 1 ? bottomOperation : List::get;
@@ -339,27 +339,32 @@ public abstract class Reference implements Value {
       Object dimensionResult;
       if (idx instanceof Number) {
         dimensionResult = operation.invoke(array, ((Number) idx).intValue());
-      } else if (idx instanceof Stream) {
-        dimensionResult = ((Stream<?>) idx)
-            .map(i -> operation.invoke(array, ((Number) i).intValue()));
+      } else if (idx instanceof ResultIterator) {
+        AtomicReference<Object> result = new AtomicReference<>();
+        ResultIterator.apply(i -> result.set(ResultIterator.resolveResult(result.get(), operation.invoke(array, ((Number) i).intValue()))),
+            (ResultIterator) idx);
+        dimensionResult = result.get();
+      } else if (idx == null) {
+        dimensionResult = (ResultIterator) () -> null;
       } else {
-          throw new UnsupportedOperationException(
-              "Unable to dereference array by "
-                  + idx.getClass().getName());
+        throw new UnsupportedOperationException(
+            "Unable to dereference array by "
+                + idx.getClass().getName());
       }
       if (currentDereference == dimensions.size() - 1) {
-        if (dimensionResult instanceof Stream) {
-          return ((Stream<?>) dimensionResult).collect(Collectors.toList());
-        } else {
-          return dimensionResult;
+        if (dimensionResult instanceof ResultIterator) {
+          List<Object> result = new ArrayList<>();
+          ResultIterator.apply(result::add, (ResultIterator) dimensionResult);
+          return result;
         }
+        return dimensionResult;
       }
-      if (dimensionResult instanceof Stream) {
-        @SuppressWarnings("unchecked")
-        Stream<List<Object>> results = (Stream<List<Object>>) dimensionResult;
-        return results
-            .map(a -> resolveDimensionDereference(currentDereference + 1, a, bottomOperation, it, scope))
-            .collect(Collectors.toList());
+      if (dimensionResult instanceof ResultIterator) {
+        List<Object> results = new ArrayList<>();
+        ResultIterator.apply(a -> results.add(
+            resolveDimensionDereference(currentDereference + 1, (List<Object>) a, bottomOperation, it, scope)),
+            (ResultIterator) dimensionResult);
+        return results;
       } else {
         @SuppressWarnings("unchecked")
         List<Object> previousDimension = (List<Object>) dimensionResult;
@@ -381,7 +386,7 @@ public abstract class Reference implements Value {
         if (it instanceof Map) {
             @SuppressWarnings("unchecked")
             Map<String, Object> itMap = (Map<String, Object>) it;
-            itMap.entrySet().forEach(itEntry -> collectorMap.put(itEntry.getKey(), copy(itEntry.getValue())));
+            itMap.forEach((key, value) -> collectorMap.put(key, copy(value)));
           } else {
             @SuppressWarnings("unchecked")
             Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) it;
