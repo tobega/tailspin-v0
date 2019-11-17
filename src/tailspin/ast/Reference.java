@@ -1,12 +1,10 @@
 package tailspin.ast;
 
-import static tailspin.ast.Expression.queueOf;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
@@ -15,7 +13,7 @@ public abstract class Reference implements Value {
   public abstract Object getValue(Object it, Scope scope);
   public abstract Object deleteValue(Object it, Scope scope);
   public abstract boolean isMutable();
-  public abstract void setValue(boolean merge, Queue<Object> value, Object it, Scope scope);
+  public abstract void setValue(boolean merge, Object value, Object it, Scope scope);
 
   @Override
   public Object getResults(Object it, Scope scope) {
@@ -54,7 +52,7 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
+    public void setValue(boolean merge, Object value, Object it, Scope scope) {
       throw new UnsupportedOperationException("'it' is not mutable");
     }
 
@@ -95,7 +93,7 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
+    public void setValue(boolean merge, Object value, Object it, Scope scope) {
       throw new UnsupportedOperationException(identifier + " is not mutable");
     }
 
@@ -130,11 +128,19 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
+    public void setValue(boolean merge, Object value, Object it, Scope scope) {
       if (merge) {
         collect(value, scope.getState(stateContext));
       } else {
-        scope.setState(stateContext, copy(value.remove()));
+        Object v = value;
+        if (v instanceof ResultIterator) {
+          v = ((ResultIterator) v).getNextResult();
+          if (v == null) {
+            // TODO: supply better debug info
+            throw new IllegalArgumentException("Too few values");
+          }
+        }
+        scope.setState(stateContext, copy(v));
       }
     }
 
@@ -198,7 +204,7 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
+    public void setValue(boolean merge, Object value, Object it, Scope scope) {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
@@ -207,7 +213,15 @@ public abstract class Reference implements Value {
       } else {
         @SuppressWarnings("unchecked")
         Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
-        structure.put(fieldIdentifier, Reference.copy(value.remove()));
+        Object v = value;
+        if (v instanceof ResultIterator) {
+          v = ((ResultIterator) v).getNextResult();
+          if (v == null) {
+            // TODO: supply better debug info
+            throw new IllegalArgumentException("Too few values");
+          }
+        }
+        structure.put(fieldIdentifier, Reference.copy(v));
       }
     }
 
@@ -249,7 +263,7 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
+    public void setValue(boolean merge, final Object value, Object it, Scope scope) {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
@@ -260,17 +274,28 @@ public abstract class Reference implements Value {
           int invocations = 0;
           List<Object> lastArray;
           int lastIndex;
+          Object valueToMerge = value;
 
           @Override
           public Object invoke(List<Object> array, int index) {
             invocations++;
             lastArray = array;
             lastIndex = index;
-            collect(queueOf(copy(value.remove())), array.get(index));
+            Object v = valueToMerge;
+            if (v instanceof ResultIterator) {
+              v = ((ResultIterator) v).getNextResult();
+            } else {
+              valueToMerge = null; // Only use it once
+            }
+            if (v == null) {
+              // TODO: supply better debug info
+              throw new IllegalArgumentException("Too few values");
+            }
+            collect(v, array.get(index));
             return null;
           }
 
-          void resolveSingleElementMergeMany() {
+          void resolveSingleArrayElementThatCanMergeMany() {
             if (invocations == 1) {
               collect(value, lastArray.get(lastIndex));
             }
@@ -278,9 +303,22 @@ public abstract class Reference implements Value {
         }
         Merger merger = new Merger();
         resolveDimensionDereference(0, array, merger, it, scope);
-        merger.resolveSingleElementMergeMany();
+        merger.resolveSingleArrayElementThatCanMergeMany();
       } else {
-        resolveDimensionDereference(0, array, (a, i) -> a.set(i, copy(value.remove())), it, scope);
+        AtomicReference<Object> valueToMerge = new AtomicReference<>(value);
+        resolveDimensionDereference(0, array, (a, i) -> {
+          Object v = valueToMerge.get();
+          if (v instanceof ResultIterator) {
+            v = ((ResultIterator) v).getNextResult();
+          } else {
+            valueToMerge.set(null);
+          }
+          if (v == null) {
+            // TODO: supply better debug message
+            throw new IllegalArgumentException("Too few values");
+          }
+          return a.set(i, copy(v));
+        }, it, scope);
       }
     }
 
@@ -330,30 +368,32 @@ public abstract class Reference implements Value {
     }
   }
 
-  void collect(Queue<Object> it, Object collector) {
-    if (collector instanceof Map) {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> collectorMap = (Map<String, Object>) collector;
-      it.forEach(
-          m -> {
-            if (m instanceof Map) {
-              @SuppressWarnings("unchecked")
-              Map<String, Object> itMap = (Map<String, Object>) m;
-              collectorMap.putAll(itMap);
-            } else {
-              @SuppressWarnings("unchecked")
-              Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) m;
-              collectorMap.put(itEntry.getKey(), itEntry.getValue());
-            }
-          });
-      it.clear();
-    } else if (collector instanceof List) {
-      @SuppressWarnings("unchecked")
-      List<Object> collectorList = (List<Object>) collector;
-      collectorList.addAll(it);
-      it.clear();
-    } else {
-      throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
-    }
+  void collect(Object its, Object collector) {
+    Object it = its;
+    do {
+      if (its instanceof ResultIterator) {
+        it = ((ResultIterator) its).getNextResult();
+        if (it == null) break;
+      }
+      if (collector instanceof Map) {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> collectorMap = (Map<String, Object>) collector;
+        if (it instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> itMap = (Map<String, Object>) it;
+            itMap.entrySet().forEach(itEntry -> collectorMap.put(itEntry.getKey(), copy(itEntry.getValue())));
+          } else {
+            @SuppressWarnings("unchecked")
+            Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) it;
+            collectorMap.put(itEntry.getKey(), copy(itEntry.getValue()));
+          }
+      } else if (collector instanceof List) {
+        @SuppressWarnings("unchecked")
+        List<Object> collectorList = (List<Object>) collector;
+        collectorList.add(copy(it));
+      } else {
+        throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
+      }
+    } while (its instanceof ResultIterator);
   }
 }

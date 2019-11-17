@@ -3,7 +3,6 @@ package tailspin.ast;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.stream.Collectors;
 import tailspin.interpreter.KeyValue;
 import tailspin.interpreter.Scope;
@@ -65,7 +64,7 @@ public class ProcessorMessage extends Reference {
   }
 
   @Override
-  public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
+  public void setValue(boolean merge, Object value, Object it, Scope scope) {
     throw new IllegalStateException();
   }
 }

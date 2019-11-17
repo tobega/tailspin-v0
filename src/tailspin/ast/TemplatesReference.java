@@ -2,11 +2,10 @@ package tailspin.ast;
 
 import java.util.AbstractMap;
 import java.util.Map;
-import java.util.Queue;
 import java.util.stream.Collectors;
+import tailspin.interpreter.CurriedTemplates;
 import tailspin.interpreter.Scope;
 import tailspin.interpreter.Transform;
-import tailspin.interpreter.CurriedTemplates;
 
 public class TemplatesReference extends Reference {
   private final Reference reference;
@@ -37,7 +36,7 @@ public class TemplatesReference extends Reference {
   }
 
   @Override
-  public void setValue(boolean merge, Queue<Object> value, Object it, Scope scope) {
+  public void setValue(boolean merge, Object value, Object it, Scope scope) {
     throw new IllegalStateException();
   }
 }
