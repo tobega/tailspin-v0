@@ -23,7 +23,8 @@ public class Deconstructor implements Expression {
       if (((List) it).isEmpty()) {
         return null;
       }
-      return ResultIterator.ofIterator(((List<Object>) it).iterator());
+      Iterator<Object> iterator = ((List<Object>) it).iterator();
+      return ResultIterator.ofIterator(iterator);
     } else if (it instanceof String) {
       if (((String) it).isEmpty()) {
         return null;

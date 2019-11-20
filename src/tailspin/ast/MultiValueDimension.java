@@ -1,6 +1,7 @@
 package tailspin.ast;
 
 import java.util.List;
+import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
 
 public class MultiValueDimension implements DimensionReference {
@@ -12,10 +13,13 @@ public class MultiValueDimension implements DimensionReference {
 
   @Override
   public Object getIndices(int size, Object it, Scope scope) {
-    Object result = null;
+    Stream result = Stream.empty();
     for (DimensionReference value : values) {
       Object index = value.getIndices(size, it, scope);
-      result = ResultIterator.resolveResult(result, index);
+      if (!(index instanceof Stream)) {
+        index = Stream.of(index);
+      }
+      result = Stream.concat(result, (Stream) index);
     }
     return result;
   }

@@ -1,5 +1,6 @@
 package tailspin.ast;
 
+import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
 
 public class ArrayDimensionRange implements DimensionReference {
@@ -12,7 +13,8 @@ public class ArrayDimensionRange implements DimensionReference {
 
   @Override
   public Object getIndices(int size, Object it, Scope scope) {
-    return  rangeGenerator
-        .stream(i -> DimensionReference.resolveIndex(i.intValue(), size), it, scope);
+    RangeGenerator.RangeIterator rangeIterator = rangeGenerator
+        .resultIterator(i -> DimensionReference.resolveIndex(i.intValue(), size), it, scope);
+    return rangeIterator == null ? Stream.empty() : rangeIterator.stream();
   }
 }

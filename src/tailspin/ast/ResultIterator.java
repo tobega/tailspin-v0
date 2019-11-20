@@ -4,7 +4,6 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.Queue;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * Yields the results of the underlying Expression one at a time, ending with null.
@@ -34,7 +33,7 @@ public interface ResultIterator {
           }
           if (result instanceof ResultIterator) {
             current = (ResultIterator) result;
-            result = null;
+            return this;
           }
         }
         return result;
@@ -103,26 +102,6 @@ public interface ResultIterator {
 
     public void append(Object nextValue) {
       results.add(nextValue);
-    }
-  }
-
-  class Decorated implements ResultIterator {
-    private final ResultIterator ri;
-    private final Function<Object, Object> transform;
-
-    Decorated(ResultIterator ri,
-        Function<Object, Object> transform) {
-      this.ri = ri;
-      this.transform = transform;
-    }
-
-    @Override
-    public Object getNextResult() {
-      Object result = ri.getNextResult();
-      if (result == null) {
-        return result;
-      }
-      return transform.apply(result);
     }
   }
 

@@ -20,19 +20,14 @@ public class SimpleDimensionReference implements DimensionReference {
   public Object getIndices(int size, Object it, Scope scope) {
     Object value = simpleValue.getResults(it, scope);
     if (deconstructorCount != 0) {
-      ResultIterator.QueueResult result = new ResultIterator.QueueResult();
-      result.append(Deconstructor.INSTANCE.getDeconstructedStream(value));
-      for (int i = 1; i < deconstructorCount; i++) {
-        ResultIterator ri = result;
-        ResultIterator.QueueResult qr = new ResultIterator.QueueResult();
-        ResultIterator.apply(v -> qr.append(Deconstructor.INSTANCE.getDeconstructedStream(v)), ri);
-        result = qr;
+      // TODO: optimize to more direct result iterators
+      Stream<?> result = Stream.of(value);
+      for (int i = 0; i < deconstructorCount; i++) {
+        result = result.flatMap(v -> Expression.queueOf(Deconstructor.INSTANCE.getDeconstructedStream(v)).stream());
       }
-      return new ResultIterator.Decorated(result,
-          i -> DimensionReference.resolveIndex(((Number) i).intValue(), size));
+      return result.map(i -> DimensionReference.resolveIndex(((Number) i).intValue(), size));
     } else if (autoDeconstructArray && value instanceof List) {
-      return new ResultIterator.Decorated(ResultIterator.ofIterator(((List<?>) value).iterator()),
-        i -> DimensionReference.resolveIndex(((Number) i).intValue(), size));
+      return ((List<?>) value).stream().map(i -> DimensionReference.resolveIndex(((Number) i).intValue(), size));
     }
     return DimensionReference.resolveIndex(((Number) value).intValue(), size);
   }

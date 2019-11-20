@@ -1,6 +1,7 @@
 package tailspin.ast;
 
 import java.util.function.Function;
+import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
 
 public class RangeGenerator implements Expression {
@@ -17,10 +18,10 @@ public class RangeGenerator implements Expression {
 
   @Override
   public Object getResults(Object it, Scope blockScope) {
-    return stream(Function.identity(), it, blockScope);
+    return resultIterator(Function.identity(), it, blockScope);
   }
 
-  public ResultIterator stream(Function<Long, Long> boundTransform, Object it, Scope scope) {
+  public RangeIterator resultIterator(Function<Long, Long> boundTransform, Object it, Scope scope) {
     long increment = step == null ? 1 : ((Number) step.getResults(it, scope)).longValue();
     if (increment == 0) {
       throw new IllegalArgumentException("Cannot produce range with zero increment");
@@ -34,7 +35,7 @@ public class RangeGenerator implements Expression {
         lowerBound.inclusive ? start : start + increment, increment, end, upperBound.inclusive);
   }
 
-  private static class RangeIterator implements ResultIterator {
+  public static class RangeIterator implements ResultIterator {
     private long i;
     private final long increment;
     private final long end;
@@ -49,7 +50,7 @@ public class RangeGenerator implements Expression {
 
     @Override
     public Object getNextResult() {
-      if (!hasNext()) {
+      if (!isValid(i)) {
         return null;
       }
       long result = i;
@@ -57,8 +58,12 @@ public class RangeGenerator implements Expression {
       return result;
     }
 
-    private boolean hasNext() {
-      return (increment > 0 && i < end) || (increment < 0 && i > end) || (endInclusive && i == end);
+    private boolean isValid(long v) {
+      return (increment > 0 && v < end) || (increment < 0 && v > end) || (endInclusive && v == end);
+    }
+
+    public Stream<Object> stream() {
+      return Stream.iterate(getNextResult(), v -> v != null && isValid((Long) v), v -> getNextResult());
     }
   }
 }
