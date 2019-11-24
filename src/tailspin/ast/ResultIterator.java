@@ -52,6 +52,43 @@ public interface ResultIterator {
     }
   }
 
+  static void forEach(Object obj, Consumer<Object> receiver) {
+    if (obj instanceof ResultIterator) {
+      apply(receiver, (ResultIterator) obj);
+    } else {
+      receiver.accept(obj);
+    }
+  }
+
+  static ResultIterator flat(Object value) {
+    if (value instanceof ResultIterator) {
+      return new ResultIterator() {
+        ResultIterator current = (ResultIterator) value;
+        @Override
+        public Object getNextResult() {
+          Object result;
+          while (true) {
+            result = current.getNextResult();
+            if (result instanceof ResultIterator) {
+              current = (ResultIterator) result;
+              continue;
+            }
+            return result;
+          }
+        }
+      };
+    }
+    return new ResultIterator() {
+      Object result = value;
+      @Override
+      public Object getNextResult() {
+        Object next = result;
+        result = null;
+        return next;
+      }
+    };
+  }
+
   static Object resolveResult(Object result, Object nextValue) {
     if (result == null) {
       return nextValue;

@@ -225,7 +225,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     List<DimensionReference> dimensions = new ArrayList<>();
     for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
       if (dimCtx.simpleDimension() != null) {
-        dimensions.add(visitSimpleDimension(true, dimCtx.simpleDimension()));
+        dimensions.add(visitSimpleDimension(dimCtx.simpleDimension()));
       } else {
         dimensions.add(visitMultiValueDimension(dimCtx.multiValueDimension()));
       }
@@ -233,15 +233,14 @@ public class RunMain extends TailspinParserBaseVisitor {
     return reference.array(dimensions);
   }
 
-  private DimensionReference visitSimpleDimension(boolean autoDeconstructArray, TailspinParser.SimpleDimensionContext ctx) {
+  @Override
+  public DimensionReference visitSimpleDimension(TailspinParser.SimpleDimensionContext ctx) {
     if (ctx.arithmeticExpression() != null) {
-      return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()),
-          autoDeconstructArray, 0);
+      return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()));
     } else if (ctx.rangeLiteral() != null) {
       return new ArrayDimensionRange(visitRangeLiteral(ctx.rangeLiteral()));
     } else if (ctx.sourceReference() != null) {
-      return new SimpleDimensionReference(Value.of(visitSourceReference(ctx.sourceReference())),
-          autoDeconstructArray, ctx.Deconstructor().size());
+      return new SimpleDimensionReference(Value.of(visitSourceReference(ctx.sourceReference())));
     } else {
       throw new UnsupportedOperationException(
           "Unknown way to dereference array at "
@@ -255,7 +254,7 @@ public class RunMain extends TailspinParserBaseVisitor {
   public DimensionReference visitMultiValueDimension(TailspinParser.MultiValueDimensionContext ctx) {
     List<DimensionReference> values = new ArrayList<>();
     for (TailspinParser.SimpleDimensionContext sctx : ctx.simpleDimension()) {
-      values.add(visitSimpleDimension(false, sctx));
+      values.add(visitSimpleDimension(sctx));
     }
     return new MultiValueDimension(values);
   }

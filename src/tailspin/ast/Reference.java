@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
+import tailspin.types.ProcessorInstance;
 
 public abstract class Reference implements Value {
   public abstract Object getValue(Object it, Scope scope);
@@ -129,18 +130,11 @@ public abstract class Reference implements Value {
 
     @Override
     public void setValue(boolean merge, Object value, Object it, Scope scope) {
+      ResultIterator ri = ResultIterator.flat(value);
       if (merge) {
-        collect(value, scope.getState(stateContext));
+        collect(ri, scope.getState(stateContext));
       } else {
-        Object v = value;
-        if (v instanceof ResultIterator) {
-          v = ((ResultIterator) v).getNextResult();
-          if (v == null) {
-            // TODO: supply better debug info
-            throw new IllegalArgumentException("Too few values");
-          }
-        }
-        scope.setState(stateContext, copy(v));
+        scope.setState(stateContext, copy(ri.getNextResult()));
       }
     }
 
@@ -151,6 +145,9 @@ public abstract class Reference implements Value {
   }
 
   public static Object copy(Object value) {
+    while (value instanceof DelayedExecution) {
+      value = ((DelayedExecution) value).getNextResult();
+    }
     if (value instanceof Map) {
       @SuppressWarnings("unchecked")
       Map<String, Object> mapValue = (Map<String, Object>) value;
@@ -169,7 +166,10 @@ public abstract class Reference implements Value {
       }
       return result;
     }
-    return value;
+    if (value instanceof String || value instanceof Number || value instanceof ProcessorInstance) {
+      return value;
+    }
+    throw new IllegalArgumentException("Unknown value type " + value.getClass().getName());
   }
 
   private static class FieldReference extends Reference {
@@ -208,20 +208,13 @@ public abstract class Reference implements Value {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
+      ResultIterator ri = ResultIterator.flat(value);
       if (merge) {
-        collect(value, getValue(it, scope));
+        collect(ri, getValue(it, scope));
       } else {
         @SuppressWarnings("unchecked")
         Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
-        Object v = value;
-        if (v instanceof ResultIterator) {
-          v = ((ResultIterator) v).getNextResult();
-          if (v == null) {
-            // TODO: supply better debug info
-            throw new IllegalArgumentException("Too few values");
-          }
-        }
-        structure.put(fieldIdentifier, Reference.copy(v));
+        structure.put(fieldIdentifier, Reference.copy(ri.getNextResult()));
       }
     }
 
@@ -263,10 +256,11 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(boolean merge, final Object value, Object it, Scope scope) {
+    public void setValue(boolean merge, Object value, Object it, Scope scope) {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
+      ResultIterator ri = ResultIterator.flat(value);
       @SuppressWarnings("unchecked")
       List<Object> array = (List<Object>) parent.getValue(it, scope);
       if (merge) {
@@ -274,51 +268,27 @@ public abstract class Reference implements Value {
           int invocations = 0;
           List<Object> lastArray;
           int lastIndex;
-          Object valueToMerge = value;
 
           @Override
           public Object invoke(List<Object> array, int index) {
             invocations++;
             lastArray = array;
             lastIndex = index;
-            Object v = valueToMerge;
-            if (v instanceof ResultIterator) {
-              v = ((ResultIterator) v).getNextResult();
-            } else {
-              valueToMerge = null; // Only use it once
-            }
-            if (v == null) {
-              // TODO: supply better debug info
-              throw new IllegalArgumentException("Too few values");
-            }
-            collect(v, array.get(index));
+            collect(copy(ri.getNextResult()), array.get(index));
             return null;
           }
 
-          void resolveSingleArrayElementThatCanMergeMany() {
+          void resolveSingleElementMergeMany() {
             if (invocations == 1) {
-              collect(value, lastArray.get(lastIndex));
+              collect(ri, lastArray.get(lastIndex));
             }
           }
         }
         Merger merger = new Merger();
         resolveDimensionDereference(0, array, merger, it, scope);
-        merger.resolveSingleArrayElementThatCanMergeMany();
+        merger.resolveSingleElementMergeMany();
       } else {
-        AtomicReference<Object> valueToMerge = new AtomicReference<>(value);
-        resolveDimensionDereference(0, array, (a, i) -> {
-          Object v = valueToMerge.get();
-          if (v instanceof ResultIterator) {
-            v = ((ResultIterator) v).getNextResult();
-          } else {
-            valueToMerge.set(null);
-          }
-          if (v == null) {
-            // TODO: supply better debug message
-            throw new IllegalArgumentException("Too few values");
-          }
-          return a.set(i, copy(v));
-        }, it, scope);
+        resolveDimensionDereference(0, array, (a, i) -> a.set(i, copy(ri.getNextResult())), it, scope);
       }
     }
 
@@ -339,9 +309,9 @@ public abstract class Reference implements Value {
       Object dimensionResult;
       if (idx instanceof Number) {
         dimensionResult = operation.invoke(array, ((Number) idx).intValue());
-      } else if (idx instanceof Stream) {
-        dimensionResult = ((Stream<?>) idx)
-            .map(i -> operation.invoke(array, ((Number) i).intValue()));
+      } else if (idx instanceof IntStream) {
+        dimensionResult = ((IntStream) idx)
+            .mapToObj(i -> operation.invoke(array, ((Number) i).intValue()));
       } else {
           throw new UnsupportedOperationException(
               "Unable to dereference array by "
@@ -368,32 +338,28 @@ public abstract class Reference implements Value {
     }
   }
 
-  void collect(Object its, Object collector) {
-    Object it = its;
-    do {
-      if (its instanceof ResultIterator) {
-        it = ((ResultIterator) its).getNextResult();
-        if (it == null) break;
-      }
-      if (collector instanceof Map) {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> collectorMap = (Map<String, Object>) collector;
-        if (it instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> itMap = (Map<String, Object>) it;
-            itMap.entrySet().forEach(itEntry -> collectorMap.put(itEntry.getKey(), copy(itEntry.getValue())));
-          } else {
-            @SuppressWarnings("unchecked")
-            Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) it;
-            collectorMap.put(itEntry.getKey(), copy(itEntry.getValue()));
-          }
-      } else if (collector instanceof List) {
-        @SuppressWarnings("unchecked")
-        List<Object> collectorList = (List<Object>) collector;
-        collectorList.add(copy(it));
-      } else {
-        throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
-      }
-    } while (its instanceof ResultIterator);
+  void collect(Object it, Object collector) {
+    if (collector instanceof Map) {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> collectorMap = (Map<String, Object>) collector;
+      ResultIterator.forEach(it,
+          m -> {
+            if (m instanceof Map) {
+              @SuppressWarnings("unchecked")
+              Map<String, Object> itMap = (Map<String, Object>) m;
+              collectorMap.putAll(itMap);
+            } else {
+              @SuppressWarnings("unchecked")
+              Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) m;
+              collectorMap.put(itEntry.getKey(), itEntry.getValue());
+            }
+          });
+    } else if (collector instanceof List) {
+      @SuppressWarnings("unchecked")
+      List<Object> collectorList = (List<Object>) collector;
+      ResultIterator.forEach(it, collectorList::add);
+    } else {
+      throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
+    }
   }
 }

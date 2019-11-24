@@ -1,7 +1,7 @@
 package tailspin.ast;
 
 import java.util.function.Function;
-import java.util.stream.Stream;
+import java.util.stream.LongStream;
 import tailspin.interpreter.Scope;
 
 public class RangeGenerator implements Expression {
@@ -21,7 +21,7 @@ public class RangeGenerator implements Expression {
     return resultIterator(Function.identity(), it, blockScope);
   }
 
-  public RangeIterator resultIterator(Function<Long, Long> boundTransform, Object it, Scope scope) {
+  RangeIterator resultIterator(Function<Long, Long> boundTransform, Object it, Scope scope) {
     long increment = step == null ? 1 : ((Number) step.getResults(it, scope)).longValue();
     if (increment == 0) {
       throw new IllegalArgumentException("Cannot produce range with zero increment");
@@ -53,6 +53,10 @@ public class RangeGenerator implements Expression {
       if (!isValid(i)) {
         return null;
       }
+      return getNextLong();
+    }
+
+    private long getNextLong() {
       long result = i;
       i = i + increment;
       return result;
@@ -62,8 +66,8 @@ public class RangeGenerator implements Expression {
       return (increment > 0 && v < end) || (increment < 0 && v > end) || (endInclusive && v == end);
     }
 
-    public Stream<Object> stream() {
-      return Stream.iterate(getNextResult(), v -> v != null && isValid((Long) v), v -> getNextResult());
+    public LongStream stream() {
+      return LongStream.iterate(getNextLong(), this::isValid, v -> getNextLong());
     }
   }
 }

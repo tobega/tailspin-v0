@@ -41,7 +41,7 @@ arrayReference: dimensionReference (SemiColon dimensionReference)*;
 
 dimensionReference: simpleDimension|multiValueDimension;
 
-simpleDimension: (sourceReference Deconstructor*)|arithmeticExpression|rangeLiteral;
+simpleDimension: sourceReference|arithmeticExpression|rangeLiteral;
 
 multiValueDimension: LeftBracket simpleDimension (Comma simpleDimension)* RightBracket;
 

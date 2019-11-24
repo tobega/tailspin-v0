@@ -411,15 +411,13 @@ Negative start or end values are interpreted as from the end of the array.
 E.g. `$(2..-2:3)` would select every third element starting at the second element and ending on or before
 the second last element. As usual, you can leave out the increment which defaults to 1.
 
-An array or integer for index can be obtained from a value [dereference](#dereference), and you can optionally
-append one or more [deconstructors](#deconstructor) after the dereference. The result must be an integer or a stream
+An array or integer for index can be obtained from a value [dereference](#dereference). The result must be an integer or a stream
 of integers, or a single array of integers.
 
 A new array can be created by selecting from an existing array with an array, e.g. `$([3,1,5])`
 would select the third element, followed by the first element and last the fifth element. You can also include
 ranges in the array, e.g. `$([-1, 1..-2])` to rotate the last element to the beginning. Note that the only allowed
-elements in an literal array selector are the same ones that are allowed as direct selectors with the
-further restriction that a dereference may not give an array result.
+elements in an literal array selector are the same ones that are allowed as direct selectors.
 
 All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semi-colon `;`, e.g.
 `$(1..3; 2)` to select the second element of each of the first three dimensions (returns a one-dimensional array of size 3,
