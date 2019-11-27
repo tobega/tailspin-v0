@@ -1,6 +1,5 @@
 package tailspin.ast;
 
-import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
 
 public class StringInterpolation implements Value {
@@ -12,8 +11,15 @@ public class StringInterpolation implements Value {
 
   @Override
   public Object getResults(Object it, Scope scope) {
-    return expression.run(it, scope).stream()
-        .map(Object::toString)
-        .collect(Collectors.joining());
+    Object result = expression.getResults(it, scope);
+    if (result == null) {
+      return "";
+    }
+    if (!(result instanceof ResultIterator)) {
+      return result.toString();
+    }
+    StringBuilder string = new StringBuilder();
+    ResultIterator.apply(string::append, (ResultIterator) result);
+    return string.toString();
   }
 }

@@ -86,7 +86,7 @@ public class RunMain extends TailspinParserBaseVisitor {
     ctx.dependency().forEach(this::visit);
     ctx.statement().forEach(s -> {
       scope.setIt(EMPTY_RESULT);
-      ((Expression) visit(s)).run(null, scope);
+      ((Expression) visit(s)).getResults(null, scope);
     });
     return null;
   }
@@ -594,10 +594,10 @@ public class RunMain extends TailspinParserBaseVisitor {
   public Value visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
     if (ctx.sourceReference() != null) {
       boolean isNegative = ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-");
-      return new IntegerExpression(isNegative, visitSourceReference(ctx.sourceReference()));
+      return new IntegerExpression(isNegative, Value.of(visitSourceReference(ctx.sourceReference())));
     }
     if (ctx.LeftParen() != null) {
-      return new IntegerExpression(false, visitValueProduction(ctx.valueProduction()));
+      return new IntegerExpression(false, Value.of(visitValueProduction(ctx.valueProduction())));
     }
     if (ctx.additiveOperator() != null) {
       Value left = (Value) visit(ctx.arithmeticExpression(0));

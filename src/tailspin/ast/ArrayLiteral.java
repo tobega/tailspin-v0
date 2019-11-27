@@ -1,7 +1,7 @@
 package tailspin.ast;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
 
 public class ArrayLiteral implements Value {
@@ -13,8 +13,18 @@ public class ArrayLiteral implements Value {
 
   @Override
   public Object getResults(Object it, Scope scope) {
-    return valueProductions.stream()
-        .flatMap(vp -> vp.run(it, scope).stream())
-        .collect(Collectors.toList());
+    ArrayList<Object> array = new ArrayList<>();
+    for (Expression vp : valueProductions) {
+      Object result = vp.getResults(it, scope);
+      if (result == null) {
+        continue;
+      }
+      if (result instanceof ResultIterator) {
+        ResultIterator.apply(array::add, (ResultIterator) result);
+      } else {
+        array.add(result);
+      }
+    }
+    return array;
   }
 }

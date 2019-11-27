@@ -4,16 +4,16 @@ import tailspin.interpreter.Scope;
 
 public class IntegerExpression implements Value {
   private final boolean isNegative;
-  private final Expression dereferenceValue;
+  private final Value dereferenceValue;
 
-  public IntegerExpression(boolean isNegative, Expression dereferenceValue) {
+  public IntegerExpression(boolean isNegative, Value dereferenceValue) {
     this.isNegative = isNegative;
     this.dereferenceValue = dereferenceValue;
   }
 
   @Override
   public Long getResults(Object it, Scope scope) {
-    long value = ((Number) Value.oneValue(dereferenceValue.getResults(it, scope))).longValue();
+    long value = ((Number) dereferenceValue.getResults(it, scope)).longValue();
     return isNegative ? -value : value;
   }
 }

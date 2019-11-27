@@ -12,24 +12,11 @@ import tailspin.interpreter.Scope;
 public interface Expression {
   Queue<Object> EMPTY_RESULT = new ArrayDeque<>();
 
-  default Queue<Object> run(Object it, Scope blockScope) {
-    return queueOf(getResults(it, blockScope));
-  }
-
   /**
    * Returns null if there are no results, a ResultIterator if there are more than one result,
    * else the single result.
    */
-  default Object getResults(Object it, Scope blockScope) {
-    Queue<Object> results = run(it, blockScope);
-    if (results.isEmpty()) {
-      return null;
-    }
-    if (results.size() == 1) {
-      return results.poll();
-    }
-    return (ResultIterator) results::poll;
-  }
+  Object getResults(Object it, Scope blockScope);
 
   static Queue<Object> queueOf(Object generated) {
     if (generated == null) return EMPTY_RESULT;

@@ -2,15 +2,15 @@ package tailspin.interpreter;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.stream.Collectors;
 import tailspin.ast.Expression;
+import tailspin.ast.ResultIterator;
 
 public class TransformSubComposer implements SubComposer {
   private final SubComposer subComposer;
   private final Expression transform;
   private final Scope scope;
 
-  public TransformSubComposer(SubComposer subComposer, Expression transform,
+  TransformSubComposer(SubComposer subComposer, Expression transform,
       Scope scope) {
     this.subComposer = subComposer;
     this.transform = transform;
@@ -21,8 +21,19 @@ public class TransformSubComposer implements SubComposer {
     if (transform == null) {
       return matchResult;
     }
-    return matchResult.stream().flatMap(it -> transform.run(it, scope).stream())
-        .collect(Collectors.toCollection(ArrayDeque::new));
+    ArrayDeque<Object> result = new ArrayDeque<>();
+    for (Object it : matchResult) {
+      Object transformed = transform.getResults(it, scope);
+      if (transformed == null) {
+        continue;
+      }
+      if (transformed instanceof ResultIterator) {
+        ResultIterator.apply(result::add, (ResultIterator) transformed);
+      } else {
+        result.add(transformed);
+      }
+    }
+    return result;
   }
 
   @Override

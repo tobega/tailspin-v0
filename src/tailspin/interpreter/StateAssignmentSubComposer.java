@@ -8,7 +8,7 @@ public class StateAssignmentSubComposer implements SubComposer {
   private final Expression stateAssignment;
   private final Scope scope;
 
-  public StateAssignmentSubComposer(SubComposer value, Expression stateAssignment,
+  StateAssignmentSubComposer(SubComposer value, Expression stateAssignment,
       Scope scope) {
     this.value = value;
     this.stateAssignment = stateAssignment;
@@ -23,9 +23,9 @@ public class StateAssignmentSubComposer implements SubComposer {
   @Override
   public Queue<Object> getValues() {
     if (value == null) {
-      stateAssignment.run(null, scope);
+      stateAssignment.getResults(null, scope);
     } else {
-      value.getValues().forEach(it -> stateAssignment.run(it, scope));
+      value.getValues().forEach(it -> stateAssignment.getResults(it, scope));
     }
     return Expression.EMPTY_RESULT;
   }

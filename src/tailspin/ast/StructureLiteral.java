@@ -16,8 +16,18 @@ public class StructureLiteral implements Value {
   @Override
   public Object getResults(Object it, Scope scope) {
     Map<String, Object> structure = new TreeMap<>();
-    keyValues.stream().flatMap(e -> e.run(it, scope).stream()).map(KeyValue.class::cast)
-        .forEach(kv -> structure.put(kv.getKey(), kv.getValue()));
+    for (Expression expression : keyValues) {
+      Object result = expression.getResults(it, scope);
+      if (result == null) {
+        continue;
+      }
+      if (result instanceof ResultIterator) {
+        ResultIterator.apply(kv -> structure.put(((KeyValue) kv).getKey(), ((KeyValue) kv).getValue()),
+            (ResultIterator) result);
+      } else {
+        structure.put(((KeyValue) result).getKey(), ((KeyValue) result).getValue());
+      }
+    }
     return structure;
   }
 }
