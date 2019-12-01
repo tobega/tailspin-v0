@@ -310,20 +310,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCondition(TailspinParser.ConditionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code objectEquals}
-	 * labeled alternative in {@link TailspinParser#typeMatch}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitObjectEquals(TailspinParser.ObjectEqualsContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code integerEquals}
-	 * labeled alternative in {@link TailspinParser#typeMatch}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code rangeMatch}
 	 * labeled alternative in {@link TailspinParser#typeMatch}.
 	 * @param ctx the parse tree
@@ -351,6 +337,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArrayMatch(TailspinParser.ArrayMatchContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#literalMatch}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLiteralMatch(TailspinParser.LiteralMatchContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#rangeBounds}.
 	 * @param ctx the parse tree

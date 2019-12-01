@@ -712,4 +712,47 @@ class Matchers {
 
     assertEquals("yes", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void literalEqualityString() throws Exception {
+    String program = "'a(b' -> (<='a(b'> 'yes'! <> 'no'!) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void literalEqualityArray() throws Exception {
+    String program = "[3, 5, 2] -> (<=[3, 5, 2]> 'yes'! <> 'no'!) -> !OUT::write\n"
+    + "[3, 5, 2] -> (<=[3, 2, 5]> 'no'! <> 'yes'!) -> !OUT::write\n"
+    + "[3, 5, 2] -> (<=[3, 5, 2, 2]> 'no'! <> 'yes'!) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yesyesyes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void literalEqualityStructure() throws Exception {
+    String program = "{a: 1, b: 'a'} -> (<={a: 1, b: 'a'}> 'yes'! <> 'no'!) -> !OUT::write\n"
+    + "{a: 1, b: 'a'} -> (<={a: 1, b: 'a', c:0}> 'no'! <> 'yes'!) -> !OUT::write\n"
+    + "{a: 1, b: 'a'} -> (<={a: 1, b: 'b'}> 'no'! <> 'yes'!) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yesyesyes", output.toString(StandardCharsets.UTF_8));
+  }
 }

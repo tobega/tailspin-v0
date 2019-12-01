@@ -108,15 +108,17 @@ transform: To templates transform?
 
 matcher: StartMatcher Invert? condition (Else condition)* EndMatcher;
 
-condition: typeMatch? suchThat*;
+condition: (literalMatch | typeMatch)? suchThat*;
 
-typeMatch: sourceReference           # objectEquals
-  | arithmeticExpression              # integerEquals
-  | rangeBounds                       # rangeMatch
+typeMatch: rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key matcher Comma?)* RightBrace # structureMatch
   | LeftBracket matcher? (Comma matcher)* RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
 ;
+
+literalMatch: sourceReference // Obsolete?
+  | arithmeticExpression // Obsolete?
+  | Equal source;
 
 rangeBounds: lowerBound? Range upperBound?;
 

@@ -291,8 +291,9 @@ A matcher is a condition enclosed by angle brackets. A sequence of matchers is e
 start to the end, where the first matcher that matches the _current value_ will have its block
 executed for that _current value_.
 * Empty condition always matches `<>`
-* Value equals, a [dereferenced value](#dereference) matches according to standard rules of equality
-* Numeric condition, [arithmetic expression](#arithmetic-expression) matches if equal, e.g. `<5>` for "equals 5"
+* Value equals, a [dereferenced value](#dereference) matches according to standard rules of equality, should probably be replaced by "literal equality" below
+* Numeric condition, [arithmetic expression](#arithmetic-expression) matches if equal, e.g. `<5>` for "equals 5", should probably be replaced by "literal equality" below
+* Literal equality, starts with and equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`; matches according to standard rules of equality.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
  the range operator on the side(s) where the bound is not included. E.g.
   * `<2..5>` for "between 2 and 5 inclusive"

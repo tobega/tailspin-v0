@@ -355,7 +355,11 @@ public class RunMain extends TailspinParserBaseVisitor {
 
   @Override
   public ValueMatcher visitCondition(TailspinParser.ConditionContext ctx) {
-    return new ValueMatcher(ctx.typeMatch() == null ? null : (Condition) visit(ctx.typeMatch()),
+    Condition basicCondition = ctx.typeMatch() == null ? null : (Condition) visit(ctx.typeMatch());
+    if (basicCondition == null && ctx.literalMatch() != null) {
+      basicCondition = visitLiteralMatch(ctx.literalMatch());
+    }
+    return new ValueMatcher(basicCondition,
         ctx.suchThat() == null ? List.of()
             : ctx.suchThat().stream().map(this::visitSuchThat).collect(Collectors.toList()));
   }
@@ -366,13 +370,14 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Condition visitObjectEquals(TailspinParser.ObjectEqualsContext ctx) {
-    return new Equality(Value.of(visitSourceReference(ctx.sourceReference())));
-  }
-
-  @Override
-  public Condition visitIntegerEquals(TailspinParser.IntegerEqualsContext ctx) {
-    return new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
+  public Condition visitLiteralMatch(TailspinParser.LiteralMatchContext ctx) {
+    if (ctx.sourceReference() != null) {
+      return new Equality(Value.of(visitSourceReference(ctx.sourceReference())));
+    }
+    if (ctx.arithmeticExpression() != null) {
+      return new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
+    }
+    return new Equality(Value.of(visitSource(ctx.source())));
   }
 
   @Override
