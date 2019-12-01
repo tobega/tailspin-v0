@@ -69,11 +69,7 @@ public class Templates implements Transform {
     expectedParameters.addAll(parameters);
   }
 
-  String getScopeName() {
-    return scopeName;
-  }
-
-  void setScopeContext(String name) {
+  public void setScopeContext(String name) {
     scopeName = name;
   }
 }

@@ -12,15 +12,18 @@ import tailspin.interpreter.Templates;
 public class ArrayTemplates implements Expression {
   private final List<String> loopVariables;
   private final TemplatesDefinition templatesDefinition;
+  private final String name;
 
-  public ArrayTemplates(List<String> loopVariables, TemplatesDefinition templatesDefinition) {
+  public ArrayTemplates(List<String> loopVariables, TemplatesDefinition templatesDefinition, String name) {
     this.loopVariables = loopVariables;
     this.templatesDefinition = templatesDefinition;
+    this.name = name;
   }
 
   @Override
   public Object getResults(Object it, Scope definingScope) {
     Templates templates = templatesDefinition.define(definingScope);
+    templates.setScopeContext(name);
     templates.expectParameters(loopVariables.stream().map(ExpectedParameter::new)
         .collect(Collectors.toList()));
     return runArrayTemplate(it, templates);

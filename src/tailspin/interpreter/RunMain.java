@@ -287,15 +287,51 @@ public class RunMain extends TailspinParserBaseVisitor {
   @Override
   public Expression visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx) {
     TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
-    return new InlineTemplates(templatesDefinition);
+    return new InlineTemplates(templatesDefinition, "");
+  }
+
+  @Override
+  public Expression visitLambdaTemplates(TailspinParser.LambdaTemplatesContext ctx) {
+    String name = "";
+    if (!ctx.identifier().isEmpty()) {
+      name = ctx.identifier(0).getText();
+      String endName = ctx.identifier().size() > 1 ? ctx.identifier(1).getText() : "";
+      if (!name.equals(endName)) {
+        throw new IllegalStateException(
+            "Mismatched end \"" + endName + "\" for templates " + name);
+      }
+    }
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
+    return new InlineTemplates(templatesDefinition, name);
   }
 
   @Override
   public Expression visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx) {
-    List<String> loopVariables = ctx.identifier().stream().map(RuleNode::getText).collect(
-        Collectors.toList());
+    List<String> loopVariables = visitArrayIndexDecomposition(ctx.arrayIndexDecomposition());
     TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
-    return new ArrayTemplates(loopVariables, templatesDefinition);
+    return new ArrayTemplates(loopVariables, templatesDefinition, "");
+  }
+
+  @Override
+  public List<String> visitArrayIndexDecomposition(TailspinParser.ArrayIndexDecompositionContext ctx) {
+    return ctx.identifier().stream().map(RuleNode::getText).collect(
+        Collectors.toList());
+  }
+
+  @Override
+  public Object visitLambdaArrayTemplates(TailspinParser.LambdaArrayTemplatesContext ctx) {
+    String name = "";
+    if (!ctx.identifier().isEmpty()) {
+      name = ctx.identifier(0).getText();
+      String endName = ctx.identifier().size() > 1 ? ctx.identifier(1).getText() : "";
+      if (!name.equals(endName)) {
+        throw new IllegalStateException(
+            "Mismatched end \"" + endName + "\" for templates " + name);
+      }
+    }
+    List<String> loopVariables = visitArrayIndexDecomposition(ctx.arrayIndexDecomposition());
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
+    return new ArrayTemplates(loopVariables, templatesDefinition, name);
   }
 
   @Override

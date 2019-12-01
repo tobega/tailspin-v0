@@ -56,6 +56,8 @@ RightBrace: '}';
 
 StartMatcher: '<';
 
+Lambda: '\\';
+
 StartTemplatesDefinition: 'templates';
 
 StartSourceDefinition: 'source';

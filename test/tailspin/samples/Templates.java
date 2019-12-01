@@ -25,6 +25,56 @@ class Templates {
   }
 
   @Test
+  void lambda() throws Exception {
+    String program = "1..3 -> \\(<2> 'Goodbye '! <> 'Hello '!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("Hello Goodbye Hello ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void namedLambda() throws Exception {
+    String program = "1..3 -> \\name(<2> 'Goodbye '! <> 'Hello '!\\name) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("Hello Goodbye Hello ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void namedLambdaState() throws Exception {
+    String program = "[1..3] -> \\name(@: 5; $... -> \\(<2> @name: $@name + $;\\) -> !VOID $@ ! \\name) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("7", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mismatchedNameLambda() throws Exception {
+    String program = "1..3 -> \\name(<2> 'Goodbye '! <> 'Hello '!\\amen) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void recursiveMatch() throws Exception {
     String program =
         "templates spin\n<5> $ + 2 ! <> $ + 1 -> #\nend spin\n" + "1 -> spin -> !OUT::write";
@@ -179,6 +229,56 @@ class Templates {
     runner.run(input, output, List.of());
 
     assertEquals("[2, 6, 12]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void lambdaArrayTemplates() throws Exception {
+    String program = "[2..4] -> \\[i]($i * $ !\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[2, 6, 12]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void namedLambdaArrayTemplates() throws Exception {
+    String program = "[2..4] -> \\name[i]($i * $ !\\name) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[2, 6, 12]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void namedLambdaArrayTemplatesState() throws Exception {
+    String program = "[2..4] -> \\name[i](@: $; $i -> (<2> @name: $@name + $;) -> !VOID $@ ! \\name) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[2, 5, 4]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mismatchedNameLambdaArrayTemplates() throws Exception {
+    String program = "[2..4] -> \\name[i]($i * $ !\\amen) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test

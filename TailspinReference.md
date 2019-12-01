@@ -210,6 +210,10 @@ You can specify [parameters](#parameters) to modify/control certain aspects of t
 Templates can be defined inline by just wrapping a templates body in parentheses, e.g.
 `$ -> (<0> 'zero'!)` will output `zero` if `$` was `0` (but will not output anything at all otherwise)
 
+An optional syntax, which may become required, starts with a backslash '\' (or lambda if you squint) followed by an optional identifier,
+with the backslash-identifier sequence repeated before the closing parenthesis, e.g. `$ -> \(<0> 'zero'!\)`
+or `$ -> \onlyZero(<0> 'zero'! \onlyZero)`. Of course, the identifier acts as a name for templates state.
+
 #### Array templates
 Array templates is a convenient way to process [array](#arrays) elements individually together with
 their index in the array. They are created by prefixing an [inline templates](#inline-templates)
@@ -217,6 +221,12 @@ definition with an identifier for the index within brackets,
 e.g. `[4,5,6] -> [i]($ + $i)` will produce the value `[5,7,9]`.
 Multiple dimensions also work, provided that the array structure has at least as many dimensions as specified.
 e.g `[[1,2,3],[4,5,6]] -> [i,j]($ * $i + $j)` gives `[[2,4,6],[9,12,15]]`
+
+Note that the array templates is currently not aware of the array other than that it has parameters for its indices,
+so each element is independently evaluated.
+
+As with inline templates, an optional backslash and optional name can be attached,
+e.g. `[[1,2,3],[4,5,6]] -> \flatIndex[i,j]($ * $i + $j \flatIndex)`
 
 ### Composer
 A composer takes a string and composes it into other objects according to the specified pattern.
