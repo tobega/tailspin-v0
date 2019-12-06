@@ -189,6 +189,28 @@ class Statements {
   }
 
   @Test
+  void definedSymbolFromValueChainWithEmptyResult() throws Exception {
+    String program = "def helloWorld: 'World!' -> (<2> $ !) ;";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(AssertionError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void definedSymbolFromValueChainWithTooManyResults() throws Exception {
+    String program = "def helloWorld: 'World!' -> (<> $ ! $ !) ;";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(AssertionError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void commentsIgnored() throws Exception {
     String program = "1 -> !OUT::write\n // 2 -> !OUT::write\n 3 -> !OUT::write // 4 -> !OUT::write\n";
     Tailspin runner =

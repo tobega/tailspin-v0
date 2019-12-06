@@ -13,7 +13,7 @@ public interface Value extends Expression {
   static Object oneValue(Object value) {
     ResultIterator ri = ResultIterator.flat(value);
     Object result = ri.getNextResult();
-    if (ri.getNextResult() != null) {
+    if (result == null || ri.getNextResult() != null) {
       throw new AssertionError("Expected exactly one value");
     }
     return result;
