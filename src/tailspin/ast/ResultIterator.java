@@ -33,7 +33,7 @@ public interface ResultIterator {
           }
           if (result instanceof ResultIterator) {
             current = (ResultIterator) result;
-            return this;
+            result = null;
           }
         }
         return result;
