@@ -637,6 +637,10 @@ public class RunMain extends TailspinParserBaseVisitor {
       boolean isNegative = ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-");
       return new IntegerExpression(isNegative, Value.of(visitSourceReference(ctx.sourceReference())));
     }
+    if (ctx.deleteState() != null) {
+      boolean isNegative = ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-");
+      return new IntegerExpression(isNegative, Value.of(visitDeleteState(ctx.deleteState())));
+    }
     if (ctx.LeftParen() != null) {
       return new IntegerExpression(false, Value.of(visitValueProduction(ctx.valueProduction())));
     }

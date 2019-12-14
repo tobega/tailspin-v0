@@ -147,7 +147,7 @@ interpolateEvaluate: StartStringInterpolate (At? identifier? reference Message? 
 
 arithmeticExpression: integerLiteral
   | LeftParen valueProduction RightParen
-  | additiveOperator? sourceReference
+  | additiveOperator? (sourceReference|deleteState)
   | arithmeticExpression multiplicativeOperator arithmeticExpression
   | arithmeticExpression additiveOperator arithmeticExpression
 ;

@@ -194,6 +194,19 @@ class Numbers {
   }
 
   @Test
+  void deleteState() throws IOException {
+    String program = "templates foo @: 5; $ * ^@ ! end foo\n 3 -> foo -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("15", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void dereferenceUnaryMinus() throws IOException {
     String program = "def x: 5;\n -$x -> !OUT::write";
     Tailspin runner =

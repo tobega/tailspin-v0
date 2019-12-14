@@ -66,7 +66,8 @@ you can reference it directly, like `'$p::message;'` if the message does not req
 that is like `'$->p::message;'`. Note that we now reference the message expression without the $.
 
 ### Arithmetic expression
-The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference).
+The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference)
+(including a state deletion, see the [delete operator](#delete-operator).
 Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 * multiplication `*`
 * truncation division `~/` (which truncates to the integer closest to 0)
