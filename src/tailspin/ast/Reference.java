@@ -37,14 +37,14 @@ public abstract class Reference implements Value {
     @Override
     public Object getValue(Object it, Scope scope) {
       if (it == null) {
-        throw new IllegalStateException("Cannot reference $it, doesn't exist");
+        throw new IllegalStateException("Cannot reference $, doesn't exist");
       }
       return it;
     }
 
     @Override
     public Object deleteValue(Object it, Scope scope) {
-      throw new UnsupportedOperationException("'it' is not deletable");
+      throw new UnsupportedOperationException("$ is not deletable");
     }
 
     @Override
@@ -54,12 +54,12 @@ public abstract class Reference implements Value {
 
     @Override
     public void setValue(boolean merge, Object value, Object it, Scope scope) {
-      throw new UnsupportedOperationException("'it' is not mutable");
+      throw new UnsupportedOperationException("$ is not mutable");
     }
 
     @Override
     public String toString() {
-      return "$it";
+      return "$";
     }
   };
 
@@ -183,9 +183,13 @@ public abstract class Reference implements Value {
 
     @Override
     public Object getValue(Object it, Scope scope) {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
-      return structure.get(fieldIdentifier);
+      try {
+        @SuppressWarnings("unchecked")
+        Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
+        return structure.get(fieldIdentifier);
+      } catch (ClassCastException e) {
+        throw new RuntimeException(parent.toString() + " is not a structure", e);
+      }
     }
 
     @Override

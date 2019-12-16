@@ -78,7 +78,7 @@ public class BasicScope implements Scope {
 
   @Override
   public Object getState(String stateContext) {
-    throw new IllegalStateException("Cannot get state from base scope");
+    throw new IllegalStateException("Cannot get state from base scope " + stateContext);
   }
 
   @Override
