@@ -7,9 +7,10 @@ public interface DimensionReference {
   Object getIndices(int size, Object it, Scope scope);
 
   static Long resolveIndex(int index, int size) {
-    if (index == 0) return null;
+    if (index == 0 || index > size) return null;
     if (index < 0) {
-      return (long) (index + size);
+      long fromEnd = (index + size);
+      return fromEnd < 0 ? null : fromEnd;
     } else {
       return (long) (index - 1);
     }

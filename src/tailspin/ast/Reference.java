@@ -319,7 +319,7 @@ public abstract class Reference implements Value {
       } else {
           throw new UnsupportedOperationException(
               "Unable to dereference array by "
-                  + idx.getClass().getName());
+                  + (idx == null ? "index out of bounds" : " " + idx.getClass().getName()));
       }
       if (currentDereference == dimensions.size() - 1) {
         if (dimensionResult instanceof Stream) {

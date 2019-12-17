@@ -2,3 +2,9 @@ Errors easy to make
 - Mixed up ..$bound and $bound.., hard to see error
 - Given source abc, hard to see call to $abc when intended $@abc
 - Easy to forget to use the name of the outer template in a simple filter \(<=$@.foo> $ !\)
+
+Illogical?
+- Should it be \[i;j](...) in array templates since dimensions vary by ';'?
+
+Bugs
+- delete of several array elements doesn't work as expected
