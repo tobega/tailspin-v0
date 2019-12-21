@@ -40,6 +40,12 @@ public class ProcessorMessage extends Reference {
       } else {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
+    } else if (receiver instanceof String) {
+      if (message.equals("asCodePoints")) {
+        return (it, params) -> ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList());
+      } else {
+        throw new UnsupportedOperationException("Unknown array message " + message);
+      }
     } else if (receiver instanceof KeyValue) {
       if (message.equals("key")) {
         return (it, params) -> ((KeyValue) receiver).getKey();
