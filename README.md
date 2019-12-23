@@ -5,6 +5,8 @@ a series of transforms so it should be easy to specify that flow. Transform step
 pattern-matching determining which template to apply. Output is generally specified as literals with interpolation of values.
 For more info see the [language reference documentation](TailspinReference.md)
 
+Some of my thinking that went into tailspin is [elaborated here](https://cygni.se/the-perfect-programming-language/).
+
 ## Status
 The syntax has been mainly determined to be sane and runnable.
 
