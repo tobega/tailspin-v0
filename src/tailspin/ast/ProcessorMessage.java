@@ -49,7 +49,7 @@ public class ProcessorMessage extends Reference {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
     } else {
-      throw new UnsupportedOperationException("Unimplemented processor type " + receiver.getClass().getSimpleName());
+      throw new UnsupportedOperationException("Unimplemented message " + message + " on  processor type " + receiver.getClass().getSimpleName());
     }
   }
 
