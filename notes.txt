@@ -7,6 +7,8 @@ Illogical?
 - Should it be \[i;j](...) in array templates since dimensions vary by ';'?
 - Using negative numbers to index from the end of the array is a bit hard to read. Also disallows the "trick" of $a($-2..$-2)
   for optional fetches below zero (it works after end).
+- Array references should maybe always have [] around multi-value references?
+- We should be able to use inline templates as sources and sinks (?)
 
 Bugs
 - delete of several array elements doesn't work as expected
