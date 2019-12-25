@@ -492,6 +492,20 @@ A predefined symbol `SYS` can be used to access certain system-defined functions
 `OUT` sends data to the standard output pipe (by default the terminal)
 * `!OUT::write` writes a string representation of each of the objects in the stream. (Note the `!` prefix for a [sink](#sinks))
 
+## Built-in messages
+All objects
+* `$::hashCode` returns a hash code consistent with equality.
+
+Arrays
+* `$::length` returns the length of the array's outer dimension.
+
+Keyed values
+* `$::key` returns the key as a string.
+* `$::value` returns the value
+
+Strings
+* `$::asCodePoints` returns an array of Unicode code points corresponding to the string.
+
 ## Importing packages
 A tailspin file can be declared to be an importable package by
 a package statement on the first non-blank line, e.g. `package dep` defines this file as a package named dep.

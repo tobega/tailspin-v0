@@ -5,6 +5,11 @@ Errors easy to make
 
 Illogical?
 - Should it be \[i;j](...) in array templates since dimensions vary by ';'?
+- Using negative numbers to index from the end of the array is a bit hard to read. Also disallows the "trick" of $a($-2..$-2)
+  for optional fetches below zero (it works after end).
 
 Bugs
 - delete of several array elements doesn't work as expected
+
+Other thoughts
+- Use more words instead of symbols?
