@@ -26,26 +26,26 @@ public class RangeGenerator implements Expression {
     if (increment == 0) {
       throw new IllegalArgumentException("Cannot produce range with zero increment");
     }
-    Long start = boundTransform.apply(((Number) lowerBound.value.getResults(it, scope)).longValue());
-    Long end = boundTransform.apply(((Number) upperBound.value.getResults(it, scope)).longValue());
+    long startBound = ((Number) lowerBound.value.getResults(it, scope)).longValue();
+    Long start = boundTransform.apply(lowerBound.inclusive ? startBound : startBound + increment);
+    long endBound = ((Number) upperBound.value.getResults(it, scope)).longValue();
+    Long end = boundTransform.apply(upperBound.inclusive ? endBound
+        : Math.floorDiv((endBound - 1 - startBound), increment) * increment + startBound);
     if (start == null || end == null || (increment > 0 && start > end) || (increment < 0 && start < end)) {
       return null;
     }
-    return new RangeIterator(
-        lowerBound.inclusive ? start : start + increment, increment, end, upperBound.inclusive);
+    return new RangeIterator(start, increment, end);
   }
 
   public static class RangeIterator implements ResultIterator {
     private long i;
     private final long increment;
     private final long end;
-    private final boolean endInclusive;
 
-    RangeIterator(long start, long increment, long end, boolean endInclusive) {
+    RangeIterator(long start, long increment, long end) {
       this.i = start;
       this.increment = increment;
       this.end = end;
-      this.endInclusive = endInclusive;
     }
 
     @Override
@@ -63,7 +63,7 @@ public class RangeGenerator implements Expression {
     }
 
     private boolean isValid(long v) {
-      return (increment > 0 && v < end) || (increment < 0 && v > end) || (endInclusive && v == end);
+      return (increment > 0 && v <= end) || (increment < 0 && v >= end);
     }
 
     public LongStream stream() {

@@ -211,6 +211,58 @@ class Arrays {
   }
 
   @Test
+  void rangeDereferenceOpenEndBeyondRange() throws IOException {
+    String program = "[1,3,4,7,11] -> $(4..~6)  -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[7, 11]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeDereferenceOpenStartZero() throws IOException {
+    String program = "[1,3,4,7,11] -> $(0~..3)  -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[1, 3, 4]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeDereferenceOpenEndNegative() throws IOException {
+    String program = "[1,3,4,7,11] -> $(3..~-1)  -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[4, 7]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeDereferenceOpenEndNegativeIncrement() throws IOException {
+    String program = "[1,3,4,7,11] -> $(1..~-1:2)  -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[1, 4]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void permutationDereference() throws IOException {
     String program = "[1,3,4,7,11] -> $([3,1,4])  -> !OUT::write";
     Tailspin runner =

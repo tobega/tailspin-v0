@@ -13,5 +13,9 @@ Illogical?
 Bugs
 - delete of several array elements doesn't work as expected
 
+Too much syntax?
+- quick filter by \<match> to mean \(<match> $!\)
+- filter array dereference, $a(<match>) to select all elements that match, like $a -> \[_](<match> $!\)
+
 Other thoughts
 - Use more words instead of symbols?
