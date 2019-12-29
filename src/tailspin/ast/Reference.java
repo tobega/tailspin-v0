@@ -188,7 +188,9 @@ public abstract class Reference implements Value {
         Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
         return structure.get(fieldIdentifier);
       } catch (ClassCastException e) {
-        throw new RuntimeException(parent.toString() + " is not a structure. Tried to get " + fieldIdentifier, e);
+        throw new IllegalStateException(parent.toString() + " is not a structure. Tried to get " + fieldIdentifier, e);
+      } catch (Exception e) {
+        throw new IllegalStateException("Error trying to get field " + fieldIdentifier, e);
       }
     }
 

@@ -22,6 +22,9 @@ public class TransformScope extends NestedScope {
   @Override
   public Object getState(String stateContext) {
     if (stateContext.isEmpty() || stateContext.equals(scopeContext)) {
+      if (state == null) {
+        throw new IllegalStateException("No state " + scopeContext + " found");
+      }
       return state;
     } else {
       return super.getState(stateContext);
