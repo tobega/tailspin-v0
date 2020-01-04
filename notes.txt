@@ -1,3 +1,18 @@
+Things to add/improve
+- modules/packages, imports/exports. Interfaces vs implementations? Module interfaces (free templates) vs Processor protocols?
+  I like that code should be able to specify what it needs and let it be fulfilled by duck typing.
+- testing: should be integrated in the source file
+- Contracts and type specifications: Based on matchers. Maybe "templates connect requires <[<point>*]> produces <line>*"
+  How about matchers for processor protocols? Specify minimum requirements, extra stuff allowed.
+- More matchers. Additive types. Do we need restrictive matchers, specifying e.g. "and nothing else"? More specific list content matchers?
+- Concurrency: The basic idea is that state variable changes will be transactional/atomic for each processor template or template chain stage.
+  Mechanism will likely be "CAS or retry". How about processors holding processors, giving a "distributed" transaction?
+- Rational numbers, exact math?
+- Scientific numbers, specify digits of accuracy. Units required? Syntax when going from exact number division?
+- Standard library. Should definitely include relvars as DB-interface (see The Third Manifesto).
+- Performance. Definitely need better data structures for lists and structures.
+- Error handling. Error path/exception path? VOID path? Need examples to play with.
+
 Errors easy to make
 - Mixed up ..$bound and $bound.., hard to see error
 - Given source abc, hard to see call to $abc when intended $@abc
@@ -14,8 +29,15 @@ Bugs
 - delete of several array elements doesn't work as expected
 
 Too much syntax?
-- quick filter by \<match> to mean \(<match> $!\)
+- quick filter by \<match> to mean \(<match> $!\).
 - filter array dereference, $a(<match>) to select all elements that match, like $a -> \[_](<match> $!\)
+  The downside of this one is that it doesn't extend easily? Or textually it actually does!
 
 Other thoughts
 - Use more words instead of symbols?
+- How much meta-programming do we want to let loose? Should everything be assignable as data? In that case, what about serialization?
+  Currently processors are a little in-between: if we can pass processor instances, why not templates? Or conversely?
+- Maybe some kind of reflective access? E.g. field access like myStruct."$fieldName;"? But do we need it?
+  I really want to avoid things that complicate if there is a reasonable way to do something similar.
+- Different kinds of hand-over between transforms? E.g. '=>' for proceed in parallel.
+- Do we need some kind of exit statement to abandon a stream?

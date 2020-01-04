@@ -24,6 +24,8 @@ Thinking about if and how reflection could work.
 
 Thinking about if and how to add some macro ability.
 
+Thoughts somewhere on the roadmap are in [my notes](notes.txt)
+
 ## Code samples
 Small code samples can be found in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
 Development is driven by code snippets in the [test/tailspin/samples folder](https://github.com/tobega/tailspin-v0/tree/master/test/tailspin/samples).
