@@ -12,7 +12,7 @@ import tailspin.Tailspin;
 class Matchers {
   @Test
   void rangeMatch() throws Exception {
-    String program = "1..6 -> (<..2> 'L'! <3..4> 'M'! <5..> 'H'!) -> !OUT::write";
+    String program = "1..6 -> \\(<..2> 'L'! <3..4> 'M'! <5..> 'H'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -25,7 +25,7 @@ class Matchers {
 
   @Test
   void rangeMatchExclusive() throws Exception {
-    String program = "1..6 -> (<..~2> 'L'! <3..4> 'M'! <5~..> 'H'! <> '-' !) -> !OUT::write";
+    String program = "1..6 -> \\(<..~2> 'L'! <3..4> 'M'! <5~..> 'H'! <> '-' !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -38,7 +38,7 @@ class Matchers {
 
   @Test
   void emptyStringMatch() throws Exception {
-    String program = "'' -> (<'foo'> 'no way'! <''> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "'' -> \\(<'foo'> 'no way'! <''> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -51,7 +51,7 @@ class Matchers {
 
   @Test
   void regexpMatch() throws Exception {
-    String program = "'Hello' -> (<'Hell'> 'no!'! <'[Hh]el.*'> 'yes' ! <> 'no'!) -> !OUT::write";
+    String program = "'Hello' -> \\(<'Hell'> 'no!'! <'[Hh]el.*'> 'yes' ! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -64,7 +64,7 @@ class Matchers {
 
   @Test
   void interpolatedRegexpMatch() throws Exception {
-    String program = "def aiches: '[Hh]';\n 'Hello' -> (<'Hell'> 'no!'! <'$aiches;el.*'> 'yes' ! <> 'no'!) -> !OUT::write";
+    String program = "def aiches: '[Hh]';\n 'Hello' -> \\(<'Hell'> 'no!'! <'$aiches;el.*'> 'yes' ! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -77,7 +77,7 @@ class Matchers {
 
   @Test
   void structureMatchIsAStructure() throws Exception {
-    String program = "{ a: 1 } -> (<1> 'no!' ! <{}> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "{ a: 1 } -> \\(<1> 'no!' ! <{}> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -90,7 +90,7 @@ class Matchers {
 
   @Test
   void structureMatchNotAStructure() throws Exception {
-    String program = "1 -> (<{}> 'no!'! <1> 'yes' !<> 'no'!) -> !OUT::write";
+    String program = "1 -> \\(<{}> 'no!'! <1> 'yes' !<> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -103,7 +103,7 @@ class Matchers {
 
   @Test
   void structureMatchPropertyExists() throws Exception {
-    String program = "{ a: 1 } -> (<{ a1: <1> }> 'no!'! <{ a:<> }> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "{ a: 1 } -> \\(<{ a1: <1> }> 'no!'! <{ a:<> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -116,7 +116,7 @@ class Matchers {
 
   @Test
   void structureMatchNonExistentPropertyCannotMatchTheAnyMatcher() throws Exception {
-    String program = "{ a: 1 } -> (<{ b: <> }> 'no!'! <> 'yes'!) -> !OUT::write";
+    String program = "{ a: 1 } -> \\(<{ b: <> }> 'no!'! <> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -129,7 +129,7 @@ class Matchers {
 
   @Test
   void structureMatchPropertyMatches() throws Exception {
-    String program = "{ a: 1 } -> (<{ a: <0> }> 'no!' !<{ a:<1> }> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "{ a: 1 } -> \\(<{ a: <0> }> 'no!' !<{ a:<1> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -142,7 +142,7 @@ class Matchers {
 
   @Test
   void structureMatchMultiplePropertyMatches() throws Exception {
-    String program = "{ a: 1, b: 2 } -> (<{ a: <1>, b: <1> }> 'no!' !<{ b:<2> }> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "{ a: 1, b: 2 } -> \\(<{ a: <1>, b: <1> }> 'no!' !<{ b:<2> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -155,7 +155,7 @@ class Matchers {
 
   @Test
   void structureFieldMatchKeepsPerspectiveOfIt() throws Exception {
-    String program = "{ a: {x: 1, y:2}, b: 2 } -> (<{ b:<$.a.y> }> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "{ a: {x: 1, y:2}, b: 2 } -> \\(<{ b:<$.a.y> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -168,7 +168,7 @@ class Matchers {
 
   @Test
   void deepStructureFieldMatchKeepsPerspectiveOfIt() throws Exception {
-    String program = "{ a: {x: 1, y:2}, b: 2 } -> (<{ a:<{y: <$.b>}> }> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "{ a: {x: 1, y:2}, b: 2 } -> \\(<{ a:<{y: <$.b>}> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -181,7 +181,7 @@ class Matchers {
 
   @Test
   void deepStructureFieldMatchSuchThatChangesPerspectiveOfIt() throws Exception {
-    String program = "{ a: {x: 1, y:2}, b: 2 } -> (<{ a:<?($.y <$.x..>)> }> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "{ a: {x: 1, y:2}, b: 2 } -> \\(<{ a:<?($.y <$.x..>)> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -194,7 +194,7 @@ class Matchers {
 
   @Test
   void rangeMatchDereference() throws Exception {
-    String program = "def mid: 3;\n1..6 -> (<..$mid> 'L'! <> 'H'!) -> !OUT::write";
+    String program = "def mid: 3;\n1..6 -> \\(<..$mid> 'L'! <> 'H'!\\) -> !OUT::write";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -207,7 +207,7 @@ class Matchers {
 
   @Test
   void rangeMatchExpression() throws Exception {
-    String program = "def mid: 3;\n1..6 -> (<..($mid+1)> 'L'! <> 'H'!) -> !OUT::write";
+    String program = "def mid: 3;\n1..6 -> \\(<..($mid+1)> 'L'! <> 'H'!\\) -> !OUT::write";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -220,7 +220,7 @@ class Matchers {
 
   @Test
   void rangeMatchDereferenceState() throws Exception {
-    String program = "1..6 -> (@: 3; $ -> # <..$@> 'L'! <> 'H'!) -> !OUT::write";
+    String program = "1..6 -> \\(@: 3; $ -> # <..$@> 'L'! <> 'H'!\\) -> !OUT::write";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -233,7 +233,7 @@ class Matchers {
 
   @Test
   void matchDereferenceMessage() throws Exception {
-    String program = "def a: [ 1..3 ];\n1..6 -> (<..$a::length> 'L'! <> 'H'!) -> !OUT::write";
+    String program = "def a: [ 1..3 ];\n1..6 -> \\(<..$a::length> 'L'! <> 'H'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -246,7 +246,7 @@ class Matchers {
 
   @Test
   void invertMatch() throws Exception {
-    String program = "1..6 -> (<~3> $ !) -> !OUT::write";
+    String program = "1..6 -> \\(<~3> $ !\\) -> !OUT::write";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -259,7 +259,7 @@ class Matchers {
 
   @Test
   void arrayMatchIsAnArray() throws Exception {
-    String program = "[ 1 ] -> (<1> 'no!' ! <[]> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[ 1 ] -> \\(<1> 'no!' ! <[]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -272,7 +272,7 @@ class Matchers {
 
   @Test
   void arrayMatchNotAnArray() throws Exception {
-    String program = "1 -> (<[]> 'no!'! <> 'yes'!) -> !OUT::write";
+    String program = "1 -> \\(<[]> 'no!'! <> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -285,7 +285,7 @@ class Matchers {
 
   @Test
   void arrayMatchNotOnWrongLength() throws Exception {
-    String program = "[1,2] -> (<[](1)> 'no!'! <> 'yes'!) -> !OUT::write";
+    String program = "[1,2] -> \\(<[](1)> 'no!'! <> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -298,7 +298,7 @@ class Matchers {
 
   @Test
   void arrayMatchOnRightLength() throws Exception {
-    String program = "[1,2] -> (<[](2)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[1,2] -> \\(<[](2)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -311,7 +311,7 @@ class Matchers {
 
   @Test
   void arrayMatchOnLowerBound() throws Exception {
-    String program = "[1,2] -> (<[](1..)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[1,2] -> \\(<[](1..)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -324,7 +324,7 @@ class Matchers {
 
   @Test
   void arrayMatchNotOnLowerBound() throws Exception {
-    String program = "[1,2] -> (<[](3..)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[1,2] -> \\(<[](3..)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -337,7 +337,7 @@ class Matchers {
 
   @Test
   void arrayMatchOnUpperBound() throws Exception {
-    String program = "[1,2] -> (<[](..2)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[1,2] -> \\(<[](..2)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -350,7 +350,7 @@ class Matchers {
 
   @Test
   void arrayMatchNotOnUpperBound() throws Exception {
-    String program = "[1,2,3] -> (<[](..2)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[1,2,3] -> \\(<[](..2)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -363,7 +363,7 @@ class Matchers {
 
   @Test
   void arrayMatchOnRange() throws Exception {
-    String program = "[1,2] -> (<[](1..3)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[1,2] -> \\(<[](1..3)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -376,7 +376,7 @@ class Matchers {
 
   @Test
   void arrayMatchNotOnRange() throws Exception {
-    String program = "[1,2] -> (<[](3..4)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[1,2] -> \\(<[](3..4)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -389,7 +389,7 @@ class Matchers {
 
   @Test
   void suchThatMatch() throws Exception {
-    String program = "[1,1] -> (<[]?($(1)<$(2)>)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[1,1] -> \\(<[]?($(1)<$(2)>)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -402,7 +402,7 @@ class Matchers {
 
   @Test
   void suchThatRangeMatch() throws Exception {
-    String program = "[1,1] -> (<[]?($(1)<..$(2)>)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[1,1] -> \\(<[]?($(1)<..$(2)>)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -415,7 +415,7 @@ class Matchers {
 
   @Test
   void suchThatMatchNotMatches() throws Exception {
-    String program = "[1,2] -> (<[]?($(1)<$(2)>)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[1,2] -> \\(<[]?($(1)<$(2)>)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -428,7 +428,7 @@ class Matchers {
 
   @Test
   void suchThatMatchResetsIt() throws Exception {
-    String program = "[1,1] -> (<[]?($(1)<$(2)>)> $ ! <> 'no'!) -> !OUT::write";
+    String program = "[1,1] -> \\(<[]?($(1)<$(2)>)> $ ! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -441,7 +441,7 @@ class Matchers {
 
   @Test
   void suchThatMatchInSuchThatMatchResetsIt() throws Exception {
-    String program = "[[1,1],2] -> (<[]?($(1)<?($(1)<$(2)>)>)> $ ! <> 'no'!) -> !OUT::write";
+    String program = "[[1,1],2] -> \\(<[]?($(1)<?($(1)<$(2)>)>)> $ ! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -454,7 +454,7 @@ class Matchers {
 
   @Test
   void elseConditionFirst() throws Exception {
-    String program = "8 -> (<8 | 1..3> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "8 -> \\(<8 | 1..3> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -467,7 +467,7 @@ class Matchers {
 
   @Test
   void elseConditionSecond() throws Exception {
-    String program = "2 -> (<8 | 1..3> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "2 -> \\(<8 | 1..3> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -480,7 +480,7 @@ class Matchers {
 
   @Test
   void elseConditionNone() throws Exception {
-    String program = "5 -> (<8 | 1..3> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "5 -> \\(<8 | 1..3> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -493,7 +493,7 @@ class Matchers {
 
   @Test
   void stringEquals() throws Exception {
-    String program = "def char: 'b';\n ['a', 'b', 'c']... -> (<$char> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "def char: 'b';\n ['a', 'b', 'c']... -> \\(<$char> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -506,7 +506,7 @@ class Matchers {
 
   @Test
   void stringRange() throws Exception {
-    String program = "['a', 'b', 'c', 'd', 'e', 'f']... -> (<..'b'> 'low' ! <'c'..~'e'> 'mid' ! <'e'..> 'high' !) -> !OUT::write";
+    String program = "['a', 'b', 'c', 'd', 'e', 'f']... -> \\(<..'b'> 'low' ! <'c'..~'e'> 'mid' ! <'e'..> 'high' !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -519,7 +519,7 @@ class Matchers {
 
   @Test
   void stringRangeDereferenced() throws Exception {
-    String program = "def mid: 'c';\n['a', 'b', 'c', 'd', 'e']... -> (<..~$mid> 'low' ! <$mid~..> 'high' ! <> 'mid' !) -> !OUT::write";
+    String program = "def mid: 'c';\n['a', 'b', 'c', 'd', 'e']... -> \\(<..~$mid> 'low' ! <$mid~..> 'high' ! <> 'mid' !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -533,7 +533,7 @@ class Matchers {
   @Test
   void suchThatValueChain() throws Exception {
     String program = "templates isLow <..3> 1 ! <> 0 ! end isLow\n"
-        + "1..6 -> (<?($ -> isLow <1>)> 'yes'! <> 'no'!) -> !OUT::write";
+        + "1..6 -> \\(<?($ -> isLow <1>)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -546,7 +546,7 @@ class Matchers {
 
   @Test
   void rangeMatchType() throws Exception {
-    String program = "'foo' -> (<..2> 'num'! <> 'other'!) -> !OUT::write";
+    String program = "'foo' -> \\(<..2> 'num'! <> 'other'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -559,7 +559,7 @@ class Matchers {
 
   @Test
   void stringMatchNewlines() throws Exception {
-    String program = "'foo\nbar' -> (<'.*'> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "'foo\nbar' -> \\(<'.*'> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -572,7 +572,7 @@ class Matchers {
 
   @Test
   void ambiguousParseMergeOperator() throws Exception {
-    String program = "3 -> (<1..|7> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "3 -> \\(<1..|7> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -585,7 +585,7 @@ class Matchers {
 
   @Test
   void arrayContains() throws Exception {
-    String program = "[3, 5, 1] -> (<[<5>]> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[3, 5, 1] -> \\(<[<5>]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -598,7 +598,7 @@ class Matchers {
 
   @Test
   void arrayContainsNo() throws Exception {
-    String program = "[3, 5, 1] -> (<[<4>]> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[3, 5, 1] -> \\(<[<4>]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -611,7 +611,7 @@ class Matchers {
 
   @Test
   void arrayContainsBoth() throws Exception {
-    String program = "[3, 5, 1] -> (<[<5>,<3>]> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[3, 5, 1] -> \\(<[<5>,<3>]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -624,7 +624,7 @@ class Matchers {
 
   @Test
   void arrayContainsBothNo() throws Exception {
-    String program = "[3, 5, 1] -> (<[<5>,<4>]> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[3, 5, 1] -> \\(<[<5>,<4>]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -637,7 +637,7 @@ class Matchers {
 
   @Test
   void arrayContainsAtLeastOneNeither() throws Exception {
-    String program = "[3, 5, 1] -> (<[<~3|5>]> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[3, 5, 1] -> \\(<[<~3|5>]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -650,7 +650,7 @@ class Matchers {
 
   @Test
   void arrayContainsAtLeastOneNeitherNo() throws Exception {
-    String program = "[3, 5, 3] -> (<[<~3|5>]> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[3, 5, 3] -> \\(<[<~3|5>]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -663,7 +663,7 @@ class Matchers {
 
   @Test
   void arrayContainsOnlyTheAlternatives() throws Exception {
-    String program = "[3, 5, 3] -> (<~[<~3|5>]> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[3, 5, 3] -> \\(<~[<~3|5>]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -676,7 +676,7 @@ class Matchers {
 
   @Test
   void arrayContainsNoneOfTheAlternatives() throws Exception {
-    String program = "[3, 5, 1] -> (<~[<0|2>]> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[3, 5, 1] -> \\(<~[<0|2>]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -689,7 +689,7 @@ class Matchers {
 
   @Test
   void arrayContainsKeepsPerspectiveOfIt() throws Exception {
-    String program = "def a:[{x:1}]; 1 -> (<?($a <[<{x: <$>}>]>)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "def a:[{x:1}]; 1 -> \\(<?($a <[<{x: <$>}>]>)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -702,7 +702,7 @@ class Matchers {
 
   @Test
   void arrayContainsSuchThatChangesPerspectiveOfIt() throws Exception {
-    String program = "[{x:1, y:1}] -> (<[<?($.x <$.y>)>]> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[{x:1, y:1}] -> \\(<[<?($.x <$.y>)>]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -715,7 +715,7 @@ class Matchers {
 
   @Test
   void literalEqualityString() throws Exception {
-    String program = "'a(b' -> (<='a(b'> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "'a(b' -> \\(<='a(b'> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -728,9 +728,9 @@ class Matchers {
 
   @Test
   void literalEqualityArray() throws Exception {
-    String program = "[3, 5, 2] -> (<=[3, 5, 2]> 'yes'! <> 'no'!) -> !OUT::write\n"
-    + "[3, 5, 2] -> (<=[3, 2, 5]> 'no'! <> 'yes'!) -> !OUT::write\n"
-    + "[3, 5, 2] -> (<=[3, 5, 2, 2]> 'no'! <> 'yes'!) -> !OUT::write";
+    String program = "[3, 5, 2] -> \\(<=[3, 5, 2]> 'yes'! <> 'no'!\\) -> !OUT::write\n"
+    + "[3, 5, 2] -> \\(<=[3, 2, 5]> 'no'! <> 'yes'!\\) -> !OUT::write\n"
+    + "[3, 5, 2] -> \\(<=[3, 5, 2, 2]> 'no'! <> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -743,9 +743,9 @@ class Matchers {
 
   @Test
   void literalEqualityStructure() throws Exception {
-    String program = "{a: 1, b: 'a'} -> (<={a: 1, b: 'a'}> 'yes'! <> 'no'!) -> !OUT::write\n"
-    + "{a: 1, b: 'a'} -> (<={a: 1, b: 'a', c:0}> 'no'! <> 'yes'!) -> !OUT::write\n"
-    + "{a: 1, b: 'a'} -> (<={a: 1, b: 'b'}> 'no'! <> 'yes'!) -> !OUT::write";
+    String program = "{a: 1, b: 'a'} -> \\(<={a: 1, b: 'a'}> 'yes'! <> 'no'!\\) -> !OUT::write\n"
+    + "{a: 1, b: 'a'} -> \\(<={a: 1, b: 'a', c:0}> 'no'! <> 'yes'!\\) -> !OUT::write\n"
+    + "{a: 1, b: 'a'} -> \\(<={a: 1, b: 'b'}> 'no'! <> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

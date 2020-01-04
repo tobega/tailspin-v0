@@ -13,7 +13,7 @@ import tailspin.Tailspin;
 class Templates {
   @Test
   void inlineMatchers() throws Exception {
-    String program = "1..3 -> (<2> 'Goodbye '! <> 'Hello '!) -> !OUT::write";
+    String program = "1..3 -> \\(<2> 'Goodbye '! <> 'Hello '!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -219,19 +219,6 @@ class Templates {
   }
 
   @Test
-  void arrayTemplates() throws Exception {
-    String program = "[2..4] -> [i]($i * $ !) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("[2, 6, 12]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void lambdaArrayTemplates() throws Exception {
     String program = "[2..4] -> \\[i]($i * $ !\\) -> !OUT::write";
     Tailspin runner =
@@ -259,7 +246,7 @@ class Templates {
 
   @Test
   void namedLambdaArrayTemplatesState() throws Exception {
-    String program = "[2..4] -> \\name[i](@: $; $i -> (<2> @name: $@name + $;) -> !VOID $@ ! \\name) -> !OUT::write";
+    String program = "[2..4] -> \\name[i](@: $; $i -> \\(<2> @name: $@name + $;\\) -> !VOID $@ ! \\name) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -283,7 +270,7 @@ class Templates {
 
   @Test
   void arrayTemplateMatch() throws Exception {
-    String program = "[2..4] -> [i](<?($i <3>)> 'i' ! <3> 'it' ! <> 'neither' !) -> !OUT::write";
+    String program = "[2..4] -> \\[i](<?($i <3>)> 'i' ! <3> 'it' ! <> 'neither' !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -296,7 +283,7 @@ class Templates {
 
   @Test
   void arrayTemplates2D() throws Exception {
-    String program = "[[2..4], [3..5]] -> [i,j](($i * $) + $j !) -> !OUT::write";
+    String program = "[[2..4], [3..5]] -> \\[i;j](($i * $) + $j !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -309,7 +296,7 @@ class Templates {
 
   @Test
   void arrayTemplates3D() throws Exception {
-    String program = "[[[2..4], [3..5]], [[1,3,5], [2,4,6]]] -> [i,j,k](($i * $k) + $j * $ !) -> !OUT::write";
+    String program = "[[[2..4], [3..5]], [[1,3,5], [2,4,6]]] -> \\[i;j;k](($i * $k) + $j * $ !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -322,7 +309,7 @@ class Templates {
 
   @Test
   void multipleTransforms() throws Exception {
-    String program = "1 -> (<> 2!) -> (<> 3!) -> !OUT::write";
+    String program = "1 -> \\(<> 2!\\) -> \\(<> 3!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -386,7 +373,7 @@ class Templates {
   @Test
   void templatesNamedFromInline() throws Exception {
     String program =
-            "templates state\n1..3 -> (@state: $ + 1;) !\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
+            "templates state\n1..3 -> \\(@state: $ + 1;\\) !\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -400,7 +387,7 @@ class Templates {
 
   @Test
   void streamMatcherBlock() throws Exception {
-    String program = "1..3 -> (<> 'Goodbye '! 'Hello '!) -> !OUT::write";
+    String program = "1..3 -> \\(<> 'Goodbye '! 'Hello '!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -413,7 +400,7 @@ class Templates {
 
   @Test
   void correctItOnNextValueChain() throws Exception {
-    String program = "1..3 -> ($ + 1 -> !OUT::write $ !) -> !OUT::write";
+    String program = "1..3 -> \\($ + 1 -> !OUT::write $ !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -426,7 +413,7 @@ class Templates {
 
   @Test
   void streamToMatchers() throws Exception {
-    String program = "1 -> (1..3 -> # <2> $!) -> !OUT::write";
+    String program = "1 -> \\(1..3 -> # <2> $!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -439,7 +426,7 @@ class Templates {
 
   @Test
   void streamToMatcherBlock() throws Exception {
-    String program = "1 -> (1..3 -> # <> $! $!) -> !OUT::write";
+    String program = "1 -> \\(1..3 -> # <> $! $!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -452,7 +439,7 @@ class Templates {
 
   @Test
   void voidMatcherBlock() throws Exception {
-    String program = "1..3 -> (<2> !VOID <> 'Hello '!) -> !OUT::write";
+    String program = "1..3 -> \\(<2> !VOID <> 'Hello '!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -870,7 +857,7 @@ class Templates {
   @Test
   void templatesStateAssignedEmptyStream() throws Exception {
     String program =
-        "templates state\n@: 1;\n@: $ -> (<5..> $ !);\n$@ !\nend state\n" + "3 -> state -> !OUT::write";
+        "templates state\n@: 1;\n@: $ -> \\(<5..> $ !\\);\n$@ !\nend state\n" + "3 -> state -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1182,8 +1169,8 @@ class Templates {
   void previousStepsMustBeCompletedBeforeStartingNext() throws Exception {
     String program =
         "templates state\n"
-            + "1..3 -> (<> @state: 1; $!) -> (<?($@state <$>)> !VOID\n"
-            + "  <> @state:$+1; $!) !"
+            + "1..3 -> \\(<> @state: 1; $!\\) -> \\(<?($@state <$>)> !VOID\n"
+            + "  <> @state:$+1; $!\\) !"
             + "\nend state\n"
             + "1 -> state -> !OUT::write";
     Tailspin runner =

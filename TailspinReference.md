@@ -191,6 +191,8 @@ You cannot have an empty match block nor an empty templates object, but you can 
 Inside a templates object, sending to templates can be used as an additional type of _value chain_ for most value productions.
 Note that the send to templates ends the _value chain_ and the result at that point will be whatever the matchers and their blocks determine.
 
+Templates have a special [mutable state value](#templates-state) 
+
 #### Defined templates
 Templates can be defined with an identifier as a top-level statement or inside another templates object.
 The definition starts with `templates _identifier_` and ends with `end _identifier_`, where \_identifier\_
@@ -209,26 +211,30 @@ and accessed as such.
 You can specify [parameters](#parameters) to modify/control certain aspects of the execution.
 
 #### Inline templates
-Templates can be defined inline by just wrapping a templates body in parentheses, e.g.
-`$ -> (<0> 'zero'!)` will output `zero` if `$` was `0` (but will not output anything at all otherwise)
+Templates can be defined inline by just wrapping a templates body as follows:
+Start with a backslash '\' (or lambda if you squint)
+followed by an optional identifier and an opening paranthesis,
+with the backslash-identifier sequence repeated before the closing parenthesisat the end,
+e.g. `$ -> \(<0> 'zero'!\)` or `$ -> \onlyZero(<0> 'zero'! \onlyZero)`. The example will output `zero` if `$` was `0` (but will not output anything at all otherwise).
 
-An optional syntax, which may become required, starts with a backslash '\' (or lambda if you squint) followed by an optional identifier,
-with the backslash-identifier sequence repeated before the closing parenthesis, e.g. `$ -> \(<0> 'zero'!\)`
-or `$ -> \onlyZero(<0> 'zero'! \onlyZero)`. Of course, the identifier acts as a name for templates state.
+Of course, the identifier, if one is given, acts as a name for [templates state](#templates-state),
+otherwise only anonymous same-level state access is possible.
 
 #### Array templates
 Array templates is a convenient way to process [array](#arrays) elements individually together with
-their index in the array. They are created by prefixing an [inline templates](#inline-templates)
-definition with an identifier for the index within brackets,
-e.g. `[4,5,6] -> [i]($ + $i)` will produce the value `[5,7,9]`.
+their index in the array. They are created by putting an index-decomposition specification before the
+opening parenthesis of an [inline templates](#inline-templates).
+The index-decomppsition definition specifies an identifier for the index counter(s) within brackets,
+e.g. `[4,5,6] -> \[i]($ + $i!\)` will produce the value `[5,7,9]`.
 Multiple dimensions also work, provided that the array structure has at least as many dimensions as specified.
-e.g `[[1,2,3],[4,5,6]] -> [i,j]($ * $i + $j)` gives `[[2,4,6],[9,12,15]]`
+e.g `[[1,2,3],[4,5,6]] -> \[i,j]($ * $i + $j ! \)` gives `[[2,4,6],[9,12,15]]`
 
 Note that the array templates is currently not aware of the array other than that it has parameters for its indices,
-so each element is independently evaluated.
+so each element is independently evaluated. This means that (at least currently) the [templates state](#templates-state)
+is new for each element.
 
-As with inline templates, an optional backslash and optional name can be attached,
-e.g. `[[1,2,3],[4,5,6]] -> \flatIndex[i,j]($ * $i + $j \flatIndex)`
+As with inline templates, an optional name can be attached,
+e.g. `[[1,2,3],[4,5,6]] -> \munge[i,j]($ * $i + $j !\munge)`
 
 ### Composer
 A composer takes a string and composes it into other objects according to the specified pattern.
@@ -439,7 +445,7 @@ as a new array, but you cannot dereference it immediately in the same step.
 
 It is an error to select elements outside the range of a dimension. However, impossible ranges are legal but result in an empty array.
 In particular, zero is allowed in both the start and end of a range to always give an empty result,
-to cater for using length as the end index `$(1..$::length)` when length is zero and taking the tail of the array after the last index, e.g. `$a($+1..-1)` when _it_ is _-1_.
+to cater for using length as the end index `$(1..$::length)` when length is zero and taking the tail of the array after the last index, e.g. `$a($+1..-1)` when _$_ is _-1_.
 
 An array is a built-in processor that responds to the following messages:
 * `::length` returns the length of the first dimension.

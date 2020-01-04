@@ -190,7 +190,7 @@ class Statements {
 
   @Test
   void definedSymbolFromValueChainWithEmptyResult() throws Exception {
-    String program = "def helloWorld: 'World!' -> (<2> $ !) ;";
+    String program = "def helloWorld: 'World!' -> \\(<2> $ !\\) ;";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -201,7 +201,7 @@ class Statements {
 
   @Test
   void definedSymbolFromValueChainWithTooManyResults() throws Exception {
-    String program = "def helloWorld: 'World!' -> (<> $ ! $ !) ;";
+    String program = "def helloWorld: 'World!' -> \\(<> $ ! $ !\\) ;";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -263,7 +263,7 @@ class Statements {
   @Test
   void systemNanoCount() throws Exception {
     String program = "def start: $SYS::nanoCount;\n"
-        + "[1..100 -> $SYS::nanoCount - $start] -> $(-1) -> (<0~..> 1 !) -> !OUT::write";
+        + "[1..100 -> $SYS::nanoCount - $start] -> $(-1) -> \\(<0~..> 1 !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -277,12 +277,12 @@ class Statements {
   @Test
   void systemRandomInt() throws Exception {
     String program = "def vals: [ 1..100 -> 10 -> SYS::randomInt];\n"
-        + "$vals -> (<~[<10..>]> 1!) -> !OUT::write\n"
-        + "$vals -> (<~[<..-1>]> -1!) -> !OUT::write\n"
-        + "0..9 -> (<?($vals <[<$>]>)> $!) -> !OUT::write\n"
+        + "$vals -> \\(<~[<10..>]> 1!\\) -> !OUT::write\n"
+        + "$vals -> \\(<~[<..-1>]> -1!\\) -> !OUT::write\n"
+        + "0..9 -> \\(<?($vals <[<$>]>)> $!\\) -> !OUT::write\n"
         // The below might fail very rarely
-        + "$vals -> [i]($i mod 10 - $ !) -> (@: $(1); $(2..-1)... -> @: $@ + $; $@!) -> (<-50..50> 50!) ->!OUT::write\n"
-        + "$vals -> [i]($i mod 10 - $ !) -> (<[<~0>]> 0!) ->!OUT::write\n";
+        + "$vals -> \\[i]($i mod 10 - $ !\\) -> \\(@: $(1); $(2..-1)... -> @: $@ + $; $@!\\) -> \\(<-50..50> 50!\\) ->!OUT::write\n"
+        + "$vals -> \\[i]($i mod 10 - $ !\\) -> \\(<[<~0>]> 0!\\) ->!OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

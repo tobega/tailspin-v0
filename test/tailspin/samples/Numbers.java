@@ -260,7 +260,7 @@ class Numbers {
 
   @Test
   void subtractDereferencesInTemplates() throws IOException {
-    String program = "5 -> ($ - $ !) -> !OUT::write";
+    String program = "5 -> \\($ - $ !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

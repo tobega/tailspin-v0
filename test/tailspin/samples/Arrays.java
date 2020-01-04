@@ -73,7 +73,7 @@ class Arrays {
 
   @Test
   void deconstructToTransform() throws IOException {
-    String program = "[1, 4, 3]... -> (<4> 2 !) -> !OUT::write";
+    String program = "[1, 4, 3]... -> \\(<4> 2 !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -485,7 +485,7 @@ class Arrays {
 
   @Test
   void valueProductionViaTemplates() throws Exception {
-    String program = "3 -> ([ 1..$ -> # ] ! <2> $!) -> !OUT::write";
+    String program = "3 -> \\([ 1..$ -> # ] ! <2> $!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -654,7 +654,7 @@ class Arrays {
 
   @Test
   void arrayLengthIsValidNumber() throws Exception {
-    String program = "[0] -> (<?($::length <1>)> 'yes'! <> 'no'!) -> !OUT::write";
+    String program = "[0] -> \\(<?($::length <1>)> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

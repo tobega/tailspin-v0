@@ -254,7 +254,7 @@ class Strings {
 
   @Test
   void valueChainInterpolation() throws Exception {
-    String program = "1..3 -> (<> 'hi'!) -> '$;' -> !OUT::write";
+    String program = "1..3 -> \\(<> 'hi'!\\) -> '$;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -397,7 +397,7 @@ class Strings {
 
   @Test
   void deconstructString() throws Exception {
-    String program = "'abc'... -> (<'c'> 3 ! <'a'> 1 ! <> 2 !) -> !OUT::write";
+    String program = "'abc'... -> \\(<'c'> 3 ! <'a'> 1 ! <> 2 !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -410,7 +410,7 @@ class Strings {
 
   @Test
   void deconstructStringEachTransformInTurn() throws Exception {
-    String program = "'abc'... -> ($ -> !OUT::write\n$!) -> !OUT::write";
+    String program = "'abc'... -> \\($ -> !OUT::write\n$!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -423,7 +423,7 @@ class Strings {
 
   @Test
   void multiDeconstructStringEachTransformInTurn() throws Exception {
-    String program = "['abc', 'def', 'ghi']... -> $... -> ($ -> !OUT::write\n$!) -> !OUT::write";
+    String program = "['abc', 'def', 'ghi']... -> $... -> \\($ -> !OUT::write\n$!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

@@ -12,6 +12,7 @@ Things to add/improve
 - Standard library. Should definitely include relvars as DB-interface (see The Third Manifesto).
 - Performance. Definitely need better data structures for lists and structures.
 - Error handling. Error path/exception path? VOID path? Need examples to play with.
+- Want prepend to array/structure. Syntax? ..< and ..> instead of ..| maybe or >> and << ?
 
 Errors easy to make
 - Mixed up ..$bound and $bound.., hard to see error
@@ -22,8 +23,9 @@ Illogical?
 - Should it be \[i;j](...) in array templates since dimensions vary by ';'?
 - Using negative numbers to index from the end of the array is a bit hard to read. Also disallows the "trick" of $a($-2..$-2)
   for optional fetches below zero (it works after end).
-- Array references should maybe always have [] around multi-value references?
-- We should be able to use inline templates as sources and sinks (?)
+- Array references should maybe always have [] around multi-value references? Particularly array-valued dereferences and ranges.
+- We should be able to use inline templates as sources and sinks (?) array generators (array template source)?
+- Should we be able to specify defined templates to be array templates?
 
 Bugs
 - delete of several array elements doesn't work as expected
@@ -32,6 +34,9 @@ Too much syntax?
 - quick filter by \<match> to mean \(<match> $!\).
 - filter array dereference, $a(<match>) to select all elements that match, like $a -> \[_](<match> $!\)
   The downside of this one is that it doesn't extend easily? Or textually it actually does!
+- allow array templates to have persistent state. Syntax for initializing? Easy enough to wrap the array templates?
+- More sugar for state-changes, e.g. ..+ or may ++ to add to the state variable?
+- Array templates where you select a slice (or maybe all) of a dimension
 
 Other thoughts
 - Use more words instead of symbols?
@@ -41,3 +46,4 @@ Other thoughts
   I really want to avoid things that complicate if there is a reasonable way to do something similar.
 - Different kinds of hand-over between transforms? E.g. '=>' for proceed in parallel.
 - Do we need some kind of exit statement to abandon a stream?
+- Vector arithmetic?

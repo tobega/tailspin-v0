@@ -59,14 +59,12 @@ keyValues: keyValue
 keyValue: key valueProduction;
 
 templates: source                        # literalTemplates
-  | LeftParen templatesBody RightParen   # inlineTemplates
   | Lambda identifier? LeftParen templatesBody Lambda identifier? RightParen # lambdaTemplates
   | templatesReference                        # callDefinedTransform
-  | arrayIndexDecomposition LeftParen templatesBody RightParen # arrayTemplates
   | Lambda identifier? arrayIndexDecomposition LeftParen templatesBody Lambda identifier? RightParen # lambdaArrayTemplates
 ;
 
-arrayIndexDecomposition: LeftBracket identifier (Comma identifier)* RightBracket;
+arrayIndexDecomposition: LeftBracket identifier (SemiColon identifier)* RightBracket;
 
 sink: (SinkReference reference Message? parameterValues?) | Void;
 

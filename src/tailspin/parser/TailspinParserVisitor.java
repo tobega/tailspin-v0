@@ -167,13 +167,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLiteralTemplates(TailspinParser.LiteralTemplatesContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code inlineTemplates}
-	 * labeled alternative in {@link TailspinParser#templates}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code lambdaTemplates}
 	 * labeled alternative in {@link TailspinParser#templates}.
 	 * @param ctx the parse tree
@@ -187,13 +180,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCallDefinedTransform(TailspinParser.CallDefinedTransformContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code arrayTemplates}
-	 * labeled alternative in {@link TailspinParser#templates}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code lambdaArrayTemplates}
 	 * labeled alternative in {@link TailspinParser#templates}.

@@ -71,7 +71,7 @@ import tailspin.parser.TailspinParser.StateSinkContext;
 import tailspin.parser.TailspinParser.ValueProductionContext;
 import tailspin.parser.TailspinParserBaseVisitor;
 
-public class RunMain extends TailspinParserBaseVisitor {
+public class RunMain extends TailspinParserBaseVisitor<Object> {
   public final Scope scope;
 
   public RunMain(Scope scope) {
@@ -285,12 +285,6 @@ public class RunMain extends TailspinParserBaseVisitor {
   }
 
   @Override
-  public Expression visitInlineTemplates(TailspinParser.InlineTemplatesContext ctx) {
-    TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
-    return new InlineTemplates(templatesDefinition, "");
-  }
-
-  @Override
   public Expression visitLambdaTemplates(TailspinParser.LambdaTemplatesContext ctx) {
     String name = "";
     if (!ctx.identifier().isEmpty()) {
@@ -303,13 +297,6 @@ public class RunMain extends TailspinParserBaseVisitor {
     }
     TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
     return new InlineTemplates(templatesDefinition, name);
-  }
-
-  @Override
-  public Expression visitArrayTemplates(TailspinParser.ArrayTemplatesContext ctx) {
-    List<String> loopVariables = visitArrayIndexDecomposition(ctx.arrayIndexDecomposition());
-    TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
-    return new ArrayTemplates(loopVariables, templatesDefinition, "");
   }
 
   @Override
