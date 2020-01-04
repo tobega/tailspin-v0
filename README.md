@@ -8,31 +8,21 @@ For more info see the [language reference documentation](TailspinReference.md)
 Some of my thinking that went into tailspin is [elaborated here](https://cygni.se/the-perfect-programming-language/).
 
 ## Status
-The syntax has been mainly determined to be sane and runnable.
+The syntax has been mainly determined to be sane and runnable. Did Adventofcode 2019 in Tailspin, found and fixed issues.
 
-Work is now focused on improving speed and moving away from the purely interpreted implementation.
+Cancelled work on [implementing tailspin on truffle/graalvm](https://github.com/tobega/tailspin-truffle). It may or may not be continued.
 
-Current work, going slow, currently stalled, is [implementing tailspin on truffle/graalvm](https://github.com/tobega/tailspin-truffle)
-
-Next up is adding relvars (see [reldb](https://reldb.org) and the Third Manifesto)
-
-After that, probably support for any string symbol/identifier/key for object properties, json-like.
-
-Thinking about how everything could be first-class objects.
-
-Thinking about if and how reflection could work.
-
-Thinking about if and how to add some macro ability.
-
-Thoughts somewhere on the roadmap are in [my notes](notes.txt)
+Next step is up in the air. Thoughts somewhere on the roadmap are in [my notes](notes.txt)
 
 ## Code samples
 Small code samples can be found in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
 Development is driven by code snippets in the [test/tailspin/samples folder](https://github.com/tobega/tailspin-v0/tree/master/test/tailspin/samples).
 
 Larger example programs where I developed a tentative syntax are the [.tt files here](https://github.com/tobega/aoc2018) where the
-problems are taken from https://adventofcode.com/2018 and the numbers in the filename match the day. These have now all been reworked to
+problems are taken from [adventofcode 2018](https://adventofcode.com/2018) and the numbers in the filename match the day. These have now all been reworked to
 be runnable.
+
+Also did [adventofcode 2019](https://adventofcode.com/2019) in Tailspin in [my repository](https://github.com/tobega/aoc2019)
 
 Examples can also be found at [Rosetta code](http://www.rosettacode.org/wiki/Category:Tailspin)
 
