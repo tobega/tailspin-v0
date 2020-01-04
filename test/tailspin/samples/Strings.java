@@ -189,7 +189,7 @@ class Strings {
 
   @Test
   void interpolateTemplates() throws Exception {
-    String program = "templates foo <1> 'one' ! end foo\n" + "1 -> '$->foo; $; $->foo;' -> !OUT::write";
+    String program = "templates foo <=1> 'one' ! end foo\n" + "1 -> '$->foo; $; $->foo;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -202,7 +202,7 @@ class Strings {
 
   @Test
   void interpolateTemplatesWithNoMatch() throws Exception {
-    String program = "templates foo <2> 'two'! end foo\n" + "1 -> '$->foo; $; $->foo;' -> !OUT::write";
+    String program = "templates foo <=2> 'two'! end foo\n" + "1 -> '$->foo; $; $->foo;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -216,7 +216,7 @@ class Strings {
   @Test
   void interpolateTemplatesWithNoResult() throws Exception {
     String program =
-        "templates foo <1> 'one' -> !OUT::write end foo\n" + "1 -> '$->foo; $; $->foo;' -> !OUT::write";
+        "templates foo <=1> 'one' -> !OUT::write end foo\n" + "1 -> '$->foo; $; $->foo;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -230,7 +230,7 @@ class Strings {
   @Test
   void throwOnDereferenceTemplates() throws Exception {
     String program =
-        "templates foo <1> 'one' -> !OUT::write end foo\n" + "1 -> '$foo;' -> !OUT::write";
+        "templates foo <=1> 'one' -> !OUT::write end foo\n" + "1 -> '$foo;' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -345,7 +345,7 @@ class Strings {
 
   @Test
   void interpolateSendToMatchers() throws Exception {
-    String program = "templates foo '$ -> #;' ! <1> 'one' ! <2> 'two' ! end foo\n" + "1..3 -> foo -> !OUT::write";
+    String program = "templates foo '$ -> #;' ! <=1> 'one' ! <=2> 'two' ! end foo\n" + "1..3 -> foo -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

@@ -358,12 +358,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Condition visitLiteralMatch(TailspinParser.LiteralMatchContext ctx) {
-    if (ctx.sourceReference() != null) {
-      return new Equality(Value.of(visitSourceReference(ctx.sourceReference())));
-    }
-    if (ctx.arithmeticExpression() != null) {
-      return new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
-    }
     return new Equality(Value.of(visitSource(ctx.source())));
   }
 

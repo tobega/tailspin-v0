@@ -150,7 +150,7 @@ class Statements {
   @Test
   void definedTemplate() throws Exception {
     String program =
-        "templates greet\n<2> 'Goodbye '! <> 'Hello '!\nend greet\n" + "1..3 -> greet -> !OUT::write";
+        "templates greet\n<=2> 'Goodbye '! <> 'Hello '!\nend greet\n" + "1..3 -> greet -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -190,7 +190,7 @@ class Statements {
 
   @Test
   void definedSymbolFromValueChainWithEmptyResult() throws Exception {
-    String program = "def helloWorld: 'World!' -> \\(<2> $ !\\) ;";
+    String program = "def helloWorld: 'World!' -> \\(<=2> $ !\\) ;";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -279,10 +279,10 @@ class Statements {
     String program = "def vals: [ 1..100 -> 10 -> SYS::randomInt];\n"
         + "$vals -> \\(<~[<10..>]> 1!\\) -> !OUT::write\n"
         + "$vals -> \\(<~[<..-1>]> -1!\\) -> !OUT::write\n"
-        + "0..9 -> \\(<?($vals <[<$>]>)> $!\\) -> !OUT::write\n"
+        + "0..9 -> \\(<?($vals <[<=$>]>)> $!\\) -> !OUT::write\n"
         // The below might fail very rarely
         + "$vals -> \\[i]($i mod 10 - $ !\\) -> \\(@: $(1); $(2..-1)... -> @: $@ + $; $@!\\) -> \\(<-50..50> 50!\\) ->!OUT::write\n"
-        + "$vals -> \\[i]($i mod 10 - $ !\\) -> \\(<[<~0>]> 0!\\) ->!OUT::write\n";
+        + "$vals -> \\[i]($i mod 10 - $ !\\) -> \\(<[<~=0>]> 0!\\) ->!OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

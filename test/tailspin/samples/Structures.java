@@ -92,7 +92,7 @@ class Structures {
 
   @Test
   void restructureStreamDereference() throws IOException {
-    String program = "def anA: { a: 1 };\n {$anA..., 1..2 -> \\(<2>{b:2} ! <>{c:3} !\\)...} -> !OUT::write";
+    String program = "def anA: { a: 1 };\n {$anA..., 1..2 -> \\(<=2>{b:2} ! <>{c:3} !\\)...} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -183,7 +183,7 @@ class Structures {
 
   @Test
   void valueProductionViaTemplates() throws Exception {
-    String program = "3 -> \\({ a: 1..$ -> # } ! <2> $!\\) -> !OUT::write";
+    String program = "3 -> \\({ a: 1..$ -> # } ! <=2> $!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -235,7 +235,7 @@ class Structures {
 
   @Test
   void freeKeyedValueFromChain() throws IOException {
-    String program = "a: 1 -> \\(<1> 'yes'!\\) -> !OUT::write";
+    String program = "a: 1 -> \\(<=1> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -248,7 +248,7 @@ class Structures {
 
   @Test
   void keywordAsKey() throws IOException {
-    String program = "{mod: 1} -> $.mod -> \\(<1> 'yes'!\\) -> !OUT::write";
+    String program = "{mod: 1} -> $.mod -> \\(<=1> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

@@ -17,7 +17,7 @@ class Composer {
     String program = "composer int\n"
         + "<INT>\n"
         + "end int\n"
-        + "'23' -> int -> \\(<23> $!\\) -> $ + 12 -> !OUT::write";
+        + "'23' -> int -> \\(<=23> $!\\) -> $ + 12 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -711,7 +711,7 @@ class Composer {
   void converter() throws IOException {
     String program =
         "templates parity"
-            + "<?($ mod 2 <1>)> 'odd' ! <> 'even' !\n"
+            + "<?($ mod 2 <=1>)> 'odd' ! <> 'even' !\n"
             + "end parity\n"
             + "composer number\n"
             + "<INT> -> parity\n"
@@ -731,7 +731,7 @@ class Composer {
   void subRuleConverter() throws IOException {
     String program =
         "templates parity"
-            + "<?($ mod 2 <1>)> 'odd' ! <> 'even' !\n"
+            + "<?($ mod 2 <=1>)> 'odd' ! <> 'even' !\n"
             + "end parity\n"
             + "composer number\n"
             + "<mynum> -> parity\n"

@@ -114,9 +114,7 @@ typeMatch: rangeBounds                       # rangeMatch
   | LeftBracket matcher? (Comma matcher)* RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
 ;
 
-literalMatch: sourceReference // Obsolete?
-  | arithmeticExpression // Obsolete?
-  | Equal source;
+literalMatch: Equal source;
 
 rangeBounds: lowerBound? Range upperBound?;
 
