@@ -5,14 +5,14 @@ templates sieve
   @: {primeCount: 0, flags: [ 1..$size -> 1 ]};
   2..$size -> #
   $@.primeCount !
-  <?($@.flags($) <1>)>
+  <?($@.flags($) <=1>)>
     @.primeCount: $@.primeCount + 1;
-    $+$..$size:$ -> (@sieve.flags($): 0;) -> !VOID
+    $+$..$size:$ -> \(@sieve.flags($): 0;\) -> !VOID
 end sieve
 
 templates runAndVerify
   5000 -> sieve -> #
-  <669> 1 !
+  <=669> 1 !
   <> 0 !
 end runAndVerify
 

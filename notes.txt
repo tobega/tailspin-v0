@@ -47,3 +47,4 @@ Other thoughts
 - Different kinds of hand-over between transforms? E.g. '=>' for proceed in parallel.
 - Do we need some kind of exit statement to abandon a stream?
 - Vector arithmetic?
+- Binary operators?

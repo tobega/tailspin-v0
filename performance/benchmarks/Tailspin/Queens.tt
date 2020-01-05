@@ -2,9 +2,9 @@ import 'harness'
 
 templates queens
   templates getRowColumn
-    <?($@queens.freeRows($.r) <0>)> 0 !
-    <?($@queens.freeMaxs($.r + $.c) <0>)> 0 !
-    <?($@queens.freeMins($.c - $.r + 8) <0>)> 0 !
+    <?($@queens.freeRows($.r) <=0>)> 0 !
+    <?($@queens.freeMaxs($.r + $.c) <=0>)> 0 !
+    <?($@queens.freeMins($.c - $.r + 8) <=0>)> 0 !
     <> 1!
   end getRowColumn
 
@@ -18,17 +18,17 @@ templates queens
   templates placeQueen
     def c: $;
     1 -> #
-    <-1> 1! // Use -1 to signal successful completion
-    <9> 0 !
-    <?({r: $, c: $c} -> getRowColumn <1>)>
+    <=-1> 1! // Use -1 to signal successful completion
+    <=9> 0 !
+    <?({r: $, c: $c} -> getRowColumn <=1>)>
       def r: $;
       @queens.queenRows($r): $c;
       {r: $, c: $c, val: 0} -> setRowColumn -> !VOID
-      $c -> (<8> -1!
-        <?($c + 1 -> placeQueen <1>)> -1!
+      $c -> \(<=8> -1!
+        <?($c + 1 -> placeQueen <=1>)> -1!
         <>
           {r: $r, c: $c, val: 1} -> setRowColumn -> !VOID
-          $r + 1 !) -> #
+          $r + 1 !\) -> #
     <> $ + 1 -> #
   end placeQueen
 
@@ -43,7 +43,7 @@ templates runAndVerify
   @: 1;
   1..10 -> queens -> #
   $@ !
-  <0> @: 0;
+  <=0> @: 0;
 end runAndVerify
 
 1 -> harness/run@{name: 'Queens', benchmark:runAndVerify} -> !VOID

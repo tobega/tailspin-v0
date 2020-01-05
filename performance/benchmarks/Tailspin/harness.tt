@@ -8,15 +8,15 @@ templates run@{name:, benchmark:}
   templates measure
     @: 1;
     def startTime: $SYS::nanoCount;
-    1..$ -> benchmark -> (<0> @measure: 0;) -> !VOID
+    1..$ -> benchmark -> \(<=0> @measure: 0;\) -> !VOID
     $@ -> #
-    <1>
+    <=1>
       def endTime: $SYS::nanoCount;
       def runTime: ($endTime - $startTime) ~/ 1000;
       '$name;: iterations=1 runtime: $runTime;us
 ' -> !OUT::write
       @run: $@run + $runTime;
-    <0>
+    <=0>
       'Benchmark failed with incorrect result
 ' -> !OUT::write
   end measure
@@ -24,10 +24,10 @@ templates run@{name:, benchmark:}
   'Starting $name; benchmark ...
 ' -> !OUT::write
   @: 0;
-  def specs: { iterations: $ARGS::length -> (<1..> $ARGS(1) -> toInt ! <> 1!),
-               innerIterations: $ARGS::length -> (<2..> $ARGS(2) -> toInt ! <> 1!)
+  def specs: { iterations: $ARGS::length -> \(<1..> $ARGS(1) -> toInt ! <> 1!\),
+               innerIterations: $ARGS::length -> \(<2..> $ARGS(2) -> toInt ! <> 1!\)
              };
-  1..$specs.iterations -> ($specs.innerIterations -> measure -> !VOID) -> !VOID
+  1..$specs.iterations -> \($specs.innerIterations -> measure -> !VOID\) -> !VOID
   '$name;: iterations=$specs.iterations; average: $:$@run ~/ $specs.iterations;us total: $@run;us
 
 ' -> !OUT::write

@@ -19,26 +19,26 @@ processor Ball@{random:}
     def xLimit: 500;
     def yLimit: 500;
     @: 0;
-    @Ball.x: $@Ball.x + $@Ball.xVel -> (
+    @Ball.x: $@Ball.x + $@Ball.xVel -> \(
       <$xLimit~..>
         $xLimit !
-        @Ball.xVel: $@Ball.xVel -> (<..0> $! <> -$!);
+        @Ball.xVel: $@Ball.xVel -> \(<..0> $! <> -$!\);
         @bounce: 1;
       <..~0>
         0 !
-        @Ball.xVel: $@Ball.xVel -> (<..0> -$! <> $!);
+        @Ball.xVel: $@Ball.xVel -> \(<..0> -$! <> $!\);
         @bounce: 1;
-      <> $!);
-    @Ball.y: $@Ball.y + $@Ball.yVel -> (
+      <> $!\);
+    @Ball.y: $@Ball.y + $@Ball.yVel -> \(
       <$yLimit~..>
         $yLimit !
-        @Ball.yVel: $@Ball.yVel -> (<..0> $! <> -$!);
+        @Ball.yVel: $@Ball.yVel -> \(<..0> $! <> -$!\);
         @bounce: 1;
       <..~0>
         0 !
-        @Ball.yVel: $@Ball.yVel -> (<..0> -$! <> $!);
+        @Ball.yVel: $@Ball.yVel -> \(<..0> -$! <> $!\);
         @bounce: 1;
-      <> $!);
+      <> $!\);
     $@bounce !
   end bounce
 end Ball
@@ -48,11 +48,11 @@ templates runAndVerify
   def ballCount: 100;
   @: 0;
   def balls: [1..$ballCount -> $Ball@{random: $random}];
-  1..50 -> (
+  1..50 -> \(
     $balls... -> @runAndVerify: $@runAndVerify + $::bounce;
-  ) -> !VOID
+  \) -> !VOID
   $@ -> #
-  <1331> 1 !
+  <=1331> 1 !
   <> 0 !
 end runAndVerify
 

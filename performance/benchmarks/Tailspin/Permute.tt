@@ -14,9 +14,9 @@ templates permute
         @permute.v($i): $temp;
       end swap
       $n - 1 -> derange -> !VOID
-      $n..1:-1 -> ($ -> swap -> !VOID
+      $n..1:-1 -> \($ -> swap -> !VOID
         $n - 1 -> derange -> !VOID
-        $ -> swap -> !VOID) -> !VOID
+        $ -> swap -> !VOID\) -> !VOID
   end derange
   @: { count: 0, v: [1..$]};
   $ -> derange -> !VOID
@@ -25,7 +25,7 @@ end permute
 
 templates runAndVerify
   6 -> permute -> #
-  <8660> 1 !
+  <=8660> 1 !
   <> 0 !
 end runAndVerify
 

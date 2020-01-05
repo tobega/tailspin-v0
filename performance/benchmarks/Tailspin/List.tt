@@ -17,7 +17,7 @@ processor Element
   end setNext
 
   source getNext
-    $@Element -> (<{next:<>}> $.next!) !
+    $@Element -> \(<{next:<>}> $.next!\) !
   end getNext
 end Element
 
@@ -36,7 +36,7 @@ templates isShorterThan
 end isShorterThan
 
 templates tail
-  <?({x: $(2), y: $(1)} -> isShorterThan <1>)>
+  <?({x: $(2), y: $(1)} -> isShorterThan <=1>)>
     [ [$(1)::getNext, $(2), $(3)] -> tail,
       [$(2)::getNext, $(3), $(2)] -> tail,
       [$(3)::getNext, $(1), $(2)] -> tail] -> tail !
@@ -46,7 +46,7 @@ end tail
 
 templates runAndVerify
   [15 -> makeList, 10 -> makeList, 6 -> makeList] -> tail -> $::length -> #
-  <10> 1 !
+  <=10> 1 !
   <> 0 !
 end runAndVerify
 

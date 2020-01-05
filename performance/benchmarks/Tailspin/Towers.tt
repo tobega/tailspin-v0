@@ -18,7 +18,7 @@ templates towers
   sink moveDisks
     def what: $;
     $.disks -> #
-    <1> $what.from -> !moveTopDisk@{to: $what.to}
+    <=1> $what.from -> !moveTopDisk@{to: $what.to}
     <> def otherPile: 6 - $what.from - $what.to;
       {disks: $ - 1, from: $what.from, to: $otherPile }  -> !moveDisks
       $what.from -> !moveTopDisk@{to: $what.to}
@@ -30,7 +30,7 @@ end towers
 
 templates runAndVerify
   13 -> towers -> #
-  <8191> 1 !
+  <=8191> 1 !
   <> 0 !
 end runAndVerify
 
