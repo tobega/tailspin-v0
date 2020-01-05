@@ -3,16 +3,16 @@ templates distinctPerms
     <[](1)> $(1) !
     <>
       def elements: $;
-      1..$::length -> (
+      1..$::length -> \(
         def k: $;
-        def tail: $elements -> [i](
-          <?($i <$k>)> $ -> (<[](2..)> $(2..-1)!) !
+        def tail: $elements -> \[i](
+          <?($i <=$k>)> $ -> \(<[](2..)> $(2..-1)!\) !
           <> $!
-        );
+        \);
         $tail -> perms -> [$elements($k;1), $...] !
-      ) !
+      \) !
   end perms
-  $ -> [i]([1..$ -> $i] !) -> perms !
+  $ -> \[i]([1..$ -> $i] !\) -> perms !
 end distinctPerms
 
 def alpha: ['ABC'...];

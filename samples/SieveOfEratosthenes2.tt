@@ -3,9 +3,9 @@ templates sieve
   @: [ 1..$limit -> 1 ];
   @(1): 0;
   2..$limit -> #
-  $@ -> [i](<1> $i !) !
+  $@ -> \[i](<=1> $i !\) !
 
-  <?($@($) <1>)>
+  <?($@($) <=1>)>
     def prime2: $ * $;
     $prime2..$limit:$ -> @sieve($): 0;
 end sieve

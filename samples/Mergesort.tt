@@ -1,14 +1,14 @@
 templates mergesort
   templates merge
     @: $(2);
-    [ $(1)... -> (
+    [ $(1)... -> \(
       <?($@merge<[](0)>)
       | ..$@merge(1)>
         $ !
       <>
         ^@merge(1) !
         $ -> #
-     ),
+     \),
      $@...] !
   end merge
   $ -> #

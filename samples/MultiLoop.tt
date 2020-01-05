@@ -20,9 +20,9 @@ def w: [1];
 
 templates transpose2
   @: [];
-  $... -> [i](
+  $... -> \[i](
     <?($i <..$@transpose2::length>)> ..|@transpose2($i): $;
-    <> ..|@transpose2: [$];) -> !VOID
+    <> ..|@transpose2: [$];\) -> !VOID
   $@ !
 end transpose2
 

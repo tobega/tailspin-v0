@@ -2,12 +2,12 @@ templates radixsort@{base:}
   sink bucketize
     def value: $;
     $ ~/ $@radixsort.digit -> #
-    <0 ?($value <0..>)>
+    <=0 ?($value <0..>)>
       ..|@radixsort.positives: $value;
-    <0>
+    <=0>
       ..|@radixsort.negatives(-1): $value;
     <>
-      def bucket: $ mod $base -> (<?($value<0..>)> $ + 1 ! <0> $base ! <> $ !);
+      def bucket: $ mod $base -> \(<?($value<0..>)> $ + 1 ! <=0> $base ! <> $ !\);
       ..|@radixsort.buckets($bucket): $value;
       @radixsort.done: 0;
   end bucketize
@@ -15,7 +15,7 @@ templates radixsort@{base:}
   @: { done: 1, digit: 1, positives: [], negatives: [[]], buckets: [1..$base -> []]};
   $... -> !bucketize
   $@.done -> #
-  <1>
+  <=1>
     [$@.negatives(-1..1:-1)... ..., $@.positives...] !
   <>
     def previous: $@.buckets;

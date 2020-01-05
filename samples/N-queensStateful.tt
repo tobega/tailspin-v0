@@ -1,9 +1,9 @@
 templates queens
   def n: $;
   templates getRowColumn
-    <?($@queens.freeRows($.r) <0>)> 0 !
-    <?($@queens.freeMaxs($.r + $.c) <0>)> 0 !
-    <?($@queens.freeMins($.c - $.r + $n) <0>)> 0 !
+    <?($@queens.freeRows($.r) <=0>)> 0 !
+    <?($@queens.freeMaxs($.r + $.c) <=0>)> 0 !
+    <?($@queens.freeMins($.c - $.r + $n) <=0>)> 0 !
     <> 1!
   end getRowColumn
 
@@ -17,17 +17,17 @@ templates queens
   templates placeQueen
     def c: $;
     1 -> #
-    <-1> 1! // Use -1 to signal successful completion
-    <$n+1> 0 !
-    <?({r: $, c: $c} -> getRowColumn <1>)>
+    <=-1> 1! // Use -1 to signal successful completion
+    <=$n+1> 0 !
+    <?({r: $, c: $c} -> getRowColumn <=1>)>
       def r: $;
       @queens.queenRows($r): $c;
       {r: $, c: $c, val: 0} -> !setRowColumn
-      $c -> (<$n> -1!
-        <?($c + 1 -> placeQueen <1>)> -1!
+      $c -> \(<=$n> -1!
+        <?($c + 1 -> placeQueen <=1>)> -1!
         <>
           {r: $r, c: $c, val: 1} -> !setRowColumn
-          $r + 1 !) -> #
+          $r + 1 !\) -> #
     <> $ + 1 -> #
   end placeQueen
 
@@ -35,7 +35,7 @@ templates queens
     freeMaxs: [1..$n*2 -> 1],
     freeMins: [1..$n*2 -> 1],
     queenRows: [1..$n -> -1] };
-  1 -> placeQueen -> (<1> $@queens.queenRows ! <> 'non-existent'!)!
+  1 -> placeQueen -> \(<=1> $@queens.queenRows ! <> 'non-existent'!\)!
 end queens
 
 'A solution to the 8 queens problem is $:8 -> queens;

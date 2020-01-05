@@ -1,7 +1,7 @@
 templates sayBottleCount
-  <1>
+  <=1>
     '1 bottle' !
-  <0>
+  <=0>
     'No bottles' !
   <>
     '$; bottles' !

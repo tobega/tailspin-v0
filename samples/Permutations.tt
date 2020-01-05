@@ -1,11 +1,11 @@
 templates permutations
-  <1> [1] !
+  <=1> [1] !
   <>
     def n: $;
     templates expand
       def p: $;
-      1..$n -> (def k: $;
-        [$p(1..$k-1)..., $n, $p($k..-1)...] !) !
+      1..$n -> \(def k: $;
+        [$p(1..$k-1)..., $n, $p($k..-1)...] !\) !
     end expand
     $n - 1 -> permutations -> expand !
 end permutations
@@ -17,13 +17,13 @@ def alpha: ['ABCD'...];
 ' -> !OUT::write
 
 templates lexicalPermutations
-  <1> [1] !
+  <=1> [1] !
   <>
     def n: $;
     def p: [ $n - 1 -> lexicalPermutations ];
-    1..$n -> (def k: $;
-      def tail: [1..$n -> (<~$k> $ !)];
-      $p... -> [ $k, $tail($)...] !) !
+    1..$n -> \(def k: $;
+      def tail: [1..$n -> \(<~=$k> $ !\)];
+      $p... -> [ $k, $tail($)...] !\) !
 end lexicalPermutations
 
 [ $alpha::length -> lexicalPermutations -> '$alpha($)...;' ] -> !OUT::write

@@ -299,9 +299,8 @@ A matcher is a condition enclosed by angle brackets. A sequence of matchers is e
 start to the end, where the first matcher that matches the _current value_ will have its block
 executed for that _current value_.
 * Empty condition always matches `<>`
-* Value equals, a [dereferenced value](#dereference) matches according to standard rules of equality, should probably be replaced by "literal equality" below
-* Numeric condition, [arithmetic expression](#arithmetic-expression) matches if equal, e.g. `<5>` for "equals 5", should probably be replaced by "literal equality" below
-* Literal equality, starts with and equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`; matches according to standard rules of equality.
+* Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
+  matches according to standard rules of equality, with lists being ordered.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
  the range operator on the side(s) where the bound is not included. E.g.
   * `<2..5>` for "between 2 and 5 inclusive"
@@ -310,25 +309,27 @@ executed for that _current value_.
   * A value dereference can be a bound, e.g. `<$min..$max>`
   * An arithmetic expression can be a bound if encased in parentheses, e.g. `<($a+4)..>`
   * Ranges can compare strings.
-* String match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
+* Regular expression match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
 For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
 Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
 `<''>` matches the empty string, `<'.*'>` matches any string, `<'.+'>` any non-empty string.
+For comparing strings for simple equality, see "Equality" above.
 * Structure match is similar to a [structure literal](#structure-literal), surrounded by braces,
 lists keys of fields that need to exist for the matcher to match, with a matcher for the value of the field, e.g.
   * `<{}>` matches any structure, but not numbers, strings or arrays
   * `<{a: <>}>` matches any structure that has a field `a`, whatever its value
-  * `<{a:<0>, b:<1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
+  * `<{a:<=0>, b:<=1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
   whatever other fields it might have.
 * If either of several conditions is acceptable, just list the acceptable conditions inside the angle brackets separated by `|` as a logical "or".
-  The conditions are tried in order, stopping after the first true condition. E.g. `<'apple'|'orange'>` will be true for both 'apple' and 'orange'.
-* Inverse match, to match the opposite of a conditon, just put a tilde inside the angle bracket, e.g. `<~5>`
-  Note that inverse is applied to the entire expression within the angle brackets so `<~'apple'|'orange'>` will be false for both 'apple' and 'orange'.
+  The conditions are tried in order, stopping after the first true condition. E.g. `<='apple'|='orange'>` will be true for both 'apple' and 'orange'.
+* Inverse match, to match the opposite of a conditon, just put a tilde inside the angle bracket, e.g. `<~=5>`
+  Note that inverse is applied to the entire expression within the angle brackets so `<~='apple'|='orange'>` will be false for both 'apple' and 'orange'.
 * Array match, given as `<[]>` matches if the _current value_ is an array. A match can also be restricted to arrays
   of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`.
   Conditions on array content are written inside the brackets, separated by commas. They test if there is any element that fulfils the condition.
-  E.g. `<[<3|5>]>` tests if there is any element that is either a 3 or a 5, while `<[<3>,<5>]>` tests that the array contains at least one each of 3 and 5.
+  E.g. `<[<=3|=5>]>` tests if there is any element that is either a 3 or a 5, while `<[<=3>,<=5>]>` tests that the array contains at least one each of 3 and 5.
   Beware, though, that a single element could match more than one condition.
+  Note also the possibility of matching a list exactly by equality.
   
 Note that when nesting down matchers for fields and array contents, the _current value_ denoted by `$` will still refer to
 the original item to be matched by the outer match expression. To change perspective so that `$` should represent
