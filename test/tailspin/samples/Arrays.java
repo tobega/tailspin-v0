@@ -134,7 +134,7 @@ class Arrays {
 
   @Test
   void simpleDereferenceBackward() throws IOException {
-    String program = "[1,3,4,7,11] -> $(-3)  -> !OUT::write";
+    String program = "[1,3,4,7,11] -> $(last-2)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -172,19 +172,6 @@ class Arrays {
   }
 
   @Test
-  void rangeDereferenceBackwardDeprecated() throws IOException {
-    String program = "[1,3,4,7,11] -> $(-4..-2)  -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("[3, 4, 7]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void rangeDereferenceBackward() throws IOException {
     String program = "[1,3,4,7,11] -> $(last-3..last-1)  -> !OUT::write";
     Tailspin runner =
@@ -199,7 +186,7 @@ class Arrays {
 
   @Test
   void rangeDereferenceMixed() throws IOException {
-    String program = "[1,3,4,7,11] -> $(2..-2)  -> !OUT::write";
+    String program = "[1,3,4,7,11] -> $(2..last-1)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -212,7 +199,7 @@ class Arrays {
 
   @Test
   void rangeDereferenceStepping() throws IOException {
-    String program = "[1,3,4,7,11] -> $(1..-1:2)  -> !OUT::write";
+    String program = "[1,3,4,7,11] -> $(first..last:2)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -250,8 +237,8 @@ class Arrays {
   }
 
   @Test
-  void rangeDereferenceOpenEndNegative() throws IOException {
-    String program = "[1,3,4,7,11] -> $(3..~-1)  -> !OUT::write";
+  void rangeDereferenceOpenEndLast() throws IOException {
+    String program = "[1,3,4,7,11] -> $(3..~last)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -263,8 +250,8 @@ class Arrays {
   }
 
   @Test
-  void rangeDereferenceOpenEndNegativeIncrement() throws IOException {
-    String program = "[1,3,4,7,11] -> $(1..~-1:2)  -> !OUT::write";
+  void rangeDereferenceOpenEndLastIncrement() throws IOException {
+    String program = "[1,3,4,7,11] -> $(1..~last:2)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -654,7 +641,7 @@ class Arrays {
 
   @Test
   void sequenceOfDereferenceOnDimension() throws IOException {
-    String program = "def a: [1,2,3];\n 1 -> $a([2..-1, 3, -1..-2:-1])  -> !OUT::write";
+    String program = "def a: [1,2,3];\n 1 -> $a([2..last, 3, last..last-1:-1])  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

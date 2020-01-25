@@ -1,8 +1,8 @@
 templates fibonacciNstep@{N:}
   templates next
     @: $(1);
-    $(2..-1)... -> @: $ + $@;
-    [ $(2..-1)..., $@ ] !
+    $(2..last)... -> @: $ + $@;
+    [ $(2..last)..., $@ ] !
   end next
 
   @: $;

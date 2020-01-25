@@ -263,7 +263,7 @@ class Statements {
   @Test
   void systemNanoCount() throws Exception {
     String program = "def start: $SYS::nanoCount;\n"
-        + "[1..100 -> $SYS::nanoCount - $start] -> $(-1) -> \\(<0~..> 1 !\\) -> !OUT::write";
+        + "[1..100 -> $SYS::nanoCount - $start] -> $(last) -> \\(<0~..> 1 !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

@@ -60,9 +60,9 @@ templates printJson
   end encodeChars
   $ -> #
   <[]>
-    '[$(1) -> printJson;$(2..-1)... -> ', $ -> printJson;';]' !
+    '[$(1) -> printJson;$(2..last)... -> ', $ -> printJson;';]' !
   <{}>
-    [ $... ] -> '{$(1) -> printKeyValue;$(2..-1)... -> ', $ -> printKeyValue;';}' !
+    [ $... ] -> '{$(1) -> printKeyValue;$(2..last)... -> ', $ -> printKeyValue;';}' !
   <..0|0..>
     '$;'!
   <'.*'>

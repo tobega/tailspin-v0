@@ -422,13 +422,14 @@ done in the current _value chain_.
 Arrays are an ordered list of objects that can be turned into a [stream](#streams) by a [deconstructor](#deconstructor).
 
 To access elements of an array, append a selector within parentheses, e.g. `$(3)` to get the third element of the current array value.
-The first element of an array has selector `1`. Elements can also be selected counting from the end
-of the array by negative selectors, e.g. the last element of an array can be accessed by selector `-1`.
-Of course, the selector may be an arithmetic expression.
+The first element of an array has selector `1`, but can also be referenced as `first`.
+Elements can also be selected counting from the end of the array by counting from the keyword `last`,
+ e.g. the last element of an array can be accessed by selector `last`, the second last element by `last-1` and so on.
+Of course, the selector may be any arithmetic expression.
 
-A new array can be created by selecting from an existing array by a [range literal](#range-literal).
-Negative start or end values are interpreted as from the end of the array.
-E.g. `$(2..-2:3)` would select every third element starting at the second element and ending on or before
+A new array can be created by selecting from an existing array by a [range literal](#range-literal), using keywords
+`first` and `last` if needed.
+E.g. `$(2..last-1:3)` would select every third element starting at the second element and ending on or before
 the second last element. As usual, you can leave out the increment which defaults to 1.
 
 An array or integer for index can be obtained from a value [dereference](#dereference). The result must be an integer or a stream
@@ -436,7 +437,7 @@ of integers, or a single array of integers.
 
 A new array can be created by selecting from an existing array with an array, e.g. `$([3,1,5])`
 would select the third element, followed by the first element and last the fifth element. You can also include
-ranges in the array, e.g. `$([-1, 1..-2])` to rotate the last element to the beginning. Note that the only allowed
+ranges and the dimension keywords in the array, e.g. `$([last, 1..last-1])` to rotate the last element to the beginning. Note that the only allowed
 elements in an literal array selector are the same ones that are allowed as direct selectors.
 
 All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semi-colon `;`, e.g.
@@ -445,8 +446,7 @@ although the elements could be arrays). Selecting only a few dimensions will sel
 as a new array, but you cannot dereference it immediately in the same step.
 
 It is an error to select elements outside the range of a dimension. However, impossible ranges are legal but result in an empty array.
-In particular, zero is allowed in both the start and end of a range to always give an empty result,
-to cater for using length as the end index `$(1..$::length)` when length is zero and taking the tail of the array after the last index, e.g. `$a($+1..-1)` when _$_ is _-1_.
+So, for example, `$(0)` will result in an error, but `$(0..0)` will result in an empty array, which can be handy.
 
 An array is a built-in processor that responds to the following messages:
 * `::length` returns the length of the first dimension.

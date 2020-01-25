@@ -6,7 +6,7 @@ templates distinctPerms
       1..$::length -> \(
         def k: $;
         def tail: $elements -> \[i](
-          <?($i <=$k>)> $ -> \(<[](2..)> $(2..-1)!\) !
+          <?($i <=$k>)> $ -> \(<[](2..)> $(2..last)!\) !
           <> $!
         \);
         $tail -> perms -> [$elements($k;1), $...] !

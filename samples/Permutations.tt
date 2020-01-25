@@ -5,7 +5,7 @@ templates permutations
     templates expand
       def p: $;
       1..$n -> \(def k: $;
-        [$p(1..$k-1)..., $n, $p($k..-1)...] !\) !
+        [$p(1..$k-1)..., $n, $p($k..last)...] !\) !
     end expand
     $n - 1 -> permutations -> expand !
 end permutations

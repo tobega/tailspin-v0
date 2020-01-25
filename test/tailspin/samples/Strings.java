@@ -438,7 +438,7 @@ class Strings {
   void keepCombiningMarksOnCharacter() throws Exception {
     String program =
         "templates reverse\n"
-            + "  '$ -> [ $... ] -> $(-1..1:-1)...;' !\n"
+            + "  '$ -> [ $... ] -> $(last..first:-1)...;' !\n"
             + "end reverse\n"
             + "'as⃝df̅' -> reverse -> !OUT::write";
     Tailspin runner =

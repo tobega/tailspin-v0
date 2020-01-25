@@ -6,11 +6,11 @@ processor Stack
   end push
 
   source peek
-    $@Stack(-1) !
+    $@Stack(last) !
   end peek
 
   source pop
-    ^@Stack(-1) !
+    ^@Stack(last) !
   end pop
 
   source empty

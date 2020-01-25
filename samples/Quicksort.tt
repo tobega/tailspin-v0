@@ -3,7 +3,7 @@ templates quicksort
   $ -> #
   <[](2..)>
     def pivot: $(1);
-    [ [ $(2..-1)... -> \(
+    [ [ $(2..last)... -> \(
       <..$pivot>
         $ !
       <>

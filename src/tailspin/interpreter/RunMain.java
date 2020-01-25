@@ -241,12 +241,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     resolver = new DimensionContextKeywordResolver();
     try {
       if (ctx.arithmeticExpression() != null) {
-        return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()));
+        return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()),
+            (DimensionContextKeywordResolver) resolver);
       } else if (ctx.rangeLiteral() != null) {
         return new ArrayDimensionRange(visitRangeLiteral(ctx.rangeLiteral()),
             (DimensionContextKeywordResolver) resolver);
       } else if (ctx.sourceReference() != null) {
-        return new SimpleDimensionReference(Value.of(visitSourceReference(ctx.sourceReference())));
+        return new SimpleDimensionReference(Value.of(visitSourceReference(ctx.sourceReference())),
+            (DimensionContextKeywordResolver) resolver);
       } else {
         throw new UnsupportedOperationException(
             "Unknown way to dereference array at "

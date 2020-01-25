@@ -9,7 +9,7 @@ templates towers
     <> ..|@towers.piles($pile): $;
   end pushDisk
   templates popDisk
-    ^@towers.piles($; -1) !
+    ^@towers.piles($; last) !
   end popDisk
   sink moveTopDisk@{to:}
     $ -> popDisk -> !pushDisk@{pile: $to}

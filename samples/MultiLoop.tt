@@ -8,7 +8,7 @@ def z: [1, 2, 3];
 templates transpose
   def a: $;
   def n: $(1)::length;
-  [ 1..$n -> $a(1..-1; $) ] !
+  [ 1..$n -> $a(1..last; $) ] !
 end transpose
 
 [$x, $y, $z] -> transpose... -> '$...;

@@ -3,7 +3,7 @@ templates shortestPaths@{graph:}
   [ {to: $, distance: 0, path:[]} ] -> #
   <[](0)> $@ !
   <>
-    def closest: $ -> \(@: $(1); $(2..-1)... -> # $@! <?($.distance <..~$@.distance>)> @: $;\);
+    def closest: $ -> \(@: $(1); $(2..last)... -> # $@! <?($.distance <..~$@.distance>)> @: $;\);
     $closest -> ..|@: $;
     def path: [ $closest.path..., $closest.to ];
     [ $... -> \(<?($.to <~=$closest.to>)> $!\),
@@ -24,9 +24,9 @@ def edges: [
 
 def fromA: 'a' -> shortestPaths@{graph: $edges};
 
-$fromA... -> \(<{to:<='e'>}> $!\) -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..-1);
+$fromA... -> \(<{to:<='e'>}> $!\) -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..last);
 ' -> !OUT::write
 
-$fromA... -> \(<{to:<='f'>}> $!\) -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..-1);
+$fromA... -> \(<{to:<='f'>}> $!\) -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..last);
 ' -> !OUT::write
 

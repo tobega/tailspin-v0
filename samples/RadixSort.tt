@@ -5,7 +5,7 @@ templates radixsort@{base:}
     <=0 ?($value <0..>)>
       ..|@radixsort.positives: $value;
     <=0>
-      ..|@radixsort.negatives(-1): $value;
+      ..|@radixsort.negatives(last): $value;
     <>
       def bucket: $ mod $base -> \(<?($value<0..>)> $ + 1 ! <=0> $base ! <> $ !\);
       ..|@radixsort.buckets($bucket): $value;
@@ -16,7 +16,7 @@ templates radixsort@{base:}
   $... -> !bucketize
   $@.done -> #
   <=1>
-    [$@.negatives(-1..1:-1)... ..., $@.positives...] !
+    [$@.negatives(last..first:-1)... ..., $@.positives...] !
   <>
     def previous: $@.buckets;
     ..|@: {done: 1, digit: $@.digit * $base, buckets:[1..$base -> []]};
