@@ -516,6 +516,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIdentifier(TailspinParser.IdentifierContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#arithmeticContextKeyword}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArithmeticContextKeyword(TailspinParser.ArithmeticContextKeywordContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#keyword}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

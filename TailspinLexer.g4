@@ -72,6 +72,10 @@ EndDefinition: 'end';
 
 Rule: 'rule';
 
+First: 'first';
+
+Last: 'last';
+
 TemplateMatch: '#';
 
 Range: '..';

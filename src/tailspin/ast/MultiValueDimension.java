@@ -12,10 +12,10 @@ public class MultiValueDimension implements DimensionReference {
   }
 
   @Override
-  public Object getIndices(int size, Object it, Scope scope) {
+  public Object getIndices(List<?> dimension, Object it, Scope scope) {
     IntStream result = IntStream.empty();
     for (DimensionReference dimensionReference : dimensionReferences) {
-      Object index = dimensionReference.getIndices(size, it, scope);
+      Object index = dimensionReference.getIndices(dimension, it, scope);
       if (!(index instanceof IntStream)) {
         index = IntStream.of(((Number) index).intValue());
       }

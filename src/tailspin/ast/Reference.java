@@ -311,7 +311,7 @@ public abstract class Reference implements Value {
         ArrayOperation bottomOperation, Object it, Scope scope) {
       ArrayOperation operation = currentDereference == dimensions.size() - 1 ? bottomOperation : List::get;
       DimensionReference dimensionReference = dimensions.get(currentDereference);
-      Object idx = dimensionReference.getIndices(array.size(), it, scope);
+      Object idx = dimensionReference.getIndices(array, it, scope);
       Object dimensionResult;
       if (idx instanceof Number) {
         dimensionResult = operation.invoke(array, ((Number) idx).intValue());

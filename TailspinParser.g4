@@ -146,6 +146,7 @@ arithmeticExpression: integerLiteral
   | additiveOperator? (sourceReference|deleteState)
   | arithmeticExpression multiplicativeOperator arithmeticExpression
   | arithmeticExpression additiveOperator arithmeticExpression
+  | arithmeticContextKeyword
 ;
 
 additiveOperator: Plus | Minus;
@@ -195,6 +196,10 @@ compositionKey: tokenMatcher Colon;
 
 identifier: IDENTIFIER | keyword;
 
+arithmeticContextKeyword: First
+  | Last
+;
+
 keyword: Package
   | Import
   | Def
@@ -206,4 +211,5 @@ keyword: Package
   | EndDefinition
   | Mod
   | Rule
+  | arithmeticContextKeyword
 ;

@@ -15,6 +15,8 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
 import tailspin.ast.AnyOf;
+import tailspin.ast.ArithmeticContextKeywordResolver;
+import tailspin.ast.ArithmeticContextValue;
 import tailspin.ast.ArithmeticOperation;
 import tailspin.ast.ArrayDimensionRange;
 import tailspin.ast.ArrayLiteral;
@@ -29,6 +31,7 @@ import tailspin.ast.Condition;
 import tailspin.ast.Deconstructor;
 import tailspin.ast.Definition;
 import tailspin.ast.DeleteState;
+import tailspin.ast.DimensionContextKeywordResolver;
 import tailspin.ast.DimensionReference;
 import tailspin.ast.Equality;
 import tailspin.ast.Expression;
@@ -235,18 +238,24 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public DimensionReference visitSimpleDimension(TailspinParser.SimpleDimensionContext ctx) {
-    if (ctx.arithmeticExpression() != null) {
-      return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()));
-    } else if (ctx.rangeLiteral() != null) {
-      return new ArrayDimensionRange(visitRangeLiteral(ctx.rangeLiteral()));
-    } else if (ctx.sourceReference() != null) {
-      return new SimpleDimensionReference(Value.of(visitSourceReference(ctx.sourceReference())));
-    } else {
-      throw new UnsupportedOperationException(
-          "Unknown way to dereference array at "
-              + ctx.getStart().getLine()
-              + ":"
-              + ctx.getStart().getCharPositionInLine() + " " + ctx.getText());
+    resolver = new DimensionContextKeywordResolver();
+    try {
+      if (ctx.arithmeticExpression() != null) {
+        return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()));
+      } else if (ctx.rangeLiteral() != null) {
+        return new ArrayDimensionRange(visitRangeLiteral(ctx.rangeLiteral()),
+            (DimensionContextKeywordResolver) resolver);
+      } else if (ctx.sourceReference() != null) {
+        return new SimpleDimensionReference(Value.of(visitSourceReference(ctx.sourceReference())));
+      } else {
+        throw new UnsupportedOperationException(
+            "Unknown way to dereference array at "
+                + ctx.getStart().getLine()
+                + ":"
+                + ctx.getStart().getCharPositionInLine() + " " + ctx.getText());
+      }
+    } finally{
+      resolver = null;
     }
   }
 
@@ -612,6 +621,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return new IntegerConstant(value);
   }
 
+  private ArithmeticContextKeywordResolver resolver;
+
   @Override
   public Value visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
     if (ctx.sourceReference() != null) {
@@ -651,6 +662,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     if (ctx.integerLiteral() != null) {
       return (Value) visit(ctx.integerLiteral());
+    }
+    if (resolver != null && ctx.arithmeticContextKeyword() != null) {
+      return new ArithmeticContextValue(ctx.arithmeticContextKeyword().getText(), resolver);
     }
     throw new UnsupportedOperationException();
   }
