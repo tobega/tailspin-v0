@@ -24,6 +24,27 @@ Progress measured in how many times slower than Java. The variance on tailspin r
 |[2019-11-21](#2019-11-21)|Interpreted|1254|158|602|1274|1442|614|11498|
 |[2019-11-24](#2019-11-24)|Interpreted|1540|160|602|1333|1451|625|925|
 |[2019-11-27](#2019-11-27)|Interpreted|1371|158|440|1136|1115|489|895|
+|[2020-01-26](#2020-01-26)|Interpreted|1173|157|449|1189|1086|521|783|
+
+## 2020-01-26
+Just checking for regressions. machine 1
+
+|Benchmark|Mean runtime us|
+|---|---|
+Bounce   Java | 1.2
+Bounce   Tailspin|1407.5
+Json     Java  | 12.7
+Json     Tailspin | 1989.9
+List     Java | 1.8
+List     Tailspin|807.8
+Permute  Java | 0.8
+Permute  Tailspin | 950.9
+Queens   Java | 1.3
+Queens   Tailspin |1412.3
+Sieve    Java  |  1.3
+Sieve    Tailspin | 677.5
+Towers   Java |1.5
+Towers   Tailspin | 1174.3
 
 ## 2019-11-27
 No more queues as expression results. machine 1
