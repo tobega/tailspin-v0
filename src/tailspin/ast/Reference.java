@@ -25,8 +25,9 @@ public abstract class Reference implements Value {
     return new FieldReference(this, fieldIdentifier);
   }
 
-  public Reference array(List<DimensionReference> dimensions) {
-    return new ArrayReference(this, dimensions);
+  public Reference array(List<DimensionReference> dimensions,
+      DimensionContextKeywordResolver resolver) {
+    return new ArrayReference(this, dimensions, resolver);
   }
 
   public static Reference it() {
@@ -233,10 +234,13 @@ public abstract class Reference implements Value {
   private static class ArrayReference extends Reference {
     private final Reference parent;
     private final List<DimensionReference> dimensions;
+    private final DimensionContextKeywordResolver resolver;
 
-    private ArrayReference(Reference parent, List<DimensionReference> dimensions) {
+    private ArrayReference(Reference parent, List<DimensionReference> dimensions,
+        DimensionContextKeywordResolver resolver) {
       this.parent = parent;
       this.dimensions = dimensions;
+      this.resolver = resolver;
     }
 
     @Override
@@ -311,23 +315,25 @@ public abstract class Reference implements Value {
         ArrayOperation bottomOperation, Object it, Scope scope) {
       ArrayOperation operation = currentDereference == dimensions.size() - 1 ? bottomOperation : List::get;
       DimensionReference dimensionReference = dimensions.get(currentDereference);
-      Object idx = dimensionReference.getIndices(array, it, scope);
       Object dimensionResult;
-      if (idx instanceof Number) {
-        dimensionResult = operation.invoke(array, ((Number) idx).intValue());
-      } else if (idx instanceof IntStream) {
-        dimensionResult = ((IntStream) idx)
-            .mapToObj(i -> operation.invoke(array, ((Number) i).intValue()));
-      } else {
+      try (DimensionContextKeywordResolver.Context ctx = resolver.with(array)) {
+        Object idx = dimensionReference.getIndices(ctx, it, scope);
+        if (idx instanceof Number) {
+          dimensionResult = operation.invoke(array, ((Number) idx).intValue());
+        } else if (idx instanceof IntStream) {
+          dimensionResult =
+              ((IntStream) idx).mapToObj(i -> operation.invoke(array, ((Number) i).intValue()));
+        } else {
           throw new UnsupportedOperationException(
               "Unable to dereference array by "
                   + (idx == null ? "index out of bounds" : " " + idx.getClass().getName()));
-      }
-      if (currentDereference == dimensions.size() - 1) {
-        if (dimensionResult instanceof Stream) {
-          return ((Stream<?>) dimensionResult).collect(Collectors.toList());
-        } else {
-          return dimensionResult;
+        }
+        if (currentDereference == dimensions.size() - 1) {
+          if (dimensionResult instanceof Stream) {
+            return ((Stream<?>) dimensionResult).collect(Collectors.toList());
+          } else {
+            return dimensionResult;
+          }
         }
       }
       if (dimensionResult instanceof Stream) {

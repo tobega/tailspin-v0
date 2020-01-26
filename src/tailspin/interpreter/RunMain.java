@@ -6,7 +6,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -225,30 +227,30 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   private Reference resolveArrayDereference(TailspinParser.ArrayReferenceContext ctx, Reference reference) {
-    List<DimensionReference> dimensions = new ArrayList<>();
-    for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
-      if (dimCtx.simpleDimension() != null) {
-        dimensions.add(visitSimpleDimension(dimCtx.simpleDimension()));
-      } else {
-        dimensions.add(visitMultiValueDimension(dimCtx.multiValueDimension()));
+    resolver.push(new DimensionContextKeywordResolver());
+    try {
+      List<DimensionReference> dimensions = new ArrayList<>();
+      for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
+        if (dimCtx.simpleDimension() != null) {
+          dimensions.add(visitSimpleDimension(dimCtx.simpleDimension()));
+        } else {
+          dimensions.add(visitMultiValueDimension(dimCtx.multiValueDimension()));
+        }
       }
+      return reference.array(dimensions, (DimensionContextKeywordResolver) resolver.peek());
+    } finally{
+      resolver.pop();
     }
-    return reference.array(dimensions);
   }
 
   @Override
   public DimensionReference visitSimpleDimension(TailspinParser.SimpleDimensionContext ctx) {
-    resolver = new DimensionContextKeywordResolver();
-    try {
       if (ctx.arithmeticExpression() != null) {
-        return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()),
-            (DimensionContextKeywordResolver) resolver);
+        return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()));
       } else if (ctx.rangeLiteral() != null) {
-        return new ArrayDimensionRange(visitRangeLiteral(ctx.rangeLiteral()),
-            (DimensionContextKeywordResolver) resolver);
+        return new ArrayDimensionRange(visitRangeLiteral(ctx.rangeLiteral()));
       } else if (ctx.sourceReference() != null) {
-        return new SimpleDimensionReference(Value.of(visitSourceReference(ctx.sourceReference())),
-            (DimensionContextKeywordResolver) resolver);
+        return new SimpleDimensionReference(Value.of(visitSourceReference(ctx.sourceReference())));
       } else {
         throw new UnsupportedOperationException(
             "Unknown way to dereference array at "
@@ -256,9 +258,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
                 + ":"
                 + ctx.getStart().getCharPositionInLine() + " " + ctx.getText());
       }
-    } finally{
-      resolver = null;
-    }
   }
 
   @Override
@@ -623,7 +622,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return new IntegerConstant(value);
   }
 
-  private ArithmeticContextKeywordResolver resolver;
+  private Deque<ArithmeticContextKeywordResolver> resolver = new ArrayDeque<>();
 
   @Override
   public Value visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
@@ -665,8 +664,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.integerLiteral() != null) {
       return (Value) visit(ctx.integerLiteral());
     }
-    if (resolver != null && ctx.arithmeticContextKeyword() != null) {
-      return new ArithmeticContextValue(ctx.arithmeticContextKeyword().getText(), resolver);
+    if (!resolver.isEmpty() && ctx.arithmeticContextKeyword() != null) {
+      return new ArithmeticContextValue(ctx.arithmeticContextKeyword().getText(), resolver.peek());
     }
     throw new UnsupportedOperationException();
   }

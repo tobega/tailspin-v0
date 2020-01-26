@@ -26,5 +26,10 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
     public void close() {
       dimension = null;
     }
+
+    public Long resolveIndex(int index) {
+      if (index <= 0 || index > dimension.size()) return null;
+      return (long) (index - 1);
+    }
   }
 }
