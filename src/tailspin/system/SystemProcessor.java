@@ -1,9 +1,10 @@
-package tailspin.types;
+package tailspin.system;
 
 import java.util.Map;
 import java.util.Random;
 import tailspin.interpreter.BasicScope;
-import tailspin.interpreter.Transform;
+import tailspin.types.Transform;
+import tailspin.types.ProcessorInstance;
 
 public class SystemProcessor extends ProcessorInstance {
 

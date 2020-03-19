@@ -29,7 +29,7 @@ import tailspin.ast.Bound;
 import tailspin.ast.ChainStage;
 import tailspin.ast.CodedCharacter;
 import tailspin.ast.ComposerDefinition;
-import tailspin.ast.Condition;
+import tailspin.types.Condition;
 import tailspin.ast.Deconstructor;
 import tailspin.ast.Definition;
 import tailspin.ast.DeleteState;
@@ -75,6 +75,7 @@ import tailspin.parser.TailspinParser.KeyValuesContext;
 import tailspin.parser.TailspinParser.StateSinkContext;
 import tailspin.parser.TailspinParser.ValueProductionContext;
 import tailspin.parser.TailspinParserBaseVisitor;
+import tailspin.types.KeyValue;
 
 public class RunMain extends TailspinParserBaseVisitor<Object> {
   public final Scope scope;

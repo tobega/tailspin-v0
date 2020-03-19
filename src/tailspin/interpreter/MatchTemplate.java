@@ -1,7 +1,7 @@
 package tailspin.interpreter;
 
 import tailspin.ast.Block;
-import tailspin.ast.Condition;
+import tailspin.types.Condition;
 
 public class MatchTemplate {
   final Condition matcher;

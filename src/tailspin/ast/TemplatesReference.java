@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import tailspin.interpreter.CurriedTemplates;
 import tailspin.interpreter.Scope;
-import tailspin.interpreter.Transform;
+import tailspin.types.Transform;
 
 public class TemplatesReference extends Reference {
   private final Reference reference;

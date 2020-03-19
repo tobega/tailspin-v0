@@ -2,6 +2,7 @@ package tailspin.ast;
 
 import java.util.regex.Pattern;
 import tailspin.interpreter.Scope;
+import tailspin.types.Condition;
 
 public class RegexpMatch implements Condition {
   private final Value patternValue;

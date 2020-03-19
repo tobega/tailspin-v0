@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import tailspin.ast.Expression;
 import tailspin.ast.ResultIterator;
 import tailspin.ast.Value;
+import tailspin.types.Transform;
 
 public class Composer implements Transform {
   private static final HashMap<String, Pattern> namedPatterns = new HashMap<>();

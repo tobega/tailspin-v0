@@ -1,6 +1,6 @@
 package tailspin.ast;
 
-import tailspin.interpreter.KeyValue;
+import tailspin.types.KeyValue;
 import tailspin.interpreter.Scope;
 
 public class KeyValueExpression implements Value {

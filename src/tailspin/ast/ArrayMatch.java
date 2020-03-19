@@ -2,6 +2,7 @@ package tailspin.ast;
 
 import java.util.List;
 import tailspin.interpreter.Scope;
+import tailspin.types.Condition;
 
 public class ArrayMatch implements Condition {
   // @Nullable
@@ -22,7 +23,7 @@ public class ArrayMatch implements Condition {
       return false;
     }
     for (Condition contentMatcher : contentMatchers) {
-      if (!listToMatch.stream().anyMatch(e -> contentMatcher.matches(e, it, scope))) {
+      if (listToMatch.stream().noneMatch(e -> contentMatcher.matches(e, it, scope))) {
         return false;
       }
     }

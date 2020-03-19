@@ -1,10 +1,11 @@
-package tailspin.types;
+package tailspin.system;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import tailspin.interpreter.Scope;
-import tailspin.interpreter.Transform;
+import tailspin.types.Transform;
+import tailspin.types.ProcessorInstance;
 
 public class StdoutProcessor extends ProcessorInstance {
   public StdoutProcessor(Scope scope) {

@@ -2,6 +2,7 @@ package tailspin.interpreter;
 
 import java.util.HashMap;
 import java.util.Map;
+import tailspin.types.Transform;
 
 public class CurriedTemplates implements Transform {
   private final Transform transform;

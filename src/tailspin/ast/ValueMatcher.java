@@ -2,6 +2,7 @@ package tailspin.ast;
 
 import java.util.List;
 import tailspin.interpreter.Scope;
+import tailspin.types.Condition;
 
 public class ValueMatcher implements Condition {
   // @Nullable

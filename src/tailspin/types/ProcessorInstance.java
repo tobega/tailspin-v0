@@ -3,10 +3,9 @@ package tailspin.types;
 import java.util.Map;
 import tailspin.interpreter.CurriedTemplates;
 import tailspin.interpreter.Scope;
-import tailspin.interpreter.Transform;
 
 public class ProcessorInstance {
-  final Scope scope;
+  protected final Scope scope;
 
   public ProcessorInstance(Scope scope) {
     this.scope = scope;

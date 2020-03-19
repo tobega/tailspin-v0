@@ -2,6 +2,7 @@ package tailspin.ast;
 
 import java.util.Map;
 import tailspin.interpreter.Scope;
+import tailspin.types.Condition;
 
 public class StructureMatch implements Condition {
   private final Map<String, Condition> keyConditions;

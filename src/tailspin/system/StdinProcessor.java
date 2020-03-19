@@ -1,11 +1,12 @@
-package tailspin.types;
+package tailspin.system;
 
 import static tailspin.ast.Expression.queueOf;
 
 import java.util.Map;
 import tailspin.ast.ResultIterator;
 import tailspin.interpreter.BasicScope;
-import tailspin.interpreter.Transform;
+import tailspin.types.Transform;
+import tailspin.types.ProcessorInstance;
 
 public class StdinProcessor extends ProcessorInstance {
   public StdinProcessor(BasicScope scope) {

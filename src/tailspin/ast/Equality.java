@@ -2,6 +2,7 @@ package tailspin.ast;
 
 import java.util.Objects;
 import tailspin.interpreter.Scope;
+import tailspin.types.Condition;
 
 public class Equality implements Condition {
   private final Value value;

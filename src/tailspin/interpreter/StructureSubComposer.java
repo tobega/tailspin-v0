@@ -5,6 +5,7 @@ import static tailspin.ast.Expression.queueOf;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
+import tailspin.types.KeyValue;
 
 class StructureSubComposer implements SubComposer {
   private final SequenceSubComposer keyValues;

@@ -4,9 +4,9 @@ import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import tailspin.interpreter.KeyValue;
+import tailspin.types.KeyValue;
 import tailspin.interpreter.Scope;
-import tailspin.interpreter.Transform;
+import tailspin.types.Transform;
 import tailspin.types.ProcessorInstance;
 
 public class ProcessorMessage extends Reference {

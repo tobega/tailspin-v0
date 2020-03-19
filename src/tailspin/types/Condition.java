@@ -1,4 +1,4 @@
-package tailspin.ast;
+package tailspin.types;
 
 import tailspin.interpreter.Scope;
 

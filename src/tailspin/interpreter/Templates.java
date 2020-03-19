@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import tailspin.ast.Block;
+import tailspin.types.Transform;
 
 public class Templates implements Transform {
   private final Scope definingScope;

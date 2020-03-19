@@ -1,6 +1,7 @@
 package tailspin.ast;
 
 import tailspin.interpreter.Scope;
+import tailspin.types.Condition;
 
 public class RangeMatch implements Condition {
 

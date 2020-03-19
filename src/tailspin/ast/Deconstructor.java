@@ -4,7 +4,7 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import tailspin.interpreter.KeyValue;
+import tailspin.types.KeyValue;
 import tailspin.interpreter.Scope;
 
 public class Deconstructor implements Expression {
@@ -20,7 +20,7 @@ public class Deconstructor implements Expression {
   @SuppressWarnings("unchecked")
   ResultIterator getDeconstructedStream(Object it) {
     if (it instanceof List) {
-      if (((List) it).isEmpty()) {
+      if (((List<?>) it).isEmpty()) {
         return null;
       }
       Iterator<Object> iterator = ((List<Object>) it).iterator();

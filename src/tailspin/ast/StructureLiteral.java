@@ -3,7 +3,7 @@ package tailspin.ast;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import tailspin.interpreter.KeyValue;
+import tailspin.types.KeyValue;
 import tailspin.interpreter.Scope;
 
 public class StructureLiteral implements Value {

@@ -3,6 +3,7 @@ package tailspin.interpreter;
 import static tailspin.ast.Expression.queueOf;
 
 import java.util.Queue;
+import tailspin.types.KeyValue;
 
 class KeyValueSubComposer implements SubComposer {
   private final SubComposer keyComposer;

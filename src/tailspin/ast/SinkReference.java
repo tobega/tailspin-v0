@@ -2,7 +2,7 @@ package tailspin.ast;
 
 import java.util.Map;
 import tailspin.interpreter.Scope;
-import tailspin.interpreter.Transform;
+import tailspin.types.Transform;
 
 public class SinkReference implements Expression {
   private final Reference reference;
