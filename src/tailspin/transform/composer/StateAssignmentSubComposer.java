@@ -1,7 +1,7 @@
 package tailspin.transform.composer;
 
 import java.util.Queue;
-import tailspin.ast.Expression;
+import tailspin.control.Expression;
 import tailspin.interpreter.Scope;
 
 public class StateAssignmentSubComposer implements SubComposer {

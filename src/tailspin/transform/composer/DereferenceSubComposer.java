@@ -1,8 +1,8 @@
 package tailspin.transform.composer;
 
 import java.util.Queue;
-import tailspin.ast.Expression;
-import tailspin.ast.ResultIterator;
+import tailspin.control.Expression;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 
 class DereferenceSubComposer implements SubComposer {

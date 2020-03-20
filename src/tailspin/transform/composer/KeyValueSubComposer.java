@@ -1,6 +1,6 @@
 package tailspin.transform.composer;
 
-import static tailspin.ast.Expression.queueOf;
+import static tailspin.control.Expression.queueOf;
 
 import java.util.Queue;
 import tailspin.types.KeyValue;

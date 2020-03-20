@@ -1,9 +1,9 @@
 package tailspin.system;
 
-import static tailspin.ast.Expression.queueOf;
+import static tailspin.control.Expression.queueOf;
 
 import java.util.Map;
-import tailspin.ast.ResultIterator;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.BasicScope;
 import tailspin.types.Transform;
 import tailspin.types.ProcessorInstance;

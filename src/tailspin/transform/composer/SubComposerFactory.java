@@ -7,8 +7,8 @@ import java.util.Queue;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import tailspin.ast.Expression;
-import tailspin.ast.Value;
+import tailspin.control.Expression;
+import tailspin.control.Value;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
 

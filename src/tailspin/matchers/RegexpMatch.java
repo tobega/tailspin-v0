@@ -1,7 +1,7 @@
 package tailspin.matchers;
 
 import java.util.regex.Pattern;
-import tailspin.ast.Value;
+import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
 

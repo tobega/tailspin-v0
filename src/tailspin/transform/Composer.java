@@ -1,13 +1,13 @@
 package tailspin.transform;
 
-import static tailspin.ast.Expression.queueOf;
+import static tailspin.control.Expression.queueOf;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import tailspin.ast.Expression;
-import tailspin.ast.ResultIterator;
+import tailspin.control.Expression;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.transform.composer.CompositionSpec;
 import tailspin.transform.composer.SubComposer;

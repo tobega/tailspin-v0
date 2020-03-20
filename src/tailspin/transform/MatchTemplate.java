@@ -1,6 +1,6 @@
 package tailspin.transform;
 
-import tailspin.ast.Block;
+import tailspin.control.Block;
 import tailspin.types.Criterion;
 
 public class MatchTemplate {

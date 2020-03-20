@@ -1,12 +1,12 @@
 package tailspin.transform;
 
-import static tailspin.ast.Expression.queueOf;
+import static tailspin.control.Expression.queueOf;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import tailspin.ast.Block;
+import tailspin.control.Block;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
 import tailspin.types.Transform;

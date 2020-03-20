@@ -2,7 +2,7 @@ package tailspin.transform.composer;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
-import tailspin.ast.Value;
+import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 
 public class CountSubComposer implements SubComposer {

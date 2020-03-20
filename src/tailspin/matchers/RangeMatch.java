@@ -1,6 +1,6 @@
 package tailspin.matchers;
 
-import tailspin.ast.Bound;
+import tailspin.control.Bound;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
 

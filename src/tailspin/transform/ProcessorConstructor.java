@@ -3,8 +3,8 @@ package tailspin.transform;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
-import tailspin.ast.Block;
-import tailspin.ast.ResultIterator;
+import tailspin.control.Block;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.types.ProcessorInstance;
 
