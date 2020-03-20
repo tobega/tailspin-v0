@@ -3,8 +3,8 @@ package tailspin.ast;
 import java.util.Optional;
 import java.util.Queue;
 import tailspin.interpreter.Scope;
-import tailspin.interpreter.Templates;
-import tailspin.interpreter.TransformScope;
+import tailspin.transform.Templates;
+import tailspin.transform.TransformScope;
 
 public class SendToTemplates implements Expression {
   private final Expression valueChain;

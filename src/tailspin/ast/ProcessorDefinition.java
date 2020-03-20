@@ -1,8 +1,8 @@
 package tailspin.ast;
 
 import java.util.List;
-import tailspin.interpreter.ExpectedParameter;
-import tailspin.interpreter.ProcessorConstructor;
+import tailspin.transform.ExpectedParameter;
+import tailspin.transform.ProcessorConstructor;
 import tailspin.interpreter.Scope;
 
 public class ProcessorDefinition {

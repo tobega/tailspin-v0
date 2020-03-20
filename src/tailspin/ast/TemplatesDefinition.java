@@ -2,10 +2,10 @@ package tailspin.ast;
 
 import java.util.ArrayList;
 import java.util.List;
-import tailspin.interpreter.ExpectedParameter;
-import tailspin.interpreter.MatchTemplate;
+import tailspin.transform.ExpectedParameter;
+import tailspin.transform.MatchTemplate;
 import tailspin.interpreter.Scope;
-import tailspin.interpreter.Templates;
+import tailspin.transform.Templates;
 
 public class TemplatesDefinition {
   private final Block block;

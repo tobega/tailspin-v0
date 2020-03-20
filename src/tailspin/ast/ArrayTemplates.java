@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import tailspin.interpreter.ExpectedParameter;
+import tailspin.transform.ExpectedParameter;
 import tailspin.interpreter.Scope;
-import tailspin.interpreter.Templates;
+import tailspin.transform.Templates;
 
 public class ArrayTemplates implements Expression {
   private final List<String> loopVariables;
@@ -36,7 +36,7 @@ public class ArrayTemplates implements Expression {
     }
     List<Object>[] dimLists = new List[loopVariables.size()];
     dimLists[0] = (List<Object>) oIt;
-    List[] results = new List[loopVariables.size()];
+    List<Object>[] results = new List[loopVariables.size()];
     results[0] = new ArrayList<>();
     for (int i = 1; i < loopVariables.size(); i++) {
       dimLists[i] = (List<Object>) dimLists[i-1].get(0);

@@ -1,4 +1,7 @@
-package tailspin.interpreter;
+package tailspin.transform;
+
+import tailspin.interpreter.NestedScope;
+import tailspin.interpreter.Scope;
 
 public class TransformScope extends NestedScope {
   final String scopeContext;

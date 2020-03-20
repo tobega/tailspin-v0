@@ -1,7 +1,7 @@
 package tailspin.types;
 
 import java.util.Map;
-import tailspin.interpreter.CurriedTemplates;
+import tailspin.transform.CurriedTemplates;
 import tailspin.interpreter.Scope;
 
 public class ProcessorInstance {

@@ -1,4 +1,4 @@
-package tailspin.interpreter;
+package tailspin.transform;
 
 import java.util.HashMap;
 import java.util.Map;

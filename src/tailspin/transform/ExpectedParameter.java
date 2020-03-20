@@ -1,4 +1,4 @@
-package tailspin.interpreter;
+package tailspin.transform;
 
 public class ExpectedParameter {
   final String name;

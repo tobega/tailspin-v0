@@ -2,7 +2,7 @@ package tailspin.ast;
 
 import java.util.Map;
 import tailspin.interpreter.Scope;
-import tailspin.interpreter.Templates;
+import tailspin.transform.Templates;
 
 public class InlineTemplates implements Expression {
   private final TemplatesDefinition templatesDefinition;

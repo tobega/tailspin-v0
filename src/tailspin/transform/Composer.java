@@ -1,4 +1,4 @@
-package tailspin.interpreter;
+package tailspin.transform;
 
 import static tailspin.ast.Expression.queueOf;
 
@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import tailspin.ast.Expression;
 import tailspin.ast.ResultIterator;
+import tailspin.interpreter.Scope;
 import tailspin.transform.composer.CompositionSpec;
 import tailspin.transform.composer.SubComposer;
 import tailspin.transform.composer.SubComposerFactory;
@@ -75,7 +76,7 @@ public class Composer implements Transform {
     expectedParameters.addAll(parameters);
   }
 
-  void setScopeContext(String name) {
+  public void setScopeContext(String name) {
     scopeName = name;
   }
 }

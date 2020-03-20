@@ -1,10 +1,11 @@
-package tailspin.interpreter;
+package tailspin.transform;
 
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import tailspin.ast.Block;
 import tailspin.ast.ResultIterator;
+import tailspin.interpreter.Scope;
 import tailspin.types.ProcessorInstance;
 
 public class ProcessorConstructor extends Templates {

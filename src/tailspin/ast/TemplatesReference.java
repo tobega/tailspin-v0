@@ -3,7 +3,7 @@ package tailspin.ast;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import tailspin.interpreter.CurriedTemplates;
+import tailspin.transform.CurriedTemplates;
 import tailspin.interpreter.Scope;
 import tailspin.types.Transform;
 

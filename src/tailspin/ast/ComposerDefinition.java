@@ -2,9 +2,9 @@ package tailspin.ast;
 
 import java.util.ArrayList;
 import java.util.List;
-import tailspin.interpreter.Composer;
+import tailspin.transform.Composer;
 import tailspin.transform.composer.CompositionSpec;
-import tailspin.interpreter.ExpectedParameter;
+import tailspin.transform.ExpectedParameter;
 import tailspin.interpreter.Scope;
 import tailspin.transform.composer.SubComposerFactory;
 
