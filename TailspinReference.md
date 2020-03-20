@@ -21,7 +21,7 @@ stage is simply the value produced by the stage before. At the start of a top-le
 A transform is a function which only takes one value as input (the _current value_) and can emit a
 variable amount of values, even no value at all, into the [stream](#streams). It is typically a [literal expression](#sources)
 to create a different value or a defined [templates](#templates) object where the block to be executed is
-decided by a [matcher](#matchers) condition on the _current value_.
+decided by a [matcher](#matchers) criterion on the _current value_.
 
 Note that at each step of a _value chain_, any number of values may be emitted for each input value.
 If no values are emitted from a step, the processing of that _value chain_ ends. Note that "no value" 
@@ -295,10 +295,10 @@ A composer can have [state](#templates-state) that can be set initially as the f
 optionally with a value stream from a matcher. It can be accessed in the usual way.
 
 ## Matchers
-A matcher is a condition enclosed by angle brackets. A sequence of matchers is evaluated from the
+A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the
 start to the end, where the first matcher that matches the _current value_ will have its block
 executed for that _current value_.
-* Empty condition always matches `<>`
+* Empty criterion, `<>`, matches anything.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
@@ -320,34 +320,34 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   * `<{a: <>}>` matches any structure that has a field `a`, whatever its value
   * `<{a:<=0>, b:<=1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
   whatever other fields it might have.
-* If either of several conditions is acceptable, just list the acceptable conditions inside the angle brackets separated by `|` as a logical "or".
-  The conditions are tried in order, stopping after the first true condition. E.g. `<='apple'|='orange'>` will be true for both 'apple' and 'orange'.
-* Inverse match, to match the opposite of a conditon, just put a tilde inside the angle bracket, e.g. `<~=5>`
+* If either of several criteria is acceptable, just list the acceptable criteria inside the angle brackets separated by `|` as a logical "or".
+  The criteria are tried in order, stopping after the first true criterion. E.g. `<='apple'|='orange'>` will be true for both 'apple' and 'orange'.
+* Inverse match, to match the opposite of a criterion, just put a tilde inside the angle bracket, e.g. `<~=5>`
   Note that inverse is applied to the entire expression within the angle brackets so `<~='apple'|='orange'>` will be false for both 'apple' and 'orange'.
 * Array match, given as `<[]>` matches if the _current value_ is an array. A match can also be restricted to arrays
   of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`.
-  Conditions on array content are written inside the brackets, separated by commas. They test if there is any element that fulfils the condition.
+  Match criteria on array content are written inside the brackets, separated by commas. They test if there is any element that fulfils the criterion.
   E.g. `<[<=3|=5>]>` tests if there is any element that is either a 3 or a 5, while `<[<=3>,<=5>]>` tests that the array contains at least one each of 3 and 5.
-  Beware, though, that a single element could match more than one condition.
+  Beware, though, that a single element could match more than one criterion.
   Note also the possibility of matching a list exactly by equality.
   
 Note that when nesting down matchers for fields and array contents, the _current value_ denoted by `$` will still refer to
 the original item to be matched by the outer match expression. To change perspective so that `$` should represent
-the value at the current level of the match, use a [such-that condition](#such-that-conditions)
+the value at the current level of the match, use a [such-that criterion](#such-that-conditions)
 
 ### Do-nothing block (guard clause)
-Sometimes it is easier or clearer to specify conditions which you don't want to do anything with.
+Sometimes it is easier or clearer to specify criteria which you don't want to do anything with.
 A matcher block can be simply the word `!VOID` to indicate this case.
   
 ### Such-that conditions
 Sometimes you want to match relations between parts of a structure or values at certain array positions, then you can
-use a number of such-that conditions either after or instead of the main condition. E.g.
+use a number of such-that conditions either after or instead of the main criterion. E.g.
 * Array where first and second elements are equal: `<[]?($(1)<$(2)>)>`
 * Structure where the elements obey the relation a <= b <= c: `<?($.a<..$.b>)?($.b<..$.c>)>`
 
 Such-that conditions can also be applied to transforms of the value. Note that those transforms must yield a single value for matching.
 
-A such-that enables you to meaningfully use `$` in the match condition as the original thing you are matching, while the condition is tested
+A such-that enables you to meaningfully use `$` in the match criterion as the original thing you are matching, while the criterion is tested
 against the produced or transformed value.
  
 Note that a such-that will change the perspective of the _current value_ so that `$` will represent the value being matched by the closest enclosing matcher.

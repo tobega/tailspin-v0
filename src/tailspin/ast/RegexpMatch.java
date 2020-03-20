@@ -2,9 +2,9 @@ package tailspin.ast;
 
 import java.util.regex.Pattern;
 import tailspin.interpreter.Scope;
-import tailspin.types.Condition;
+import tailspin.types.Criterion;
 
-public class RegexpMatch implements Condition {
+public class RegexpMatch implements Criterion {
   private final Value patternValue;
 
   public RegexpMatch(Value patternValue) {
@@ -12,7 +12,7 @@ public class RegexpMatch implements Condition {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope) {
+  public boolean isMet(Object toMatch, Object it, Scope scope) {
     if (!(toMatch instanceof String)) return false;
     String stringToMatch = (String) toMatch;
     String pattern = (String) patternValue.getResults(it, scope);

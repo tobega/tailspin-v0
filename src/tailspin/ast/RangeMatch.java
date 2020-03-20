@@ -1,9 +1,9 @@
 package tailspin.ast;
 
 import tailspin.interpreter.Scope;
-import tailspin.types.Condition;
+import tailspin.types.Criterion;
 
-public class RangeMatch implements Condition {
+public class RangeMatch implements Criterion {
 
   private final Bound lowerBound;
   private final Bound upperBound;
@@ -14,7 +14,7 @@ public class RangeMatch implements Condition {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope) {
+  public boolean isMet(Object toMatch, Object it, Scope scope) {
     try {
       if (lowerBound != null) {
         Object low = lowerBound.value.getResults(it, scope);

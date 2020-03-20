@@ -64,7 +64,7 @@ public class Templates implements Transform {
       throw new NullPointerException("Attempt to use templates " + scopeName + " as a source");
     }
     Optional<MatchTemplate> match =
-        matchTemplates.stream().filter(m -> m.matcher.matches(it, it, scope)).findFirst();
+        matchTemplates.stream().filter(m -> m.matcher.isMet(it, it, scope)).findFirst();
     return match.map(m -> m.block.getResults(it, new NestedScope(scope)));
   }
 

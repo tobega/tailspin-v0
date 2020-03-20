@@ -290,11 +290,11 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMatcher(TailspinParser.MatcherContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#condition}.
+	 * Visit a parse tree produced by {@link TailspinParser#criterion}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCondition(TailspinParser.ConditionContext ctx);
+	T visitCriterion(TailspinParser.CriterionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code rangeMatch}
 	 * labeled alternative in {@link TailspinParser#typeMatch}.

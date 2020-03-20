@@ -163,7 +163,7 @@ stateSink
 valueChain
 transform
 matcher
-condition
+criterion
 typeMatch
 literalMatch
 rangeBounds

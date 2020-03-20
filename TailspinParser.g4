@@ -104,9 +104,9 @@ transform: To templates transform?
   | Deconstructor transform?
 ;
 
-matcher: StartMatcher Invert? condition (Else condition)* EndMatcher;
+matcher: StartMatcher Invert? criterion (Else criterion)* EndMatcher;
 
-condition: (literalMatch | typeMatch)? suchThat*;
+criterion: (literalMatch | typeMatch)? suchThat*;
 
 typeMatch: rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch

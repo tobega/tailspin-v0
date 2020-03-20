@@ -13,6 +13,6 @@ public class SuchThatMatch {
 
   boolean resolveValue(Object toMatch, Scope scope) {
     Object value = lhs.getResults(toMatch, scope);
-    return matcher.matches(value, toMatch, scope);
+    return matcher.isMet(value, toMatch, scope);
   }
 }

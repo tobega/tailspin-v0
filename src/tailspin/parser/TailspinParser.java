@@ -41,7 +41,7 @@ public class TailspinParser extends Parser {
 		RULE_matchTemplate = 27, RULE_block = 28, RULE_blockExpression = 29, RULE_resultValue = 30, 
 		RULE_blockStatement = 31, RULE_sendToTemplates = 32, RULE_stateAssignment = 33, 
 		RULE_stateSink = 34, RULE_valueChain = 35, RULE_transform = 36, RULE_matcher = 37, 
-		RULE_condition = 38, RULE_typeMatch = 39, RULE_literalMatch = 40, RULE_rangeBounds = 41, 
+		RULE_criterion = 38, RULE_typeMatch = 39, RULE_literalMatch = 40, RULE_rangeBounds = 41, 
 		RULE_suchThat = 42, RULE_lowerBound = 43, RULE_upperBound = 44, RULE_rangeLiteral = 45, 
 		RULE_integerLiteral = 46, RULE_nonZeroInteger = 47, RULE_stringLiteral = 48, 
 		RULE_stringContent = 49, RULE_stringInterpolate = 50, RULE_characterCode = 51, 
@@ -63,7 +63,7 @@ public class TailspinParser extends Parser {
 			"parameterValues", "parameterValue", "templatesBody", "matchTemplate", 
 			"block", "blockExpression", "resultValue", "blockStatement", "sendToTemplates", 
 			"stateAssignment", "stateSink", "valueChain", "transform", "matcher", 
-			"condition", "typeMatch", "literalMatch", "rangeBounds", "suchThat", 
+			"criterion", "typeMatch", "literalMatch", "rangeBounds", "suchThat", 
 			"lowerBound", "upperBound", "rangeLiteral", "integerLiteral", "nonZeroInteger", 
 			"stringLiteral", "stringContent", "stringInterpolate", "characterCode", 
 			"interpolateEvaluate", "arithmeticExpression", "additiveOperator", "multiplicativeOperator", 
@@ -2873,11 +2873,11 @@ public class TailspinParser extends Parser {
 
 	public static class MatcherContext extends ParserRuleContext {
 		public TerminalNode StartMatcher() { return getToken(TailspinParser.StartMatcher, 0); }
-		public List<ConditionContext> condition() {
-			return getRuleContexts(ConditionContext.class);
+		public List<CriterionContext> criterion() {
+			return getRuleContexts(CriterionContext.class);
 		}
-		public ConditionContext condition(int i) {
-			return getRuleContext(ConditionContext.class,i);
+		public CriterionContext criterion(int i) {
+			return getRuleContext(CriterionContext.class,i);
 		}
 		public TerminalNode EndMatcher() { return getToken(TailspinParser.EndMatcher, 0); }
 		public TerminalNode Invert() { return getToken(TailspinParser.Invert, 0); }
@@ -2916,7 +2916,7 @@ public class TailspinParser extends Parser {
 			}
 
 			setState(500);
-			condition();
+			criterion();
 			setState(505);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -2926,7 +2926,7 @@ public class TailspinParser extends Parser {
 				setState(501);
 				match(Else);
 				setState(502);
-				condition();
+				criterion();
 				}
 				}
 				setState(507);
@@ -2948,7 +2948,7 @@ public class TailspinParser extends Parser {
 		return _localctx;
 	}
 
-	public static class ConditionContext extends ParserRuleContext {
+	public static class CriterionContext extends ParserRuleContext {
 		public LiteralMatchContext literalMatch() {
 			return getRuleContext(LiteralMatchContext.class,0);
 		}
@@ -2961,20 +2961,20 @@ public class TailspinParser extends Parser {
 		public SuchThatContext suchThat(int i) {
 			return getRuleContext(SuchThatContext.class,i);
 		}
-		public ConditionContext(ParserRuleContext parent, int invokingState) {
+		public CriterionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_condition; }
+		@Override public int getRuleIndex() { return RULE_criterion; }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCondition(this);
+			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCriterion(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final ConditionContext condition() throws RecognitionException {
-		ConditionContext _localctx = new ConditionContext(_ctx, getState());
-		enterRule(_localctx, 76, RULE_condition);
+	public final CriterionContext criterion() throws RecognitionException {
+		CriterionContext _localctx = new CriterionContext(_ctx, getState());
+		enterRule(_localctx, 76, RULE_criterion);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);

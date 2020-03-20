@@ -2,9 +2,9 @@ package tailspin.ast;
 
 import java.util.Objects;
 import tailspin.interpreter.Scope;
-import tailspin.types.Condition;
+import tailspin.types.Criterion;
 
-public class Equality implements Condition {
+public class Equality implements Criterion {
   private final Value value;
 
   public Equality(Value value) {
@@ -12,7 +12,7 @@ public class Equality implements Condition {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope) {
+  public boolean isMet(Object toMatch, Object it, Scope scope) {
     return Objects.equals(toMatch, value.getResults(it, scope));
   }
 }

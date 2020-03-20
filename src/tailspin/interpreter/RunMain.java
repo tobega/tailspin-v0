@@ -36,7 +36,7 @@ import tailspin.transform.ProcessorConstructor;
 import tailspin.transform.Templates;
 import tailspin.transform.composer.CompositionSpec;
 import tailspin.transform.composer.SubComposerFactory;
-import tailspin.types.Condition;
+import tailspin.types.Criterion;
 import tailspin.ast.Deconstructor;
 import tailspin.ast.Definition;
 import tailspin.ast.DeleteState;
@@ -353,16 +353,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public AnyOf visitMatcher(TailspinParser.MatcherContext ctx) {
-    return new AnyOf(ctx.Invert() != null, ctx.condition().stream().map(this::visitCondition).collect(Collectors.toList()));
+    return new AnyOf(ctx.Invert() != null, ctx.criterion().stream().map(this::visitCriterion).collect(Collectors.toList()));
   }
 
   @Override
-  public ValueMatcher visitCondition(TailspinParser.ConditionContext ctx) {
-    Condition basicCondition = ctx.typeMatch() == null ? null : (Condition) visit(ctx.typeMatch());
-    if (basicCondition == null && ctx.literalMatch() != null) {
-      basicCondition = visitLiteralMatch(ctx.literalMatch());
+  public ValueMatcher visitCriterion(TailspinParser.CriterionContext ctx) {
+    Criterion basicCriterion = ctx.typeMatch() == null ? null : (Criterion) visit(ctx.typeMatch());
+    if (basicCriterion == null && ctx.literalMatch() != null) {
+      basicCriterion = visitLiteralMatch(ctx.literalMatch());
     }
-    return new ValueMatcher(basicCondition,
+    return new ValueMatcher(basicCriterion,
         ctx.suchThat() == null ? List.of()
             : ctx.suchThat().stream().map(this::visitSuchThat).collect(Collectors.toList()));
   }
@@ -373,12 +373,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Condition visitLiteralMatch(TailspinParser.LiteralMatchContext ctx) {
+  public Criterion visitLiteralMatch(TailspinParser.LiteralMatchContext ctx) {
     return new Equality(Value.of(visitSource(ctx.source())));
   }
 
   @Override
-  public Condition visitRangeMatch(TailspinParser.RangeMatchContext ctx) {
+  public Criterion visitRangeMatch(TailspinParser.RangeMatchContext ctx) {
     return visitRangeBounds(ctx.rangeBounds());
   }
 
@@ -390,13 +390,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Condition visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
+  public Criterion visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
     return new RegexpMatch(visitStringLiteral(ctx.stringLiteral()));
   }
 
   @Override
-  public Condition visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
-    Map<String, Condition> keyMatchers = new HashMap<>();
+  public Criterion visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
+    Map<String, Criterion> keyMatchers = new HashMap<>();
     for (int i = 0; i < ctx.key().size(); i++) {
       String key = ctx.key(i).identifier().getText();
       TailspinParser.MatcherContext matcherCtx = ctx.matcher(i);
@@ -407,16 +407,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Condition visitArrayMatch(TailspinParser.ArrayMatchContext ctx) {
-    List<Condition> contentMatchers = ctx.matcher().stream().map(this::visitMatcher)
+  public Criterion visitArrayMatch(TailspinParser.ArrayMatchContext ctx) {
+    List<Criterion> contentMatchers = ctx.matcher().stream().map(this::visitMatcher)
         .collect(Collectors.toList());
-    Condition lengthCondition = null;
+    Criterion lengthCriterion = null;
     if (ctx.rangeBounds() != null) {
-      lengthCondition = visitRangeBounds(ctx.rangeBounds());
+      lengthCriterion = visitRangeBounds(ctx.rangeBounds());
     } else if (ctx.arithmeticExpression() != null) {
-      lengthCondition = new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
+      lengthCriterion = new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
     }
-    return new ArrayMatch(lengthCondition, contentMatchers);
+    return new ArrayMatch(lengthCriterion, contentMatchers);
   }
 
   @Override
