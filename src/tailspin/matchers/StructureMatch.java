@@ -1,4 +1,4 @@
-package tailspin.ast;
+package tailspin.matchers;
 
 import java.util.Map;
 import tailspin.interpreter.Scope;

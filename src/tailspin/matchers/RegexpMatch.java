@@ -1,6 +1,7 @@
-package tailspin.ast;
+package tailspin.matchers;
 
 import java.util.regex.Pattern;
+import tailspin.ast.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
 

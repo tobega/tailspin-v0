@@ -1,5 +1,6 @@
-package tailspin.ast;
+package tailspin.matchers;
 
+import tailspin.ast.Value;
 import tailspin.interpreter.Scope;
 
 public class Condition {
