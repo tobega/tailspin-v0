@@ -106,7 +106,7 @@ transform: To templates transform?
 
 matcher: StartMatcher Invert? criterion (Else criterion)* EndMatcher;
 
-criterion: (literalMatch | typeMatch)? suchThat*;
+criterion: (literalMatch | typeMatch)? condition*;
 
 typeMatch: rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
@@ -118,7 +118,7 @@ literalMatch: Equal source;
 
 rangeBounds: lowerBound? Range upperBound?;
 
-suchThat: BeginSuchThat valueChain matcher RightParen;
+condition: BeginCondition valueChain matcher RightParen;
 
 lowerBound: (sourceReference|arithmeticExpression|stringLiteral) Invert?;
 

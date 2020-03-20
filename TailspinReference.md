@@ -333,24 +333,24 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   
 Note that when nesting down matchers for fields and array contents, the _current value_ denoted by `$` will still refer to
 the original item to be matched by the outer match expression. To change perspective so that `$` should represent
-the value at the current level of the match, use a [such-that criterion](#such-that-conditions)
+the value at the current level of the match, use a [condition](#conditions)
 
 ### Do-nothing block (guard clause)
 Sometimes it is easier or clearer to specify criteria which you don't want to do anything with.
 A matcher block can be simply the word `!VOID` to indicate this case.
   
-### Such-that conditions
+### Conditions
 Sometimes you want to match relations between parts of a structure or values at certain array positions, then you can
-use a number of such-that conditions either after or instead of the main criterion. E.g.
+use a number of conditions either after or instead of the main criterion. E.g.
 * Array where first and second elements are equal: `<[]?($(1)<$(2)>)>`
 * Structure where the elements obey the relation a <= b <= c: `<?($.a<..$.b>)?($.b<..$.c>)>`
 
-Such-that conditions can also be applied to transforms of the value. Note that those transforms must yield a single value for matching.
+Conditions can also be applied to transforms of the value. Note that those transforms must yield a single value for matching.
 
-A such-that enables you to meaningfully use `$` in the match criterion as the original thing you are matching, while the criterion is tested
+A condition enables you to meaningfully use `$` in the match criterion as the original thing you are matching, while the criterion is tested
 against the produced or transformed value.
  
-Note that a such-that will change the perspective of the _current value_ so that `$` will represent the value being matched by the closest enclosing matcher.
+Note that a condition will change the perspective of the _current value_ so that `$` will represent the value being matched by the closest enclosing matcher.
 
 ## Templates state
 A [templates](#templates) object has modifiable local temporary state, valid for the processing of one input value,

@@ -66,7 +66,7 @@ import tailspin.ast.StringInterpolation;
 import tailspin.ast.StringLiteral;
 import tailspin.ast.StructureLiteral;
 import tailspin.ast.StructureMatch;
-import tailspin.ast.SuchThatMatch;
+import tailspin.ast.Condition;
 import tailspin.ast.TemplatesCall;
 import tailspin.ast.TemplatesDefinition;
 import tailspin.ast.TemplatesReference;
@@ -363,13 +363,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       basicCriterion = visitLiteralMatch(ctx.literalMatch());
     }
     return new ValueMatcher(basicCriterion,
-        ctx.suchThat() == null ? List.of()
-            : ctx.suchThat().stream().map(this::visitSuchThat).collect(Collectors.toList()));
+        ctx.condition() == null ? List.of()
+            : ctx.condition().stream().map(this::visitCondition).collect(Collectors.toList()));
   }
 
   @Override
-  public SuchThatMatch visitSuchThat(TailspinParser.SuchThatContext ctx) {
-    return new SuchThatMatch(Value.of(visitValueChain(ctx.valueChain())), visitMatcher(ctx.matcher()));
+  public Condition visitCondition(TailspinParser.ConditionContext ctx) {
+    return new Condition(Value.of(visitValueChain(ctx.valueChain())), visitMatcher(ctx.matcher()));
   }
 
   @Override

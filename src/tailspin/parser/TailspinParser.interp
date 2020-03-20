@@ -115,7 +115,7 @@ IDENTIFIER
 WS
 Else
 EndMatcher
-BeginSuchThat
+BeginCondition
 Comment
 REGEX_TEXT
 END_REGEX
@@ -167,7 +167,7 @@ criterion
 typeMatch
 literalMatch
 rangeBounds
-suchThat
+condition
 lowerBound
 upperBound
 rangeLiteral

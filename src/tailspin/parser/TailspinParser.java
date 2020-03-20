@@ -26,7 +26,7 @@ public class TailspinParser extends Parser {
 		StartProcessorDefinition=32, EndDefinition=33, Rule=34, First=35, Last=36, 
 		TemplateMatch=37, Range=38, Plus=39, Minus=40, Star=41, TruncateDivide=42, 
 		Mod=43, Question=44, Equal=45, Zero=46, PositiveInteger=47, START_STRING=48, 
-		IDENTIFIER=49, WS=50, Else=51, EndMatcher=52, BeginSuchThat=53, Comment=54, 
+		IDENTIFIER=49, WS=50, Else=51, EndMatcher=52, BeginCondition=53, Comment=54, 
 		REGEX_TEXT=55, END_REGEX=56, StartCharacterCode=57, StartStringInterpolate=58, 
 		STRING_TEXT=59, END_STRING=60;
 	public static final int
@@ -42,7 +42,7 @@ public class TailspinParser extends Parser {
 		RULE_blockStatement = 31, RULE_sendToTemplates = 32, RULE_stateAssignment = 33, 
 		RULE_stateSink = 34, RULE_valueChain = 35, RULE_transform = 36, RULE_matcher = 37, 
 		RULE_criterion = 38, RULE_typeMatch = 39, RULE_literalMatch = 40, RULE_rangeBounds = 41, 
-		RULE_suchThat = 42, RULE_lowerBound = 43, RULE_upperBound = 44, RULE_rangeLiteral = 45, 
+		RULE_condition = 42, RULE_lowerBound = 43, RULE_upperBound = 44, RULE_rangeLiteral = 45, 
 		RULE_integerLiteral = 46, RULE_nonZeroInteger = 47, RULE_stringLiteral = 48, 
 		RULE_stringContent = 49, RULE_stringInterpolate = 50, RULE_characterCode = 51, 
 		RULE_interpolateEvaluate = 52, RULE_arithmeticExpression = 53, RULE_additiveOperator = 54, 
@@ -63,7 +63,7 @@ public class TailspinParser extends Parser {
 			"parameterValues", "parameterValue", "templatesBody", "matchTemplate", 
 			"block", "blockExpression", "resultValue", "blockStatement", "sendToTemplates", 
 			"stateAssignment", "stateSink", "valueChain", "transform", "matcher", 
-			"criterion", "typeMatch", "literalMatch", "rangeBounds", "suchThat", 
+			"criterion", "typeMatch", "literalMatch", "rangeBounds", "condition", 
 			"lowerBound", "upperBound", "rangeLiteral", "integerLiteral", "nonZeroInteger", 
 			"stringLiteral", "stringContent", "stringInterpolate", "characterCode", 
 			"interpolateEvaluate", "arithmeticExpression", "additiveOperator", "multiplicativeOperator", 
@@ -99,7 +99,7 @@ public class TailspinParser extends Parser {
 			"EndDefinition", "Rule", "First", "Last", "TemplateMatch", "Range", "Plus", 
 			"Minus", "Star", "TruncateDivide", "Mod", "Question", "Equal", "Zero", 
 			"PositiveInteger", "START_STRING", "IDENTIFIER", "WS", "Else", "EndMatcher", 
-			"BeginSuchThat", "Comment", "REGEX_TEXT", "END_REGEX", "StartCharacterCode", 
+			"BeginCondition", "Comment", "REGEX_TEXT", "END_REGEX", "StartCharacterCode", 
 			"StartStringInterpolate", "STRING_TEXT", "END_STRING"
 		};
 	}
@@ -2955,11 +2955,11 @@ public class TailspinParser extends Parser {
 		public TypeMatchContext typeMatch() {
 			return getRuleContext(TypeMatchContext.class,0);
 		}
-		public List<SuchThatContext> suchThat() {
-			return getRuleContexts(SuchThatContext.class);
+		public List<ConditionContext> condition() {
+			return getRuleContexts(ConditionContext.class);
 		}
-		public SuchThatContext suchThat(int i) {
-			return getRuleContext(SuchThatContext.class,i);
+		public ConditionContext condition(int i) {
+			return getRuleContext(ConditionContext.class,i);
 		}
 		public CriterionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -3008,7 +3008,7 @@ public class TailspinParser extends Parser {
 				break;
 			case Else:
 			case EndMatcher:
-			case BeginSuchThat:
+			case BeginCondition:
 				break;
 			default:
 				break;
@@ -3016,11 +3016,11 @@ public class TailspinParser extends Parser {
 			setState(517);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==BeginSuchThat) {
+			while (_la==BeginCondition) {
 				{
 				{
 				setState(514);
-				suchThat();
+				condition();
 				}
 				}
 				setState(519);
@@ -3365,8 +3365,8 @@ public class TailspinParser extends Parser {
 		return _localctx;
 	}
 
-	public static class SuchThatContext extends ParserRuleContext {
-		public TerminalNode BeginSuchThat() { return getToken(TailspinParser.BeginSuchThat, 0); }
+	public static class ConditionContext extends ParserRuleContext {
+		public TerminalNode BeginCondition() { return getToken(TailspinParser.BeginCondition, 0); }
 		public ValueChainContext valueChain() {
 			return getRuleContext(ValueChainContext.class,0);
 		}
@@ -3374,25 +3374,25 @@ public class TailspinParser extends Parser {
 			return getRuleContext(MatcherContext.class,0);
 		}
 		public TerminalNode RightParen() { return getToken(TailspinParser.RightParen, 0); }
-		public SuchThatContext(ParserRuleContext parent, int invokingState) {
+		public ConditionContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_suchThat; }
+		@Override public int getRuleIndex() { return RULE_condition; }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitSuchThat(this);
+			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCondition(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final SuchThatContext suchThat() throws RecognitionException {
-		SuchThatContext _localctx = new SuchThatContext(_ctx, getState());
-		enterRule(_localctx, 84, RULE_suchThat);
+	public final ConditionContext condition() throws RecognitionException {
+		ConditionContext _localctx = new ConditionContext(_ctx, getState());
+		enterRule(_localctx, 84, RULE_condition);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(567);
-			match(BeginSuchThat);
+			match(BeginCondition);
 			setState(568);
 			valueChain();
 			setState(569);

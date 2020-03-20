@@ -26,7 +26,7 @@ public class TailspinLexer extends Lexer {
 		StartProcessorDefinition=32, EndDefinition=33, Rule=34, First=35, Last=36, 
 		TemplateMatch=37, Range=38, Plus=39, Minus=40, Star=41, TruncateDivide=42, 
 		Mod=43, Question=44, Equal=45, Zero=46, PositiveInteger=47, START_STRING=48, 
-		IDENTIFIER=49, WS=50, Else=51, EndMatcher=52, BeginSuchThat=53, Comment=54, 
+		IDENTIFIER=49, WS=50, Else=51, EndMatcher=52, BeginCondition=53, Comment=54, 
 		REGEX_TEXT=55, END_REGEX=56, StartCharacterCode=57, StartStringInterpolate=58, 
 		STRING_TEXT=59, END_STRING=60;
 	public static final int
@@ -50,7 +50,7 @@ public class TailspinLexer extends Lexer {
 			"EndDefinition", "Rule", "First", "Last", "TemplateMatch", "Range", "Plus", 
 			"Minus", "Star", "TruncateDivide", "Mod", "Question", "Equal", "Zero", 
 			"PositiveInteger", "Digits", "START_STRING", "IDENTIFIER", "IDENTIFIER_START", 
-			"IDENTIFIER_PART", "WS", "Else", "EndMatcher", "BeginSuchThat", "Comment", 
+			"IDENTIFIER_PART", "WS", "Else", "EndMatcher", "BeginCondition", "Comment", 
 			"REGEX_TEXT", "REGEX_CHAR", "END_REGEX", "StartCharacterCode", "StartStringInterpolate", 
 			"STRING_TEXT", "STRING_CHAR", "END_STRING"
 		};
@@ -79,7 +79,7 @@ public class TailspinLexer extends Lexer {
 			"EndDefinition", "Rule", "First", "Last", "TemplateMatch", "Range", "Plus", 
 			"Minus", "Star", "TruncateDivide", "Mod", "Question", "Equal", "Zero", 
 			"PositiveInteger", "START_STRING", "IDENTIFIER", "WS", "Else", "EndMatcher", 
-			"BeginSuchThat", "Comment", "REGEX_TEXT", "END_REGEX", "StartCharacterCode", 
+			"BeginCondition", "Comment", "REGEX_TEXT", "END_REGEX", "StartCharacterCode", 
 			"StartStringInterpolate", "STRING_TEXT", "END_STRING"
 		};
 	}

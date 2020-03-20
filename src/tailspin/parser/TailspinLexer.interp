@@ -115,7 +115,7 @@ IDENTIFIER
 WS
 Else
 EndMatcher
-BeginSuchThat
+BeginCondition
 Comment
 REGEX_TEXT
 END_REGEX
@@ -180,7 +180,7 @@ IDENTIFIER_PART
 WS
 Else
 EndMatcher
-BeginSuchThat
+BeginCondition
 Comment
 REGEX_TEXT
 REGEX_CHAR

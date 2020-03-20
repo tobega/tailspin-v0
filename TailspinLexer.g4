@@ -115,7 +115,7 @@ Else: '|';
 
 EndMatcher: '>';
 
-BeginSuchThat: '?(' -> pushMode(DEFAULT_MODE);
+BeginCondition: '?(' -> pushMode(DEFAULT_MODE);
 
 
 mode COMMENT_MODE;

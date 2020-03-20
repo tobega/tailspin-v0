@@ -336,11 +336,11 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitRangeBounds(TailspinParser.RangeBoundsContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#suchThat}.
+	 * Visit a parse tree produced by {@link TailspinParser#condition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitSuchThat(TailspinParser.SuchThatContext ctx);
+	T visitCondition(TailspinParser.ConditionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#lowerBound}.
 	 * @param ctx the parse tree
