@@ -1,14 +1,14 @@
-package tailspin.interpreter;
+package tailspin.transform.composer;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
 
-public class OneOrMoreSubComposer implements SubComposer {
+public class AnySubComposer implements SubComposer {
 
   private final SubComposer subComposer;
   private Queue<Object> values;
 
-  OneOrMoreSubComposer(SubComposer subComposer) {
+  AnySubComposer(SubComposer subComposer) {
     this.subComposer = subComposer;
   }
 
@@ -35,6 +35,6 @@ public class OneOrMoreSubComposer implements SubComposer {
 
   @Override
   public boolean isSatisfied() {
-    return !values.isEmpty();
+    return true;
   }
 }

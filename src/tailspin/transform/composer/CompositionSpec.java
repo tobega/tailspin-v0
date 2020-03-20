@@ -1,4 +1,6 @@
-package tailspin.interpreter;
+package tailspin.transform.composer;
+
+import tailspin.interpreter.Scope;
 
 public interface CompositionSpec {
   interface Resolver {

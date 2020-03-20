@@ -1,7 +1,8 @@
-package tailspin.interpreter;
+package tailspin.transform.composer;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import tailspin.interpreter.Scope;
 
 public class CaptureSubComposer implements SubComposer {
   private final String identifier;

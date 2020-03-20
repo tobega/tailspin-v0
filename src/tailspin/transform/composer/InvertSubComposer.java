@@ -1,4 +1,4 @@
-package tailspin.interpreter;
+package tailspin.transform.composer;
 
 import static tailspin.ast.Expression.queueOf;
 

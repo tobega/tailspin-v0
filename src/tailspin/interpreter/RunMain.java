@@ -29,6 +29,8 @@ import tailspin.ast.Bound;
 import tailspin.ast.ChainStage;
 import tailspin.ast.CodedCharacter;
 import tailspin.ast.ComposerDefinition;
+import tailspin.transform.composer.CompositionSpec;
+import tailspin.transform.composer.SubComposerFactory;
 import tailspin.types.Condition;
 import tailspin.ast.Deconstructor;
 import tailspin.ast.Definition;
@@ -65,8 +67,6 @@ import tailspin.ast.TemplatesDefinition;
 import tailspin.ast.TemplatesReference;
 import tailspin.ast.Value;
 import tailspin.ast.ValueMatcher;
-import tailspin.interpreter.Composer.InverseComposition;
-import tailspin.interpreter.Composer.TransformComposition;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
 import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
@@ -781,7 +781,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       definedSequences.put(key, visitCompositionSequence(definition.compositionSequence()));
     }
     Expression stateAssignment = ctx.stateAssignment() == null ? null : visitStateAssignment(ctx.stateAssignment());
-    return new ComposerDefinition(stateAssignment, visitCompositionSequence(ctx.compositionSequence()), definedSequences);
+    return new ComposerDefinition(stateAssignment, visitCompositionSequence(ctx.compositionSequence()),
+        new SubComposerFactory(definedSequences));
   }
 
   @Override
@@ -818,7 +819,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public CompositionSpec visitCompositionSkipRule(TailspinParser.CompositionSkipRuleContext ctx) {
-    return new Composer.SkipComposition(ctx.compositionCapture().stream()
+    return new SubComposerFactory.SkipComposition(ctx.compositionCapture().stream()
         .map(this::visitCompositionCapture).collect(Collectors.toList()));
   }
 
@@ -827,11 +828,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     CompositionSpec value = visitCompositionMatcher(ctx.compositionMatcher());
     if (ctx.key() != null) {
       String identifier = ctx.key().identifier().getText();
-      value = new Composer.CaptureComposition(identifier, value);
+      value = new SubComposerFactory.CaptureComposition(identifier, value);
     } else if (ctx.stateSink() != null){
-      value = new Composer.StateAssignmentComposition(value, visitStateSink(ctx.stateSink()));
+      value = new SubComposerFactory.StateAssignmentComposition(value, visitStateSink(ctx.stateSink()));
     } else if (ctx.stateAssignment() != null) {
-      value = new Composer.StateAssignmentComposition(null, visitStateAssignment(ctx.stateAssignment()));
+      value = new SubComposerFactory.StateAssignmentComposition(null, visitStateAssignment(ctx.stateAssignment()));
     }
     return value;
   }
@@ -849,7 +850,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       } else {
         contents.add(visitCompositionSkipRule(ctx.compositionSkipRule()));
       }
-      spec = new Composer.ArrayComposition(contents);
+      spec = new SubComposerFactory.ArrayComposition(contents);
     } else if (ctx.LeftBrace() != null) {
       List<CompositionSpec> contents = new ArrayList<>();
       if (ctx.structureMemberMatchers() != null) {
@@ -857,19 +858,19 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       } else {
         contents.add(visitCompositionSkipRule(ctx.compositionSkipRule()));
       }
-      spec = new Composer.StructureComposition(contents);
+      spec = new SubComposerFactory.StructureComposition(contents);
     } else if (ctx.tokenMatcher() != null) {
       spec = visitTokenMatcher(ctx.tokenMatcher());
     } else if (ctx.sourceReference() != null) {
       Expression source = visitSourceReference(ctx.sourceReference());
-      spec = new Composer.DereferenceComposition(source);
+      spec = new SubComposerFactory.DereferenceComposition(source);
     } else if (ctx.compositionKeyValue() != null) {
       spec = visitCompositionKeyValue(ctx.compositionKeyValue());
     } else {
       throw new UnsupportedOperationException("Unknown type of composition matcher");
     }
     if (ctx.transform() != null) {
-      return new TransformComposition(spec, visitTransform(ctx.transform()));
+      return new SubComposerFactory.TransformComposition(spec, visitTransform(ctx.transform()));
     } else {
       return spec;
     }
@@ -902,10 +903,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public CompositionSpec visitTokenMatcher(TailspinParser.TokenMatcherContext ctx) {
-    CompositionSpec compositionSpec = new Composer.ChoiceComposition(ctx.compositionToken().stream()
+    CompositionSpec compositionSpec = new SubComposerFactory.ChoiceComposition(ctx.compositionToken().stream()
         .map(this::visitCompositionToken).collect(Collectors.toList()));
     if (ctx.Invert() != null) {
-      compositionSpec = new InverseComposition(compositionSpec);
+      compositionSpec = new SubComposerFactory.InverseComposition(compositionSpec);
     }
     if (ctx.multiplier() == null) return compositionSpec;
     return resolveMultiplier(ctx.multiplier(), compositionSpec);
@@ -916,10 +917,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     CompositionSpec compositionSpec;
     if (ctx.identifier() != null) {
       String matchRule = ctx.identifier().getText();
-      compositionSpec = new Composer.NamedComposition(matchRule);
+      compositionSpec = new SubComposerFactory.NamedComposition(matchRule);
     } else if (ctx.stringLiteral() != null) {
       Value regex = visitStringLiteral(ctx.stringLiteral());
-      compositionSpec = new Composer.RegexComposition(regex);
+      compositionSpec = new SubComposerFactory.RegexComposition(regex);
     } else {
       throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());
     }
@@ -929,9 +930,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   private CompositionSpec resolveMultiplier(TailspinParser.MultiplierContext ctx,
       CompositionSpec compositionSpec) {
     switch (ctx.getText()) {
-      case "?": return new Composer.OptionalComposition(compositionSpec);
-      case "+": return new Composer.OneOrMoreComposition(compositionSpec);
-      case "*": return new Composer.AnyComposition(compositionSpec);
+      case "?": return new SubComposerFactory.OptionalComposition(compositionSpec);
+      case "+": return new SubComposerFactory.OneOrMoreComposition(compositionSpec);
+      case "*": return new SubComposerFactory.AnyComposition(compositionSpec);
     }
     if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
     Value count;
@@ -940,20 +941,20 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else {
       count = Value.of(visitSourceReference(ctx.sourceReference()));
     }
-    return new Composer.CountComposition(compositionSpec, count);
+    return new SubComposerFactory.CountComposition(compositionSpec, count);
   }
 
   @Override
   public CompositionSpec visitCompositionKeyValue(TailspinParser.CompositionKeyValueContext ctx) {
     CompositionSpec key;
     if (ctx.key() != null) {
-      key = new Composer.Constant(ctx.key().identifier().getText());
+      key = new SubComposerFactory.Constant(ctx.key().identifier().getText());
     } else {
       key = visitTokenMatcher(ctx.compositionKey().tokenMatcher());
     }
     List<CompositionSpec> valueMatch = new ArrayList<>();
     ctx.compositionSkipRule().forEach(s -> valueMatch.add(visitCompositionSkipRule(s)));
     valueMatch.addAll(visitCompositionComponent(ctx.compositionComponent()));
-    return new Composer.KeyValueComposition(key, valueMatch);
+    return new SubComposerFactory.KeyValueComposition(key, valueMatch);
   }
 }

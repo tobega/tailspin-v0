@@ -1,21 +1,31 @@
-package tailspin.interpreter;
+package tailspin.transform.composer;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import tailspin.ast.Value;
+import tailspin.interpreter.Scope;
 
-public class AnySubComposer implements SubComposer {
+public class CountSubComposer implements SubComposer {
 
   private final SubComposer subComposer;
+  private final Value count;
+  private final Scope scope;
   private Queue<Object> values;
+  private Long required;
 
-  AnySubComposer(SubComposer subComposer) {
+  CountSubComposer(SubComposer subComposer, Value count, Scope scope) {
     this.subComposer = subComposer;
+    this.count = count;
+    this.scope = scope;
   }
 
   @Override
   public String nibble(String s) {
+    if (required == null) {
+      required = ((Number) count.getResults(null, scope)).longValue();
+    }
     values = new ArrayDeque<>();
-    while (!s.isEmpty()) {
+    for (int i = 0; !s.isEmpty() && i < required; i++) {
       s = subComposer.nibble(s);
       if (subComposer.isSatisfied()) {
         values.addAll(subComposer.getValues());
@@ -30,11 +40,12 @@ public class AnySubComposer implements SubComposer {
   public Queue<Object> getValues() {
     Queue<Object> result = values;
     values = null;
+    required = null;
     return result;
   }
 
   @Override
   public boolean isSatisfied() {
-    return true;
+    return values.size() == required;
   }
 }
