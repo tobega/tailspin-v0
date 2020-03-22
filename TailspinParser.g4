@@ -13,6 +13,7 @@ statement: Def key valueProduction SemiColon                  # definition
   | (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) identifier parameterDefinitions? templatesBody EndDefinition identifier # templatesDefinition
   | StartProcessorDefinition identifier parameterDefinitions? block EndDefinition identifier # processorDefinition
   | StartComposerDefinition identifier parameterDefinitions? composerBody EndDefinition identifier # composerDefinition
+  | StartTestDefinition stringLiteral testBody EndDefinition stringLiteral # testDefinition
 ;
 
 key: identifier Colon;
@@ -213,3 +214,7 @@ keyword: Package
   | Rule
   | arithmeticContextKeyword
 ;
+
+testBody: assertion+;
+
+assertion: Assert valueChain matcher stringLiteral;

@@ -54,6 +54,20 @@ public class Tailspin {
     run(Path.of("."), input, output, args);
   }
 
+  public void runTests(InputStream input, OutputStream output, List<String> args)
+      throws IOException {
+    BasicScope scope = new BasicScope(input, output, Path.of("."));
+    scope.defineValue("ARGS", args);
+    scope.defineValue("SYS", new SystemProcessor(scope));
+    scope.defineValue("IN", new StdinProcessor(scope));
+    scope.defineValue("OUT", new StdoutProcessor(scope));
+    String result = new RunMain(scope).visitTests(program);
+    if (result.isEmpty()) {
+      result = "Pass";
+    }
+    output.write(result.getBytes(StandardCharsets.UTF_8));
+  }
+
   public BasicScope run(Path basePath, InputStream input, OutputStream output, List<String> args) {
     // System.out.println(program.toStringTree());
     BasicScope scope = new BasicScope(input, output, basePath);
@@ -66,8 +80,13 @@ public class Tailspin {
   }
 
   public static void main(String[] args) throws IOException {
-    List<String> clargs = Arrays.asList(Arrays.copyOfRange(args, 1, args.length));
-    parse(Files.newInputStream(Paths.get(args[0]))).run(System.in, System.out, clargs);
+    if (args.length > 1 && args[0].equals("--test")) {
+      Tailspin program = parse(Files.newInputStream(Paths.get(args[1])));
+      program.runTests(System.in, System.out, Arrays.asList(Arrays.copyOfRange(args, 2, args.length)));
+    } else {
+      Tailspin program = parse(Files.newInputStream(Paths.get(args[0])));
+      program.run(System.in, System.out, Arrays.asList(Arrays.copyOfRange(args, 1, args.length)));
+    }
   }
 
   private static class MyANTLRErrorListener implements ANTLRErrorListener {

@@ -94,6 +94,16 @@ Question: '?';
 
 Equal: '=';
 
+Else: '|';
+
+EndMatcher: '>';
+
+BeginCondition: '?(' -> pushMode(DEFAULT_MODE);
+
+StartTestDefinition: 'test';
+
+Assert: 'assert';
+
 Zero: '0';
 
 PositiveInteger: [1-9] Digits?;
@@ -110,12 +120,6 @@ fragment IDENTIFIER_PART: IDENTIFIER_START
   | [_/0-9];
 
 WS : [ \r\t\n]+ -> skip ;
-
-Else: '|';
-
-EndMatcher: '>';
-
-BeginCondition: '?(' -> pushMode(DEFAULT_MODE);
 
 
 mode COMMENT_MODE;

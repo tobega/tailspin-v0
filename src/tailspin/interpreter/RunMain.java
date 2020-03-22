@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
+import tailspin.control.ResultIterator;
 import tailspin.matchers.AnyOf;
 import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 import tailspin.arithmetic.ArithmeticContextValue;
@@ -29,6 +30,8 @@ import tailspin.control.Bound;
 import tailspin.control.ChainStage;
 import tailspin.literals.CodedCharacter;
 import tailspin.control.ComposerDefinition;
+import tailspin.testing.Assertion;
+import tailspin.testing.Test;
 import tailspin.transform.Composer;
 import tailspin.transform.ExpectedParameter;
 import tailspin.transform.MatchTemplate;
@@ -96,10 +99,25 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     ctx.dependency().forEach(this::visit);
     ctx.statement().forEach(s -> {
+      if (s instanceof TailspinParser.TestDefinitionContext) {
+        return;
+      }
       scope.setIt(EMPTY_RESULT);
       ((Expression) visit(s)).getResults(null, scope);
     });
     return null;
+  }
+
+  public String visitTests(TailspinParser.ProgramContext ctx) {
+    if (ctx.packageDefinition() != null) {
+      visitPackageDefinition(ctx.packageDefinition());
+    }
+    ctx.dependency().forEach(this::visit);
+    return ctx.statement().stream().map(s -> {
+      scope.setIt(EMPTY_RESULT);
+      return ((Expression) visit(s)).getResults(null, scope);
+    }).flatMap(ri -> ResultIterator.toQueue(ResultIterator.flat(ri)).stream())
+        .map(Object::toString).collect(Collectors.joining("\n"));
   }
 
   @Override
@@ -961,5 +979,25 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     ctx.compositionSkipRule().forEach(s -> valueMatch.add(visitCompositionSkipRule(s)));
     valueMatch.addAll(visitCompositionComponent(ctx.compositionComponent()));
     return new SubComposerFactory.KeyValueComposition(key, valueMatch);
+  }
+
+  @Override
+  public Object visitTestDefinition(TailspinParser.TestDefinitionContext ctx) {
+    if (!ctx.stringLiteral(0).getText().equals(ctx.stringLiteral(1).getText())) {
+      throw new AssertionError("Mismatched end " + ctx.stringLiteral(1).getText()
+        + " to test " + ctx.stringLiteral(0).getText());
+    }
+    return new Test(visitStringLiteral(ctx.stringLiteral(0)), visitTestBody(ctx.testBody()));
+  }
+
+  @Override
+  public List<Assertion> visitTestBody(TailspinParser.TestBodyContext ctx) {
+    return ctx.assertion().stream().map(this::visitAssertion).collect(Collectors.toList());
+  }
+
+  @Override
+  public Assertion visitAssertion(TailspinParser.AssertionContext ctx) {
+    return new Assertion(visitValueChain(ctx.valueChain()),
+        visitMatcher(ctx.matcher()), visitStringLiteral(ctx.stringLiteral()));
   }
 }

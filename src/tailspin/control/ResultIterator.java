@@ -15,7 +15,9 @@ public interface ResultIterator {
 
   static Queue<Object> toQueue(ResultIterator ri) {
     Queue<Object> results = new ArrayDeque<>();
-    apply(results::offer, ri);
+    if (ri != null) {
+      apply(results::offer, ri);
+    }
     return results;
   }
 

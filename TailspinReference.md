@@ -528,4 +528,17 @@ Import search paths are interpreted relative to the current working directory.
 The symbols (defined symbols, templates, processors, etc.) defined in the package will be accessible by
 prepending the package name and a "/" to the symbol name, e.g. package dep defines templates foo which can then
 be used as `dep/foo`.
- 
+
+## Testing
+Tests can be defined in a tailspin source file by the keyword `test` followed by a [string literal](#string-literal),
+a series of assertions and then the keyword `end` followed by the same string literal as after `test`.
+
+An assertion is started by the `assert` keyword followed by a _value chain_, then a [matcher](#matchers)
+and a string description of what you are asserting, e.g.
+```
+test 'Example test'
+assert 1+1 <=2> 'One plus one is two'
+end 'Example test'
+```
+
+To run the tests in a file, put the command-line flag `--test` before the name of the file to run.
