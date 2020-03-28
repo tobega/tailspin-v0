@@ -531,7 +531,8 @@ be used as `dep/foo`.
 
 ## Testing
 Tests can be defined in a tailspin source file by the keyword `test` followed by a [string literal](#string-literal),
-a series of assertions and then the keyword `end` followed by the same string literal as after `test`.
+a series of assertions (at least one), interspersed by optional statements as needed to set up state,
+and then the keyword `end` followed by the same string literal as after `test`.
 
 An assertion is started by the `assert` keyword followed by a _value chain_, then a [matcher](#matchers)
 and a string description of what you are asserting, e.g.

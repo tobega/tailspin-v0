@@ -215,6 +215,8 @@ keyword: Package
   | arithmeticContextKeyword
 ;
 
-testBody: assertion+;
+testBody: testBlock+;
+
+testBlock: statement* assertion+;
 
 assertion: Assert valueChain matcher stringLiteral;

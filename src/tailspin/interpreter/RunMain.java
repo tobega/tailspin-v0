@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
@@ -991,8 +992,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public List<Assertion> visitTestBody(TailspinParser.TestBodyContext ctx) {
-    return ctx.assertion().stream().map(this::visitAssertion).collect(Collectors.toList());
+  public List<Expression> visitTestBody(TailspinParser.TestBodyContext ctx) {
+    return ctx.testBlock().stream().flatMap(this::visitTestBlock).collect(Collectors.toList());
+  }
+
+  @Override
+  public Stream<Expression> visitTestBlock(TailspinParser.TestBlockContext ctx) {
+    return Stream.concat(ctx.statement().stream().map(this::visit).map(Expression.class::cast),
+        ctx.assertion().stream().map(this::visitAssertion));
   }
 
   @Override

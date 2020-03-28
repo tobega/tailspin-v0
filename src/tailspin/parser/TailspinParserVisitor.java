@@ -541,6 +541,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTestBody(TailspinParser.TestBodyContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#testBlock}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTestBlock(TailspinParser.TestBlockContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#assertion}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

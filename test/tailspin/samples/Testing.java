@@ -56,4 +56,20 @@ public class Testing {
 
     assertEquals("5", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void setUpCode() throws Exception {
+    String program = "test 'Set up'\n"
+        + "def a: 1;\n"
+        + "assert $a + 1 <=2> 'a+1=2'\n"
+        + "end 'Set up'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
 }
