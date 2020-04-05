@@ -515,6 +515,8 @@ Strings
 * `$::asCodePoints` returns an array of Unicode code points corresponding to the string.
 
 ## Importing packages
+*NOTE*: This is being [reworked](dependencies.txt)
+
 A tailspin file can be declared to be an importable package by
 a package statement on the first non-blank line, e.g. `package dep` defines this file as a package named dep.
 This file must be named "dep.tt".
