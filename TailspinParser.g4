@@ -4,19 +4,19 @@ options { tokenVocab = TailspinLexer; }
 
 program: packageDefinition? dependency* statement (statement)* EOF;
 
-packageDefinition: Package identifier;
+packageDefinition: Package localIdentifier;
 
 dependency: Import stringLiteral;
 
 statement: Def key valueProduction SemiColon                  # definition
   | valueChain To sink                                   # valueChainToSink
-  | (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) identifier parameterDefinitions? templatesBody EndDefinition identifier # templatesDefinition
-  | StartProcessorDefinition identifier parameterDefinitions? block EndDefinition identifier # processorDefinition
-  | StartComposerDefinition identifier parameterDefinitions? composerBody EndDefinition identifier # composerDefinition
+  | (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? templatesBody EndDefinition localIdentifier # templatesDefinition
+  | StartProcessorDefinition localIdentifier parameterDefinitions? block EndDefinition localIdentifier # processorDefinition
+  | StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier # composerDefinition
   | StartTestDefinition stringLiteral testBody EndDefinition stringLiteral # testDefinition
 ;
 
-key: identifier Colon;
+key: localIdentifier Colon;
 
 parameterDefinitions: At LeftBrace (key Comma?)+ RightBrace;
 
@@ -30,9 +30,9 @@ source: sourceReference
   | arithmeticExpression
 ;
 
-sourceReference: SourceReference reference Message? parameterValues?;
+sourceReference: SourceMarker anyIdentifier? reference Message? parameterValues?;
 
-deleteState: DeleteState reference;
+deleteState: DeleteMarker stateIdentifier reference;
 
 reference: (LeftParen arrayReference RightParen)? structureReference*;
 
@@ -60,16 +60,16 @@ keyValues: keyValue
 keyValue: key valueProduction;
 
 templates: source                        # literalTemplates
-  | Lambda identifier? LeftParen templatesBody Lambda identifier? RightParen # lambdaTemplates
+  | Lambda localIdentifier? LeftParen templatesBody Lambda localIdentifier? RightParen # lambdaTemplates
   | templatesReference                        # callDefinedTransform
-  | Lambda identifier? arrayIndexDecomposition LeftParen templatesBody Lambda identifier? RightParen # lambdaArrayTemplates
+  | Lambda localIdentifier? arrayIndexDecomposition LeftParen templatesBody Lambda localIdentifier? RightParen # lambdaArrayTemplates
 ;
 
-arrayIndexDecomposition: LeftBracket identifier (SemiColon identifier)* RightBracket;
+arrayIndexDecomposition: LeftBracket localIdentifier (SemiColon localIdentifier)* RightBracket;
 
-sink: (SinkReference reference Message? parameterValues?) | Void;
+sink: (ResultMarker anyIdentifier reference Message? parameterValues?) | Void;
 
-templatesReference: (At | At? identifier) reference Message? parameterValues?;
+templatesReference:  anyIdentifier reference Message? parameterValues?;
 
 parameterValues: At LeftBrace (parameterValue Comma?)+ RightBrace;
 
@@ -94,7 +94,7 @@ blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
 stateAssignment: (valueChain To)? stateSink;
 
-stateSink: (Range Else)? (At identifier?) reference Colon valueProduction SemiColon;
+stateSink: (Range Else)? stateIdentifier reference Colon valueProduction SemiColon;
 
 valueChain: source
   | source transform
@@ -139,7 +139,7 @@ stringInterpolate: interpolateEvaluate|characterCode;
 
 characterCode: StartCharacterCode arithmeticExpression EndStringInterpolate;
 
-interpolateEvaluate: StartStringInterpolate (At? identifier? reference Message? parameterValues? | Colon source)
+interpolateEvaluate: StartStringInterpolate (anyIdentifier? reference Message? parameterValues? | Colon source)
   transform? (To TemplateMatch)? EndStringInterpolate;
 
 arithmeticExpression: integerLiteral
@@ -181,7 +181,7 @@ structureMemberMatcher: (tokenMatcher|compositionKeyValue) compositionSkipRule*;
 
 tokenMatcher: StartMatcher Invert? compositionToken (Else compositionToken)* EndMatcher multiplier?;
 
-compositionToken: (identifier|stringLiteral);
+compositionToken: (localIdentifier|stringLiteral);
 
 multiplier: Plus | Star | Question
   | Equal (PositiveInteger|sourceReference)
@@ -195,7 +195,13 @@ compositionKeyValue: (key|compositionKey) compositionSkipRule* compositionCompon
 
 compositionKey: tokenMatcher Colon;
 
-identifier: IDENTIFIER | keyword;
+localIdentifier: IDENTIFIER | keyword;
+
+stateIdentifier: At localIdentifier?;
+
+externalIdentifier: localIdentifier (Slash localIdentifier)+;
+
+anyIdentifier: stateIdentifier | localIdentifier | externalIdentifier;
 
 arithmeticContextKeyword: First
   | Last

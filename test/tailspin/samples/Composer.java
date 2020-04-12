@@ -61,6 +61,31 @@ class Composer {
   }
 
   @Test
+  void composerWithKeywordName() throws IOException {
+    String program = "composer composer\n"
+        + "<'.*'>\n"
+        + "end composer\n"
+        + "'Any text' -> composer -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("Any text", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composerHasNotImportedName() {
+    String program = "composer my/all\n"
+        + "<'.*'>\n"
+        + "end my/all\n"
+        + "'Any text' -> my/all -> !OUT::write";
+    assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  @Test
   void interpolateComposeRegex() throws IOException {
     String program = "def any: '.*';\n"
         + "composer all\n"

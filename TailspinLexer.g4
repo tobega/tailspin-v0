@@ -12,19 +12,19 @@ Import: 'import';
 
 Void: '!VOID';
 
-Def: 'def' [ \r\t\n];
+Def: 'def';
 
 To: '->';
 
 ResultMarker: '!';
 
-SinkReference: ResultMarker (At IDENTIFIER? | IDENTIFIER);
+SourceMarker: '$';
 
-SourceReference: '$' At? IDENTIFIER?;
-
-DeleteState: '^' At IDENTIFIER?;
+DeleteMarker: '^';
 
 At: '@';
+
+Slash: '/';
 
 Colon: ':';
 
@@ -117,7 +117,7 @@ IDENTIFIER: IDENTIFIER_START IDENTIFIER_PART*;
 fragment IDENTIFIER_START: [a-zA-Z];
 
 fragment IDENTIFIER_PART: IDENTIFIER_START
-  | [_/0-9];
+  | [_0-9];
 
 WS : [ \r\t\n]+ -> skip ;
 

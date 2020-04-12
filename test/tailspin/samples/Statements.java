@@ -135,6 +135,12 @@ class Statements {
   }
 
   @Test
+  void cannotDefineImportedSymbol() {
+    String program = "def my/world: 'World!';\n" + "'Hello '->!OUT::write\n" + "$world -> !OUT::write";
+    assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  @Test
   void chain() throws Exception {
     String program = "'World!' -> 'Hello $;' -> !OUT::write";
     Tailspin runner =
@@ -295,11 +301,45 @@ class Statements {
 
   @ExtendWith(TempDirectory.class)
   @Test
-  void importPackage(@TempDirectory.TempDir Path dir) throws Exception {
+  void importTemplates(@TempDirectory.TempDir Path dir) throws Exception {
     String dep = "package dep\ntemplates quote '\"$;\"' ! end quote";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     String program = "import 'dep'\n 1 -> dep/quote -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void importSource(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "package dep\nsource quote '\"1\"' ! end quote";
+    Path depFile = dir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "import 'dep'\n $dep/quote -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void importSink(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "package dep\nsink quote '\"$;\"' -> !OUT::write end quote";
+    Path depFile = dir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "import 'dep'\n 1 -> !dep/quote";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

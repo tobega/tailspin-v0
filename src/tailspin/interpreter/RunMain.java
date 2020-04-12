@@ -123,7 +123,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Object visitPackageDefinition(TailspinParser.PackageDefinitionContext ctx) {
-    ((BasicScope) scope).setPackageName(ctx.identifier().getText());
+    ((BasicScope) scope).setPackageName(ctx.localIdentifier().getText());
     return null;
   }
 
@@ -197,8 +197,19 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
+  public String visitAnyIdentifier(TailspinParser.AnyIdentifierContext ctx) {
+    if (ctx.localIdentifier() != null) {
+      return ctx.localIdentifier().getText();
+    }
+    if (ctx.stateIdentifier() != null) {
+      return ctx.stateIdentifier().getText();
+    }
+    return ctx.externalIdentifier().getText();
+  }
+
+  @Override
   public Expression visitSourceReference(TailspinParser.SourceReferenceContext ctx) {
-    String identifier = ctx.SourceReference().getText().substring(1);
+    String identifier = ctx.anyIdentifier() == null ? "" : visitAnyIdentifier(ctx.anyIdentifier());
     return createSourceReference(identifier, ctx.reference(), ctx.Message(), ctx.parameterValues());
   }
 
@@ -296,15 +307,15 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Value visitDeleteState(TailspinParser.DeleteStateContext ctx) {
-    String stateContext = ctx.DeleteState().getText().substring(1);
-    Reference reference = getReference(ctx.reference(), stateContext);
+    String stateIdentifier = ctx.stateIdentifier().getText();
+    Reference reference = getReference(ctx.reference(), stateIdentifier);
     return new DeleteState(reference);
   }
 
   @Override
   public Expression visitSink(TailspinParser.SinkContext ctx) {
-    if (ctx.SinkReference() != null) {
-      String identifier = ctx.SinkReference().getText().substring(1);
+    if (ctx.ResultMarker() != null) {
+      String identifier = ctx.anyIdentifier().getText();
       Reference reference = getReference(ctx.reference(), identifier);
       Map<String, Value> parameters = visitParameterValues(ctx.parameterValues());
       if (ctx.Message() != null) {
@@ -322,9 +333,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Expression visitLambdaTemplates(TailspinParser.LambdaTemplatesContext ctx) {
     String name = "";
-    if (!ctx.identifier().isEmpty()) {
-      name = ctx.identifier(0).getText();
-      String endName = ctx.identifier().size() > 1 ? ctx.identifier(1).getText() : "";
+    if (!ctx.localIdentifier().isEmpty()) {
+      name = ctx.localIdentifier(0).getText();
+      String endName = ctx.localIdentifier().size() > 1 ? ctx.localIdentifier(1).getText() : "";
       if (!name.equals(endName)) {
         throw new IllegalStateException(
             "Mismatched end \"" + endName + "\" for templates " + name);
@@ -336,16 +347,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public List<String> visitArrayIndexDecomposition(TailspinParser.ArrayIndexDecompositionContext ctx) {
-    return ctx.identifier().stream().map(RuleNode::getText).collect(
+    return ctx.localIdentifier().stream().map(RuleNode::getText).collect(
         Collectors.toList());
   }
 
   @Override
   public Object visitLambdaArrayTemplates(TailspinParser.LambdaArrayTemplatesContext ctx) {
     String name = "";
-    if (!ctx.identifier().isEmpty()) {
-      name = ctx.identifier(0).getText();
-      String endName = ctx.identifier().size() > 1 ? ctx.identifier(1).getText() : "";
+    if (!ctx.localIdentifier().isEmpty()) {
+      name = ctx.localIdentifier(0).getText();
+      String endName = ctx.localIdentifier().size() > 1 ? ctx.localIdentifier(1).getText() : "";
       if (!name.equals(endName)) {
         throw new IllegalStateException(
             "Mismatched end \"" + endName + "\" for templates " + name);
@@ -417,7 +428,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public Criterion visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
     Map<String, Criterion> keyMatchers = new HashMap<>();
     for (int i = 0; i < ctx.key().size(); i++) {
-      String key = ctx.key(i).identifier().getText();
+      String key = ctx.key(i).localIdentifier().getText();
       TailspinParser.MatcherContext matcherCtx = ctx.matcher(i);
       AnyOf matcher = visitMatcher(matcherCtx);
       keyMatchers.put(key, matcher);
@@ -460,7 +471,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public StateAssignment visitStateSink(StateSinkContext ctx) {
-    String stateContext = ctx.identifier() == null ? "" : ctx.identifier().getText();
+    String stateContext = ctx.stateIdentifier().getText().substring(1);
     Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
     return new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, ctx.Range() != null);
   }
@@ -477,10 +488,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitTemplatesDefinition(TailspinParser.TemplatesDefinitionContext ctx) {
-    String name = ctx.identifier(0).getText();
-    if (!name.equals(ctx.identifier(1).getText())) {
+    String name = ctx.localIdentifier(0).getText();
+    if (!name.equals(ctx.localIdentifier(1).getText())) {
       throw new IllegalStateException(
-          "Mismatched end " + ctx.identifier(1).getText() + " for templates " + name);
+          "Mismatched end " + ctx.localIdentifier(1).getText() + " for templates " + name);
     }
     TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
     templatesDefinition.expectParameters(visitParameterDefinitions(ctx.parameterDefinitions()));
@@ -498,17 +509,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return parameters;
     }
     for (TailspinParser.KeyContext key : ctx.key()) {
-      parameters.add(new ExpectedParameter(key.identifier().getText()));
+      parameters.add(new ExpectedParameter(key.localIdentifier().getText()));
     }
     return parameters;
   }
 
   @Override
   public Expression visitProcessorDefinition(TailspinParser.ProcessorDefinitionContext ctx) {
-    String name = ctx.identifier(0).getText();
-    if (!name.equals(ctx.identifier(1).getText())) {
+    String name = ctx.localIdentifier(0).getText();
+    if (!name.equals(ctx.localIdentifier(1).getText())) {
       throw new IllegalStateException(
-          "Mismatched end " + ctx.identifier(1).getText() + " for templates " + name);
+          "Mismatched end " + ctx.localIdentifier(1).getText() + " for templates " + name);
     }
     ProcessorDefinition processorDefinition = new ProcessorDefinition(visitBlock(ctx.block()),
         visitParameterDefinitions(ctx.parameterDefinitions()));
@@ -526,8 +537,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Reference visitTemplatesReference(TailspinParser.TemplatesReferenceContext ctx) {
-    String name = (ctx.At() == null ? "" : ctx.At().getText())
-        + (ctx.identifier() == null? "" : ctx.identifier().getText());
+    String name = visitAnyIdentifier(ctx.anyIdentifier());
     Reference reference = getReference(ctx.reference(), name);
     Map<String, Value> parameters = ctx.parameterValues() != null
         ? visitParameterValues(ctx.parameterValues())
@@ -553,7 +563,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public KeyValue visitParameterValue(TailspinParser.ParameterValueContext ctx) {
-    String key = ctx.key().identifier().getText();
+    String key = ctx.key().localIdentifier().getText();
     if (ctx.valueChain() != null) {
       return new KeyValue(key, Value.of(visitValueChain(ctx.valueChain())));
     }
@@ -584,7 +594,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
-    String identifier = ctx.key().identifier().getText();
+    String identifier = ctx.key().localIdentifier().getText();
     return new Definition(identifier, Value.of(visitValueProduction(ctx.valueProduction())));
   }
 
@@ -620,7 +630,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.Colon() != null) {
       interpolation = visitSource(ctx.source());
     } else {
-      String identifier = (ctx.At() == null ? "" : "@") + (ctx.identifier() == null ? "" : ctx.identifier().getText());
+      String identifier = ctx.anyIdentifier() == null ? "" : visitAnyIdentifier(ctx.anyIdentifier());
       interpolation = createSourceReference(identifier, ctx.reference(), ctx.Message(), ctx.parameterValues());
     }
     if (ctx.transform() != null) {
@@ -647,7 +657,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return new IntegerConstant(value);
   }
 
-  private Deque<ArithmeticContextKeywordResolver> resolver = new ArrayDeque<>();
+  private final Deque<ArithmeticContextKeywordResolver> resolver = new ArrayDeque<>();
 
   @Override
   public Value visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
@@ -777,16 +787,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public KeyValueExpression visitKeyValue(TailspinParser.KeyValueContext ctx) {
-    String key = ctx.key().identifier().getText();
+    String key = ctx.key().localIdentifier().getText();
     return new KeyValueExpression(key, Value.of(visitValueProduction(ctx.valueProduction())));
   }
 
   @Override
   public Expression visitComposerDefinition(TailspinParser.ComposerDefinitionContext ctx) {
-    String name = ctx.identifier(0).getText();
-    if (!name.equals(ctx.identifier(1).getText())) {
+    String name = ctx.localIdentifier(0).getText();
+    if (!name.equals(ctx.localIdentifier(1).getText())) {
       throw new IllegalStateException(
-          "Mismatched end " + ctx.identifier(1).getText() + " for parser " + name);
+          "Mismatched end " + ctx.localIdentifier(1).getText() + " for parser " + name);
     }
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
     composerDefinition.expectParameters(visitParameterDefinitions(ctx.parameterDefinitions()));
@@ -801,7 +811,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public ComposerDefinition visitComposerBody(TailspinParser.ComposerBodyContext ctx) {
     Map<String, List<CompositionSpec>> definedSequences = new HashMap<>();
     for (DefinedCompositionSequenceContext definition : ctx.definedCompositionSequence()) {
-      String key = definition.key().identifier().getText();
+      String key = definition.key().localIdentifier().getText();
       definedSequences.put(key, visitCompositionSequence(definition.compositionSequence()));
     }
     Expression stateAssignment = ctx.stateAssignment() == null ? null : visitStateAssignment(ctx.stateAssignment());
@@ -851,7 +861,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public CompositionSpec visitCompositionCapture(TailspinParser.CompositionCaptureContext ctx) {
     CompositionSpec value = visitCompositionMatcher(ctx.compositionMatcher());
     if (ctx.key() != null) {
-      String identifier = ctx.key().identifier().getText();
+      String identifier = ctx.key().localIdentifier().getText();
       value = new SubComposerFactory.CaptureComposition(identifier, value);
     } else if (ctx.stateSink() != null){
       value = new SubComposerFactory.StateAssignmentComposition(value, visitStateSink(ctx.stateSink()));
@@ -939,8 +949,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public CompositionSpec visitCompositionToken(TailspinParser.CompositionTokenContext ctx) {
     CompositionSpec compositionSpec;
-    if (ctx.identifier() != null) {
-      String matchRule = ctx.identifier().getText();
+    if (ctx.localIdentifier() != null) {
+      String matchRule = ctx.localIdentifier().getText();
       compositionSpec = new SubComposerFactory.NamedComposition(matchRule);
     } else if (ctx.stringLiteral() != null) {
       Value regex = visitStringLiteral(ctx.stringLiteral());
@@ -972,7 +982,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public CompositionSpec visitCompositionKeyValue(TailspinParser.CompositionKeyValueContext ctx) {
     CompositionSpec key;
     if (ctx.key() != null) {
-      key = new SubComposerFactory.Constant(ctx.key().identifier().getText());
+      key = new SubComposerFactory.Constant(ctx.key().localIdentifier().getText());
     } else {
       key = visitTokenMatcher(ctx.compositionKey().tokenMatcher());
     }

@@ -51,6 +51,25 @@ class Templates {
   }
 
   @Test
+  void lambdaHasNotImportedName() {
+    String program = "1..3 -> \\my/name(<=2> 'Goodbye '! <> 'Hello '!\\my/name) -> !OUT::write";
+    assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  @Test
+  void namedLambdaCanHaveKeywordName() throws Exception {
+    String program = "1..3 -> \\package(<=2> 'Goodbye '! <> 'Hello '!\\package) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("Hello Goodbye Hello ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void namedLambdaState() throws Exception {
     String program = "[1..3] -> \\name(@: 5; $... -> \\(<=2> @name: $@name + $;\\) -> !VOID $@ ! \\name) -> !OUT::write";
     Tailspin runner =
@@ -72,6 +91,12 @@ class Templates {
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void templatesHasNotImportedName() {
+    String program = "templates my/spin\n<=5> $ + 2 ! <> $ + 1 -> #\nend my/spin\n" + "1 -> my/spin -> !OUT::write";
+    assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
   }
 
   @Test
@@ -234,6 +259,25 @@ class Templates {
   @Test
   void namedLambdaArrayTemplates() throws Exception {
     String program = "[2..4] -> \\name[i]($i * $ !\\name) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[2, 6, 12]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayLambdaHasNotImportedName() {
+    String program = "[2..4] -> \\my/name[i]($i * $ !\\my/name) -> !OUT::write";
+    assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  @Test
+  void namedLambdaArrayTemplatesCanHaveKeywordName() throws Exception {
+    String program = "[2..4] -> \\source[i]($i * $ !\\source) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -889,6 +933,49 @@ class Templates {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void templatesWithKeywordName() throws Exception {
+    String program =
+        "templates def\n@def: $;\n^@def -> !OUT::write\n$@def !\nend def\n" + "3 -> def -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void sourceWithKeywordName() throws Exception {
+    String program =
+        "source def\n3 !\nend def\n" + "$def -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void sinkWithKeywordName() throws Exception {
+    String program =
+        "sink def\n$ -> !OUT::write\nend def\n" + "3 -> !def";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
 
     assertEquals("3", output.toString(StandardCharsets.UTF_8));
   }
