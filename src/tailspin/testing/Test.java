@@ -22,7 +22,8 @@ public class Test implements Expression {
       result = ResultIterator.resolveResult(result, expression.getResults(null, blockScope));
     }
     if (result != null) {
-      return "" + description.getResults(null, blockScope) + " failed:\n" + result;
+      result =  ResultIterator.resolveResult(
+          "" + description.getResults(null, blockScope) + " failed:", result);
     }
     return result;
   }

@@ -42,6 +42,24 @@ public class Testing {
   }
 
   @Test
+  void twoFailingTests() throws Exception {
+    String program = "test 'Two failing tests'\n"
+        + "assert 1 <=0> '1 is 0'\n"
+        + "assert 1 <=2> '1 is 2'\n"
+        + "end 'Two failing tests'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Two failing tests failed:\n"
+        + "assertion that 1 is 0 failed with value 1\n"
+        + "assertion that 1 is 2 failed with value 1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void noTestsRunInNormalMode() throws Exception {
     String program = "5 -> !OUT::write\n"
         + "test 'A test'\n"
