@@ -112,8 +112,10 @@ criterion: (literalMatch | typeMatch)? condition*;
 typeMatch: rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key matcher Comma?)* RightBrace # structureMatch
-  | LeftBracket matcher? (Comma matcher)* RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
+  | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
 ;
+
+arrayContentMatcher: matcher multiplier?;
 
 literalMatch: Equal source;
 

@@ -31,6 +31,7 @@ import tailspin.control.Bound;
 import tailspin.control.ChainStage;
 import tailspin.literals.CodedCharacter;
 import tailspin.control.ComposerDefinition;
+import tailspin.matchers.CollectionCriterionFactory;
 import tailspin.testing.Assertion;
 import tailspin.testing.Test;
 import tailspin.transform.Composer;
@@ -438,7 +439,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Criterion visitArrayMatch(TailspinParser.ArrayMatchContext ctx) {
-    List<Criterion> contentMatchers = ctx.matcher().stream().map(this::visitMatcher)
+    List<CollectionCriterionFactory> criterionFactories = ctx.arrayContentMatcher().stream()
+        .map(this::visitArrayContentMatcher)
         .collect(Collectors.toList());
     Criterion lengthCriterion = null;
     if (ctx.rangeBounds() != null) {
@@ -446,7 +448,15 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (ctx.arithmeticExpression() != null) {
       lengthCriterion = new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
     }
-    return new ArrayMatch(lengthCriterion, contentMatchers);
+    return new ArrayMatch(lengthCriterion, criterionFactories);
+  }
+
+  @Override
+  public CollectionCriterionFactory visitArrayContentMatcher(TailspinParser.ArrayContentMatcherContext ctx) {
+    if (ctx.multiplier() == null) {
+      return new CollectionCriterionFactory(visitMatcher(ctx.matcher()), AT_LEAST_ONE);
+    }
+    return new CollectionCriterionFactory(visitMatcher(ctx.matcher()), visitMultiplier(ctx.multiplier()));
   }
 
   @Override
@@ -976,6 +986,32 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       count = Value.of(visitSourceReference(ctx.sourceReference()));
     }
     return new SubComposerFactory.CountComposition(compositionSpec, count);
+  }
+
+  private final RangeMatch AT_MOST_ONE = new RangeMatch(
+      new Bound(new IntegerConstant(0), true),
+      new Bound(new IntegerConstant(1), true));
+  private final RangeMatch AT_LEAST_ONE = new RangeMatch(
+      new Bound(new IntegerConstant(1), true),
+      null);
+  private final RangeMatch ANY_AMOUNT = new RangeMatch(
+      new Bound(new IntegerConstant(0), true),
+      null);
+  @Override
+  public RangeMatch visitMultiplier(TailspinParser.MultiplierContext ctx) {
+    switch (ctx.getText()) {
+      case "?": return AT_MOST_ONE;
+      case "+": return AT_LEAST_ONE;
+      case "*": return ANY_AMOUNT;
+    }
+    if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
+    Value count;
+    if (ctx.PositiveInteger() != null) {
+      count = new IntegerConstant(Long.parseLong(ctx.PositiveInteger().getText()));
+    } else {
+      count = Value.of(visitSourceReference(ctx.sourceReference()));
+    }
+    return new RangeMatch(new Bound(count, true), new Bound(count, true));
   }
 
   @Override

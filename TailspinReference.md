@@ -261,11 +261,7 @@ Other composition matchers are the ones defined in the composer as sub-patterns 
 
 There are also built-in composition matchers like `<INT>` which parses an integer and `<WS>` for a sequence of whitespace characters.
 
-A composition matcher can have a multiplier qualifier after it:
- * `?` if it is optional, once or no times.
- * `*` if it can be repeated any number of times.
- * `+` for one or more times.
- * `=` followed by an exact count, e.g. `=2` for twice.
+A composition matcher can have a [multiplier qualifier](#multipliers) after it to determine repetitions.
 
 A composition matcher can be negated by a tilde just inside the bracket, e.g. `<~WS>`, which will match everything up until the next matching pattern.
 
@@ -326,14 +322,34 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   Note that inverse is applied to the entire expression within the angle brackets so `<~='apple'|='orange'>` will be false for both 'apple' and 'orange'.
 * Array match, given as `<[]>` matches if the _current value_ is an array. A match can also be restricted to arrays
   of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`.
-  Match criteria on array content are written inside the brackets, separated by commas. They test if there is any element that fulfils the criterion.
+  
+  Match criteria on array content are written inside the brackets, separated by commas.
+  Array content criteria can have a [multiplier](#multipliers) attached.
+  
+  The simplest array content matching tests if there exist elements in any order so that each criterion is met,
+  with extra content ignored. In this mode, the `+` and `*` multipliers don't matter much,
+  while the `?` and `=` multipliers will make sure they are not exceeded.
   E.g. `<[<=3|=5>]>` tests if there is any element that is either a 3 or a 5, while `<[<=3>,<=5>]>` tests that the array contains at least one each of 3 and 5.
-  Beware, though, that a single element could match more than one criterion.
+  Note that criteria will be matched in order for each element until the first matching criterium is found.
+  
+  Complete and sequential content matching is a future feature.
+  
+  Note the possibility of using inverse matching to exclude extra content, e.g. `<~[<~=3|=5>]>`
+  will test that the array only contains 3's and 5's, i.e. it is not an array that contains an element
+  that is neither 3 nor 5. Be careful with conditions and alternatives, as they are affected by inverses.
+  
   Note also the possibility of matching a list exactly by equality.
   
 Note that when nesting down matchers for fields and array contents, the _current value_ denoted by `$` will still refer to
 the original item to be matched by the outer match expression. To change perspective so that `$` should represent
 the value at the current level of the match, use a [condition](#conditions)
+
+### Multipliers
+Composer matchers and array content matchers can have multipliers attached:
+ * `?` if it is optional, once or no times.
+ * `*` if it can be repeated any number of times.
+ * `+` for one or more times.
+ * `=` followed by an exact count, e.g. `=2` for twice.
 
 ### Do-nothing block (guard clause)
 Sometimes it is easier or clearer to specify criteria which you don't want to do anything with.
