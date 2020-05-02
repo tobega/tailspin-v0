@@ -1,10 +1,10 @@
-package tailspin.transform.composer;
+package tailspin.matchers.composer;
 
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 import tailspin.interpreter.Scope;
-import tailspin.transform.composer.CompositionSpec.Resolver;
+import tailspin.matchers.composer.CompositionSpec.Resolver;
 
 public class SequenceSubComposer implements SubComposer {
   private final List<CompositionSpec> sequence;

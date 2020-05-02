@@ -1,4 +1,4 @@
-package tailspin.transform.composer;
+package tailspin.matchers.composer;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +11,7 @@ import tailspin.control.Expression;
 import tailspin.control.Value;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
+import tailspin.matchers.RangeMatch;
 
 public class SubComposerFactory {
 
@@ -69,17 +70,10 @@ public class SubComposerFactory {
       return new KeyValueSubComposer(resolveSpec(keyValueSpec.key, scope),
           new SequenceSubComposer(keyValueSpec.valueMatch, scope, this::resolveSpec));
     }
-    if (spec instanceof OptionalComposition) {
-      return new OptionalSubComposer(
-          resolveSpec(((OptionalComposition) spec).compositionSpec, scope));
-    }
-    if (spec instanceof OneOrMoreComposition) {
-      return new OneOrMoreSubComposer(
-          resolveSpec(((OneOrMoreComposition) spec).compositionSpec, scope));
-    }
-    if (spec instanceof AnyComposition) {
-      return new AnySubComposer(
-          resolveSpec(((AnyComposition) spec).compositionSpec, scope));
+    if (spec instanceof MultiplierComposition) {
+      return new MultiplierSubComposer(
+          resolveSpec(((MultiplierComposition) spec).compositionSpec, scope),
+          ((MultiplierComposition) spec).multiplier, scope);
     }
     if (spec instanceof DereferenceComposition) {
       return new DereferenceSubComposer(((DereferenceComposition) spec).source, scope);
@@ -88,11 +82,6 @@ public class SubComposerFactory {
       CaptureComposition captureComposition = (CaptureComposition) spec;
       return new CaptureSubComposer(captureComposition.identifier, scope,
           resolveSpec(captureComposition.compositionSpec, scope));
-    }
-    if (spec instanceof CountComposition) {
-      CountComposition countSpec = (CountComposition) spec;
-      return new CountSubComposer(resolveSpec(countSpec.compositionSpec, scope), countSpec.count,
-          scope);
     }
     if (spec instanceof Constant) {
       return new ConstantSubComposer(((Constant) spec).value);
@@ -188,33 +177,6 @@ public class SubComposerFactory {
     }
   }
 
-  public static class OptionalComposition implements CompositionSpec {
-
-    private final CompositionSpec compositionSpec;
-
-    public OptionalComposition(CompositionSpec compositionSpec) {
-      this.compositionSpec = compositionSpec;
-    }
-  }
-
-  public static class OneOrMoreComposition implements CompositionSpec {
-
-    private final CompositionSpec compositionSpec;
-
-    public OneOrMoreComposition(CompositionSpec compositionSpec) {
-      this.compositionSpec = compositionSpec;
-    }
-  }
-
-  public static class AnyComposition implements CompositionSpec {
-
-    private final CompositionSpec compositionSpec;
-
-    public AnyComposition(CompositionSpec compositionSpec) {
-      this.compositionSpec = compositionSpec;
-    }
-  }
-
   public static class StructureComposition implements CompositionSpec {
 
     private final List<CompositionSpec> contents;
@@ -264,14 +226,14 @@ public class SubComposerFactory {
     }
   }
 
-  public static class CountComposition implements CompositionSpec {
+  public static class MultiplierComposition implements CompositionSpec {
 
     private final CompositionSpec compositionSpec;
-    private final Value count;
+    private final RangeMatch multiplier;
 
-    public CountComposition(CompositionSpec compositionSpec, Value count) {
+    public MultiplierComposition(CompositionSpec compositionSpec, RangeMatch multiplier) {
       this.compositionSpec = compositionSpec;
-      this.count = count;
+      this.multiplier = multiplier;
     }
   }
 

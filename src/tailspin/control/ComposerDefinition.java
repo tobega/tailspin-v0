@@ -3,10 +3,10 @@ package tailspin.control;
 import java.util.ArrayList;
 import java.util.List;
 import tailspin.transform.Composer;
-import tailspin.transform.composer.CompositionSpec;
+import tailspin.matchers.composer.CompositionSpec;
 import tailspin.transform.ExpectedParameter;
 import tailspin.interpreter.Scope;
-import tailspin.transform.composer.SubComposerFactory;
+import tailspin.matchers.composer.SubComposerFactory;
 
 public class ComposerDefinition {
 

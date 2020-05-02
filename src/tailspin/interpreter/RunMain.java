@@ -39,8 +39,8 @@ import tailspin.transform.ExpectedParameter;
 import tailspin.transform.MatchTemplate;
 import tailspin.transform.ProcessorConstructor;
 import tailspin.transform.Templates;
-import tailspin.transform.composer.CompositionSpec;
-import tailspin.transform.composer.SubComposerFactory;
+import tailspin.matchers.composer.CompositionSpec;
+import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.types.Criterion;
 import tailspin.control.Deconstructor;
 import tailspin.control.Definition;
@@ -953,7 +953,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       compositionSpec = new SubComposerFactory.InverseComposition(compositionSpec);
     }
     if (ctx.multiplier() == null) return compositionSpec;
-    return resolveMultiplier(ctx.multiplier(), compositionSpec);
+    return new SubComposerFactory.MultiplierComposition(compositionSpec, visitMultiplier(ctx.multiplier()));
   }
 
   @Override
@@ -969,23 +969,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());
     }
     return compositionSpec;
-  }
-
-  private CompositionSpec resolveMultiplier(TailspinParser.MultiplierContext ctx,
-      CompositionSpec compositionSpec) {
-    switch (ctx.getText()) {
-      case "?": return new SubComposerFactory.OptionalComposition(compositionSpec);
-      case "+": return new SubComposerFactory.OneOrMoreComposition(compositionSpec);
-      case "*": return new SubComposerFactory.AnyComposition(compositionSpec);
-    }
-    if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
-    Value count;
-    if (ctx.PositiveInteger() != null) {
-      count = new IntegerConstant(Long.parseLong(ctx.PositiveInteger().getText()));
-    } else {
-      count = Value.of(visitSourceReference(ctx.sourceReference()));
-    }
-    return new SubComposerFactory.CountComposition(compositionSpec, count);
   }
 
   private final RangeMatch AT_MOST_ONE = new RangeMatch(

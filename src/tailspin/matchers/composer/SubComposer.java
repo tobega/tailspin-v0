@@ -1,4 +1,4 @@
-package tailspin.transform.composer;
+package tailspin.matchers.composer;
 
 import java.util.Queue;
 

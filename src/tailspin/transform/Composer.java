@@ -9,9 +9,9 @@ import java.util.Map;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
-import tailspin.transform.composer.CompositionSpec;
-import tailspin.transform.composer.SubComposer;
-import tailspin.transform.composer.SubComposerFactory;
+import tailspin.matchers.composer.CompositionSpec;
+import tailspin.matchers.composer.SubComposer;
+import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.types.Transform;
 
 public class Composer implements Transform {
