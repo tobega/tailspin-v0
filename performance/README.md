@@ -29,6 +29,28 @@ Progress measured in how many times slower than Java. The variance on tailspin r
 |[2020-05-02 J9 jdk14](#2020-05-02)|Interpreted|975|325|190|560|646|361|414|
 |[2020-05-02 Oracle jdk12](#2020-05-02b)|Interpreted|1172|144|374|1171|1133|550|761|
 |[2020-05-02 zulu jdk11](#2020-05-02c)|Interpreted|1023|138|492|1116|889|504|802|
+|[2020-05-02 J9 jdk11](#2020-05-02d)|Interpreted|981|304|195|571|702|321|447|
+
+## 2020-05-02d
+machine 1
+Triangulation with J9 jdk11
+
+|Benchmark|Mean runtime us|
+|---|---|
+Bounce   Java | 1.2
+Bounce   Tailspin | 1176.7
+Json     Java  | 10.3
+Json     Tailspin | 3135.1
+List     Java  |  3.9
+List     Tailspin |  759.4
+Permute  Java  | 1.1
+Permute  Tailspin | 628.6
+Queens   Java  | 1.5
+Queens   Tailspin |  1052.6
+Sieve    Java  | 1.5
+Sieve    Tailspin | 482.2
+Towers   Java | 2.2
+Towers   Tailspin | 983.1
 
 ## 2020-05-02c
 machine 1
