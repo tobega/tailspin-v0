@@ -1,2 +1,6 @@
 #!/bin/bash
-exec java "$@"
+exec java \
+        -XX:+UnlockExperimentalVMOptions \
+        -XX:+EnableJVMCI \
+        -XX:+UseJVMCICompiler \
+ "$@"
