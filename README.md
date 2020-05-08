@@ -3,7 +3,8 @@ A programming language with extreme pattern matching and declarative syntax, hop
 The inspiration comes mostly from xslt, but data structures are json-like. The main idea is to let your data flow through
 a series of transforms so it should be easy to specify that flow. Transform steps can be specified as a set of templates with
 pattern-matching determining which template to apply. Output is generally specified as literals with interpolation of values.
-For more info see the [language reference documentation](TailspinReference.md)
+For more info see the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html)
+ and the [language reference documentation](TailspinReference.md)
 
 Some of my thinking that went into tailspin is [elaborated here](https://cygni.se/the-perfect-programming-language/).
 
