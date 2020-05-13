@@ -6,6 +6,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
@@ -39,7 +40,7 @@ public class Composer implements Transform {
       stateAssignment.getResults(null, scope);
     }
     ArrayDeque<Object> result = new ArrayDeque<>();
-    String s = (String) it;
+    String s = (String) Objects.requireNonNull(it);
     for (CompositionSpec spec : specs) {
       SubComposer subComposer = subComposerFactory.resolveSpec(spec, scope);
       s = subComposer.nibble(s);
