@@ -21,7 +21,7 @@ templates deduceRemainingDigits
   <> def next: $;
      def result: $@ -> selectFirst@{pos: $next} -> deduceRemainingDigits;
      $result -> \(<~=[]> $! \) !
-     $result -> \(<=[]> $! \) -> ^@($next.row;$next.col;1) -> $@ -> findOpenPosition -> #
+     $result -> \(<=[]> $! \) -> ^@($next.row;$next.col;1) -> { $next..., options: $next.options-1} -> #
 end deduceRemainingDigits
 
 test 'internal solver'
