@@ -4,16 +4,18 @@ templates deduceRemainingDigits
     $ -> \[i;j](<[](..~$@findOpenPosition.options)> @findOpenPosition: {row: $i, col: $j, options: $::length}; \) -> !VOID
     $@ !
   end findOpenPosition
+
   templates selectFirst@{pos:}
     def digit: $($pos.row;$pos.col) -> $(1);
     $ -> \[i;j](
-      <?($i <=$pos.row>)?($j <=$pos.col>)> $(1) !
+      <?($i <=$pos.row>)?($j <=$pos.col>)> $digit !
       <[]?($i <=$pos.row>)
       |[]?($j <=$pos.col>)
       |[]?(($i-1)~/3 <=($pos.row-1)~/3>)?(($j-1)~/3 <=($pos.col-1)~/3>)> [$... -> \(<~=$digit> $! \)] !
       <> $ !
     \) !
   end selectFirst
+
   @: $;
   $ -> findOpenPosition -> #
   <{options: <=0>}> [] !
