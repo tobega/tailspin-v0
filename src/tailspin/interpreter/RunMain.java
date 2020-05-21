@@ -32,6 +32,8 @@ import tailspin.control.ChainStage;
 import tailspin.literals.CodedCharacter;
 import tailspin.control.ComposerDefinition;
 import tailspin.matchers.CollectionCriterionFactory;
+import tailspin.matchers.MultipliedCollectionCriterionFactory;
+import tailspin.matchers.OnceOnlyCollectionCriterionFactory;
 import tailspin.testing.Assertion;
 import tailspin.testing.Test;
 import tailspin.transform.Composer;
@@ -454,9 +456,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public CollectionCriterionFactory visitArrayContentMatcher(TailspinParser.ArrayContentMatcherContext ctx) {
     if (ctx.multiplier() == null) {
-      return new CollectionCriterionFactory(visitMatcher(ctx.matcher()), AT_LEAST_ONE);
+      return new OnceOnlyCollectionCriterionFactory(visitMatcher(ctx.matcher()));
     }
-    return new CollectionCriterionFactory(visitMatcher(ctx.matcher()), visitMultiplier(ctx.multiplier()));
+    return new MultipliedCollectionCriterionFactory(visitMatcher(ctx.matcher()), visitMultiplier(ctx.multiplier()));
   }
 
   @Override

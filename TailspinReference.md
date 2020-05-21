@@ -327,9 +327,14 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   Array content criteria can have a [multiplier](#multipliers) attached.
   
   The simplest array content matching tests if there exist elements in any order so that each criterion is met,
-  with extra content ignored. In this mode, the `?` and `=` multipliers will make sure they are not exceeded,
-  while an element without multiplier acts as if having multiplier `+`, because extra content is allowed.
-  E.g. `<[<=3|=5>]>` tests if there is any element that is either a 3 or a 5, while `<[<=3>,<=5>]>` tests that the array contains at least one each of 3 and 5.
+  with extra content ignored. In this mode, the `+` and `*` multipliers make no difference to the result,
+  but may clarify the intent.
+  
+  The `?` and `=` multipliers will fail if there are more than the allowed amount elements.
+  
+  A content matcher without multiplier will match once only (and may be duplicated to expect several elements).
+  E.g. `<[<=3|=5>]>` tests if there is any element that is either a 3 or a 5, while `<[<=3>,<=5>]>`
+  tests that the array contains at least one each of 3 and 5.
   Note that criteria will be matched in order for each element until the first matching criterium is found.
   
   At the end of the content matcher, the symbol VOID may be written to signify that no extra content is allowed.
