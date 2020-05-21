@@ -67,7 +67,7 @@ templates: source                        # literalTemplates
 
 arrayIndexDecomposition: LeftBracket localIdentifier (SemiColon localIdentifier)* RightBracket;
 
-sink: (ResultMarker anyIdentifier reference Message? parameterValues?) | Void;
+sink: ResultMarker ((anyIdentifier reference Message? parameterValues?) | Void);
 
 templatesReference:  anyIdentifier reference Message? parameterValues?;
 
@@ -81,7 +81,7 @@ templatesBody: block matchTemplate*
 
 matchTemplate: matcher block;
 
-block: (blockExpression+ | Void);
+block: (blockExpression+ | (ResultMarker Void));
 
 blockExpression: blockStatement
   | stateAssignment
@@ -112,7 +112,7 @@ criterion: (literalMatch | typeMatch)? condition*;
 typeMatch: rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key matcher Comma?)* RightBrace # structureMatch
-  | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
+  | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
 ;
 
 arrayContentMatcher: matcher multiplier?;

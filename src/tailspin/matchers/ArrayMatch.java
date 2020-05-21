@@ -9,11 +9,13 @@ public class ArrayMatch implements Criterion {
   // @Nullable
   private final Criterion lengthCriterion;
   private final List<CollectionCriterionFactory> contentMatcherFactories;
+  private final boolean nothingElseAllowed;
 
   public ArrayMatch(Criterion lengthCriterion,
-      List<CollectionCriterionFactory> contentMatcherFactories) {
+      List<CollectionCriterionFactory> contentMatcherFactories, boolean nothingElseAllowed) {
     this.lengthCriterion = lengthCriterion;
     this.contentMatcherFactories = contentMatcherFactories;
+    this.nothingElseAllowed = nothingElseAllowed;
   }
 
   @Override
@@ -29,11 +31,15 @@ public class ArrayMatch implements Criterion {
     List<CollectionCriterion> criteria = contentMatcherFactories.stream()
         .map(CollectionCriterionFactory::newCriterion).collect(
             Collectors.toList());
+    nextElement:
     for(Object e: listToMatch) {
       for (Criterion c : criteria) {
         if (c.isMet(e, it, scope)) {
-          break;
+          continue nextElement;
         }
+      }
+      if (nothingElseAllowed) {
+        return false;
       }
     }
     return criteria.stream().allMatch(c -> c.isSatisfied(it, scope));

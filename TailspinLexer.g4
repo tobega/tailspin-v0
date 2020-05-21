@@ -10,7 +10,7 @@ Package: 'package';
 
 Import: 'import';
 
-Void: '!VOID';
+Void: 'VOID';
 
 Def: 'def';
 

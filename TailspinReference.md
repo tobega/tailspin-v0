@@ -327,12 +327,14 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   Array content criteria can have a [multiplier](#multipliers) attached.
   
   The simplest array content matching tests if there exist elements in any order so that each criterion is met,
-  with extra content ignored. In this mode, the `+` and `*` multipliers don't matter much,
-  while the `?` and `=` multipliers will make sure they are not exceeded.
+  with extra content ignored. In this mode, the `?` and `=` multipliers will make sure they are not exceeded,
+  while an element without multiplier acts as if having multiplier `+`, because extra content is allowed.
   E.g. `<[<=3|=5>]>` tests if there is any element that is either a 3 or a 5, while `<[<=3>,<=5>]>` tests that the array contains at least one each of 3 and 5.
   Note that criteria will be matched in order for each element until the first matching criterium is found.
   
-  Complete and sequential content matching is a future feature.
+  At the end of the content matcher, the symbol VOID may be written to signify that no extra content is allowed.
+  
+  Sequential content matching is a future feature.
   
   Note the possibility of using inverse matching to exclude extra content, e.g. `<~[<~=3|=5>]>`
   will test that the array only contains 3's and 5's, i.e. it is not an array that contains an element

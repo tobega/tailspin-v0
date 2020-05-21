@@ -315,7 +315,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitSink(TailspinParser.SinkContext ctx) {
-    if (ctx.ResultMarker() != null) {
+    if (ctx.Void() == null) {
       String identifier = ctx.anyIdentifier().getText();
       Reference reference = getReference(ctx.reference(), identifier);
       Map<String, Value> parameters = visitParameterValues(ctx.parameterValues());
@@ -448,7 +448,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (ctx.arithmeticExpression() != null) {
       lengthCriterion = new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
     }
-    return new ArrayMatch(lengthCriterion, criterionFactories);
+    return new ArrayMatch(lengthCriterion, criterionFactories, ctx.Void() != null);
   }
 
   @Override

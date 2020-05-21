@@ -1062,4 +1062,30 @@ class Matchers {
 
     assertEquals("no", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void arrayVoidMatcherPassesWithExpectedContent() throws Exception {
+    String program = "[0, 0, 1, 1] -> \\(<[<=1>+,<=0>+, VOID]> 'yes'! <> 'no'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayVoidMatcherFailsWithExtraContent() throws Exception {
+    String program = "[0, 0, 1, 1, 2] -> \\(<[<=1>+,<=0>+, VOID]> 'yes'! <> 'no'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("no", output.toString(StandardCharsets.UTF_8));
+  }
 }
