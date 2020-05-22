@@ -18,6 +18,7 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
 import tailspin.control.ResultIterator;
+import tailspin.matchers.AlwaysFalse;
 import tailspin.matchers.AnyOf;
 import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 import tailspin.arithmetic.ArithmeticContextValue;
@@ -432,8 +433,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Map<String, Criterion> keyMatchers = new HashMap<>();
     for (int i = 0; i < ctx.key().size(); i++) {
       String key = ctx.key(i).localIdentifier().getText();
-      TailspinParser.MatcherContext matcherCtx = ctx.matcher(i);
-      AnyOf matcher = visitMatcher(matcherCtx);
+      TailspinParser.StructureContentMatcherContext matcherCtx = ctx.structureContentMatcher(i);
+      Criterion matcher = matcherCtx.Void() == null ? visitMatcher(matcherCtx.matcher())
+          : AlwaysFalse.INSTANCE;
       keyMatchers.put(key, matcher);
     }
     return new StructureMatch(keyMatchers, ctx.Void() == null);

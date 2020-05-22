@@ -316,7 +316,9 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   * `<{a: <>}>` matches any structure that has a field `a`, whatever its value
   * `<{a:<=0>, b:<=1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
   whatever other fields it might have.
+  * `<{a: VOID}>` matches any structure that does not have a field `a`
   * At the end of the structure matcher, just before the `}`, the symbol `VOID` may be written to assert that the structure has no unmatched fields.
+    e.g. `{a: <> VOID}` matches a structure that only has an `a` field and no other fields.
 * If either of several criteria is acceptable, just list the acceptable criteria inside the angle brackets separated by `|` as a logical "or".
   The criteria are tried in order, stopping after the first true criterion. E.g. `<='apple'|='orange'>` will be true for both 'apple' and 'orange'.
 * Inverse match, to match the opposite of a criterion, just put a tilde inside the angle bracket, e.g. `<~=5>`

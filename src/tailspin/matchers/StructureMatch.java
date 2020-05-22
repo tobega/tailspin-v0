@@ -20,6 +20,9 @@ public class StructureMatch implements Criterion {
     Map<String, Object> mapToMatch = (Map<String, Object>) toMatch;
     for (Map.Entry<String, Criterion> keyMatch : keyConditions.entrySet()) {
       if (!mapToMatch.containsKey(keyMatch.getKey())) {
+        if  (keyMatch.getValue() == AlwaysFalse.INSTANCE) {
+          continue;
+        }
         return false;
       }
       Object valueToMatch = mapToMatch.get(keyMatch.getKey());

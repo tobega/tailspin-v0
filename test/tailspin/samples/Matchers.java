@@ -180,6 +180,45 @@ class Matchers {
   }
 
   @Test
+  void structureMatchVoidFieldPasses() throws Exception {
+    String program = "{ b: 2 } -> \\(<{ a: VOID }> 'yes' ! <> 'no'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void structureMatchVoidFieldPassesButSubsequentFails() throws Exception {
+    String program = "{ b: 2 } -> \\(<{ a: VOID, b: <=1> }> 'no' ! <> 'yes'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void structureMatchVoidFieldFails() throws Exception {
+    String program = "{ a: 1, b: 2 } -> \\(<{ a: VOID }> 'no' ! <> 'yes'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void structureFieldMatchKeepsPerspectiveOfIt() throws Exception {
     String program = "{ a: {x: 1, y:2}, b: 2 } -> \\(<{ b:<=$.a.y> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
