@@ -316,36 +316,30 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   * `<{a: <>}>` matches any structure that has a field `a`, whatever its value
   * `<{a:<=0>, b:<=1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
   whatever other fields it might have.
+  * At the end of the structure matcher, just before the `}`, the symbol `VOID` may be written to assert that the structure has no unmatched fields.
 * If either of several criteria is acceptable, just list the acceptable criteria inside the angle brackets separated by `|` as a logical "or".
   The criteria are tried in order, stopping after the first true criterion. E.g. `<='apple'|='orange'>` will be true for both 'apple' and 'orange'.
 * Inverse match, to match the opposite of a criterion, just put a tilde inside the angle bracket, e.g. `<~=5>`
   Note that inverse is applied to the entire expression within the angle brackets so `<~='apple'|='orange'>` will be false for both 'apple' and 'orange'.
-* Array match, given as `<[]>` matches if the _current value_ is an array. A match can also be restricted to arrays
+* Array match, given as `<[]>` matches if the _current value_ is an array.
+  * A match can also be restricted to arrays
   of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`.
-  
-  Match criteria on array content are written inside the brackets, separated by commas.
+  * Match criteria on array content are written inside the brackets, separated by commas.
   Array content criteria can have a [multiplier](#multipliers) attached.
-  
-  The simplest array content matching tests if there exist elements in any order so that each criterion is met,
+  * The simplest array content matching tests if there exist elements in any order so that each criterion is met,
   with extra content ignored. In this mode, the `+` and `*` multipliers make no difference to the result,
   but may clarify the intent.
-  
-  The `?` and `=` multipliers will fail if there are more than the allowed amount elements.
-  
-  A content matcher without multiplier will match once only (and may be duplicated to expect several elements).
+  * The `?` and `=` multipliers will fail if there are more than the allowed amount elements.
+  * A content matcher without multiplier will match once only (and may be duplicated to expect several elements).
   E.g. `<[<=3|=5>]>` tests if there is any element that is either a 3 or a 5, while `<[<=3>,<=5>]>`
   tests that the array contains at least one each of 3 and 5.
   Note that criteria will be matched in order for each element until the first matching criterium is found.
-  
-  At the end of the content matcher, the symbol VOID may be written to signify that no extra content is allowed.
-  
-  Sequential content matching is a future feature.
-  
-  Note the possibility of using inverse matching to exclude extra content, e.g. `<~[<~=3|=5>]>`
+  * At the end of the content matcher, just before `]`, the symbol `VOID` may be written to signify that no extra content is allowed.
+  * Sequential content matching is a future feature.
+  * Note the possibility of using inverse matching to exclude extra content, e.g. `<~[<~=3|=5>]>`
   will test that the array only contains 3's and 5's, i.e. it is not an array that contains an element
   that is neither 3 nor 5. Be careful with conditions and alternatives, as they are affected by inverses.
-  
-  Note also the possibility of matching a list exactly by equality.
+  * Note also the possibility of matching a list exactly by equality.
   
 Note that when nesting down matchers for fields and array contents, the _current value_ denoted by `$` will still refer to
 the original item to be matched by the outer match expression. To change perspective so that `$` should represent

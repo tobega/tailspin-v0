@@ -111,7 +111,7 @@ criterion: (literalMatch | typeMatch)? condition*;
 
 typeMatch: rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
-  | LeftBrace (key matcher Comma?)* RightBrace # structureMatch
+  | LeftBrace (key matcher Comma?)* (Comma? Void)? RightBrace # structureMatch
   | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
 ;
 

@@ -436,7 +436,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       AnyOf matcher = visitMatcher(matcherCtx);
       keyMatchers.put(key, matcher);
     }
-    return new StructureMatch(keyMatchers);
+    return new StructureMatch(keyMatchers, ctx.Void() == null);
   }
 
   @Override

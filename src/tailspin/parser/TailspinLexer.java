@@ -1,4 +1,4 @@
-// Generated from TailspinLexer.g4 by ANTLR 4.7.1
+// Generated from TailspinLexer.g4 by ANTLR 4.7.2
 package tailspin.parser;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
@@ -11,7 +11,7 @@ import org.antlr.v4.runtime.misc.*;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class TailspinLexer extends Lexer {
-	static { RuntimeMetaData.checkVersion("4.7.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.7.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -39,44 +39,53 @@ public class TailspinLexer extends Lexer {
 		"DEFAULT_MODE", "COMMENT_MODE", "IN_REGEX", "IN_STRING"
 	};
 
-	public static final String[] ruleNames = {
-		"StartComment", "Package", "Import", "Void", "Def", "To", "ResultMarker", 
-		"SourceMarker", "DeleteMarker", "At", "Slash", "Colon", "Message", "FieldReference", 
-		"EndStringInterpolate", "SemiColon", "Comma", "Deconstructor", "Invert", 
-		"LeftParen", "RightParen", "LeftBracket", "RightBracket", "LeftBrace", 
-		"RightBrace", "StartMatcher", "Lambda", "StartTemplatesDefinition", "StartSourceDefinition", 
-		"StartSinkDefinition", "StartComposerDefinition", "StartProcessorDefinition", 
-		"EndDefinition", "Rule", "First", "Last", "TemplateMatch", "Range", "Plus", 
-		"Minus", "Star", "TruncateDivide", "Mod", "Question", "Equal", "Else", 
-		"EndMatcher", "BeginCondition", "StartTestDefinition", "Assert", "Zero", 
-		"PositiveInteger", "Digits", "START_STRING", "IDENTIFIER", "IDENTIFIER_START", 
-		"IDENTIFIER_PART", "WS", "Comment", "REGEX_TEXT", "REGEX_CHAR", "END_REGEX", 
-		"StartCharacterCode", "StartStringInterpolate", "STRING_TEXT", "STRING_CHAR", 
-		"END_STRING"
-	};
+	private static String[] makeRuleNames() {
+		return new String[] {
+			"StartComment", "Package", "Import", "Void", "Def", "To", "ResultMarker", 
+			"SourceMarker", "DeleteMarker", "At", "Slash", "Colon", "Message", "FieldReference", 
+			"EndStringInterpolate", "SemiColon", "Comma", "Deconstructor", "Invert", 
+			"LeftParen", "RightParen", "LeftBracket", "RightBracket", "LeftBrace", 
+			"RightBrace", "StartMatcher", "Lambda", "StartTemplatesDefinition", "StartSourceDefinition", 
+			"StartSinkDefinition", "StartComposerDefinition", "StartProcessorDefinition", 
+			"EndDefinition", "Rule", "First", "Last", "TemplateMatch", "Range", "Plus", 
+			"Minus", "Star", "TruncateDivide", "Mod", "Question", "Equal", "Else", 
+			"EndMatcher", "BeginCondition", "StartTestDefinition", "Assert", "Zero", 
+			"PositiveInteger", "Digits", "START_STRING", "IDENTIFIER", "IDENTIFIER_START", 
+			"IDENTIFIER_PART", "WS", "Comment", "REGEX_TEXT", "REGEX_CHAR", "END_REGEX", 
+			"StartCharacterCode", "StartStringInterpolate", "STRING_TEXT", "STRING_CHAR", 
+			"END_STRING"
+		};
+	}
+	public static final String[] ruleNames = makeRuleNames();
 
-	private static final String[] _LITERAL_NAMES = {
-		null, "'//'", "'package'", "'import'", "'VOID'", "'def'", "'->'", "'!'", 
-		"'$'", "'^'", "'@'", "'/'", "':'", null, null, null, "';'", "','", "'...'", 
-		"'~'", "'('", "')'", "'['", "']'", "'{'", "'}'", "'<'", "'\\'", "'templates'", 
-		"'source'", "'sink'", "'composer'", "'processor'", "'end'", "'rule'", 
-		"'first'", "'last'", "'#'", "'..'", "'+'", "'-'", "'*'", "'~/'", "'mod'", 
-		"'?'", "'='", "'|'", "'>'", "'?('", "'test'", "'assert'", "'0'"
-	};
-	private static final String[] _SYMBOLIC_NAMES = {
-		null, "StartComment", "Package", "Import", "Void", "Def", "To", "ResultMarker", 
-		"SourceMarker", "DeleteMarker", "At", "Slash", "Colon", "Message", "FieldReference", 
-		"EndStringInterpolate", "SemiColon", "Comma", "Deconstructor", "Invert", 
-		"LeftParen", "RightParen", "LeftBracket", "RightBracket", "LeftBrace", 
-		"RightBrace", "StartMatcher", "Lambda", "StartTemplatesDefinition", "StartSourceDefinition", 
-		"StartSinkDefinition", "StartComposerDefinition", "StartProcessorDefinition", 
-		"EndDefinition", "Rule", "First", "Last", "TemplateMatch", "Range", "Plus", 
-		"Minus", "Star", "TruncateDivide", "Mod", "Question", "Equal", "Else", 
-		"EndMatcher", "BeginCondition", "StartTestDefinition", "Assert", "Zero", 
-		"PositiveInteger", "START_STRING", "IDENTIFIER", "WS", "Comment", "REGEX_TEXT", 
-		"END_REGEX", "StartCharacterCode", "StartStringInterpolate", "STRING_TEXT", 
-		"END_STRING"
-	};
+	private static String[] makeLiteralNames() {
+		return new String[] {
+			null, "'//'", "'package'", "'import'", "'VOID'", "'def'", "'->'", "'!'", 
+			"'$'", "'^'", "'@'", "'/'", "':'", null, null, null, "';'", "','", "'...'", 
+			"'~'", "'('", "')'", "'['", "']'", "'{'", "'}'", "'<'", "'\\'", "'templates'", 
+			"'source'", "'sink'", "'composer'", "'processor'", "'end'", "'rule'", 
+			"'first'", "'last'", "'#'", "'..'", "'+'", "'-'", "'*'", "'~/'", "'mod'", 
+			"'?'", "'='", "'|'", "'>'", "'?('", "'test'", "'assert'", "'0'"
+		};
+	}
+	private static final String[] _LITERAL_NAMES = makeLiteralNames();
+	private static String[] makeSymbolicNames() {
+		return new String[] {
+			null, "StartComment", "Package", "Import", "Void", "Def", "To", "ResultMarker", 
+			"SourceMarker", "DeleteMarker", "At", "Slash", "Colon", "Message", "FieldReference", 
+			"EndStringInterpolate", "SemiColon", "Comma", "Deconstructor", "Invert", 
+			"LeftParen", "RightParen", "LeftBracket", "RightBracket", "LeftBrace", 
+			"RightBrace", "StartMatcher", "Lambda", "StartTemplatesDefinition", "StartSourceDefinition", 
+			"StartSinkDefinition", "StartComposerDefinition", "StartProcessorDefinition", 
+			"EndDefinition", "Rule", "First", "Last", "TemplateMatch", "Range", "Plus", 
+			"Minus", "Star", "TruncateDivide", "Mod", "Question", "Equal", "Else", 
+			"EndMatcher", "BeginCondition", "StartTestDefinition", "Assert", "Zero", 
+			"PositiveInteger", "START_STRING", "IDENTIFIER", "WS", "Comment", "REGEX_TEXT", 
+			"END_REGEX", "StartCharacterCode", "StartStringInterpolate", "STRING_TEXT", 
+			"END_STRING"
+		};
+	}
+	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
 	/**

@@ -6,9 +6,11 @@ import tailspin.types.Criterion;
 
 public class StructureMatch implements Criterion {
   private final Map<String, Criterion> keyConditions;
+  private final boolean allowExcessKeys;
 
-  public StructureMatch(Map<String, Criterion> keyConditions) {
+  public StructureMatch(Map<String, Criterion> keyConditions, boolean allowExcessKeys) {
     this.keyConditions = keyConditions;
+    this.allowExcessKeys = allowExcessKeys;
   }
 
   @Override
@@ -25,6 +27,6 @@ public class StructureMatch implements Criterion {
         return false;
       }
     }
-    return true;
+    return allowExcessKeys || mapToMatch.keySet().stream().allMatch(keyConditions::containsKey);
   }
 }
