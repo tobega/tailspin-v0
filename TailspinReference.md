@@ -398,7 +398,7 @@ Slightly different things happen depending on what type of object is used as a c
  
  If the merge operator is applied to an array slice, each element of the array slice gets merged with one element from the stream.
  Note the difference between `..|@: 1..3;`, which appends 1, 2 and 3 to the end of the state array,
- and `..|@(1..-1): 1..3;` which merges 1 to the first element of the state array, 2 to the second and three to the third.
+ and `..|@(1..last): 1..3;` which merges 1 to the first element of the state array, 2 to the second and three to the third.
  If the size of the slice and the size of the stream aren't the same, an error is thrown.
  
 ### Delete operator
