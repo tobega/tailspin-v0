@@ -32,6 +32,28 @@ Progress measured in how many times slower than Java. The variance on tailspin r
 |[2020-05-02 J9 jdk11](#2020-05-02d)|Interpreted|981|304|195|571|702|321|447|
 |[2020-05-02 J9 jdk14 JVMCI](#2020-05-02e)|Interpreted|874|289|205|616|711|321|419|
 |[2020-05-02 HotSpot jdk14 JVMCI](#2020-05-02f)|Interpreted|673|160|355|622|839|296|586|
+|[2020-06-22 HotSpot jdk14 JVMCI](#2020-06-22)|Interpreted|887|159|331|619|921|135|569|
+
+## 2020-06-22
+machine 3, calibrate baseline for new machine and new rebench version
+HotSpot jdk14 JVMCI
+
+|Benchmark|Mean runtime us|
+|---|---|
+  Bounce      Java  | 13  
+  Bounce      Tailspin | 11534  
+  Json        Java | 63  
+  Json        Tailspin | 10031  
+  List        Java  |  23  
+  List        Tailspin | 7611  
+  Permute     Java  | 20  
+  Permute     Tailspin | 12373  
+  Queens      Java | 14  
+  Queens      Tailspin | 12895  
+  Sieve       Java | 18  
+  Sieve       Tailspin |  2428  
+  Towers      Java  |  21  
+  Towers      Tailspin |  11943  
 
 ## 2020-05-02f
 machine 1
@@ -164,20 +186,20 @@ Just checking for regressions. machine 1
 
 |Benchmark|Mean runtime us|
 |---|---|
-Bounce   Java / 1.3
-Bounce   Tailspin /1390.8
-Json     Java /13.0
-Json     Tailspin / 1904.0
-List     Java / 1.7
-List     Tailspin / 729.5
-Permute  Java / 0.7
-Permute  Tailspin / 837.5
-Queens   Java / 1.2
-Queens   Tailspin / 1393.1
-Sieve    Java / 1.2
-Sieve    Tailspin / 654.6
-Towers   Java / 1.6
-Towers   Tailspin / 1120.1
+Bounce   Java | 1.3
+Bounce   Tailspin |1390.8
+Json     Java |13.0
+Json     Tailspin | 1904.0
+List     Java | 1.7
+List     Tailspin | 729.5
+Permute  Java | 0.7
+Permute  Tailspin | 837.5
+Queens   Java | 1.2
+Queens   Tailspin | 1393.1
+Sieve    Java | 1.2
+Sieve    Tailspin | 654.6
+Towers   Java | 1.6
+Towers   Tailspin | 1120.1
 
 ## 2020-01-26
 Just checking for regressions. machine 1

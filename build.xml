@@ -1,0 +1,21 @@
+<project name="Tailspin" basedir="." default="compile">
+    <property name="src.dir"   value="src" />
+    <property name="build.dir" value="out/production/tailspin-v0" />
+    
+    <target name="clean">
+        <delete dir="${build.dir}" />
+    </target>
+    
+    <target name="compile">
+        <mkdir dir="${build.dir}" />
+        <javac includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}">
+            <classpath>
+                <pathelement location="lib/antlr-runtime-4.7.2.jar"/>
+            </classpath>
+        </javac>
+    </target>
+    
+    <target name="jar" depends="compile">
+        <jar destfile="tailspin.jar" basedir="${build.dir}" />
+    </target>
+</project>
