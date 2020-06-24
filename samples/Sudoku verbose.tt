@@ -1,0 +1,145 @@
+// This is an example of what a more verbose Tailspin syntax might look like
+transform deduceRemainingDigits
+  transform findOpenPosition
+    @:{options: 10};
+    $ -> transform[i;j] match <[](..~$@findOpenPosition.options)> do @findOpenPosition: {row: $i, col: $j, options: $::length}; end -> !VOID
+    $@ !
+  end findOpenPosition
+
+  transform selectFirst@{pos:}
+    def digit: $($pos.row;$pos.col) -> $(1);
+    $ -> transform[i;j]
+      match <when $i <=$pos.row> when $j <=$pos.col>> do $digit !
+      match <[] when $i <=$pos.row>
+        or [] when $j <=$pos.col>
+        or [] when ($i-1)~/3 <=($pos.row-1)~/3> when ($j-1)~/3 <=($pos.col-1)~/3>> do [$... -> if <~=$digit>] !
+      match <> do $ !
+    end !
+  end selectFirst
+
+  @: $;
+  $ -> findOpenPosition -> #
+  match <{options: <=0>}> do [] !
+  match <{options: <=10>}> do $@ !
+  match <> do def next: $;
+     def result: $@ -> selectFirst@{pos: $next} -> deduceRemainingDigits;
+     $result -> if <~=[]> !
+     $result -> if <=[]> -> ^@($next.row;$next.col;1) -> { $next..., options: $next.options-1} -> #
+end deduceRemainingDigits
+
+test 'internal solver'
+  def sample: [
+    [5,3,4,6,7,8,9,1,2],
+    [6,7,2,1,9,5,3,4,8],
+    [1,9,8,3,4,2,5,6,7],
+    [8,5,9,7,6,1,4,2,3],
+    [4,2,6,8,5,3,7,9,1],
+    [7,1,3,9,2,4,8,5,6],
+    [9,6,1,5,3,7,2,8,4],
+    [2,8,7,4,1,9,6,3,5],
+    [3,4,5,2,8,6,1,7,9]
+  ];
+
+  assert $sample -> deduceRemainingDigits match <=$sample> 'completed puzzle unchanged'
+
+  assert [
+    [[5],3,4,6,7,8,9,1,2],
+    $sample(2..last)...] -> deduceRemainingDigits match <=$sample> 'final digit gets placed'
+
+  assert [
+    [[],3,4,6,7,8,9,1,2],
+    $sample(2..last)...] -> deduceRemainingDigits match <=[]> 'no remaining options returns empty'
+
+  assert [
+    [[5],3,4,6,[2,5,7],8,9,1,[2,5]],
+    $sample(2..last)...] -> deduceRemainingDigits match <=$sample> 'solves 3 digits on row'
+
+  assert [
+    [5,3,4,6,7,8,9,1,2],
+    [[6,7,9],7,2,1,9,5,3,4,8],
+    [1,9,8,3,4,2,5,6,7],
+    [8,5,9,7,6,1,4,2,3],
+    [4,2,6,8,5,3,7,9,1],
+    [[7],1,3,9,2,4,8,5,6],
+    [[7,9],6,1,5,3,7,2,8,4],
+    [2,8,7,4,1,9,6,3,5],
+    [3,4,5,2,8,6,1,7,9]
+  ] -> deduceRemainingDigits match <=$sample> 'solves 3 digits on column'
+
+  assert [
+    [5,3,[4,6],6,7,8,9,1,2],
+    [[6],7,2,1,9,5,3,4,8],
+    [1,[4,6,9],8,3,4,2,5,6,7],
+    $sample(4..last)...
+  ] -> deduceRemainingDigits match <=$sample> 'solves 3 digits in block'
+
+  // This gives a contradiction if 3 gets chosen out of [3,5]
+  assert [
+    [[3,5],[3,4,6],[3,4,6],[3,4,6],7,8,9,1,2],
+    $sample(2..last)...] -> deduceRemainingDigits match <=$sample> 'contradiction is backtracked'
+end 'internal solver'
+
+composer parseSudoku
+  [<section>=3]
+  rule section: <row>=3 (<'-+'>? <WS>?)
+  rule row: [<triple>=3] (<WS>?)
+  rule triple: <digit|dot>=3 (<'\|'>?)
+  rule digit: [<'\d'>]
+  rule dot: <'\.'> -> [1..9 -> '$;']
+end parseSudoku
+
+test 'input sudoku'
+def parsed:
+'53.|.7.|...
+ 6..|195|...
+ .98|...|.67
+ -----------
+ 8..|.6.|..3
+ 4..|8.3|..1
+ 7..|.2.|..6
+ -----------
+ .6.|...|28.
+ ...|419|..5
+ ...|.8.|.79' -> parseSudoku;
+
+  assert $parsed match <[<[<[]>=9](9)>=9](9)> 'parsed sudoku has 9 rows containing 9 columns of lists'
+  assert $parsed(1;1) match <=['5']> 'a digit'
+  assert $parsed(1;3) match <=['1','2','3','4','5','6','7','8','9']> 'a dot'
+end 'input sudoku'
+
+transform solveSudoku
+  $ -> parseSudoku -> deduceRemainingDigits -> #
+  match <=[]> do 'No result found' !
+  match <> do $ -> transform[i]
+       '$(1..3)...;|$(4..6)...;|$(7..9)...;$#10;' !
+       $i -> if <=3 or =6> -> '-----------$#10;' !
+     end -> '$...;' !
+end solveSudoku
+
+test 'sudoku solver'
+  assert
+'53.|.7.|...
+ 6..|195|...
+ .98|...|.67
+ -----------
+ 8..|.6.|..3
+ 4..|8.3|..1
+ 7..|.2.|..6
+ -----------
+ .6.|...|28.
+ ...|419|..5
+ ...|.8.|.79'
+  -> solveSudoku match <=
+'534|678|912
+672|195|348
+198|342|567
+-----------
+859|761|423
+426|853|791
+713|924|856
+-----------
+961|537|284
+287|419|635
+345|286|179
+'> 'solves sudoku and outputs pretty solution'
+end 'sudoku solver'
