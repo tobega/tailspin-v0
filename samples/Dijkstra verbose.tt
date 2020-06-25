@@ -1,14 +1,15 @@
 transform shortestPaths@{graph:}
   @: [];
-  [ {to: $, distance: 0, path:[]} ] -> #
-  match <[](0)> do $@ !
-  match <> do
-    def closest: $ -> transform @: $(1); $(2..last)... -> if <{distance: <..~$@.distance>}> -> @: $; $@ ! end;
-    $closest -> ..|@: $;
-    def path: [ $closest.path..., $closest.to ];
-    [ $... -> if <{to: <~=$closest.to>}>,
-      $graph... -> if <when $.edge(1) <=$closest.to> when $@shortestPaths <~[<{to: <=$.edge(2)>}>]>>
-        -> { to: $.edge(2), distance: $.cost + $closest.distance, path: $path} ] -> #
+  [ {to: $, distance: 0, path:[]} ] -> transform
+    when <[](0)> do $@shortestPaths !
+    when <> do
+      def closest: $ -> transform min @: $(1); $(2..last)... -> select when <{distance: <..~$@min.distance>}> do @min: $; end $@ ! end min;
+      $closest -> ..|@shortestPaths: $;
+      def path: [ $closest.path..., $closest.to ];
+      [ $... -> keep <{to: <~=$closest.to>}>,
+        $graph... -> keep <where $.edge(1) <=$closest.to> where $@shortestPaths <~[<{to: <=$.edge(2)>}>]>>
+          -> { to: $.edge(2), distance: $.cost + $closest.distance, path: $path} ] -> reselect
+  end !
 end shortestPaths
 
 def edges: [
@@ -24,9 +25,9 @@ def edges: [
 
 def fromA: 'a' -> shortestPaths@{graph: $edges};
 
-$fromA... -> if <{to:<='e'>}> -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..last);
+$fromA... -> keep <{to:<='e'>}> -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..last);
 ' -> !OUT::write
 
-$fromA... -> if <{to:<='f'>}> -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..last);
+$fromA... -> keep <{to:<='f'>}> -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..last);
 ' -> !OUT::write
 

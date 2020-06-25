@@ -8,16 +8,17 @@ transform queens
       def minor: $ - $prev::length - 1;
       def major: $ + $prev::length + 1;
       // If prev is not an array that contains row, send it on...
-      $prev -> if <~[<=$row>]>
-            -> if <when $ -> transform[i] $ - $i ! end <~[<=$minor>]>> 
-            -> if <when $ -> transform[i] $ + $i ! end <~[<=$major>]>>
+      $prev -> keep <~[<=$row>]>
+            -> keep <where $ -> transform[i] $ - $i ! end <~[<=$minor>]>> 
+            -> keep <where $ -> transform[i] $ + $i ! end <~[<=$major>]>>
             -> [ $..., $row] !
     end addIfPossible
     1..$n -> addIfPossible !
   end addColumn
-  1..$n -> [$] -> #
-  match <[]($n)> do $ !
-  match <> do $ -> addColumn -> #
+  1..$n -> [$] -> select
+    when <[]($n)> do $ !
+    when <> do $ -> addColumn -> reselect
+  end !
 end queens
 
 def solutions: [ 8 -> queens ];
