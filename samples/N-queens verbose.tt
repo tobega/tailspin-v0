@@ -18,7 +18,7 @@ transform queens
   1..$n -> [$] -> select
     when <[]($n)> do $ !
     when <> do $ -> addColumn -> reselect
-  end !
+  done !
 end queens
 
 def solutions: [ 8 -> queens ];

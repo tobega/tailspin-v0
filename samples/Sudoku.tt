@@ -21,9 +21,10 @@ templates deduceRemainingDigits
   <{options: <=0>}> [] !
   <{options: <=10>}> $@ !
   <> def next: $;
-     def result: $@ -> selectFirst@{pos: $next} -> deduceRemainingDigits;
-     $result -> \(<~=[]> $! \) !
-     $result -> \(<=[]> $! \) -> ^@($next.row;$next.col;1) -> { $next..., options: $next.options-1} -> #
+     $@ -> selectFirst@{pos: $next} -> deduceRemainingDigits
+        -> \(<~=[]> @deduceRemainingDigits: $; {options: 10} !
+          <=[]> ^@deduceRemainingDigits($next.row;$next.col;1)
+               -> { $next..., options: $next.options-1} ! \) -> #
 end deduceRemainingDigits
 
 test 'internal solver'

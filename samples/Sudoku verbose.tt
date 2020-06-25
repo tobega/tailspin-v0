@@ -2,19 +2,19 @@
 transform deduceRemainingDigits
   transform findOpenPosition
     @:{options: 10};
-    $ -> transform[i;j] when <[](..~$@findOpenPosition.options)> do @findOpenPosition: {row: $i, col: $j, options: $::length}; end -> !VOID
+    $ -> \[i;j](when <[](..~$@findOpenPosition.options)> do @findOpenPosition: {row: $i, col: $j, options: $::length}; \) -> !VOID
     $@ !
   end findOpenPosition
 
   transform selectFirst@{pos:}
     def digit: $($pos.row;$pos.col) -> $(1);
-    $ -> transform[i;j]
+    $ -> \[i;j](
       when <where $i <=$pos.row> where $j <=$pos.col>> do $digit !
       when <[] where $i <=$pos.row>
         or [] where $j <=$pos.col>
         or [] where ($i-1)~/3 <=($pos.row-1)~/3> where ($j-1)~/3 <=($pos.col-1)~/3>> do [$... -> keep <~=$digit>] !
       when <> do $ !
-    end !
+    \) !
   end selectFirst
 
   @: $;
@@ -22,10 +22,12 @@ transform deduceRemainingDigits
     when <{options: <=0>}> do [] !
     when <{options: <=10>}> do $@deduceRemainingDigits !
     when <> do def next: $;
-      def result: $@deduceRemainingDigits -> selectFirst@{pos: $next} -> deduceRemainingDigits;
-      $result -> keep <~=[]> !
-      $result -> keep <=[]> -> ^@($next.row;$next.col;1) -> { $next..., options: $next.options-1} -> reselect
-  end !
+      $@ -> selectFirst@{pos: $next} -> deduceRemainingDigits
+        -> select when <~=[]> do @deduceRemainingDigits: $; {options: 10} !
+            when <=[]> do ^@deduceRemainingDigits($next.row;$next.col;1)
+               -> { $next..., options: $next.options-1} !
+          done -> reselect
+  done !
 end deduceRemainingDigits
 
 test 'internal solver'
@@ -111,11 +113,11 @@ end 'input sudoku'
 transform solveSudoku
   $ -> parseSudoku -> deduceRemainingDigits -> select
     when <=[]> do 'No result found' !
-    when <> do $ -> transform[i]
+    when <> do $ -> \[i](
         '$(1..3)...;|$(4..6)...;|$(7..9)...;$#10;' !
         $i -> if <=3 or =6> -> '-----------$#10;' !
-      end -> '$...;' !
-  end !
+      \) -> '$...;' !
+  done !
 end solveSudoku
 
 test 'sudoku solver'

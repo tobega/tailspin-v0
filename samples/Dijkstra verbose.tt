@@ -3,7 +3,7 @@ transform shortestPaths@{graph:}
   [ {to: $, distance: 0, path:[]} ] -> transform
     when <[](0)> do $@shortestPaths !
     when <> do
-      def closest: $ -> transform min @: $(1); $(2..last)... -> select when <{distance: <..~$@min.distance>}> do @min: $; end $@ ! end min;
+      def closest: $ -> \(@: $(1); $(2..last)... -> select when <{distance: <..~$@.distance>}> do @: $; done $@ ! \);
       $closest -> ..|@shortestPaths: $;
       def path: [ $closest.path..., $closest.to ];
       [ $... -> keep <{to: <~=$closest.to>}>,
