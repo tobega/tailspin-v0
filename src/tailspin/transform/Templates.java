@@ -1,7 +1,5 @@
 package tailspin.transform;
 
-import static tailspin.control.Expression.queueOf;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +33,6 @@ public class Templates implements Transform {
   TransformScope createTransformScope(Object it, Map<String, Object> parameters) {
     TransformScope scope = new TransformScope(definingScope, scopeName);
     scope.setTemplates(this);
-    scope.setIt(queueOf(it));
     int foundParameters = 0;
     for (ExpectedParameter expectedParameter : expectedParameters) {
       if (parameters.containsKey(expectedParameter.name)) {

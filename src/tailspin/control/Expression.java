@@ -33,14 +33,4 @@ public interface Expression {
     }
     return result;
   }
-
-  static Object atMostOneValue(Queue<Object> itStream) {
-    if (itStream == null) {
-      return null;
-    }
-    if (itStream.size() > 1) {
-      throw new AssertionError("Expected at most one value but was " + itStream);
-    }
-    return itStream.peek();
-  }
 }

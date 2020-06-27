@@ -1,7 +1,5 @@
 package tailspin.interpreter;
 
-import static tailspin.control.Expression.EMPTY_RESULT;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -107,8 +105,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       if (s instanceof TailspinParser.TestDefinitionContext) {
         return;
       }
-      scope.setIt(EMPTY_RESULT);
-      ((Expression) visit(s)).getResults(null, scope);
+       ((Expression) visit(s)).getResults(null, scope);
     });
     return null;
   }
@@ -119,7 +116,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     ctx.dependency().forEach(this::visit);
     return ctx.statement().stream().map(s -> {
-      scope.setIt(EMPTY_RESULT);
       return ((Expression) visit(s)).getResults(null, scope);
     }).flatMap(ri -> ResultIterator.toQueue(ResultIterator.flat(ri)).stream())
         .map(Object::toString).collect(Collectors.joining("\n"));
@@ -133,7 +129,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Object visitDependency(TailspinParser.DependencyContext ctx) {
-    String dependency = (String) visitStringLiteral(ctx.stringLiteral()).getResults(Expression.atMostOneValue(scope.getIt()), scope);
+    String dependency = (String) visitStringLiteral(ctx.stringLiteral()).getResults(null, scope);
     String dependencyName = dependency.substring(dependency.lastIndexOf('/') + 1);
     Path depPath = scope.basePath().resolve(dependency + ".tt");
     try {
