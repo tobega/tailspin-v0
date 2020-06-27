@@ -9,8 +9,6 @@ public interface Scope {
 
   void defineValue(String identifier, Object value);
 
-  void clearValue(String identifier);
-
   BufferedReader getInput();
 
   OutputStream getOutput();
