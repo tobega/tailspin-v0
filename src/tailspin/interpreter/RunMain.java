@@ -10,6 +10,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.RuleNode;
@@ -90,9 +91,12 @@ import tailspin.types.KeyValue;
 
 public class RunMain extends TailspinParserBaseVisitor<Object> {
   public final Scope scope;
+  private final Deque<DependencyCounter> dependencyCounters;
 
   public RunMain(Scope scope) {
     this.scope = scope;
+    dependencyCounters = new ArrayDeque<>();
+    dependencyCounters.push(new DependencyCounter());
   }
 
   @Override
@@ -235,6 +239,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (identifier.startsWith("@")) {
       reference = Reference.state(identifier.substring(1));
     } else {
+      dependencyCounters.peek().reference(identifier);
       reference = Reference.named(identifier);
     }
     reference = resolveReference(ctx, reference);
@@ -461,12 +466,15 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Block visitBlock(TailspinParser.BlockContext ctx) {
+    dependencyCounters.push(new DependencyCounter());
     if (ctx == null) return null;
     List<Expression> blockExpressions = new ArrayList<>();
     for (TailspinParser.BlockExpressionContext exp : ctx.blockExpression()) {
       Expression expression = (Expression) visit(exp);
       blockExpressions.add(expression);
     }
+    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
+    dependencyCounters.peek().requireAll(requiredDefinitions);
     return new Block(blockExpressions);
   }
 
@@ -498,6 +506,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitTemplatesDefinition(TailspinParser.TemplatesDefinitionContext ctx) {
+    dependencyCounters.push(new DependencyCounter());
     String name = ctx.localIdentifier(0).getText();
     if (!name.equals(ctx.localIdentifier(1).getText())) {
       throw new IllegalStateException(
@@ -505,7 +514,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
     templatesDefinition.expectParameters(visitParameterDefinitions(ctx.parameterDefinitions()));
-    return new Definition(name, (it, scope) -> {
+    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
+    dependencyCounters.peek().define(name); // can recurse
+    dependencyCounters.peek().requireAll(requiredDefinitions);
+    return new Definition(name, requiredDefinitions, (it, scope) -> {
       Templates templates = templatesDefinition.define(scope);
       templates.setScopeContext(name);
       return templates;
@@ -526,6 +538,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitProcessorDefinition(TailspinParser.ProcessorDefinitionContext ctx) {
+    dependencyCounters.push(new DependencyCounter());
     String name = ctx.localIdentifier(0).getText();
     if (!name.equals(ctx.localIdentifier(1).getText())) {
       throw new IllegalStateException(
@@ -533,7 +546,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     ProcessorDefinition processorDefinition = new ProcessorDefinition(visitBlock(ctx.block()),
         visitParameterDefinitions(ctx.parameterDefinitions()));
-    return new Definition(name, (it, scope) -> {
+    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
+    dependencyCounters.peek().requireAll(requiredDefinitions);
+    dependencyCounters.peek().define(name); // can recurse
+    return new Definition(name, requiredDefinitions, (it, scope) -> {
       ProcessorConstructor processorConstructor = processorDefinition.define(scope);
       processorConstructor.setScopeContext(name);
       return processorConstructor;
@@ -604,8 +620,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
+    dependencyCounters.push(new DependencyCounter());
     String identifier = ctx.key().localIdentifier().getText();
-    return new Definition(identifier, Value.of(visitValueProduction(ctx.valueProduction())));
+    Value value = Value.of(visitValueProduction(ctx.valueProduction()));
+    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
+    dependencyCounters.peek().requireAll(requiredDefinitions);
+    dependencyCounters.peek().define(identifier); // Cannot recurse
+    return new Definition(identifier, requiredDefinitions, value);
   }
 
   @Override
@@ -803,6 +824,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitComposerDefinition(TailspinParser.ComposerDefinitionContext ctx) {
+    dependencyCounters.push(new DependencyCounter());
     String name = ctx.localIdentifier(0).getText();
     if (!name.equals(ctx.localIdentifier(1).getText())) {
       throw new IllegalStateException(
@@ -810,7 +832,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
     composerDefinition.expectParameters(visitParameterDefinitions(ctx.parameterDefinitions()));
-    return new Definition(name, (it, scope) -> {
+    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
+    dependencyCounters.peek().define(name); // can recurse
+    dependencyCounters.peek().requireAll(requiredDefinitions);
+    return new Definition(name, requiredDefinitions, (it, scope) -> {
       Composer composer = composerDefinition.define(scope);
       composer.setScopeContext(name);
       return composer;
