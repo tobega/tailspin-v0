@@ -90,4 +90,73 @@ public class Testing {
 
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void useOuterDefinitions() throws Exception {
+    String program = "def a: 1;\n"
+        + "test 'A passing test'\n"
+        + "assert $a <=1> 'a is 1'\n"
+        + "end 'A passing test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void useTransitiveOuterDefinitions() throws Exception {
+    String program = "def aa: -1; def a: $aa + 2;\n"
+        + "test 'A passing test'\n"
+        + "assert $a <=1> 'a is 1'\n"
+        + "end 'A passing test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void runOuterDefinitionsInProgramOrder() throws Exception {
+    String program = "def a: 1 -> \\($ -> !OUT::write $!\\);\n"
+        + "def b: 2 -> \\($ -> !OUT::write $!\\);\n"
+        + "test 'A passing test'\n"
+        + "assert $b <=2> 'b is 2'\n"
+        + "assert $a <=1> 'a is 1'\n"
+        + "end 'A passing test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("12Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void dontRunUnusedOuterDefinitionsOrStatements() throws Exception {
+    String program = "def a: 1;\n"
+        + "'print $a;' -> !OUT::write\n"
+        + "def b: 'unused' -> \\($ -> !OUT::write $!\\);\n"
+        + "'print $b;' -> !OUT::write\n"
+        + "test 'A passing test'\n"
+        + "assert $a <=1> 'a is 1'\n"
+        + "end 'A passing test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
 }

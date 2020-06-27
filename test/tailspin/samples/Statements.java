@@ -335,6 +335,43 @@ class Statements {
 
   @ExtendWith(TempDirectory.class)
   @Test
+  void noStatementsOrUnusedDefinitionsRunInImportedFiles(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "package dep\nsource quote '\"1\"' ! end quote\n"
+    + "def b: 'unused' -> \\($ -> !OUT::write $!\\);\n"
+    + "'bad' -> !OUT::write";
+    Path depFile = dir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "import 'dep'\n $dep/quote -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void importedDepsRunInSourceOrder(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "package dep\ndef a: 1 -> \\($ -> !OUT::write $!\\);\n"
+      + "def b: 2 -> \\($ -> !OUT::write $!\\);";
+    Path depFile = dir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "import 'dep'\n $dep/b -> !OUT::write\n $dep/a -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("1221", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
   void importSink(@TempDirectory.TempDir Path dir) throws Exception {
     String dep = "package dep\nsink quote '\"$;\"' -> !OUT::write end quote";
     Path depFile = dir.resolve("dep.tt");
