@@ -20,6 +20,7 @@ import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import tailspin.interpreter.BasicScope;
+import tailspin.interpreter.Program;
 import tailspin.interpreter.RunMain;
 import tailspin.parser.TailspinLexer;
 import tailspin.parser.TailspinParser;
@@ -29,10 +30,10 @@ import tailspin.system.StdoutProcessor;
 import tailspin.system.SystemProcessor;
 
 public class Tailspin {
-  private final ProgramContext program;
+  private final ProgramContext programDefinition;
 
-  private Tailspin(TailspinParser.ProgramContext program) {
-    this.program = program;
+  private Tailspin(TailspinParser.ProgramContext programDefinition) {
+    this.programDefinition = programDefinition;
   }
 
   public static Tailspin parse(InputStream inputStream) throws IOException {
@@ -61,7 +62,8 @@ public class Tailspin {
     scope.defineValue("SYS", new SystemProcessor(scope));
     scope.defineValue("IN", new StdinProcessor(scope));
     scope.defineValue("OUT", new StdoutProcessor(scope));
-    String result = new RunMain(scope).visitTests(program);
+    Program program = new RunMain(scope).visitProgram(programDefinition);
+    String result = program.runTests(scope);
     if (result.isEmpty()) {
       result = "Pass";
     }
@@ -75,7 +77,8 @@ public class Tailspin {
     scope.defineValue("SYS", new SystemProcessor(scope));
     scope.defineValue("IN", new StdinProcessor(scope));
     scope.defineValue("OUT", new StdoutProcessor(scope));
-    new RunMain(scope).visit(program);
+    Program program = new RunMain(scope).visitProgram(programDefinition);
+    program.run(scope);
     return scope;
   }
 

@@ -100,29 +100,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Object visitProgram(TailspinParser.ProgramContext ctx) {
+  public Program visitProgram(TailspinParser.ProgramContext ctx) {
     if (ctx.packageDefinition() != null) {
       visitPackageDefinition(ctx.packageDefinition());
     }
     ctx.dependency().forEach(this::visit);
-    ctx.statement().forEach(s -> {
-      if (s instanceof TailspinParser.TestDefinitionContext) {
-        return;
-      }
-       ((Expression) visit(s)).getResults(null, scope);
-    });
-    return null;
-  }
-
-  public String visitTests(TailspinParser.ProgramContext ctx) {
-    if (ctx.packageDefinition() != null) {
-      visitPackageDefinition(ctx.packageDefinition());
-    }
-    ctx.dependency().forEach(this::visit);
-    return ctx.statement().stream().map(s -> {
-      return ((Expression) visit(s)).getResults(null, scope);
-    }).flatMap(ri -> ResultIterator.toQueue(ResultIterator.flat(ri)).stream())
-        .map(Object::toString).collect(Collectors.joining("\n"));
+    List<Expression> statements = ctx.statement().stream().map(s -> (Expression) visit(s)).collect(Collectors.toList());
+    return new Program(statements);
   }
 
   @Override
