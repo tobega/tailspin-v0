@@ -1,6 +1,8 @@
 package tailspin.testing;
 
 import java.util.List;
+import java.util.Set;
+
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
@@ -9,9 +11,11 @@ import tailspin.interpreter.Scope;
 public class Test implements Expression {
   private final Value description;
   private final List<Expression> expressions;
+  private Set<String> requiredDefinitions;
 
-  public Test(Value description, List<Expression> expressions) {
+  public Test(Value description, Set<String> requiredDefinitions, List<Expression> expressions) {
     this.description = description;
+    this.requiredDefinitions = requiredDefinitions;
     this.expressions = expressions;
   }
 
@@ -26,5 +30,9 @@ public class Test implements Expression {
           "" + description.getResults(null, blockScope) + " failed:", result);
     }
     return result;
+  }
+
+  public Set<String> getRequiredDefinitions() {
+    return requiredDefinitions;
   }
 }

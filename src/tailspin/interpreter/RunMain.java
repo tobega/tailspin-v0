@@ -1038,11 +1038,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Object visitTestDefinition(TailspinParser.TestDefinitionContext ctx) {
+    dependencyCounters.push(new DependencyCounter());
     if (!ctx.stringLiteral(0).getText().equals(ctx.stringLiteral(1).getText())) {
       throw new AssertionError("Mismatched end " + ctx.stringLiteral(1).getText()
         + " to test " + ctx.stringLiteral(0).getText());
     }
-    return new Test(visitStringLiteral(ctx.stringLiteral(0)), visitTestBody(ctx.testBody()));
+    List<Expression> testBody = visitTestBody(ctx.testBody());
+    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
+    return new Test(visitStringLiteral(ctx.stringLiteral(0)), requiredDefinitions, testBody);
   }
 
   @Override
