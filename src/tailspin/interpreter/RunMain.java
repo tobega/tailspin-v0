@@ -104,9 +104,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.packageDefinition() != null) {
       visitPackageDefinition(ctx.packageDefinition());
     }
-    ctx.dependency().forEach(this::visit);
-    List<Expression> statements = ctx.statement().stream().map(s -> (Expression) visit(s)).collect(Collectors.toList());
-    return new Program(statements);
+    ctx.dependency().forEach(this::visitDependency);
+    List<Expression> statements = new ArrayList<>();
+    List<Test> tests = new ArrayList<>();
+    ctx.statement().forEach(s -> {
+      if (s instanceof TailspinParser.TestDefinitionContext) {
+        tests.add(visitTestDefinition((TailspinParser.TestDefinitionContext) s));
+      } else {
+        statements.add((Expression) visit(s));
+      }
+    });
+    return new Program(statements, tests);
   }
 
   @Override
@@ -1021,7 +1029,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Object visitTestDefinition(TailspinParser.TestDefinitionContext ctx) {
+  public Test visitTestDefinition(TailspinParser.TestDefinitionContext ctx) {
     dependencyCounters.push(new DependencyCounter());
     if (!ctx.stringLiteral(0).getText().equals(ctx.stringLiteral(1).getText())) {
       throw new AssertionError("Mismatched end " + ctx.stringLiteral(1).getText()

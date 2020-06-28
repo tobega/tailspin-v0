@@ -24,4 +24,8 @@ public class Definition implements Expression {
   public Set<String> getRequiredDefinitions() {
     return requiredDefinitions;
   }
+
+  public String getIdentifier() {
+    return identifier;
+  }
 }

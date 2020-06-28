@@ -15,7 +15,7 @@ public class BasicScope implements Scope {
   private final OutputStream output;
   private final Path basePath;
 
-  private final Map<String, Object> definitions = new HashMap<>();
+  final Map<String, Object> definitions = new HashMap<>();
 
   private String packageName;
 
