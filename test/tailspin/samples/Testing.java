@@ -159,4 +159,60 @@ public class Testing {
 
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void dontRequireBindingOfInternalSymbolsUsedInMatcherBlock() throws Exception {
+    String program = "templates outer\n"
+        + "def inner: 1;\n"
+        + "$ -> #\n"
+        + "<> $inner !\n"
+        + "end outer\n"
+        + "test 'A passing test'\n"
+        + "assert 2 -> outer <=1> 'outer gives 1'\n"
+        + "end 'A passing test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void dontRequireBindingOfParameters() throws Exception {
+    String program = "templates outer@{param:}\n"
+        + "$param !\n"
+        + "end outer\n"
+        + "test 'A passing test'\n"
+        + "assert 2 -> outer@{param: 1} <=1> 'outer gives 1'\n"
+        + "end 'A passing test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void dontRequireBindingOfLoopVariables() throws Exception {
+    String program = "templates outer\n"
+        + "[$] -> \\[i]($i !\\) -> $(1) !\n"
+        + "end outer\n"
+        + "test 'A passing test'\n"
+        + "assert 2 -> outer <=1> 'outer gives 1'\n"
+        + "end 'A passing test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
 }

@@ -16,7 +16,7 @@
             "request": "launch",
             "mainClass": "tailspin.Tailspin",
             "projectName": "tailspin-v0_bab79819",
-            "args": "samples/Dijkstra.tt"
+            "args": "--test samples/Sudoku.tt"
         }
     ]
 }
