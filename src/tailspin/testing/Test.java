@@ -1,6 +1,8 @@
 package tailspin.testing;
 
 import java.util.List;
+import java.util.Set;
+
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;

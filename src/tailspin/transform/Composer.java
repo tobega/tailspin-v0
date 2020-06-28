@@ -1,7 +1,5 @@
 package tailspin.transform;
 
-import static tailspin.control.Expression.queueOf;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +55,6 @@ public class Composer implements Transform {
 
   private TransformScope createTransformScope(Object it, Map<String, Object> parameters) {
     TransformScope scope = new TransformScope(definingScope, scopeName);
-    scope.setIt(queueOf(it));
     int foundParameters = 0;
     for (ExpectedParameter expectedParameter : expectedParameters) {
       if (parameters.containsKey(expectedParameter.name)) {

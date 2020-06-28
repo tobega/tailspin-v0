@@ -16,4 +16,8 @@ public class Definition implements Expression {
     blockScope.defineValue(identifier, value.getResults(it, blockScope));
     return null;
   }
+
+  public String getIdentifier() {
+    return identifier;
+  }
 }
