@@ -9,37 +9,43 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import tailspin.control.Definition;
-import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
-import tailspin.testing.Test;
 
 public class Program {
-    private List<Expression> statements;
-    private List<Test> tests;
+    private final List<TopLevelStatement> statements;
+    private final List<TopLevelStatement> tests;
+    private final List<ProgramDependency> dependencies;
 
-    public Program(List<Expression> statements, List<Test> tests) {
+    public Program(List<TopLevelStatement> statements, List<TopLevelStatement> tests, List<ProgramDependency> dependencies) {
         this.statements = statements;
         this.tests = tests;
+        this.dependencies = dependencies;
     }
 
     public void run(BasicScope scope) {
-        statements.forEach(s -> {
-            s.getResults(null, scope);
+        Set<String> externalSymbols = statements.stream()
+        .flatMap(t -> t.requiredDefinitions.stream().filter(s -> s.contains("/")))
+        .collect(Collectors.toSet());
+        for (ProgramDependency dependency : dependencies) {
+            externalSymbols = dependency.installSymbols(externalSymbols, scope);
+        }
+        statements.forEach(t -> {
+            t.statement.getResults(null, scope);
         });
     }
 
     public String runTests(BasicScope scope) {
         return tests.stream().map(t -> {
-            installSymbols(t.getRequiredDefinitions(), scope);
-            return t.getResults(null, scope);
+            installSymbols(t.requiredDefinitions, scope);
+            return t.statement.getResults(null, scope);
         }).flatMap(ri -> ResultIterator.toQueue(ResultIterator.flat(ri)).stream()).map(Object::toString)
                 .collect(Collectors.joining("\n"));
     }
 
-    private void installSymbols(Set<String> requiredDefinitions, BasicScope scope) {
+    void installSymbols(Set<String> requiredDefinitions, BasicScope scope) {
         Map<String,Set<String>> defDeps = statements.stream()
-            .filter(Definition.class::isInstance).map(Definition.class::cast)
-            .collect(Collectors.toMap(d -> d.getIdentifier(), d -> d.getRequiredDefinitions()));
+            .filter(t -> t.statement instanceof Definition)
+            .collect(Collectors.toMap(t -> ((Definition) t.statement).getIdentifier(), t -> t.requiredDefinitions));
         Queue<String> neededDefinitions = new ArrayDeque<>(requiredDefinitions);
         Set<String> transientDefinitions = new HashSet<>();
         while (!neededDefinitions.isEmpty()) {
@@ -55,8 +61,8 @@ public class Program {
             }
         }
         statements.stream()
-            .filter(Definition.class::isInstance).map(Definition.class::cast)
-            .filter(d -> transientDefinitions.contains(d.getIdentifier()))
-            .forEach(d -> d.getResults(null, scope));
+            .filter(t -> t.statement instanceof Definition)
+            .filter(t -> transientDefinitions.contains(((Definition) t.statement).getIdentifier()))
+            .forEach(t -> t.statement.getResults(null, scope));
     }
 }

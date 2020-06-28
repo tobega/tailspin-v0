@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.Tailspin;
-import tailspin.control.ResultIterator;
 import tailspin.matchers.AlwaysFalse;
 import tailspin.matchers.AnyOf;
 import tailspin.arithmetic.ArithmeticContextKeywordResolver;
@@ -90,11 +89,9 @@ import tailspin.parser.TailspinParserBaseVisitor;
 import tailspin.types.KeyValue;
 
 public class RunMain extends TailspinParserBaseVisitor<Object> {
-  public final Scope scope;
   private final Deque<DependencyCounter> dependencyCounters;
 
-  public RunMain(Scope scope) {
-    this.scope = scope;
+  public RunMain() {
     dependencyCounters = new ArrayDeque<>();
     dependencyCounters.push(new DependencyCounter());
   }
@@ -104,47 +101,33 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.packageDefinition() != null) {
       visitPackageDefinition(ctx.packageDefinition());
     }
-    ctx.dependency().forEach(this::visitDependency);
-    List<Expression> statements = new ArrayList<>();
-    List<Test> tests = new ArrayList<>();
+    List<ProgramDependency> dependencies = ctx.dependency().stream()
+        .map(this::visitDependency).collect(Collectors.toList());
+    List<TopLevelStatement> statements = new ArrayList<>();
+    List<TopLevelStatement> tests = new ArrayList<>();
     ctx.statement().forEach(s -> {
-      if (s instanceof TailspinParser.TestDefinitionContext) {
-        tests.add(visitTestDefinition((TailspinParser.TestDefinitionContext) s));
+      dependencyCounters.push(new DependencyCounter());
+      Expression statement = (Expression) visit(s);
+      Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
+      TopLevelStatement topLevelStatement = new TopLevelStatement(statement, requiredDefinitions);
+      if (statement instanceof Test) {
+        tests.add(topLevelStatement);
       } else {
-        statements.add((Expression) visit(s));
+        statements.add(topLevelStatement);
       }
     });
-    return new Program(statements, tests);
+    return new Program(statements, tests, dependencies);
   }
 
   @Override
   public Object visitPackageDefinition(TailspinParser.PackageDefinitionContext ctx) {
-    ((BasicScope) scope).setPackageName(ctx.localIdentifier().getText());
     return null;
   }
 
   @Override
-  public Object visitDependency(TailspinParser.DependencyContext ctx) {
-    String dependency = (String) visitStringLiteral(ctx.stringLiteral()).getResults(null, scope);
-    String dependencyName = dependency.substring(dependency.lastIndexOf('/') + 1);
-    Path depPath = scope.basePath().resolve(dependency + ".tt");
-    try {
-      Tailspin dep = Tailspin.parse(Files.newInputStream(depPath));
-      @SuppressWarnings("unchecked")
-      List<String> args = (List<String>) scope.resolveValue("ARGS");
-      // deps should not read from input
-      ByteArrayInputStream emptyInput = new ByteArrayInputStream(new byte[0]);
-      BasicScope depScope = dep.run(scope.basePath(), emptyInput, scope.getOutput(), args);
-      String packageName = depScope.getPackageName();
-      if (!dependencyName.equals(packageName)) {
-        throw new IllegalStateException("Mismatched package " + packageName + " in file " + dependencyName);
-      }
-      depScope.getExportedDefinitions()
-          .forEach(e -> scope.defineValue(packageName + "/" + e.getKey(), e.getValue()));
-      return null;
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  public ProgramDependency visitDependency(TailspinParser.DependencyContext ctx) {
+    Value dependency = visitStringLiteral(ctx.stringLiteral());
+    return new ProgramDependency(dependency);
   }
 
   @Override
@@ -366,11 +349,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public TemplatesDefinition visitTemplatesBody(TailspinParser.TemplatesBodyContext ctx) {
+    Block block = visitBlock(ctx.block());
     List<MatchTemplate> matchTemplates = new ArrayList<>();
     for (TailspinParser.MatchTemplateContext mtc : ctx.matchTemplate()) {
       matchTemplates.add(visitMatchTemplate(mtc));
     }
-    return new TemplatesDefinition(visitBlock(ctx.block()), matchTemplates);
+    return new TemplatesDefinition(block, matchTemplates);
   }
 
   @Override
@@ -498,7 +482,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitTemplatesDefinition(TailspinParser.TemplatesDefinitionContext ctx) {
-    dependencyCounters.push(new DependencyCounter());
     String name = ctx.localIdentifier(0).getText();
     if (!name.equals(ctx.localIdentifier(1).getText())) {
       throw new IllegalStateException(
@@ -506,10 +489,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     TemplatesDefinition templatesDefinition = visitTemplatesBody(ctx.templatesBody());
     templatesDefinition.expectParameters(visitParameterDefinitions(ctx.parameterDefinitions()));
-    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
-    dependencyCounters.peek().define(name); // can recurse
-    dependencyCounters.peek().requireAll(requiredDefinitions);
-    return new Definition(name, requiredDefinitions, (it, scope) -> {
+    dependencyCounters.peek().define(name);
+    return new Definition(name, (it, scope) -> {
       Templates templates = templatesDefinition.define(scope);
       templates.setScopeContext(name);
       return templates;
@@ -530,7 +511,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitProcessorDefinition(TailspinParser.ProcessorDefinitionContext ctx) {
-    dependencyCounters.push(new DependencyCounter());
     String name = ctx.localIdentifier(0).getText();
     if (!name.equals(ctx.localIdentifier(1).getText())) {
       throw new IllegalStateException(
@@ -538,10 +518,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     ProcessorDefinition processorDefinition = new ProcessorDefinition(visitBlock(ctx.block()),
         visitParameterDefinitions(ctx.parameterDefinitions()));
-    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
-    dependencyCounters.peek().requireAll(requiredDefinitions);
-    dependencyCounters.peek().define(name); // can recurse
-    return new Definition(name, requiredDefinitions, (it, scope) -> {
+    dependencyCounters.peek().define(name);
+    return new Definition(name, (it, scope) -> {
       ProcessorConstructor processorConstructor = processorDefinition.define(scope);
       processorConstructor.setScopeContext(name);
       return processorConstructor;
@@ -612,13 +590,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
-    dependencyCounters.push(new DependencyCounter());
     String identifier = ctx.key().localIdentifier().getText();
     Value value = Value.of(visitValueProduction(ctx.valueProduction()));
-    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
-    dependencyCounters.peek().requireAll(requiredDefinitions);
-    dependencyCounters.peek().define(identifier); // Cannot recurse
-    return new Definition(identifier, requiredDefinitions, value);
+    dependencyCounters.peek().define(identifier);
+    return new Definition(identifier, value);
   }
 
   @Override
@@ -824,10 +799,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
     composerDefinition.expectParameters(visitParameterDefinitions(ctx.parameterDefinitions()));
-    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
-    dependencyCounters.peek().define(name); // can recurse
-    dependencyCounters.peek().requireAll(requiredDefinitions);
-    return new Definition(name, requiredDefinitions, (it, scope) -> {
+    dependencyCounters.peek().define(name);
+    return new Definition(name, (it, scope) -> {
       Composer composer = composerDefinition.define(scope);
       composer.setScopeContext(name);
       return composer;
@@ -1030,14 +1003,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Test visitTestDefinition(TailspinParser.TestDefinitionContext ctx) {
-    dependencyCounters.push(new DependencyCounter());
     if (!ctx.stringLiteral(0).getText().equals(ctx.stringLiteral(1).getText())) {
       throw new AssertionError("Mismatched end " + ctx.stringLiteral(1).getText()
         + " to test " + ctx.stringLiteral(0).getText());
     }
     List<Expression> testBody = visitTestBody(ctx.testBody());
-    Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
-    return new Test(visitStringLiteral(ctx.stringLiteral(0)), requiredDefinitions, testBody);
+    return new Test(visitStringLiteral(ctx.stringLiteral(0)), testBody);
   }
 
   @Override

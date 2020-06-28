@@ -30,7 +30,8 @@ import tailspin.system.StdoutProcessor;
 import tailspin.system.SystemProcessor;
 
 public class Tailspin {
-  private final ProgramContext programDefinition;
+  // TODO: make private
+  public final ProgramContext programDefinition;
 
   private Tailspin(TailspinParser.ProgramContext programDefinition) {
     this.programDefinition = programDefinition;
@@ -62,7 +63,7 @@ public class Tailspin {
     scope.defineValue("SYS", new SystemProcessor(scope));
     scope.defineValue("IN", new StdinProcessor(scope));
     scope.defineValue("OUT", new StdoutProcessor(scope));
-    Program program = new RunMain(scope).visitProgram(programDefinition);
+    Program program = new RunMain().visitProgram(programDefinition);
     String result = program.runTests(scope);
     if (result.isEmpty()) {
       result = "Pass";
@@ -71,13 +72,12 @@ public class Tailspin {
   }
 
   public BasicScope run(Path basePath, InputStream input, OutputStream output, List<String> args) {
-    // System.out.println(program.toStringTree());
     BasicScope scope = new BasicScope(input, output, basePath);
     scope.defineValue("ARGS", args);
     scope.defineValue("SYS", new SystemProcessor(scope));
     scope.defineValue("IN", new StdinProcessor(scope));
     scope.defineValue("OUT", new StdoutProcessor(scope));
-    Program program = new RunMain(scope).visitProgram(programDefinition);
+    Program program = new RunMain().visitProgram(programDefinition);
     program.run(scope);
     return scope;
   }
