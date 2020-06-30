@@ -28,7 +28,13 @@ Also did [adventofcode 2019](https://adventofcode.com/2019) in Tailspin in [my r
 Examples can also be found at [Rosetta code](http://www.rosettacode.org/wiki/Category:Tailspin)
 
 ## To run a tailspin program
-Sorry, no easy way at the moment. Clone this repo, compile the sources (I use intellij), set the compiled .class files on your
+The easiest way is to just download "tailspin.jar" from this directory. Then you run `java -jar tailspin.jar path/to/your/program.tt`
+
+If you use vscode, there is a launch configuration so you can run programs from your editor. You just need to change the args as appropriate.
+
+To build from source, clone this repo and use Apache Ant and run "ant jar" in this directory. That will use the "build.xml" file to create "tailspin.jar" and classfiles in "out/production/tailspin-v0".
+
+If you want to compile it your own way, set the compiled .class files on your
 classpath and execute `java tailspin.Tailspin path_to_your_program`
 Oh, you'll need the antlr4 java runtime on your classpath as well, http://antlr4.org
 In my setup this ends up as `java -cp out/production/tailspin-v0/:lib/antlr-runtime-4.7.2.jar tailspin.Tailspin samples/FizzBuzz.tt`

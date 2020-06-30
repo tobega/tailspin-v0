@@ -16,6 +16,11 @@
     </target>
     
     <target name="jar" depends="compile">
-        <jar destfile="tailspin.jar" basedir="${build.dir}" />
+        <jar destfile="tailspin.jar" basedir="${build.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="tailspin.Tailspin"/>
+                <attribute name="Class-Path" value="lib/antlr-runtime-4.7.2.jar"/>
+            </manifest>
+        </jar>
     </target>
 </project>
