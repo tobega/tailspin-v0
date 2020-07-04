@@ -14,6 +14,10 @@ Void: 'VOID';
 
 Def: 'def';
 
+When: 'when';
+
+Do: 'do';
+
 To: '->';
 
 ResultMarker: '!';

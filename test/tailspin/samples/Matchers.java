@@ -12,7 +12,7 @@ import tailspin.Tailspin;
 class Matchers {
   @Test
   void rangeMatch() throws Exception {
-    String program = "1..6 -> \\(<..2> 'L'! <3..4> 'M'! <5..> 'H'!\\) -> !OUT::write";
+    String program = "1..6 -> \\(when <..2> do 'L'! when <3..4> do 'M'! when <5..> do 'H'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

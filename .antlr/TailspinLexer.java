@@ -1,5 +1,4 @@
-// Generated from TailspinLexer.g4 by ANTLR 4.8
-package tailspin.parser;
+// Generated from /Users/tobe/tobega/tailspin-v0/TailspinLexer.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;

@@ -14,8 +14,8 @@ which is then sent (usually by the `->` marker) through a series of [transforms]
 exclamation point `!` to emit the resulting value into the outer calling context (this is similar to a "yield"
 in a generator in other languages, except that the processing continues right away).
 
-The _current value_, referred to as "it" and written as `$`, at each
-stage is simply the value produced by the stage before. At the start of a top-level statement,
+The _current value_ is written as `$` and is, at each
+stage, simply the value produced by the stage before. At the start of a top-level statement,
 `$` is undefined.
 
 A transform is a function which only takes one value as input (the _current value_) and can emit a
@@ -175,8 +175,9 @@ A deconstructor is a transform that works on [arrays](#arrays) by flowing the el
 into a [stream](#streams), e.g. `[4,7,9]...` will create a stream of the values 4, 7 and 9.
  
 ### Templates
-A templates object consists of an optional _initial block_ and an optional sequence of [matchers](#matchers),
-each with a _block_. A matcher block can be just the word `!VOID`, which indicates that nothing should happen for this case.
+A templates object consists of an optional _initial block_ and an optional sequence of match statements.
+A match statement starts with the word `when` followed by a [matcher](#matchers), then the word `do`
+followed by a _block_. (Note that `when` and `do` are currently optional but will become mandatory at some point)
 
 A block is simply a series of _value chains_ that either dry up, with no value for the next stage;
 produce a value (or several) that gets [emitted](#emit-value) out of the template (by `!`); sends a value to a [sink](#sinks); or,
@@ -188,10 +189,10 @@ value is sent to the [matchers](#matchers) as if the initial block was just the 
 
 You cannot have an empty match block nor an empty templates object, but you can specify `!VOID` as a do-nothing action.
 
-Inside a templates object, sending to templates can be used as an additional type of _value chain_ for most value productions.
-Note that the send to templates ends the _value chain_ and the result at that point will be whatever the matchers and their blocks determine.
+Inside a templates object, sending to matchers can be used as an additional type of _value chain_ for most value productions.
+Note that the `#` to send to matchers ends the _value chain_ and the result at that point will be whatever the matchers and their blocks determine. If it is at the end of a statement it behaves as if it was followed by a `!` [emit marker](#emit-value).
 
-Templates have a special [mutable state value](#templates-state) 
+Templates have a special [mutable state value](#templates-state) which can be useful for iterative processing.
 
 #### Defined templates
 Templates can be defined with an identifier as a top-level statement or inside another templates object.

@@ -30,7 +30,7 @@ Examples can also be found at [Rosetta code](http://www.rosettacode.org/wiki/Cat
 ## To run a tailspin program
 The easiest way is to just download "tailspin.jar" from this directory. Then you run `java -jar tailspin.jar path/to/your/program.tt`
 
-If you use vscode, there is a launch configuration so you can run programs from your editor. You just need to change the args as appropriate.
+If you use vscode, there is a launch configuration so you can run programs from your editor. You just need to change the args as appropriate. There is also a [language extension under development](https://github.com/tobega/vsc-tailspin-language)
 
 To build from source, clone this repo and use Apache Ant and run "ant jar" in this directory. That will use the "build.xml" file to create "tailspin.jar" and classfiles in "out/production/tailspin-v0".
 

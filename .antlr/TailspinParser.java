@@ -1,5 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.8
-package tailspin.parser;
+// Generated from /Users/tobe/tobega/tailspin-v0/TailspinParser.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
@@ -181,11 +180,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_program; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitProgram(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ProgramContext program() throws RecognitionException {
@@ -262,11 +256,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_packageDefinition; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitPackageDefinition(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final PackageDefinitionContext packageDefinition() throws RecognitionException {
@@ -301,11 +290,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_dependency; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitDependency(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final DependencyContext dependency() throws RecognitionException {
@@ -360,11 +344,6 @@ public class TailspinParser extends Parser {
 			return getRuleContext(ParameterDefinitionsContext.class,0);
 		}
 		public TemplatesDefinitionContext(StatementContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitTemplatesDefinition(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class ValueChainToSinkContext extends StatementContext {
 		public ValueChainContext valueChain() {
@@ -375,11 +354,6 @@ public class TailspinParser extends Parser {
 			return getRuleContext(SinkContext.class,0);
 		}
 		public ValueChainToSinkContext(StatementContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitValueChainToSink(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class ComposerDefinitionContext extends StatementContext {
 		public TerminalNode StartComposerDefinition() { return getToken(TailspinParser.StartComposerDefinition, 0); }
@@ -397,11 +371,6 @@ public class TailspinParser extends Parser {
 			return getRuleContext(ParameterDefinitionsContext.class,0);
 		}
 		public ComposerDefinitionContext(StatementContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitComposerDefinition(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class DefinitionContext extends StatementContext {
 		public TerminalNode Def() { return getToken(TailspinParser.Def, 0); }
@@ -413,11 +382,6 @@ public class TailspinParser extends Parser {
 		}
 		public TerminalNode SemiColon() { return getToken(TailspinParser.SemiColon, 0); }
 		public DefinitionContext(StatementContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitDefinition(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class ProcessorDefinitionContext extends StatementContext {
 		public TerminalNode StartProcessorDefinition() { return getToken(TailspinParser.StartProcessorDefinition, 0); }
@@ -435,11 +399,6 @@ public class TailspinParser extends Parser {
 			return getRuleContext(ParameterDefinitionsContext.class,0);
 		}
 		public ProcessorDefinitionContext(StatementContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitProcessorDefinition(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class TestDefinitionContext extends StatementContext {
 		public TerminalNode StartTestDefinition() { return getToken(TailspinParser.StartTestDefinition, 0); }
@@ -454,11 +413,6 @@ public class TailspinParser extends Parser {
 		}
 		public TerminalNode EndDefinition() { return getToken(TailspinParser.EndDefinition, 0); }
 		public TestDefinitionContext(StatementContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitTestDefinition(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StatementContext statement() throws RecognitionException {
@@ -619,11 +573,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_key; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitKey(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final KeyContext key() throws RecognitionException {
@@ -667,11 +616,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_parameterDefinitions; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitParameterDefinitions(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ParameterDefinitionsContext parameterDefinitions() throws RecognitionException {
@@ -755,11 +699,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_source; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitSource(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final SourceContext source() throws RecognitionException {
@@ -858,11 +797,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_sourceReference; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitSourceReference(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final SourceReferenceContext sourceReference() throws RecognitionException {
@@ -930,11 +864,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_deleteState; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitDeleteState(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final DeleteStateContext deleteState() throws RecognitionException {
@@ -978,11 +907,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_reference; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitReference(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ReferenceContext reference() throws RecognitionException {
@@ -1046,11 +970,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_structureReference; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStructureReference(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StructureReferenceContext structureReference() throws RecognitionException {
@@ -1103,11 +1022,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_arrayReference; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitArrayReference(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ArrayReferenceContext arrayReference() throws RecognitionException {
@@ -1159,11 +1073,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_dimensionReference; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitDimensionReference(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final DimensionReferenceContext dimensionReference() throws RecognitionException {
@@ -1226,11 +1135,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_simpleDimension; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitSimpleDimension(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final SimpleDimensionContext simpleDimension() throws RecognitionException {
@@ -1291,11 +1195,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_multiValueDimension; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitMultiValueDimension(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MultiValueDimensionContext multiValueDimension() throws RecognitionException {
@@ -1357,11 +1256,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_arrayLiteral; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitArrayLiteral(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ArrayLiteralContext arrayLiteral() throws RecognitionException {
@@ -1432,11 +1326,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_valueProduction; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitValueProduction(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ValueProductionContext valueProduction() throws RecognitionException {
@@ -1490,11 +1379,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_structureLiteral; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStructureLiteral(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StructureLiteralContext structureLiteral() throws RecognitionException {
@@ -1561,11 +1445,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_keyValues; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitKeyValues(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final KeyValuesContext keyValues() throws RecognitionException {
@@ -1620,11 +1499,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_keyValue; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitKeyValue(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final KeyValueContext keyValue() throws RecognitionException {
@@ -1666,22 +1540,12 @@ public class TailspinParser extends Parser {
 			return getRuleContext(SourceContext.class,0);
 		}
 		public LiteralTemplatesContext(TemplatesContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitLiteralTemplates(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class CallDefinedTransformContext extends TemplatesContext {
 		public TemplatesReferenceContext templatesReference() {
 			return getRuleContext(TemplatesReferenceContext.class,0);
 		}
 		public CallDefinedTransformContext(TemplatesContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCallDefinedTransform(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class LambdaArrayTemplatesContext extends TemplatesContext {
 		public List<TerminalNode> Lambda() { return getTokens(TailspinParser.Lambda); }
@@ -1703,11 +1567,6 @@ public class TailspinParser extends Parser {
 			return getRuleContext(LocalIdentifierContext.class,i);
 		}
 		public LambdaArrayTemplatesContext(TemplatesContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitLambdaArrayTemplates(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class LambdaTemplatesContext extends TemplatesContext {
 		public List<TerminalNode> Lambda() { return getTokens(TailspinParser.Lambda); }
@@ -1726,11 +1585,6 @@ public class TailspinParser extends Parser {
 			return getRuleContext(LocalIdentifierContext.class,i);
 		}
 		public LambdaTemplatesContext(TemplatesContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitLambdaTemplates(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final TemplatesContext templates() throws RecognitionException {
@@ -1861,11 +1715,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_arrayIndexDecomposition; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitArrayIndexDecomposition(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ArrayIndexDecompositionContext arrayIndexDecomposition() throws RecognitionException {
@@ -1927,11 +1776,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_sink; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitSink(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final SinkContext sink() throws RecognitionException {
@@ -2029,11 +1873,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_templatesReference; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitTemplatesReference(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final TemplatesReferenceContext templatesReference() throws RecognitionException {
@@ -2098,11 +1937,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_parameterValues; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitParameterValues(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ParameterValuesContext parameterValues() throws RecognitionException {
@@ -2169,11 +2003,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_parameterValue; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitParameterValue(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ParameterValueContext parameterValue() throws RecognitionException {
@@ -2227,11 +2056,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_templatesBody; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitTemplatesBody(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final TemplatesBodyContext templatesBody() throws RecognitionException {
@@ -2308,11 +2132,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_matchTemplate; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitMatchTemplate(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MatchTemplateContext matchTemplate() throws RecognitionException {
@@ -2387,11 +2206,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_block; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitBlock(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final BlockContext block() throws RecognitionException {
@@ -2499,11 +2313,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_blockExpression; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitBlockExpression(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final BlockExpressionContext blockExpression() throws RecognitionException {
@@ -2563,11 +2372,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_resultValue; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitResultValue(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ResultValueContext resultValue() throws RecognitionException {
@@ -2601,11 +2405,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_blockStatement; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitBlockStatement(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final BlockStatementContext blockStatement() throws RecognitionException {
@@ -2639,11 +2438,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_sendToTemplates; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitSendToTemplates(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final SendToTemplatesContext sendToTemplates() throws RecognitionException {
@@ -2683,11 +2477,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_stateAssignment; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStateAssignment(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StateAssignmentContext stateAssignment() throws RecognitionException {
@@ -2741,11 +2530,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_stateSink; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStateSink(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StateSinkContext stateSink() throws RecognitionException {
@@ -2804,11 +2588,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_valueChain; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitValueChain(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ValueChainContext valueChain() throws RecognitionException {
@@ -2867,11 +2646,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_transform; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitTransform(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final TransformContext transform() throws RecognitionException {
@@ -2950,11 +2724,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_matcher; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitMatcher(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MatcherContext matcher() throws RecognitionException {
@@ -3026,11 +2795,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_criterion; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCriterion(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CriterionContext criterion() throws RecognitionException {
@@ -3117,11 +2881,6 @@ public class TailspinParser extends Parser {
 			return getRuleContext(RangeBoundsContext.class,0);
 		}
 		public RangeMatchContext(TypeMatchContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitRangeMatch(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class ArrayMatchContext extends TypeMatchContext {
 		public TerminalNode LeftBracket() { return getToken(TailspinParser.LeftBracket, 0); }
@@ -3146,22 +2905,12 @@ public class TailspinParser extends Parser {
 			return getRuleContext(ArithmeticExpressionContext.class,0);
 		}
 		public ArrayMatchContext(TypeMatchContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitArrayMatch(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class RegexpMatchContext extends TypeMatchContext {
 		public StringLiteralContext stringLiteral() {
 			return getRuleContext(StringLiteralContext.class,0);
 		}
 		public RegexpMatchContext(TypeMatchContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitRegexpMatch(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 	public static class StructureMatchContext extends TypeMatchContext {
 		public TerminalNode LeftBrace() { return getToken(TailspinParser.LeftBrace, 0); }
@@ -3184,11 +2933,6 @@ public class TailspinParser extends Parser {
 			return getToken(TailspinParser.Comma, i);
 		}
 		public StructureMatchContext(TypeMatchContext ctx) { copyFrom(ctx); }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStructureMatch(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final TypeMatchContext typeMatch() throws RecognitionException {
@@ -3380,11 +3124,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_structureContentMatcher; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStructureContentMatcher(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StructureContentMatcherContext structureContentMatcher() throws RecognitionException {
@@ -3434,11 +3173,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_arrayContentMatcher; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitArrayContentMatcher(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ArrayContentMatcherContext arrayContentMatcher() throws RecognitionException {
@@ -3482,11 +3216,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_literalMatch; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitLiteralMatch(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final LiteralMatchContext literalMatch() throws RecognitionException {
@@ -3524,11 +3253,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_rangeBounds; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitRangeBounds(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final RangeBoundsContext rangeBounds() throws RecognitionException {
@@ -3586,11 +3310,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_condition; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCondition(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ConditionContext condition() throws RecognitionException {
@@ -3635,11 +3354,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_lowerBound; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitLowerBound(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final LowerBoundContext lowerBound() throws RecognitionException {
@@ -3709,11 +3423,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_upperBound; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitUpperBound(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final UpperBoundContext upperBound() throws RecognitionException {
@@ -3784,11 +3493,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_rangeLiteral; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitRangeLiteral(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final RangeLiteralContext rangeLiteral() throws RecognitionException {
@@ -3854,11 +3558,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_integerLiteral; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitIntegerLiteral(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final IntegerLiteralContext integerLiteral() throws RecognitionException {
@@ -3908,11 +3607,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_nonZeroInteger; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitNonZeroInteger(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final NonZeroIntegerContext nonZeroInteger() throws RecognitionException {
@@ -3960,11 +3654,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_stringLiteral; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStringLiteral(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StringLiteralContext stringLiteral() throws RecognitionException {
@@ -4014,11 +3703,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_stringContent; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStringContent(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StringContentContext stringContent() throws RecognitionException {
@@ -4069,11 +3753,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_stringInterpolate; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStringInterpolate(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StringInterpolateContext stringInterpolate() throws RecognitionException {
@@ -4122,11 +3801,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_characterCode; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCharacterCode(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CharacterCodeContext characterCode() throws RecognitionException {
@@ -4180,11 +3854,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_interpolateEvaluate; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitInterpolateEvaluate(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final InterpolateEvaluateContext interpolateEvaluate() throws RecognitionException {
@@ -4339,11 +4008,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_arithmeticExpression; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitArithmeticExpression(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ArithmeticExpressionContext arithmeticExpression() throws RecognitionException {
@@ -4483,11 +4147,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_additiveOperator; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitAdditiveOperator(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final AdditiveOperatorContext additiveOperator() throws RecognitionException {
@@ -4528,11 +4187,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_multiplicativeOperator; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitMultiplicativeOperator(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MultiplicativeOperatorContext multiplicativeOperator() throws RecognitionException {
@@ -4582,11 +4236,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_composerBody; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitComposerBody(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ComposerBodyContext composerBody() throws RecognitionException {
@@ -4647,11 +4296,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_definedCompositionSequence; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitDefinedCompositionSequence(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final DefinedCompositionSequenceContext definedCompositionSequence() throws RecognitionException {
@@ -4693,11 +4337,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_compositionSequence; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCompositionSequence(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CompositionSequenceContext compositionSequence() throws RecognitionException {
@@ -4765,11 +4404,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_compositionComponents; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCompositionComponents(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CompositionComponentsContext compositionComponents() throws RecognitionException {
@@ -4842,11 +4476,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_compositionComponent; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCompositionComponent(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CompositionComponentContext compositionComponent() throws RecognitionException {
@@ -4917,11 +4546,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_compositionMatcher; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCompositionMatcher(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CompositionMatcherContext compositionMatcher() throws RecognitionException {
@@ -5041,11 +4665,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_structureMemberMatchers; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStructureMemberMatchers(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StructureMemberMatchersContext structureMemberMatchers() throws RecognitionException {
@@ -5121,11 +4740,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_structureMemberMatcher; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStructureMemberMatcher(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StructureMemberMatcherContext structureMemberMatcher() throws RecognitionException {
@@ -5201,11 +4815,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_tokenMatcher; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitTokenMatcher(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final TokenMatcherContext tokenMatcher() throws RecognitionException {
@@ -5281,11 +4890,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_compositionToken; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCompositionToken(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CompositionTokenContext compositionToken() throws RecognitionException {
@@ -5353,11 +4957,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_multiplier; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitMultiplier(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final MultiplierContext multiplier() throws RecognitionException {
@@ -5441,11 +5040,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_compositionSkipRule; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCompositionSkipRule(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CompositionSkipRuleContext compositionSkipRule() throws RecognitionException {
@@ -5506,11 +5100,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_compositionCapture; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCompositionCapture(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CompositionCaptureContext compositionCapture() throws RecognitionException {
@@ -5597,11 +5186,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_compositionKeyValue; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCompositionKeyValue(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CompositionKeyValueContext compositionKeyValue() throws RecognitionException {
@@ -5682,11 +5266,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_compositionKey; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitCompositionKey(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final CompositionKeyContext compositionKey() throws RecognitionException {
@@ -5721,11 +5300,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_localIdentifier; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitLocalIdentifier(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final LocalIdentifierContext localIdentifier() throws RecognitionException {
@@ -5787,11 +5361,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_stateIdentifier; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitStateIdentifier(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final StateIdentifierContext stateIdentifier() throws RecognitionException {
@@ -5840,11 +5409,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_externalIdentifier; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitExternalIdentifier(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ExternalIdentifierContext externalIdentifier() throws RecognitionException {
@@ -5905,11 +5469,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_anyIdentifier; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitAnyIdentifier(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final AnyIdentifierContext anyIdentifier() throws RecognitionException {
@@ -5960,11 +5519,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_arithmeticContextKeyword; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitArithmeticContextKeyword(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final ArithmeticContextKeywordContext arithmeticContextKeyword() throws RecognitionException {
@@ -6018,11 +5572,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_keyword; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitKeyword(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final KeywordContext keyword() throws RecognitionException {
@@ -6157,11 +5706,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_testBody; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitTestBody(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final TestBodyContext testBody() throws RecognitionException {
@@ -6221,11 +5765,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_testBlock; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitTestBlock(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final TestBlockContext testBlock() throws RecognitionException {
@@ -6298,11 +5837,6 @@ public class TailspinParser extends Parser {
 			super(parent, invokingState);
 		}
 		@Override public int getRuleIndex() { return RULE_assertion; }
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitAssertion(this);
-			else return visitor.visitChildren(this);
-		}
 	}
 
 	public final AssertionContext assertion() throws RecognitionException {
