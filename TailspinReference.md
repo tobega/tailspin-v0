@@ -179,6 +179,8 @@ A templates object consists of an optional _initial block_ and an optional seque
 A match statement starts with the word `when` followed by a [matcher](#matchers), then the word `do`
 followed by a _block_. (Note that `when` and `do` are currently optional but will become mandatory at some point)
 
+The last match statement can be the word `otherwise` which will match if nothing previous matched. It is equivalent to the statement `when <> do` (match anything).
+
 A block is simply a series of _value chains_ that either dry up, with no value for the next stage;
 produce a value (or several) that gets [emitted](#emit-value) out of the template (by `!`); sends a value to a [sink](#sinks); or,
 most important, by the `#` marker, __sends a value to the [matchers](#matchers)__

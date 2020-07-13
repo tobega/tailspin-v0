@@ -18,6 +18,8 @@ When: 'when';
 
 Do: 'do';
 
+Otherwise: 'otherwise';
+
 To: '->';
 
 ResultMarker: '!';

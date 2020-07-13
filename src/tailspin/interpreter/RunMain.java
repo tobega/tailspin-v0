@@ -370,6 +370,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public MatchTemplate visitMatchTemplate(TailspinParser.MatchTemplateContext ctx) {
+    if (ctx.Otherwise() != null) {
+      return new MatchTemplate(new ValueMatcher(null, List.of()), visitBlock(ctx.block()));
+    }
     return new MatchTemplate(visitMatcher(ctx.matcher()), visitBlock(ctx.block()));
   }
 

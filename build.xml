@@ -10,7 +10,7 @@
         <mkdir dir="${build.dir}" />
         <javac includeantruntime="false" srcdir="${src.dir}" destdir="${build.dir}">
             <classpath>
-                <pathelement location="lib/antlr-runtime-4.7.2.jar"/>
+                <pathelement location="lib/antlr-runtime-4.8.jar"/>
             </classpath>
         </javac>
     </target>
@@ -19,7 +19,7 @@
         <jar destfile="tailspin.jar" basedir="${build.dir}">
             <manifest>
                 <attribute name="Main-Class" value="tailspin.Tailspin"/>
-                <attribute name="Class-Path" value="lib/antlr-runtime-4.7.2.jar"/>
+                <attribute name="Class-Path" value="lib/antlr-runtime-4.8.jar"/>
             </manifest>
         </jar>
     </target>

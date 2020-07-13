@@ -79,7 +79,7 @@ templatesBody: block matchTemplate*
   | matchTemplate+
 ;
 
-matchTemplate: matcher block | When? matcher Do? block;
+matchTemplate: matcher block | When? matcher Do? block | Otherwise block;
 
 block: (blockExpression+ | (ResultMarker Void));
 
@@ -224,6 +224,7 @@ keyword: Package
   | Rule
   | When
   | Do
+  | Otherwise
   | arithmeticContextKeyword
 ;
 
