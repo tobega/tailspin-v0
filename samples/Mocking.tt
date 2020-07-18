@@ -1,0 +1,24 @@
+sink hello
+  'Hello $;' -> !OUT::write
+end hello
+
+test 'hello'
+  with
+    modified core-system/
+      processor MockOut
+        @: [];
+        sink write
+          ..|@MockOut: $;
+        end write
+        source next
+          ^@MockOut(1) !
+        end next
+      end MockOut
+
+      def OUT: $MockOut;
+    end core-system/
+  provided
+
+  'John' -> !hello
+  assert $OUT::next <='Hello John'> 'Wrote greeting'
+end 'hello'
