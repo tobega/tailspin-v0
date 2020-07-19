@@ -1,19 +1,20 @@
-package tailspin.testing;
+package tailspin.interpreter;
 
 import java.util.List;
+import java.util.Set;
 
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
-import tailspin.interpreter.Scope;
-import tailspin.interpreter.DependencyProvider;
 
 public class Test implements Expression {
   private final Value description;
+  private final List<DependencyProvider> dependencyProviders;
   private final List<Expression> expressions;
 
   public Test(Value description, List<DependencyProvider> dependencyProviders, List<Expression> expressions) {
     this.description = description;
+    this.dependencyProviders = dependencyProviders;
     this.expressions = expressions;
   }
 
@@ -28,5 +29,12 @@ public class Test implements Expression {
           "" + description.getResults(null, blockScope) + " failed:", result);
     }
     return result;
+  }
+
+  public Set<String> installOverrides(Set<String> requiredSymbols, Scope scope) {
+    for (DependencyProvider provider : dependencyProviders) {
+      requiredSymbols = provider.installSymbols(requiredSymbols, scope);
+    }
+    return requiredSymbols;
   }
 }

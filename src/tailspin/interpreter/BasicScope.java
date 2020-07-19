@@ -1,27 +1,15 @@
 package tailspin.interpreter;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class BasicScope implements Scope {
-  private final BufferedReader input;
-  private final OutputStream output;
   private final Path basePath;
 
   final Map<String, Object> definitions = new HashMap<>();
 
-  private String packageName;
-
-  public BasicScope(InputStream input, OutputStream output, Path basePath) {
-    this.input = new BufferedReader(new InputStreamReader(input));
-    this.output = output;
+  public BasicScope(Path basePath) {
     this.basePath = basePath;
   }
 
@@ -43,16 +31,6 @@ public class BasicScope implements Scope {
   }
 
   @Override
-  public BufferedReader getInput() {
-    return input;
-  }
-
-  @Override
-  public OutputStream getOutput() {
-    return output;
-  }
-
-  @Override
   public Path basePath() {
     return basePath;
   }
@@ -70,21 +48,5 @@ public class BasicScope implements Scope {
   @Override
   public Scope getParentScope() {
     throw new UnsupportedOperationException("No parent scope");
-  }
-
-  List<Map.Entry<String, Object>> getExportedDefinitions() {
-    return definitions.entrySet().stream()
-        .filter(e -> !e.getKey().contains("/"))
-        .filter(e -> !e.getKey().equals("ARGS"))
-        .filter(e -> !e.getKey().equals("SYS"))
-        .collect(Collectors.toList());
-  }
-
-  String getPackageName() {
-    return packageName;
-  }
-
-  void setPackageName(String packageName) {
-    this.packageName = packageName;
   }
 }
