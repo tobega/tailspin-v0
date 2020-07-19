@@ -1,18 +1,18 @@
 package tailspin.testing;
 
 import java.util.List;
-import java.util.Set;
 
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.interpreter.DependencyProvider;
 
 public class Test implements Expression {
   private final Value description;
   private final List<Expression> expressions;
 
-  public Test(Value description, List<Expression> expressions) {
+  public Test(Value description, List<DependencyProvider> dependencyProviders, List<Expression> expressions) {
     this.description = description;
     this.expressions = expressions;
   }

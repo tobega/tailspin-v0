@@ -1034,8 +1034,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new AssertionError("Mismatched end " + ctx.stringLiteral(1).getText()
         + " to test " + ctx.stringLiteral(0).getText());
     }
+    List<DependencyProvider> dependencies = visitDependencyProvision(ctx.dependencyProvision());
     List<Expression> testBody = visitTestBody(ctx.testBody());
-    return new Test(visitStringLiteral(ctx.stringLiteral(0)), testBody);
+    return new Test(visitStringLiteral(ctx.stringLiteral(0)), dependencies, testBody);
   }
 
   @Override
@@ -1053,5 +1054,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public Assertion visitAssertion(TailspinParser.AssertionContext ctx) {
     return new Assertion(visitValueChain(ctx.valueChain()),
         visitMatcher(ctx.matcher()), visitStringLiteral(ctx.stringLiteral()));
+  }
+
+  @Override
+  public List<DependencyProvider> visitDependencyProvision(TailspinParser.DependencyProvisionContext ctx) {
+    return List.of();
   }
 }

@@ -215,4 +215,40 @@ public class Testing {
 
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void mockModifyCoreSystem() throws Exception {
+    String program = "sink hello\n"
+    + "  'Hello $;' -> !OUT::write\n"
+    + "end hello\n"
+  
+    + "test 'hello'\n"
+    + "  with\n"
+    + "    modified core-system/\n"
+    + "      processor MockOut\n"
+    + "        @: [];\n"
+    + "        sink write\n"
+    + "          ..|@MockOut: $;\n"
+    + "        end write\n"
+    + "        source next\n"
+    + "          ^@MockOut(1) !\n"
+    + "        end next\n"
+    + "      end MockOut\n"
+  
+    + "      def OUT: $MockOut;\n"
+    + "    end core-system/\n"
+    + "  provided\n"
+  
+    + "  'John' -> !hello\n"
+    + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
+    + "end 'hello'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
 }

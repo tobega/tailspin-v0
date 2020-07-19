@@ -13,7 +13,7 @@ statement: Def key valueProduction SemiColon                  # definition
   | (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? templatesBody EndDefinition localIdentifier # templatesDefinition
   | StartProcessorDefinition localIdentifier parameterDefinitions? block EndDefinition localIdentifier # processorDefinition
   | StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier # composerDefinition
-  | StartTestDefinition stringLiteral testBody EndDefinition stringLiteral # testDefinition
+  | StartTestDefinition stringLiteral dependencyProvision? testBody EndDefinition stringLiteral # testDefinition
 ;
 
 key: localIdentifier Colon;
@@ -233,3 +233,9 @@ testBody: testBlock+;
 testBlock: statement* assertion+;
 
 assertion: Assert valueChain matcher stringLiteral;
+
+dependencyProvision: With moduleConfiguration+ Provided;
+
+moduleConfiguration:
+  Modified CoreSystem statement+ EndDefinition CoreSystem #modifiedModule
+;

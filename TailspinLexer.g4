@@ -110,6 +110,14 @@ StartTestDefinition: 'test';
 
 Assert: 'assert';
 
+CoreSystem: 'core-system/';
+
+With: 'with';
+
+Provided: 'provided';
+
+Modified: 'modified';
+
 Zero: '0';
 
 PositiveInteger: [1-9] Digits?;
