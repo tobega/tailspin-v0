@@ -990,6 +990,19 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public List<DependencyProvider> visitDependencyProvision(TailspinParser.DependencyProvisionContext ctx) {
-    return List.of();
+    if (ctx == null) return List.of();
+    return ctx.moduleConfiguration().stream().map(this::visitModuleConfiguration).collect(Collectors.toList());
+  }
+
+  @Override
+  public DependencyProvider visitModuleConfiguration(ModuleConfigurationContext ctx) {
+    List<TopLevelStatement> statements = new ArrayList<>();
+    ctx.statement().forEach(s -> {
+      dependencyCounters.push(new DependencyCounter());
+      Expression statement = (Expression) visit(s);
+      Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
+      statements.add(new TopLevelStatement(statement, requiredDefinitions));
+    });
+    return new ModuleProvider(statements);
   }
 }

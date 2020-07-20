@@ -25,7 +25,10 @@ public class CoreSystemProvider implements DependencyProvider {
     }
 
     @Override
-    public Set<String> installSymbols(Set<String> requiredSymbols, Scope scope) {
+    public Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, List<DependencyProvider> providedModules) {
+        if (!providedModules.isEmpty()) {
+            throw new IllegalStateException("Core system provided with dependencies");
+        }
         for (String symbol : requiredSymbols) {
             switch (symbol) {
                 case "ARGS": scope.defineValue("ARGS", args); break;

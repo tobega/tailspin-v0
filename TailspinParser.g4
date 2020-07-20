@@ -237,5 +237,5 @@ assertion: Assert valueChain matcher stringLiteral;
 dependencyProvision: With moduleConfiguration+ Provided;
 
 moduleConfiguration:
-  Modified CoreSystem statement+ EndDefinition CoreSystem #modifiedModule
+  Modified CoreSystem statement+ EndDefinition CoreSystem
 ;

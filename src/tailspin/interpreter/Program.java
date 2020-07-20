@@ -24,7 +24,7 @@ public class Program {
         for (ProgramDependency dependency : dependencies) {
             requiredSymbols = dependency.installSymbols(requiredSymbols, scope, coreSystemProvider);
         }
-        coreSystemProvider.installSymbols(requiredSymbols, scope);
+        coreSystemProvider.installSymbols(requiredSymbols, scope, List.of());
         statements.forEach(t -> t.statement.getResults(null, scope));
     }
 
@@ -57,7 +57,7 @@ public class Program {
                 neededDefinitions.addAll(defDeps.get(def));
             }
         }
-        systemDeps.installSymbols(externalDefinitions, scope);
+        systemDeps.installSymbols(externalDefinitions, scope, List.of());
         statements.stream()
             .filter(t -> t.statement instanceof Definition)
             .filter(t -> transientDefinitions.contains(((Definition) t.statement).getIdentifier()))

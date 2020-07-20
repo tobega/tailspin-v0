@@ -6432,17 +6432,6 @@ public class TailspinParser extends Parser {
 	}
 
 	public static class ModuleConfigurationContext extends ParserRuleContext {
-		public ModuleConfigurationContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_moduleConfiguration; }
-	 
-		public ModuleConfigurationContext() { }
-		public void copyFrom(ModuleConfigurationContext ctx) {
-			super.copyFrom(ctx);
-		}
-	}
-	public static class ModifiedModuleContext extends ModuleConfigurationContext {
 		public TerminalNode Modified() { return getToken(TailspinParser.Modified, 0); }
 		public List<TerminalNode> CoreSystem() { return getTokens(TailspinParser.CoreSystem); }
 		public TerminalNode CoreSystem(int i) {
@@ -6455,10 +6444,13 @@ public class TailspinParser extends Parser {
 		public StatementContext statement(int i) {
 			return getRuleContext(StatementContext.class,i);
 		}
-		public ModifiedModuleContext(ModuleConfigurationContext ctx) { copyFrom(ctx); }
+		public ModuleConfigurationContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_moduleConfiguration; }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitModifiedModule(this);
+			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitModuleConfiguration(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -6468,7 +6460,6 @@ public class TailspinParser extends Parser {
 		enterRule(_localctx, 166, RULE_moduleConfiguration);
 		try {
 			int _alt;
-			_localctx = new ModifiedModuleContext(_localctx);
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(964);

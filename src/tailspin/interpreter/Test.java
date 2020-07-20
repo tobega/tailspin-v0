@@ -1,11 +1,11 @@
 package tailspin.interpreter;
 
-import java.util.List;
-import java.util.Set;
-
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
+
+import java.util.List;
+import java.util.Set;
 
 public class Test implements Expression {
   private final Value description;
@@ -33,7 +33,7 @@ public class Test implements Expression {
 
   public Set<String> installOverrides(Set<String> requiredSymbols, Scope scope) {
     for (DependencyProvider provider : dependencyProviders) {
-      requiredSymbols = provider.installSymbols(requiredSymbols, scope);
+      requiredSymbols = provider.installSymbols(requiredSymbols, scope, List.of());
     }
     return requiredSymbols;
   }
