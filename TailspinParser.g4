@@ -2,11 +2,9 @@ parser grammar TailspinParser;
 
 options { tokenVocab = TailspinLexer; }
 
-program: packageDefinition? dependency* statement (statement)* EOF;
+program: inclusion* statement (statement)* EOF;
 
-packageDefinition: Package localIdentifier;
-
-dependency: Import stringLiteral;
+inclusion: Include stringLiteral;
 
 statement: Def key valueProduction SemiColon                  # definition
   | valueChain To sink                                   # valueChainToSink
@@ -211,8 +209,7 @@ arithmeticContextKeyword: First
   | Last
 ;
 
-keyword: Package
-  | Import
+keyword: Include
   | Def
   | StartTemplatesDefinition
   | StartSourceDefinition

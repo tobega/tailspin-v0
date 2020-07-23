@@ -10,10 +10,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-class ProgramDependency {
+class IncludedFile implements SymbolLibrary {
     final Value specifier;
 
-    ProgramDependency(Value specifier) {
+    IncludedFile(Value specifier) {
         this.specifier = specifier;
     }
 
@@ -26,10 +26,19 @@ class ProgramDependency {
         }    
     }
 
-    Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, List<SymbolLibrary> inheritedProviders) {
+    @Override
+    public Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, List<SymbolLibrary> inheritedProviders) {
         String dependency = (String) specifier.getResults(null, scope);
         String dependencyPrefix = dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
         Path depPath = scope.basePath().resolve(dependency + ".tt");
+        try {
+            if (!depPath.toRealPath().startsWith(scope.basePath().toRealPath())) {
+                throw new IllegalArgumentException("Attempt to include file " + depPath
+                        + " from outside hierarchy of " + scope.basePath());
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to resolve " + depPath);
+        }
         Set<String> providedSymbols = new HashSet<>();
         Set<String> unresolvedSymbols = new HashSet<>();
         requiredSymbols.forEach(s -> {

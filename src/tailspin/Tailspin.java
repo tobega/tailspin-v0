@@ -44,15 +44,25 @@ public class Tailspin {
     return new Tailspin(prog);
   }
 
+  /**
+   * Only to be used by tests
+   */
   public void run(InputStream input, OutputStream output, List<String> args) {
     run(Path.of("."), input, output, args);
   }
 
-  public void runTests(InputStream input, OutputStream output, List<String> args)
+  /**
+   * Only to be used by tests
+   */
+  public void runTests(InputStream input, OutputStream output, List<String> args) throws IOException {
+    runTests(Path.of("."), input, output, args);
+  }
+
+  public void runTests(Path basePath, InputStream input, OutputStream output, List<String> args)
       throws IOException {
     Program program = new RunMain().visitProgram(programDefinition);
     CoreSystemProvider coreSystemProvider = new CoreSystemProvider(args, input, output);
-    String result = program.runTests(Path.of("."), coreSystemProvider);
+    String result = program.runTests(basePath, coreSystemProvider);
     if (result.isEmpty()) {
       result = "Pass";
     }
@@ -68,11 +78,15 @@ public class Tailspin {
 
   public static void main(String[] args) throws IOException {
     if (args.length > 1 && args[0].equals("--test")) {
-      Tailspin program = parse(Files.newInputStream(Paths.get(args[1])));
-      program.runTests(System.in, System.out, Arrays.asList(Arrays.copyOfRange(args, 2, args.length)));
+      Path programPath = Paths.get(args[1]);
+      Path basePath = programPath.toAbsolutePath().getParent();
+      Tailspin program = parse(Files.newInputStream(programPath));
+      program.runTests(basePath, System.in, System.out, Arrays.asList(Arrays.copyOfRange(args, 2, args.length)));
     } else {
-      Tailspin program = parse(Files.newInputStream(Paths.get(args[0])));
-      program.run(System.in, System.out, Arrays.asList(Arrays.copyOfRange(args, 1, args.length)));
+      Path programPath = Paths.get(args[0]);
+      Path basePath = programPath.toAbsolutePath().getParent();
+      Tailspin program = parse(Files.newInputStream(programPath));
+      program.run(basePath, System.in, System.out, Arrays.asList(Arrays.copyOfRange(args, 1, args.length)));
     }
   }
 

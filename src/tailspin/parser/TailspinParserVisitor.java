@@ -17,17 +17,11 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProgram(TailspinParser.ProgramContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#packageDefinition}.
+	 * Visit a parse tree produced by {@link TailspinParser#inclusion}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitPackageDefinition(TailspinParser.PackageDefinitionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link TailspinParser#dependency}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDependency(TailspinParser.DependencyContext ctx);
+	T visitInclusion(TailspinParser.InclusionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code definition}
 	 * labeled alternative in {@link TailspinParser#statement}.

@@ -6,9 +6,7 @@ lexer grammar TailspinLexer;
 
 StartComment: '//' -> skip, pushMode(COMMENT_MODE);
 
-Package: 'package';
-
-Import: 'import';
+Include: 'include';
 
 Void: 'VOID';
 

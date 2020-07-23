@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 public class Program implements SymbolLibrary {
     private final List<TopLevelStatement> statements;
     private final List<TestStatement> tests;
-    private final List<ProgramDependency> dependencies;
+    private final List<IncludedFile> includedFiles;
 
-    public Program(List<TopLevelStatement> statements, List<TestStatement> tests, List<ProgramDependency> dependencies) {
+    public Program(List<TopLevelStatement> statements, List<TestStatement> tests, List<IncludedFile> includedFiles) {
         this.statements = statements;
         this.tests = tests;
-        this.dependencies = dependencies;
+        this.includedFiles = includedFiles;
     }
 
     public void run(Path basePath, SymbolLibrary coreSystemProvider) {
@@ -23,7 +23,7 @@ public class Program implements SymbolLibrary {
         Set<String> requiredSymbols = statements.stream()
         .flatMap(t -> t.requiredDefinitions.stream())
         .collect(Collectors.toSet());
-        for (ProgramDependency dependency : dependencies) {
+        for (IncludedFile dependency : includedFiles) {
             requiredSymbols = dependency.installSymbols(requiredSymbols, scope, List.of(coreSystemProvider));
         }
         coreSystemProvider.installSymbols(requiredSymbols, scope, List.of());

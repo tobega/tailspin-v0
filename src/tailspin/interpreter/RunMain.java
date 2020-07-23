@@ -30,11 +30,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Program visitProgram(TailspinParser.ProgramContext ctx) {
-    if (ctx.packageDefinition() != null) {
-      visitPackageDefinition(ctx.packageDefinition());
-    }
-    List<ProgramDependency> dependencies = ctx.dependency().stream()
-        .map(this::visitDependency).collect(Collectors.toList());
+    List<IncludedFile> includedFiles = ctx.inclusion().stream()
+        .map(this::visitInclusion).collect(Collectors.toList());
     List<TopLevelStatement> statements = new ArrayList<>();
     List<TestStatement> tests = new ArrayList<>();
     ctx.statement().forEach(s -> {
@@ -47,18 +44,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         statements.add(new TopLevelStatement(statement, requiredDefinitions));
       }
     });
-    return new Program(statements, tests, dependencies);
+    return new Program(statements, tests, includedFiles);
   }
 
   @Override
-  public Object visitPackageDefinition(TailspinParser.PackageDefinitionContext ctx) {
-    return null;
-  }
-
-  @Override
-  public ProgramDependency visitDependency(TailspinParser.DependencyContext ctx) {
+  public IncludedFile visitInclusion(TailspinParser.InclusionContext ctx) {
     Value dependency = visitStringLiteral(ctx.stringLiteral());
-    return new ProgramDependency(dependency);
+    return new IncludedFile(dependency);
   }
 
   @Override
