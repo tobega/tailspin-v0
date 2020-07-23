@@ -9,12 +9,12 @@ import java.util.Set;
 
 public class Test implements Expression {
   private final Value description;
-  private final List<DependencyProvider> dependencyProviders;
+  private final List<SymbolLibrary> symbolLibraries;
   private final List<Expression> expressions;
 
-  public Test(Value description, List<DependencyProvider> dependencyProviders, List<Expression> expressions) {
+  public Test(Value description, List<SymbolLibrary> symbolLibraries, List<Expression> expressions) {
     this.description = description;
-    this.dependencyProviders = dependencyProviders;
+    this.symbolLibraries = symbolLibraries;
     this.expressions = expressions;
   }
 
@@ -32,7 +32,7 @@ public class Test implements Expression {
   }
 
   public Set<String> installOverrides(Set<String> requiredSymbols, Scope scope) {
-    for (DependencyProvider provider : dependencyProviders) {
+    for (SymbolLibrary provider : symbolLibraries) {
       requiredSymbols = provider.installSymbols(requiredSymbols, scope, List.of());
     }
     return requiredSymbols;

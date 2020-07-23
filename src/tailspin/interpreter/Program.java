@@ -3,6 +3,7 @@ package tailspin.interpreter;
 import tailspin.control.Definition;
 import tailspin.control.ResultIterator;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,8 @@ public class Program {
         this.dependencies = dependencies;
     }
 
-    public void run(BasicScope scope, DependencyProvider coreSystemProvider) {
+    public void run(Path basePath, SymbolLibrary coreSystemProvider) {
+        BasicScope scope = new BasicScope(basePath);
         Set<String> requiredSymbols = statements.stream()
         .flatMap(t -> t.requiredDefinitions.stream())
         .collect(Collectors.toSet());
@@ -28,8 +30,9 @@ public class Program {
         statements.forEach(t -> t.statement.getResults(null, scope));
     }
 
-    public String runTests(BasicScope scope, DependencyProvider coreSystemProvider) {
+    public String runTests(Path basePath, SymbolLibrary coreSystemProvider) {
         return tests.stream().map(t -> {
+            BasicScope scope = new BasicScope(basePath);
             Set<String> externalDefinitions = t.installOverrides(scope);
             installSymbols(externalDefinitions, scope, coreSystemProvider);
             return t.test.getResults(null, scope);
@@ -37,7 +40,7 @@ public class Program {
                 .collect(Collectors.joining("\n"));
     }
 
-    void installSymbols(Set<String> requiredDefinitions, BasicScope scope, DependencyProvider systemDeps) {
+    void installSymbols(Set<String> requiredDefinitions, BasicScope scope, SymbolLibrary systemDeps) {
         Map<String,Set<String>> defDeps = statements.stream()
             .filter(t -> t.statement instanceof Definition)
             .collect(Collectors.toMap(t -> ((Definition) t.statement).getIdentifier(), t -> t.requiredDefinitions));

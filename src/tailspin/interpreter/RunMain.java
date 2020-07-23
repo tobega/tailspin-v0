@@ -966,7 +966,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new AssertionError("Mismatched end " + ctx.stringLiteral(1).getText()
         + " to test " + ctx.stringLiteral(0).getText());
     }
-    List<DependencyProvider> dependencies = visitDependencyProvision(ctx.dependencyProvision());
+    List<SymbolLibrary> dependencies = visitDependencyProvision(ctx.dependencyProvision());
     List<Expression> testBody = visitTestBody(ctx.testBody());
     return new Test(visitStringLiteral(ctx.stringLiteral(0)), dependencies, testBody);
   }
@@ -989,13 +989,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public List<DependencyProvider> visitDependencyProvision(TailspinParser.DependencyProvisionContext ctx) {
+  public List<SymbolLibrary> visitDependencyProvision(TailspinParser.DependencyProvisionContext ctx) {
     if (ctx == null) return List.of();
     return ctx.moduleConfiguration().stream().map(this::visitModuleConfiguration).collect(Collectors.toList());
   }
 
   @Override
-  public DependencyProvider visitModuleConfiguration(ModuleConfigurationContext ctx) {
+  public SymbolLibrary visitModuleConfiguration(ModuleConfigurationContext ctx) {
     List<TopLevelStatement> statements = new ArrayList<>();
     ctx.statement().forEach(s -> {
       dependencyCounters.push(new DependencyCounter());

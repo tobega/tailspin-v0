@@ -25,7 +25,7 @@ class ProgramDependency {
         }    
     }
 
-    Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, DependencyProvider inheritedProviders) {
+    Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, SymbolLibrary inheritedProviders) {
         String dependency = (String) specifier.getResults(null, scope);
         String dependencyPrefix = dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
         Path depPath = scope.basePath().resolve(dependency + ".tt");

@@ -1,13 +1,14 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class Testing {
   @Test
@@ -158,6 +159,27 @@ public class Testing {
     runner.runTests(input, output, List.of());
 
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void testsAreInitializedIndependently() throws Exception {
+    String program = "def a: 1 -> \\($ -> !OUT::write $!\\);\n"
+            + "def b: 2 -> \\($ -> !OUT::write $!\\);\n"
+            + "test 'Just b'\n"
+            + "assert $b <=2> 'b is 2'\n"
+            + "end 'Just b'"
+            + "test 'a and b'\n"
+            + "assert $b <=2> 'b is 2'\n"
+            + "assert $a <=1> 'a is 1'\n"
+            + "end 'a and b'";
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("212Pass", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

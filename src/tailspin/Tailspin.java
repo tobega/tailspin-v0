@@ -52,20 +52,18 @@ public class Tailspin {
       throws IOException {
     Program program = new RunMain().visitProgram(programDefinition);
     CoreSystemProvider coreSystemProvider = new CoreSystemProvider(args, input, output);
-    BasicScope scope = new BasicScope(Path.of("."));
-    String result = program.runTests(scope, coreSystemProvider);
+    String result = program.runTests(Path.of("."), coreSystemProvider);
     if (result.isEmpty()) {
       result = "Pass";
     }
     output.write(result.getBytes(StandardCharsets.UTF_8));
   }
 
-  public BasicScope run(Path basePath, InputStream input, OutputStream output, List<String> args) {
+  public void run(Path basePath, InputStream input, OutputStream output, List<String> args) {
     Program program = new RunMain().visitProgram(programDefinition);
     CoreSystemProvider coreSystemProvider = new CoreSystemProvider(args, input, output);
     BasicScope scope = new BasicScope(basePath);
-    program.run(scope, coreSystemProvider);
-    return scope;
+    program.run(basePath, coreSystemProvider);
   }
 
   public static void main(String[] args) throws IOException {

@@ -5,7 +5,7 @@ import tailspin.control.Definition;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ModuleProvider implements DependencyProvider {
+public class ModuleProvider implements SymbolLibrary {
     private final List<TopLevelStatement> statements;
 
     public ModuleProvider(List<TopLevelStatement> statements) {
@@ -13,7 +13,7 @@ public class ModuleProvider implements DependencyProvider {
     }
 
     @Override
-    public Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, List<DependencyProvider> providedModules) {
+    public Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, List<SymbolLibrary> providedModules) {
         Map<String,Set<String>> defDeps = statements.stream()
                 .filter(t -> t.statement instanceof Definition)
                 .collect(Collectors.toMap(t -> ((Definition) t.statement).getIdentifier(), t -> t.requiredDefinitions));
@@ -30,7 +30,7 @@ public class ModuleProvider implements DependencyProvider {
                 neededSymbols.addAll(defDeps.get(def));
             }
         }
-        for (DependencyProvider module : providedModules) {
+        for (SymbolLibrary module : providedModules) {
             externalDefinitions = module.installSymbols(externalDefinitions, scope,
                     providedModules.subList(1, providedModules.size()));
         }
