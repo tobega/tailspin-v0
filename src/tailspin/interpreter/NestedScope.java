@@ -31,6 +31,11 @@ public class NestedScope implements Scope {
   }
 
   @Override
+  public boolean hasDefinition(String def) {
+    return definitions.containsKey(def) || parentScope.hasDefinition(def);
+  }
+
+  @Override
   public Path basePath() {
     return parentScope.basePath();
   }

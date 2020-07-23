@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Program {
+public class Program implements SymbolLibrary {
     private final List<TopLevelStatement> statements;
     private final List<TestStatement> tests;
     private final List<ProgramDependency> dependencies;
@@ -24,7 +24,7 @@ public class Program {
         .flatMap(t -> t.requiredDefinitions.stream())
         .collect(Collectors.toSet());
         for (ProgramDependency dependency : dependencies) {
-            requiredSymbols = dependency.installSymbols(requiredSymbols, scope, coreSystemProvider);
+            requiredSymbols = dependency.installSymbols(requiredSymbols, scope, List.of(coreSystemProvider));
         }
         coreSystemProvider.installSymbols(requiredSymbols, scope, List.of());
         statements.forEach(t -> t.statement.getResults(null, scope));
@@ -34,36 +34,48 @@ public class Program {
         return tests.stream().map(t -> {
             BasicScope scope = new BasicScope(basePath);
             Set<String> externalDefinitions = t.installOverrides(scope);
-            installSymbols(externalDefinitions, scope, coreSystemProvider);
+            installSymbols(externalDefinitions, scope, List.of(coreSystemProvider));
             return t.test.getResults(null, scope);
         }).flatMap(ri -> ResultIterator.toQueue(ResultIterator.flat(ri)).stream()).map(Object::toString)
                 .collect(Collectors.joining("\n"));
     }
 
-    void installSymbols(Set<String> requiredDefinitions, BasicScope scope, SymbolLibrary systemDeps) {
-        Map<String,Set<String>> defDeps = statements.stream()
+    @Override
+    public Set<String> installSymbols(Set<String> requestedSymbols, Scope scope, List<SymbolLibrary> systemDeps) {
+        Map<String,Set<String>> definedSymbols = statements.stream()
             .filter(t -> t.statement instanceof Definition)
             .collect(Collectors.toMap(t -> ((Definition) t.statement).getIdentifier(), t -> t.requiredDefinitions));
-        Queue<String> neededDefinitions = new ArrayDeque<>(requiredDefinitions);
+        Queue<String> neededDefinitions = new ArrayDeque<>();
+        Set<String> unprovidedSymbols = new HashSet<>();
+        for (String symbol : requestedSymbols) {
+            if (definedSymbols.containsKey(symbol)) {
+                neededDefinitions.add(symbol);
+            } else {
+                unprovidedSymbols.add(symbol);
+            }
+        }
         Set<String> transientDefinitions = new HashSet<>();
         Set<String> externalDefinitions = new HashSet<>();
         while (!neededDefinitions.isEmpty()) {
             String def = neededDefinitions.poll();
-            if (scope.definitions.containsKey(def)) {
+            if (scope.hasDefinition(def)) {
                 continue;
             }
-            if (!defDeps.containsKey(def)) {
+            if (!definedSymbols.containsKey(def)) {
                 externalDefinitions.add(def);
                 continue;
             }
             if (transientDefinitions.add(def)) {
-                neededDefinitions.addAll(defDeps.get(def));
+                neededDefinitions.addAll(definedSymbols.get(def));
             }
         }
-        systemDeps.installSymbols(externalDefinitions, scope, List.of());
+        for (SymbolLibrary lib : systemDeps) {
+            externalDefinitions = lib.installSymbols(externalDefinitions, scope, List.of());
+        }
         statements.stream()
             .filter(t -> t.statement instanceof Definition)
             .filter(t -> transientDefinitions.contains(((Definition) t.statement).getIdentifier()))
             .forEach(t -> t.statement.getResults(null, scope));
+        return unprovidedSymbols;
     }
 }

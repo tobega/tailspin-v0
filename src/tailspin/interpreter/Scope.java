@@ -14,4 +14,6 @@ public interface Scope {
   Object getState(String stateContext);
 
   Scope getParentScope();
+
+  boolean hasDefinition(String def);
 }

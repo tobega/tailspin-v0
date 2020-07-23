@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 class ProgramDependency {
@@ -25,7 +26,7 @@ class ProgramDependency {
         }    
     }
 
-    Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, SymbolLibrary inheritedProviders) {
+    Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, List<SymbolLibrary> inheritedProviders) {
         String dependency = (String) specifier.getResults(null, scope);
         String dependencyPrefix = dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
         Path depPath = scope.basePath().resolve(dependency + ".tt");

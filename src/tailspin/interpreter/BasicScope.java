@@ -31,6 +31,11 @@ public class BasicScope implements Scope {
   }
 
   @Override
+  public boolean hasDefinition(String def) {
+    return definitions.containsKey(def);
+  }
+
+  @Override
   public Path basePath() {
     return basePath;
   }
