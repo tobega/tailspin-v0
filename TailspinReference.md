@@ -104,8 +104,8 @@ An example of an expression generating a stream of key-value pairs is a [deconst
  of a [dereferenced](#dereference) structure value.
 
 ### Input
-Input is data obtained from an external source. See the [system objects](#the-system-objects), e.g. `IN` for
-a user entering data in the terminal (or data from the unix standard input pipe).
+Input is data obtained from an external source. See the [core system module](#the-core-system-module),
+e.g. `IN` for a user entering data in the terminal (or data from the unix standard input pipe).
 Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).
 
 ### Dereference
@@ -137,7 +137,7 @@ A symbol definition (or a state modification) has a semi-colon `;` at the end th
 
 `-> !VOID` is a special sink which is used to ignore the values from a chain (or to mark that the chain is not expected to produce values).
 
-Some [sinks are defined](#defined-sinks) by the programmer. Others are defined by the system, e.g. to produce output from your program. See [the system objects](#the-system-objects), e.g. `OUT`
+Some [sinks are defined](#defined-sinks) by the programmer. Others are defined by the system, e.g. to produce output from your program. See [the core system module](#the-core-system-module), e.g. `OUT`
 
 Sinks often entail [side effects](#side-effects)
 
@@ -511,7 +511,9 @@ if the message represents a source, with `!` if the message represents a sink an
 Processor messages are implemented as [defined templates](#defined-templates), [defined sources](#defined-sources) or [defined sinks](#defined-sinks) within the processor which then
 run within the scope of the processor instance. Therefore messages can also take parameters.
 
-## The System objects
+## The Core System module
+The Core System module is provided by default to a main program and has no prefix. The module contains the following symbols:
+
 A predefined symbol `SYS` can be used to access certain system-defined functions:
 * `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
 * `$N -> SYS::randomInt` returns a random integer value between 0 and N-1 (inclusive)
@@ -536,23 +538,39 @@ Keyed values
 Strings
 * `$::asCodePoints` returns an array of Unicode code points corresponding to the string.
 
-## Importing packages
-*NOTE*: This is being [reworked](dependencies.txt)
+## Including files
+A tailspin file can include other files before any other statement by writing
+the word "include" followed by a string literal giving the search path to the file to be included, without the ".tt" file suffix,
+e.g. `include 'lib/dep'` will include the file named "dep.tt" from the folder named "lib".
 
-A tailspin file can be declared to be an importable package by
-a package statement on the first non-blank line, e.g. `package dep` defines this file as a package named dep.
-This file must be named "dep.tt".
-
-Importing packages can be done after the package statement, if any, and before any other statement by writing
-the word "import" followed by a string literal giving the search path to the file to be imported, without the package file suffix,
-e.g. `import 'lib/dep'` will import the package named "dep" from the folder named "lib".
-
-Import search paths are interpreted relative to the current working directory.
+Search paths for included files are interpreted relative to the including file and it must be in the same directory
+as the including file or a subdirectory of it.
 
 The symbols (defined symbols, templates, processors, etc.) defined in the package will be accessible by
-prepending the package name and a "/" to the symbol name, e.g. package dep defines templates foo which can then
-be used as `dep/foo`.
+prepending the unsuffixed file name and a "/" to the symbol name, e.g. file dep.tt defines templates foo which can then
+be used as `dep/foo`. Note that the search path is ignored.
 
+## Using modules
+*NOTE*: This is being [developed](dependencies.txt) and doesn't work yet
+
+The tailspin file that is used as the main program can define which modules (libraries) it wants to use. Included
+files normally just inherit the modules declared by the main file.
+
+Tailspin code being used as a module does not get to decide which other modules it uses, it needs to have
+dependencies injected by a [module provision](#module-provision) statement after the use statement.
+
+e.g. `use 'myModule' with ...modules... provided` 
+
+### Module provision
+A module provision statement provides modules needed by another module. It starts with the word `with`
+and ends with the word `provided`. The module is identified by the prefix defined to be used for its symbols
+or derived from the search path in the same way as for [included files](#including-files).
+
+Modules can be provided in the following ways (with prefix `myModule` used as example):
+* Inherited with some definitions overridden, e.g. `modified myModule ...definitions... end myModule`
+
+NOTE: When providing [the core system module](#the-core-system-module) to another module it is referred to as `core-system/`.
+ 
 ## Testing
 Tests can be defined in a tailspin source file by the keyword `test` followed by a [string literal](#string-literal),
 a series of assertions (at least one), interspersed by optional statements as needed to set up state,
@@ -567,3 +585,32 @@ end 'Example test'
 ```
 
 To run the tests in a file, put the command-line flag `--test` before the name of the file to run.
+
+### Mocking, stubbing, faking
+You can override symbols by a [module provision](#module-provision) statement at the beginning of a test, e.g.
+```
+sink hello
+  'Hello $;' -> !OUT::write
+end hello
+
+test 'hello'
+  with
+    modified core-system/
+      processor FakeOut
+        @: [];
+        sink write
+          ..|@FakeOut: $;
+        end write
+        source next
+          ^@FakeOut(1) !
+        end next
+      end FakeOut
+
+      def OUT: $FakeOut;
+    end core-system/
+  provided
+
+  'John' -> !hello
+  assert $OUT::next <='Hello John'> 'Wrote greeting'
+end 'hello'
+```

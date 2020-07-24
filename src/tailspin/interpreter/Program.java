@@ -1,68 +1,78 @@
 package tailspin.interpreter;
 
-import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import tailspin.control.Definition;
 import tailspin.control.ResultIterator;
 
-public class Program {
-    private final List<TopLevelStatement> statements;
-    private final List<TopLevelStatement> tests;
-    private final List<ProgramDependency> dependencies;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.stream.Collectors;
 
-    public Program(List<TopLevelStatement> statements, List<TopLevelStatement> tests, List<ProgramDependency> dependencies) {
+public class Program implements SymbolLibrary {
+    private final List<TopLevelStatement> statements;
+    private final List<TestStatement> tests;
+    private final List<IncludedFile> includedFiles;
+
+    public Program(List<TopLevelStatement> statements, List<TestStatement> tests, List<IncludedFile> includedFiles) {
         this.statements = statements;
         this.tests = tests;
-        this.dependencies = dependencies;
+        this.includedFiles = includedFiles;
     }
 
-    public void run(BasicScope scope) {
-        Set<String> externalSymbols = statements.stream()
-        .flatMap(t -> t.requiredDefinitions.stream().filter(s -> s.contains("/")))
+    public void run(Path basePath, SymbolLibrary coreSystemProvider) {
+        BasicScope scope = new BasicScope(basePath);
+        Set<String> requiredSymbols = statements.stream()
+        .flatMap(t -> t.requiredDefinitions.stream())
         .collect(Collectors.toSet());
-        for (ProgramDependency dependency : dependencies) {
-            externalSymbols = dependency.installSymbols(externalSymbols, scope);
+        for (IncludedFile dependency : includedFiles) {
+            requiredSymbols = dependency.installSymbols(requiredSymbols, scope, List.of(coreSystemProvider));
         }
-        statements.forEach(t -> {
-            t.statement.getResults(null, scope);
-        });
+        coreSystemProvider.installSymbols(requiredSymbols, scope, List.of());
+        statements.forEach(t -> t.statement.getResults(null, scope));
     }
 
-    public String runTests(BasicScope scope) {
+    public String runTests(Path basePath, SymbolLibrary coreSystemProvider) {
         return tests.stream().map(t -> {
-            installSymbols(t.requiredDefinitions, scope);
-            return t.statement.getResults(null, scope);
+            return t.executeTest(this, basePath, coreSystemProvider);
         }).flatMap(ri -> ResultIterator.toQueue(ResultIterator.flat(ri)).stream()).map(Object::toString)
                 .collect(Collectors.joining("\n"));
     }
 
-    void installSymbols(Set<String> requiredDefinitions, BasicScope scope) {
-        Map<String,Set<String>> defDeps = statements.stream()
+    @Override
+    public Set<String> installSymbols(Set<String> requestedSymbols, Scope scope, List<SymbolLibrary> systemDeps) {
+        Map<String,Set<String>> definedSymbols = statements.stream()
             .filter(t -> t.statement instanceof Definition)
             .collect(Collectors.toMap(t -> ((Definition) t.statement).getIdentifier(), t -> t.requiredDefinitions));
-        Queue<String> neededDefinitions = new ArrayDeque<>(requiredDefinitions);
+        Queue<String> neededDefinitions = new ArrayDeque<>();
+        Set<String> unprovidedSymbols = new HashSet<>();
+        for (String symbol : requestedSymbols) {
+            if (definedSymbols.containsKey(symbol)) {
+                neededDefinitions.add(symbol);
+            } else {
+                unprovidedSymbols.add(symbol);
+            }
+        }
         Set<String> transientDefinitions = new HashSet<>();
+        Set<String> externalDefinitions = new HashSet<>();
         while (!neededDefinitions.isEmpty()) {
             String def = neededDefinitions.poll();
-            if (scope.definitions.keySet().contains(def)) {
+            if (scope.hasDefinition(def)) {
                 continue;
             }
-            if (!defDeps.keySet().contains(def)) {
-                throw new IllegalStateException("No definition provided for " + def);
+            if (!definedSymbols.containsKey(def)) {
+                externalDefinitions.add(def);
+                continue;
             }
             if (transientDefinitions.add(def)) {
-                neededDefinitions.addAll(defDeps.get(def));
+                neededDefinitions.addAll(definedSymbols.get(def));
             }
+        }
+        for (SymbolLibrary lib : systemDeps) {
+            externalDefinitions = lib.installSymbols(externalDefinitions, scope, List.of());
         }
         statements.stream()
             .filter(t -> t.statement instanceof Definition)
             .filter(t -> transientDefinitions.contains(((Definition) t.statement).getIdentifier()))
             .forEach(t -> t.statement.getResults(null, scope));
+        return unprovidedSymbols;
     }
 }

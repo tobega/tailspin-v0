@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
+import tailspin.types.Processor;
 import tailspin.types.ProcessorInstance;
 
 public abstract class Reference implements Value {
@@ -167,7 +168,7 @@ public abstract class Reference implements Value {
       }
       return result;
     }
-    if (value instanceof String || value instanceof Number || value instanceof ProcessorInstance) {
+    if (value instanceof String || value instanceof Number || value instanceof Processor) {
       return value;
     }
     throw new IllegalArgumentException("Unknown value type " + value.getClass().getName());

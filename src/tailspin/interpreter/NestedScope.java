@@ -1,7 +1,5 @@
 package tailspin.interpreter;
 
-import java.io.BufferedReader;
-import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,13 +31,8 @@ public class NestedScope implements Scope {
   }
 
   @Override
-  public BufferedReader getInput() {
-    return parentScope.getInput();
-  }
-
-  @Override
-  public OutputStream getOutput() {
-    return parentScope.getOutput();
+  public boolean hasDefinition(String def) {
+    return definitions.containsKey(def) || parentScope.hasDefinition(def);
   }
 
   @Override

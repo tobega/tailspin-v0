@@ -1,13 +1,14 @@
 package tailspin.control;
 
+import tailspin.interpreter.Scope;
+import tailspin.types.KeyValue;
+import tailspin.types.Processor;
+import tailspin.types.Transform;
+
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import tailspin.types.KeyValue;
-import tailspin.interpreter.Scope;
-import tailspin.types.Transform;
-import tailspin.types.ProcessorInstance;
 
 public class ProcessorMessage extends Reference {
   private final Reference reference;
@@ -30,8 +31,8 @@ public class ProcessorMessage extends Reference {
   }
 
   private Transform resolveMessage(Object receiver, Map<String, Object> resolvedParams) {
-    if (receiver instanceof ProcessorInstance) {
-      return  ((ProcessorInstance) receiver).resolveMessage(message, resolvedParams);
+    if (receiver instanceof Processor) {
+      return  ((Processor) receiver).resolveMessage(message, resolvedParams);
     } else if (message.equals("hashCode")) {
       return (it, params) -> ((Number) receiver.hashCode()).longValue();
     } else if (receiver instanceof List) {

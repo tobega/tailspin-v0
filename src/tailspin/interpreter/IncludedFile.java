@@ -1,6 +1,8 @@
 package tailspin.interpreter;
 
-import java.io.ByteArrayInputStream;
+import tailspin.Tailspin;
+import tailspin.control.Value;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,33 +10,35 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import tailspin.Tailspin;
-import tailspin.control.Value;
-import tailspin.system.StdinProcessor;
-import tailspin.system.StdoutProcessor;
-import tailspin.system.SystemProcessor;
-
-class ProgramDependency {
+class IncludedFile implements SymbolLibrary {
     final Value specifier;
 
-    ProgramDependency(Value specifier) {
+    IncludedFile(Value specifier) {
         this.specifier = specifier;
     }
 
     private Program getProgram(Path depPath) {
         try {
           Tailspin dep = Tailspin.parse(Files.newInputStream(depPath));
-          Program program = new RunMain().visitProgram(dep.programDefinition);
-          return program;
+            return new RunMain().visitProgram(dep.programDefinition);
         } catch (IOException e) {
           throw new RuntimeException(e);
         }    
     }
 
-    Set<String> installSymbols(Set<String> requiredSymbols, Scope scope) {
+    @Override
+    public Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, List<SymbolLibrary> inheritedProviders) {
         String dependency = (String) specifier.getResults(null, scope);
         String dependencyPrefix = dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
         Path depPath = scope.basePath().resolve(dependency + ".tt");
+        try {
+            if (!depPath.toRealPath().startsWith(scope.basePath().toRealPath())) {
+                throw new IllegalArgumentException("Attempt to include file " + depPath
+                        + " from outside hierarchy of " + scope.basePath());
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Unable to resolve " + depPath);
+        }
         Set<String> providedSymbols = new HashSet<>();
         Set<String> unresolvedSymbols = new HashSet<>();
         requiredSymbols.forEach(s -> {
@@ -45,16 +49,8 @@ class ProgramDependency {
             }
         });
         Program program = getProgram(depPath);
-        @SuppressWarnings("unchecked")
-        List<String> args = (List<String>) scope.resolveValue("ARGS");
-        // deps should not read from input
-        ByteArrayInputStream emptyInput = new ByteArrayInputStream(new byte[0]);
-        BasicScope depScope = new BasicScope(emptyInput, scope.getOutput(), depPath.getParent());
-        depScope.defineValue("ARGS", args);
-        depScope.defineValue("SYS", new SystemProcessor(depScope));
-        depScope.defineValue("IN", new StdinProcessor(depScope));
-        depScope.defineValue("OUT", new StdoutProcessor(depScope));
-        program.installSymbols(providedSymbols, depScope);
+        BasicScope depScope = new BasicScope(depPath.getParent());
+        program.installSymbols(providedSymbols, depScope, inheritedProviders);
         providedSymbols.forEach(s -> scope.defineValue(dependencyPrefix + s, depScope.resolveValue(s)));
         return unresolvedSymbols;
     }

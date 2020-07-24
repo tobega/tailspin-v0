@@ -1,0 +1,24 @@
+sink hello
+  'Hello $;' -> !OUT::write
+end hello
+
+test 'hello'
+  with
+    modified core-system/
+      processor FakeOut
+        @: [];
+        sink write
+          ..|@FakeOut: $;
+        end write
+        source next
+          ^@FakeOut(1) !
+        end next
+      end FakeOut
+
+      def OUT: $FakeOut;
+    end core-system/
+  provided
+
+  'John' -> !hello
+  assert $OUT::next <='Hello John'> 'Wrote greeting'
+end 'hello'

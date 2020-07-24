@@ -2,18 +2,16 @@ parser grammar TailspinParser;
 
 options { tokenVocab = TailspinLexer; }
 
-program: packageDefinition? dependency* statement (statement)* EOF;
+program: inclusion* statement (statement)* EOF;
 
-packageDefinition: Package localIdentifier;
-
-dependency: Import stringLiteral;
+inclusion: Include stringLiteral;
 
 statement: Def key valueProduction SemiColon                  # definition
   | valueChain To sink                                   # valueChainToSink
   | (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? templatesBody EndDefinition localIdentifier # templatesDefinition
   | StartProcessorDefinition localIdentifier parameterDefinitions? block EndDefinition localIdentifier # processorDefinition
   | StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier # composerDefinition
-  | StartTestDefinition stringLiteral testBody EndDefinition stringLiteral # testDefinition
+  | StartTestDefinition stringLiteral dependencyProvision? testBody EndDefinition stringLiteral # testDefinition
 ;
 
 key: localIdentifier Colon;
@@ -211,8 +209,7 @@ arithmeticContextKeyword: First
   | Last
 ;
 
-keyword: Package
-  | Import
+keyword: Include
   | Def
   | StartTemplatesDefinition
   | StartSourceDefinition
@@ -233,3 +230,9 @@ testBody: testBlock+;
 testBlock: statement* assertion+;
 
 assertion: Assert valueChain matcher stringLiteral;
+
+dependencyProvision: With moduleConfiguration+ Provided;
+
+moduleConfiguration:
+  Modified CoreSystem statement+ EndDefinition CoreSystem
+;

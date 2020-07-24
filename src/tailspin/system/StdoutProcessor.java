@@ -1,15 +1,18 @@
 package tailspin.system;
 
+import tailspin.types.Processor;
+import tailspin.types.Transform;
+
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import tailspin.interpreter.Scope;
-import tailspin.types.Transform;
-import tailspin.types.ProcessorInstance;
 
-public class StdoutProcessor extends ProcessorInstance {
-  public StdoutProcessor(Scope scope) {
-    super(scope);
+public class StdoutProcessor implements Processor {
+  private final OutputStream output;
+
+  public StdoutProcessor(OutputStream output) {
+    this.output = output;
   }
 
   @Override
@@ -17,7 +20,7 @@ public class StdoutProcessor extends ProcessorInstance {
     return (it, params) -> {
       if (message.equals("write")) {
         try {
-          scope.getOutput().write(it.toString().getBytes(StandardCharsets.UTF_8));
+          output.write(it.toString().getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
           throw new RuntimeException(e);
         }

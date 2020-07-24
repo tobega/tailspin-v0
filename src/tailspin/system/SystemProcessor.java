@@ -1,18 +1,14 @@
 package tailspin.system;
 
+import tailspin.types.Processor;
+import tailspin.types.Transform;
+
 import java.util.Map;
 import java.util.Random;
-import tailspin.interpreter.BasicScope;
-import tailspin.types.Transform;
-import tailspin.types.ProcessorInstance;
 
-public class SystemProcessor extends ProcessorInstance {
+public class SystemProcessor implements Processor {
 
   private Random random = new Random();
-
-  public SystemProcessor(BasicScope scope) {
-    super(scope);
-  }
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {

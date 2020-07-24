@@ -6,9 +6,7 @@ lexer grammar TailspinLexer;
 
 StartComment: '//' -> skip, pushMode(COMMENT_MODE);
 
-Package: 'package';
-
-Import: 'import';
+Include: 'include';
 
 Void: 'VOID';
 
@@ -109,6 +107,14 @@ BeginCondition: '?(' -> pushMode(DEFAULT_MODE);
 StartTestDefinition: 'test';
 
 Assert: 'assert';
+
+CoreSystem: 'core-system/';
+
+With: 'with';
+
+Provided: 'provided';
+
+Modified: 'modified';
 
 Zero: '0';
 

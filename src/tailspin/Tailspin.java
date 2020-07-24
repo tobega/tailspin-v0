@@ -1,5 +1,15 @@
 package tailspin;
 
+import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.atn.ATNConfigSet;
+import org.antlr.v4.runtime.dfa.DFA;
+import tailspin.interpreter.BasicScope;
+import tailspin.interpreter.Program;
+import tailspin.interpreter.RunMain;
+import tailspin.parser.TailspinLexer;
+import tailspin.parser.TailspinParser;
+import tailspin.parser.TailspinParser.ProgramContext;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,24 +20,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
-import org.antlr.v4.runtime.ANTLRErrorListener;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
-import org.antlr.v4.runtime.atn.ATNConfigSet;
-import org.antlr.v4.runtime.dfa.DFA;
-import tailspin.interpreter.BasicScope;
-import tailspin.interpreter.Program;
-import tailspin.interpreter.RunMain;
-import tailspin.parser.TailspinLexer;
-import tailspin.parser.TailspinParser;
-import tailspin.parser.TailspinParser.ProgramContext;
-import tailspin.system.StdinProcessor;
-import tailspin.system.StdoutProcessor;
-import tailspin.system.SystemProcessor;
 
 public class Tailspin {
   // TODO: make private
@@ -52,43 +44,49 @@ public class Tailspin {
     return new Tailspin(prog);
   }
 
+  /**
+   * Only to be used by tests
+   */
   public void run(InputStream input, OutputStream output, List<String> args) {
     run(Path.of("."), input, output, args);
   }
 
-  public void runTests(InputStream input, OutputStream output, List<String> args)
+  /**
+   * Only to be used by tests
+   */
+  public void runTests(InputStream input, OutputStream output, List<String> args) throws IOException {
+    runTests(Path.of("."), input, output, args);
+  }
+
+  public void runTests(Path basePath, InputStream input, OutputStream output, List<String> args)
       throws IOException {
-    BasicScope scope = new BasicScope(input, output, Path.of("."));
-    scope.defineValue("ARGS", args);
-    scope.defineValue("SYS", new SystemProcessor(scope));
-    scope.defineValue("IN", new StdinProcessor(scope));
-    scope.defineValue("OUT", new StdoutProcessor(scope));
     Program program = new RunMain().visitProgram(programDefinition);
-    String result = program.runTests(scope);
+    CoreSystemProvider coreSystemProvider = new CoreSystemProvider(args, input, output);
+    String result = program.runTests(basePath, coreSystemProvider);
     if (result.isEmpty()) {
       result = "Pass";
     }
     output.write(result.getBytes(StandardCharsets.UTF_8));
   }
 
-  public BasicScope run(Path basePath, InputStream input, OutputStream output, List<String> args) {
-    BasicScope scope = new BasicScope(input, output, basePath);
-    scope.defineValue("ARGS", args);
-    scope.defineValue("SYS", new SystemProcessor(scope));
-    scope.defineValue("IN", new StdinProcessor(scope));
-    scope.defineValue("OUT", new StdoutProcessor(scope));
+  public void run(Path basePath, InputStream input, OutputStream output, List<String> args) {
     Program program = new RunMain().visitProgram(programDefinition);
-    program.run(scope);
-    return scope;
+    CoreSystemProvider coreSystemProvider = new CoreSystemProvider(args, input, output);
+    BasicScope scope = new BasicScope(basePath);
+    program.run(basePath, coreSystemProvider);
   }
 
   public static void main(String[] args) throws IOException {
     if (args.length > 1 && args[0].equals("--test")) {
-      Tailspin program = parse(Files.newInputStream(Paths.get(args[1])));
-      program.runTests(System.in, System.out, Arrays.asList(Arrays.copyOfRange(args, 2, args.length)));
+      Path programPath = Paths.get(args[1]);
+      Path basePath = programPath.toAbsolutePath().getParent();
+      Tailspin program = parse(Files.newInputStream(programPath));
+      program.runTests(basePath, System.in, System.out, Arrays.asList(Arrays.copyOfRange(args, 2, args.length)));
     } else {
-      Tailspin program = parse(Files.newInputStream(Paths.get(args[0])));
-      program.run(System.in, System.out, Arrays.asList(Arrays.copyOfRange(args, 1, args.length)));
+      Path programPath = Paths.get(args[0]);
+      Path basePath = programPath.toAbsolutePath().getParent();
+      Tailspin program = parse(Files.newInputStream(programPath));
+      program.run(basePath, System.in, System.out, Arrays.asList(Arrays.copyOfRange(args, 1, args.length)));
     }
   }
 
