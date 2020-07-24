@@ -5,17 +5,17 @@ end hello
 test 'hello'
   with
     modified core-system/
-      processor MockOut
+      processor FakeOut
         @: [];
         sink write
-          ..|@MockOut: $;
+          ..|@FakeOut: $;
         end write
         source next
-          ^@MockOut(1) !
+          ^@FakeOut(1) !
         end next
-      end MockOut
+      end FakeOut
 
-      def OUT: $MockOut;
+      def OUT: $FakeOut;
     end core-system/
   provided
 

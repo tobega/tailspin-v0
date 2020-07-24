@@ -1,5 +1,7 @@
 package tailspin.interpreter;
 
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 
 public class TestStatement {
@@ -11,7 +13,10 @@ public class TestStatement {
         this.requiredDefinitions = requiredDefinitions;
     }
 
-    public Set<String> installOverrides(Scope scope) {
-        return test.installOverrides(requiredDefinitions, scope);
+    public Object executeTest(Program program, Path basePath, SymbolLibrary coreSystemProvider) {
+        List<SymbolLibrary> testMocks = test.createMocks(basePath, List.of(coreSystemProvider));
+        BasicScope scope = new BasicScope(basePath);
+        program.installSymbols(requiredDefinitions, scope, testMocks);
+        return test.getResults(null, scope);
     }
 }

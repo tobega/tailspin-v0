@@ -32,10 +32,7 @@ public class Program implements SymbolLibrary {
 
     public String runTests(Path basePath, SymbolLibrary coreSystemProvider) {
         return tests.stream().map(t -> {
-            BasicScope scope = new BasicScope(basePath);
-            Set<String> externalDefinitions = t.installOverrides(scope);
-            installSymbols(externalDefinitions, scope, List.of(coreSystemProvider));
-            return t.test.getResults(null, scope);
+            return t.executeTest(this, basePath, coreSystemProvider);
         }).flatMap(ri -> ResultIterator.toQueue(ResultIterator.flat(ri)).stream()).map(Object::toString)
                 .collect(Collectors.joining("\n"));
     }

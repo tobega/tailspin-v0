@@ -1,14 +1,13 @@
 package tailspin.samples;
 
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
 
 public class Testing {
   @Test
@@ -241,31 +240,31 @@ public class Testing {
   @Test
   void mockModifyCoreSystem() throws Exception {
     String program = "sink hello\n"
-    + "  'Hello $;' -> !OUT::write\n"
-    + "end hello\n"
-  
-    + "test 'hello'\n"
-    + "  with\n"
-    + "    modified core-system/\n"
-    + "      processor MockOut\n"
-    + "        @: [];\n"
-    + "        sink write\n"
-    + "          ..|@MockOut: $;\n"
-    + "        end write\n"
-    + "        source next\n"
-    + "          ^@MockOut(1) !\n"
-    + "        end next\n"
-    + "      end MockOut\n"
-  
-    + "      def OUT: $MockOut;\n"
-    + "    end core-system/\n"
-    + "  provided\n"
-  
-    + "  'John' -> !hello\n"
-    + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
-    + "end 'hello'";
+            + "  'Hello $;' -> !OUT::write\n"
+            + "end hello\n"
+
+            + "test 'hello'\n"
+            + "  with\n"
+            + "    modified core-system/\n"
+            + "      processor MockOut\n"
+            + "        @: [];\n"
+            + "        sink write\n"
+            + "          ..|@MockOut: $;\n"
+            + "        end write\n"
+            + "        source next\n"
+            + "          ^@MockOut(1) !\n"
+            + "        end next\n"
+            + "      end MockOut\n"
+
+            + "      def OUT: $MockOut;\n"
+            + "    end core-system/\n"
+            + "  provided\n"
+
+            + "  'John' -> !hello\n"
+            + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
+            + "end 'hello'";
     Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
