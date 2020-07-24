@@ -1,0 +1,52 @@
+// parse and calculate an arithmetic expression directly
+composer calculator
+  (<WS>?) <addition|multiplication|term> (<WS>?)
+  rule addition: [<multiplication|term> <addedTerm>+ ] ->
+    \(when <[](1)> $(1) !
+      when <?($(2) <='+'>)> do [ $(1) + $(3), $(4..last)...] -> #
+      otherwise [ $(1) - $(3), $(4..last)...] -> #
+    \)
+  rule addedTerm: (<WS>?) <'[+-]'> (<WS>?) <multiplication|term>
+  rule multiplication: [<term> <multipliedTerm>+] ->
+    \(when <[](1)> $(1) !
+      when <?($(2) <='*'>)> do [ $(1) * $(3), $(4..last)...] -> #
+      otherwise [ $(1) ~/ $(3), $(4..last)...] -> #
+    \)
+  rule multipliedTerm: (<WS>?) <'[*/]'> (<WS>?) <term>
+  rule term: <INT|parentheses>
+  rule parentheses: (<'\('> <WS>?) <addition|multiplication|term> (<WS>? <'\)'>)
+end calculator
+
+'(100 - 5 * (2+3*4) + 2) / 2' -> calculator -> !OUT::write
+'
+' -> !OUT::write
+
+// parse arithmetic expression into an AST and then evaluate
+templates variadicToBinary
+  when <[](1)> do $(1) !
+  otherwise [ { left: $(1), op: $(2), right: $(3)}, $(4..last)...] -> #
+end variadicToBinary
+
+composer parseArithmetic
+  (<WS>?) <addition|multiplication|term> (<WS>?)
+  rule addition: [<multiplication|term> <addedTerm>+ ] -> variadicToBinary
+  rule addedTerm: (<WS>?) <'[+-]'> (<WS>?) <multiplication|term>
+  rule multiplication: [<term> <multipliedTerm>+] -> variadicToBinary
+  rule multipliedTerm: (<WS>?) <'[*/]'> (<WS>?) <term>
+  rule term: <INT|parentheses>
+  rule parentheses: (<'\('> <WS>?) <addition|multiplication|term> (<WS>? <'\)'>)
+end parseArithmetic
+
+templates evaluateArithmetic
+  <{op: <='+'>}> ($.left -> evaluateArithmetic) + ($.right -> evaluateArithmetic) !
+  <{op: <='-'>}> ($.left -> evaluateArithmetic) - ($.right -> evaluateArithmetic) !
+  <{op: <='*'>}> ($.left -> evaluateArithmetic) * ($.right -> evaluateArithmetic) !
+  <{op: <='/'>}> ($.left -> evaluateArithmetic) ~/ ($.right -> evaluateArithmetic) !
+  otherwise $ !
+end evaluateArithmetic
+
+def ast: '(100 - 5 * (2+3*4) + 2) / 2' -> parseArithmetic;
+'$ast;
+' -> !OUT::write
+'$ast -> evaluateArithmetic;
+' -> !OUT::write

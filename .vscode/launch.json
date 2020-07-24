@@ -15,8 +15,8 @@
             "name": "Tailspin",
             "request": "launch",
             "mainClass": "tailspin.Tailspin",
-            "projectName": "tailspin-v0_bab79819",
-            "args": "--test samples/Sudoku.tt"
+            "classPaths": ["tailspin.jar", "lib/antlr-runtime-4.8.jar"],
+            "args": "samples/Calculator.tt"
         }
     ]
 }
