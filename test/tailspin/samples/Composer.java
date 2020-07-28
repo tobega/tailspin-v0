@@ -29,6 +29,72 @@ class Composer {
   }
 
   @Test
+  void composeEqualsLiteral() throws IOException {
+    String program = "composer eq\n"
+        + "<='Quo vadis?'>\n"
+        + "end eq\n"
+        + "'Quo vadis?' -> eq -> \\(<='Quo vadis?'> $!\\) -> 1 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeEqualsLiteralBacktracks() throws IOException {
+    String program = "composer eq\n"
+        + "<='Quo vadis?'|INT>\n"
+        + "end eq\n"
+        + "'5' -> eq -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeEqualsReference() throws IOException {
+    String program = "def who:'Quo vadis?';\n"
+        + "composer eq\n"
+        + "<=$who>\n"
+        + "end eq\n"
+        + "'Quo vadis?' -> eq -> \\(<='Quo vadis?'> $!\\) -> 1 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeEqualsStateDelete() throws IOException {
+    String program = "composer eq\n"
+        + "@: 'Quo vadis?';"
+        + "<=^@>\n"
+        + "end eq\n"
+        + "'Quo vadis?' -> eq -> \\(<='Quo vadis?'> $!\\) -> 1 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void composeIntShouldWorkForZero() throws IOException {
     String program = "composer int\n"
         + "<INT>\n"

@@ -183,7 +183,9 @@ structureMemberMatcher: (tokenMatcher|compositionKeyValue) compositionSkipRule*;
 
 tokenMatcher: StartMatcher Invert? compositionToken (Else compositionToken)* EndMatcher multiplier?;
 
-compositionToken: (localIdentifier|stringLiteral);
+compositionToken: (literalComposition|localIdentifier|stringLiteral);
+
+literalComposition: Equal (sourceReference|deleteState|stringLiteral);
 
 multiplier: Plus | Star | Question
   | Equal (PositiveInteger|sourceReference)

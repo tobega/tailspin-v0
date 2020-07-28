@@ -1,6 +1,6 @@
 composer replace@{a:,b:}
   [ <replace|not>* ] -> '$...;'
-  rule replace: <'$a;'> -> $b
+  rule replace: <=$a> -> $b
   rule not: <~replace>
 end replace
 

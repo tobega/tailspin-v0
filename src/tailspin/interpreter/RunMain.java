@@ -906,6 +906,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (ctx.stringLiteral() != null) {
       Value regex = visitStringLiteral(ctx.stringLiteral());
       compositionSpec = new SubComposerFactory.RegexComposition(regex);
+    } else if (ctx.literalComposition() != null) {
+      Expression expression = (Expression) visit(ctx.literalComposition());
+      Value literal = (expression instanceof Value) ? (Value) expression : Value.of(expression) ;
+      compositionSpec = new SubComposerFactory.LiteralComposition(literal);
     } else {
       throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());
     }

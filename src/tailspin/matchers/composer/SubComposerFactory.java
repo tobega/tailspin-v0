@@ -101,6 +101,9 @@ public class SubComposerFactory {
       return new StateAssignmentSubComposer(value, stateSpec.stateAssignment,
           scope);
     }
+    if (spec instanceof LiteralComposition) {
+      return new LiteralSubComposer((String) ((LiteralComposition) spec).literal.getResults(null, scope));
+    }
     throw new UnsupportedOperationException(
         "Unknown composition spec " + spec.getClass().getSimpleName());
   }
@@ -274,6 +277,15 @@ public class SubComposerFactory {
     public StateAssignmentComposition(/* @Nullable */ CompositionSpec value, Expression stateAssignment) {
       this.value = value;
       this.stateAssignment = stateAssignment;
+    }
+  }
+
+  public static class LiteralComposition implements CompositionSpec {
+
+    private final Value literal;
+
+    public LiteralComposition(Value literal) {
+      this.literal = literal;
     }
   }
 }

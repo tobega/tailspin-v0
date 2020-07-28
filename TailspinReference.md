@@ -260,6 +260,9 @@ end line
 
 Composition matchers can be string literals containing regexp patterns [(currently) according to java Pattern](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html).
 
+A matcher can be an equals sign followed by a string literal, source reference or state deletion that gives a string result.
+This will match the string value exactly.
+
 Other composition matchers are the ones defined in the composer as sub-patterns (rules).
 
 There are also built-in composition matchers like `<INT>` which parses an integer and `<WS>` for a sequence of whitespace characters.
