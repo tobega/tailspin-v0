@@ -1,9 +1,7 @@
 package tailspin.matchers.composer;
 
-import static tailspin.control.Expression.queueOf;
-
 import java.util.ArrayList;
-import java.util.Queue;
+import tailspin.control.ResultIterator;
 
 public class ArraySubComposer implements SubComposer {
   private final SequenceSubComposer items;
@@ -18,8 +16,10 @@ public class ArraySubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
-    return queueOf(new ArrayList<>(items.getValues()));
+  public ArrayList<Object> getValues() {
+    ArrayList<Object> result = new ArrayList<>();
+    ResultIterator.forEach(items.getValues(), result::add);
+    return result;
   }
 
   @Override

@@ -1,9 +1,5 @@
 package tailspin.matchers.composer;
 
-import static tailspin.control.Expression.queueOf;
-
-import java.util.Queue;
-
 public class InvertSubComposer implements SubComposer {
   private final SubComposer subComposer;
   private StringBuilder result;
@@ -23,13 +19,13 @@ public class InvertSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
+  public String getValues() {
     if (subComposer.isSatisfied()) {
       subComposer.getValues(); // flush
     }
-    Queue<Object> values = queueOf(result.toString());
+    String value = result.toString();
     result = null;
-    return values;
+    return value;
   }
 
   @Override

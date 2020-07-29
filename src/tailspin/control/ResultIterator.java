@@ -55,6 +55,7 @@ public interface ResultIterator {
   }
 
   static void forEach(Object obj, Consumer<Object> receiver) {
+    if (obj == null) return;
     if (obj instanceof ResultIterator) {
       apply(receiver, (ResultIterator) obj);
     } else {

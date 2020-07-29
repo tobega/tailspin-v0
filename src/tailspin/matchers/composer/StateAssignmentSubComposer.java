@@ -1,7 +1,7 @@
 package tailspin.matchers.composer;
 
-import java.util.Queue;
 import tailspin.control.Expression;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 
 public class StateAssignmentSubComposer implements SubComposer {
@@ -22,13 +22,13 @@ public class StateAssignmentSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
+  public Object getValues() {
     if (value == null) {
       stateAssignment.getResults(null, scope);
     } else {
-      value.getValues().forEach(it -> stateAssignment.getResults(it, scope));
+      ResultIterator.forEach(value.getValues(), it -> stateAssignment.getResults(it, scope));
     }
-    return Expression.EMPTY_RESULT;
+    return null;
   }
 
   @Override

@@ -22,13 +22,13 @@ public class LiteralSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
+  public String getValues() {
     Queue<Object> result = new ArrayDeque<>();
     if (matchedValue) {
-      result.add(literal);
       matchedValue = false;
+      return literal;
     }
-    return result;
+    return null;
   }
 
   @Override

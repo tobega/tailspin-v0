@@ -2,6 +2,7 @@ package tailspin.control;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -51,5 +52,10 @@ class ResultIteratorTest {
     assertEquals("g", result.getNextResult());
     assertEquals("b", result.getNextResult());
     assertNull(result.getNextResult());
+  }
+
+  @Test
+  void forEach_nullInputDoesNotCallConsumer() {
+    ResultIterator.forEach(null, r -> fail());
   }
 }

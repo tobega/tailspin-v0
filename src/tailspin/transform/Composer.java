@@ -1,6 +1,5 @@
 package tailspin.transform;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,7 @@ public class Composer implements Transform {
     if (stateAssignment != null) {
       stateAssignment.getResults(null, scope);
     }
-    ArrayDeque<Object> result = new ArrayDeque<>();
+    Object result = null;
     String s = (String) Objects.requireNonNull(it);
     for (CompositionSpec spec : specs) {
       SubComposer subComposer = subComposerFactory.resolveSpec(spec, scope);
@@ -45,12 +44,12 @@ public class Composer implements Transform {
       if (!subComposer.isSatisfied()) {
         throw new IllegalStateException("No composer match at '" + s + "'");
       }
-      result.addAll(subComposer.getValues());
+      result = ResultIterator.resolveResult(result, subComposer.getValues());
     }
     if (!s.isEmpty()) {
       throw new IllegalStateException("Composer did not use entire string. Remaining:'" + s + "'");
     }
-    return (ResultIterator) result::poll;
+    return result;
   }
 
   private TransformScope createTransformScope(Object it, Map<String, Object> parameters) {

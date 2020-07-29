@@ -1,4 +1,4 @@
-import 'harness'
+include 'harness'
 
 // I don't know what this benchmark really is supposed to calculate, but it sure does a lot of swaps
 templates permute

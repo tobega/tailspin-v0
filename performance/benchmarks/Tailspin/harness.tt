@@ -1,5 +1,3 @@
-package harness
-
 composer toInt
   <INT>
 end toInt

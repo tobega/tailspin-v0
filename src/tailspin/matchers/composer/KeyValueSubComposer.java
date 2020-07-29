@@ -1,8 +1,6 @@
 package tailspin.matchers.composer;
 
-import static tailspin.control.Expression.queueOf;
-
-import java.util.Queue;
+import tailspin.control.Value;
 import tailspin.types.KeyValue;
 
 class KeyValueSubComposer implements SubComposer {
@@ -30,18 +28,10 @@ class KeyValueSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
-    Queue<Object> keys = keyComposer.getValues();
-    if (keys.size() != 1) {
-      throw new IllegalArgumentException("Only one key allowed for a keyed value, not " + keys);
-    }
-    String key = (String) keys.peek();
-    Queue<Object> values = valueComposer.getValues();
-    if (values.size() != 1) {
-      throw new IllegalArgumentException("A keyed value can only have one value, not " + values);
-    }
-    Object value = values.peek();
-    return queueOf(new KeyValue(key, value));
+  public KeyValue getValues() {
+    String key = (String) Value.oneValue(keyComposer.getValues());
+    Object value = Value.oneValue(valueComposer.getValues());
+    return new KeyValue(key, value);
   }
 
   @Override

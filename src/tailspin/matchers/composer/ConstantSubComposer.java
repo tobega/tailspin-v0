@@ -1,8 +1,5 @@
 package tailspin.matchers.composer;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-
 class ConstantSubComposer implements SubComposer {
   private final String value;
 
@@ -16,10 +13,8 @@ class ConstantSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
-    Queue<Object> result = new ArrayDeque<>();
-    result.add(value);
-    return result;
+  public Object getValues() {
+    return value;
   }
 
   @Override

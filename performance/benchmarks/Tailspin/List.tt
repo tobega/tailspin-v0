@@ -1,4 +1,4 @@
-import 'harness'
+include 'harness'
 
 // This is not an idiomatic way to do this in Tailspin, unless you really need mutable elements in the list
 processor Element

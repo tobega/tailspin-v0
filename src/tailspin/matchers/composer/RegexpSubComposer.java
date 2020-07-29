@@ -1,7 +1,5 @@
 package tailspin.matchers.composer;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,9 +25,8 @@ class RegexpSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
-    Queue<Object> result = new ArrayDeque<>();
-    result.add(valueCreator.apply(latestValue));
+  public Object getValues() {
+    Object result = valueCreator.apply(latestValue);
     latestValue = null;
     return result;
   }

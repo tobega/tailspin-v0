@@ -1,8 +1,7 @@
 package tailspin.matchers.composer;
 
-import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Queue;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.composer.CompositionSpec.Resolver;
 
@@ -10,7 +9,7 @@ public class SequenceSubComposer implements SubComposer {
   private final List<CompositionSpec> sequence;
   private final Scope scope;
   private final Resolver resolver;
-  private Queue<Object> value;
+  private Object value;
   private boolean satisfied = false;
 
   public SequenceSubComposer(List<CompositionSpec> sequence, Scope scope, CompositionSpec.Resolver resolver) {
@@ -22,14 +21,14 @@ public class SequenceSubComposer implements SubComposer {
   @Override
   public String nibble(String s) {
     String originalS = s;
-    value = new ArrayDeque<>();
+    value = null;
     satisfied = true;
     for (CompositionSpec spec : sequence) {
       SubComposer subComposer = resolver.resolveSpec(spec, scope);
       s = subComposer.nibble(s);
       satisfied &= subComposer.isSatisfied();
       if (subComposer.isSatisfied()) {
-        value.addAll(subComposer.getValues());
+        value = ResultIterator.resolveResult(value, subComposer.getValues());
       } else {
         return originalS;
       }
@@ -38,8 +37,8 @@ public class SequenceSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
-    Queue<Object> result = value;
+  public Object getValues() {
+    Object result = value;
     value = null;
     satisfied = false;
     return result;

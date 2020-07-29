@@ -1,4 +1,4 @@
-import 'harness'
+include 'harness'
 
 templates sieve
   def size: $;

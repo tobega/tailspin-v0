@@ -1,8 +1,6 @@
 package tailspin.matchers.composer;
 
-import java.util.Queue;
 import tailspin.control.Expression;
-import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 
 class DereferenceSubComposer implements SubComposer {
@@ -20,8 +18,8 @@ class DereferenceSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
-    return ResultIterator.toQueue(ResultIterator.flat(source.getResults(null, scope)));
+  public Object getValues() {
+    return source.getResults(null, scope);
   }
 
   @Override

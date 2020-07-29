@@ -1,7 +1,6 @@
 package tailspin.matchers.composer;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.function.Consumer;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
@@ -18,23 +17,21 @@ public class TransformSubComposer implements SubComposer {
     this.scope = scope;
   }
 
-  private Queue<Object> convert(Queue<Object> matchResult) {
+  private Object convert(Object matchResult) {
     if (transform == null) {
       return matchResult;
     }
-    ArrayDeque<Object> result = new ArrayDeque<>();
-    for (Object it : matchResult) {
-      Object transformed = transform.getResults(it, scope);
-      if (transformed == null) {
-        continue;
-      }
-      if (transformed instanceof ResultIterator) {
-        ResultIterator.apply(result::add, (ResultIterator) transformed);
-      } else {
-        result.add(transformed);
+    class ResultCollector implements Consumer<Object> {
+      Object result;
+      @Override
+      public void accept(Object it) {
+        Object transformed = transform.getResults(it, scope);
+        result = ResultIterator.resolveResult(result, transformed);
       }
     }
-    return result;
+    ResultCollector resultCollector = new ResultCollector();
+    ResultIterator.forEach(matchResult, resultCollector);
+    return resultCollector.result;
   }
 
   @Override
@@ -43,7 +40,7 @@ public class TransformSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
+  public Object getValues() {
     return convert(subComposer.getValues());
   }
 

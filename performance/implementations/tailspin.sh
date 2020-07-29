@@ -4,4 +4,4 @@ exec java \
         -XX:+UnlockExperimentalVMOptions \
         -XX:+EnableJVMCI \
         -XX:+UseJVMCICompiler \
-    -cp ../../../out/production/tailspin-v0:../../../lib/antlr-runtime-4.7.2.jar tailspin.Tailspin "$@"
+    -cp ../../../tailspin.jar:../../../lib/antlr-runtime-4.8.jar tailspin.Tailspin "$@"

@@ -1,8 +1,6 @@
 package tailspin.matchers.composer;
 
-import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Queue;
 
 public class SkipSubComposer implements SubComposer {
   private final List<SubComposer> subComposers;
@@ -26,9 +24,9 @@ public class SkipSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
+  public Object getValues() {
     satisfied = false;
-    return new ArrayDeque<>();
+    return null;
   }
 
   @Override

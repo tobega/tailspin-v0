@@ -1,7 +1,6 @@
 package tailspin.matchers.composer;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.RangeMatch;
 
@@ -10,7 +9,7 @@ public class MultiplierSubComposer implements SubComposer {
   private final SubComposer subComposer;
   private final RangeMatch multiplier;
   private final Scope scope;
-  private Queue<Object> values;
+  private Object values;
   private long repetitions = 0;
 
   MultiplierSubComposer(SubComposer subComposer, RangeMatch multiplier, Scope scope) {
@@ -21,12 +20,11 @@ public class MultiplierSubComposer implements SubComposer {
 
   @Override
   public String nibble(String s) {
-    values = new ArrayDeque<>();
     while (!multiplier.isMet(repetitions, null, scope)) {
       s = subComposer.nibble(s);
       if (subComposer.isSatisfied()) {
         repetitions++;
-        values.addAll(subComposer.getValues());
+        values = ResultIterator.resolveResult(values, subComposer.getValues());
       } else {
         break;
       }
@@ -35,7 +33,7 @@ public class MultiplierSubComposer implements SubComposer {
       s = subComposer.nibble(s);
       if (subComposer.isSatisfied()) {
         repetitions++;
-        values.addAll(subComposer.getValues());
+        values = ResultIterator.resolveResult(values, subComposer.getValues());
       } else {
         break;
       }
@@ -44,8 +42,8 @@ public class MultiplierSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
-    Queue<Object> result = values;
+  public Object getValues() {
+    Object result = values;
     values = null;
     repetitions = 0;
     return result;

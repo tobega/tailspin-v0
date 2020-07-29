@@ -1,7 +1,6 @@
 package tailspin.matchers.composer;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
+import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 
 public class CaptureSubComposer implements SubComposer {
@@ -21,20 +20,16 @@ public class CaptureSubComposer implements SubComposer {
     s = subComposer.nibble(s);
     satisfied = subComposer.isSatisfied();
     if (subComposer.isSatisfied()) {
-      Queue<Object> result = subComposer.getValues();
-      if (result.size() != 1) {
-        throw new IllegalArgumentException(
-            "Attempt to define symbol " + identifier + " with " + result.size() + " values");
-      }
-      scope.defineValue(identifier, result.peek());
+      Object result = Value.oneValue(subComposer.getValues());
+      scope.defineValue(identifier, result);
     }
     return s;
   }
 
   @Override
-  public Queue<Object> getValues() {
+  public Object getValues() {
     satisfied = false;
-    return new ArrayDeque<>();
+    return null;
   }
 
   @Override

@@ -3,7 +3,6 @@ package tailspin.matchers.composer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -132,8 +131,8 @@ public class SubComposerFactory {
     }
 
     @Override
-    public Queue<Object> getValues() {
-      Queue<Object> values = sequenceSubComposer.getValues();
+    public Object getValues() {
+      Object values = sequenceSubComposer.getValues();
       sequenceSubComposer = null;
       return values;
     }

@@ -1,4 +1,4 @@
-import 'harness'
+include 'harness'
 
 // Tailspin doesn't have nulls, which the java and javascript implementations rely on
 // So this is more Tailspin-like

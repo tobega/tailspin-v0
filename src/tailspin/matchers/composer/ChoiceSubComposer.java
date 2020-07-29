@@ -1,12 +1,11 @@
 package tailspin.matchers.composer;
 
 import java.util.List;
-import java.util.Queue;
 
 public class ChoiceSubComposer implements SubComposer {
   private final List<SubComposer> optionComposers;
 
-  private Queue<Object> value;
+  private Object value;
   private boolean satisfied = false;
 
   ChoiceSubComposer(List<SubComposer> optionComposers) {
@@ -28,8 +27,8 @@ public class ChoiceSubComposer implements SubComposer {
   }
 
   @Override
-  public Queue<Object> getValues() {
-    Queue<Object> result = value;
+  public Object getValues() {
+    Object result = value;
     value = null;
     satisfied = false;
     return result;
