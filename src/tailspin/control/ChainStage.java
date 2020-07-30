@@ -15,14 +15,14 @@ public class ChainStage implements Expression {
   @Override
   public Object getResults(Object it, Scope blockScope) {
     // Resolve all values before running next stage
-    Object nextValue = ResultIterator.resolveSideEffects(currentExpression.getResults(it, blockScope));
+    Object nextValue = currentExpression.getResults(it, blockScope);
     return runNextStage(nextValue, blockScope);
   }
 
   private Object runNextStage(Object nextValue, Scope blockScope) {
     if (nextValue != null && nextStage != null) {
       if (nextValue instanceof ResultIterator) {
-        nextValue = nextStage.runAll((ResultIterator.Flat) nextValue, blockScope);
+        nextValue = nextStage.runAll(ResultIterator.flat(nextValue), blockScope);
       } else {
         nextValue = nextStage.getResults(nextValue, blockScope);
       }

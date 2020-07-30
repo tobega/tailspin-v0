@@ -13,14 +13,6 @@ import java.util.function.Consumer;
 public interface ResultIterator {
   Object getNextResult();
 
-  static Queue<Object> toQueue(ResultIterator ri) {
-    Queue<Object> results = new ArrayDeque<>();
-    if (ri != null) {
-      apply(results::offer, ri);
-    }
-    return results;
-  }
-
   static ResultIterator prefix(ResultIterator prefix, ResultIterator suffix) {
     return new ResultIterator() {
       ResultIterator current = prefix;

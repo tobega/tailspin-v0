@@ -38,7 +38,7 @@ public class Testing {
     runner.runTests(input, output, List.of());
 
     assertEquals("A failing test failed:\n"
-        + "assertion that 1 is 0 failed with value 1", output.toString(StandardCharsets.UTF_8));
+        + "assertion that 1 is 0 failed with value 1\n", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -56,7 +56,7 @@ public class Testing {
 
     assertEquals("Two failing tests failed:\n"
         + "assertion that 1 is 0 failed with value 1\n"
-        + "assertion that 1 is 2 failed with value 1", output.toString(StandardCharsets.UTF_8));
+        + "assertion that 1 is 2 failed with value 1\n", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

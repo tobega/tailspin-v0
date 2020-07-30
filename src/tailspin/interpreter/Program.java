@@ -31,10 +31,10 @@ public class Program implements SymbolLibrary {
     }
 
     public String runTests(Path basePath, SymbolLibrary coreSystemProvider) {
-        return tests.stream().map(t -> {
-            return t.executeTest(this, basePath, coreSystemProvider);
-        }).flatMap(ri -> ResultIterator.toQueue(ResultIterator.flat(ri)).stream()).map(Object::toString)
-                .collect(Collectors.joining("\n"));
+        StringBuilder result = new StringBuilder();
+        tests.stream().map(t -> t.executeTest(this, basePath, coreSystemProvider))
+            .forEach(r -> ResultIterator.forEach(r, obj -> result.append(obj).append("\n")));
+        return result.toString();
     }
 
     @Override

@@ -1,7 +1,6 @@
 package tailspin.control;
 
 import java.util.Optional;
-import java.util.Queue;
 import tailspin.interpreter.Scope;
 import tailspin.transform.Templates;
 import tailspin.transform.TransformScope;
@@ -25,11 +24,11 @@ public class SendToTemplates implements Expression {
       return templates.matchTemplates(result, transformScope).orElse(null);
     }
     return new DelayedExecution() {
-      final Queue<Object> items = ResultIterator.toQueue((ResultIterator) result);
+      final ResultIterator.Flat items = ResultIterator.flat(result);
       @Override
       public Object getNextResult() {
         while (true) {
-          Object item = items.poll();
+          Object item = items.getNextResult();
           if (item == null) {
             return null;
           }
@@ -37,9 +36,6 @@ public class SendToTemplates implements Expression {
           if (r.isPresent()) {
             Object results = r.get();
             if (results instanceof ResultIterator) {
-              if (items.isEmpty()) {
-                return results;
-              }
               return ResultIterator.prefix((ResultIterator) results, this);
             }
             return results;
