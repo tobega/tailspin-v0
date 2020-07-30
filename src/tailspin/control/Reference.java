@@ -9,7 +9,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
 import tailspin.types.Processor;
-import tailspin.types.ProcessorInstance;
 
 public abstract class Reference implements Value {
   public abstract Object getValue(Object it, Scope scope);
@@ -147,9 +146,6 @@ public abstract class Reference implements Value {
   }
 
   public static Object copy(Object value) {
-    while (value instanceof DelayedExecution) {
-      value = ((DelayedExecution) value).getNextResult();
-    }
     if (value instanceof Map) {
       @SuppressWarnings("unchecked")
       Map<String, Object> mapValue = (Map<String, Object>) value;

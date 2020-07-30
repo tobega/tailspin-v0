@@ -1,6 +1,5 @@
 package tailspin.control;
 
-import java.util.Queue;
 import tailspin.interpreter.Scope;
 
 public class SinkValueChain implements Expression {
@@ -16,9 +15,9 @@ public class SinkValueChain implements Expression {
 
   @Override
   public Object getResults(Object it, Scope scope) {
-    // We have to pull through all values before we start sinking any.
-    Queue<Object> values = Expression.queueOf(valueChain.getResults(it, scope));
-    if (sink != null) values.forEach(v -> {
+    // We have to pull through all values before we start sinking any (for possible delayed executions).
+    Object values = ResultIterator.resolveSideEffects(valueChain.getResults(it, scope));
+    if (sink != null) ResultIterator.forEach(values, v -> {
       Object nothing = sink.getResults(v, scope);
       if (nothing != null) {
         throw new IllegalStateException("Non-sink message " + sink + " called");

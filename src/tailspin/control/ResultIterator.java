@@ -63,9 +63,32 @@ public interface ResultIterator {
     }
   }
 
-  static ResultIterator flat(Object value) {
+  /** Returns null, a value or a ResultIterator.Flat with no included delayed executions */
+  static Object resolveSideEffects(Object obj) {
+    if (obj == null) return null;
+    if (obj instanceof ResultIterator) {
+      Object result = null;
+      ResultIterator ri = (ResultIterator) obj;
+      Object r;
+      while ((r = ri.getNextResult()) != null) {
+        if (r instanceof ResultIterator) {
+          ri = (ResultIterator) r;
+        } else {
+          result = resolveResult(result, r);
+        }
+      }
+      return result;
+    } else {
+      return obj;
+    }
+  }
+
+  /** A ResultIterator that never returns a nested ResultIterator */
+  interface Flat extends ResultIterator {}
+
+  static ResultIterator.Flat flat(Object value) {
     if (value instanceof ResultIterator) {
-      return new ResultIterator() {
+      return new ResultIterator.Flat() {
         ResultIterator current = (ResultIterator) value;
         @Override
         public Object getNextResult() {
@@ -81,7 +104,7 @@ public interface ResultIterator {
         }
       };
     }
-    return new ResultIterator() {
+    return new ResultIterator.Flat() {
       Object result = value;
       @Override
       public Object getNextResult() {
@@ -92,6 +115,7 @@ public interface ResultIterator {
     };
   }
 
+  /** Returns null, a value or a ResultIterator.Flat */
   static Object resolveResult(Object result, Object nextValue) {
     if (result == null) {
       return nextValue;
@@ -108,7 +132,7 @@ public interface ResultIterator {
     return result;
   }
 
-  class QueueResult implements ResultIterator {
+  class QueueResult implements ResultIterator.Flat {
     private final Queue<Object> results;
     ResultIterator nested;
 

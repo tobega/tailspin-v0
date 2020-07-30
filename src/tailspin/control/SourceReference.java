@@ -21,11 +21,7 @@ public class SourceReference implements Expression {
       value = Reference.copy(value);
     }
     if (value instanceof Transform) {
-      Object results = ((Transform) value).getResults(null, Map.of());
-      if (results instanceof DelayedExecution) {
-        results = (ResultIterator) ResultIterator.toQueue((ResultIterator) results)::poll;
-      }
-      return results;
+      return ((Transform) value).getResults(null, Map.of());
     }
     return value;
   }
