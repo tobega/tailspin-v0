@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.ArrayDeque;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +30,7 @@ class ResultIteratorTest {
   @Test
   void resolveResult_embeddedResultIterator() {
     ResultIterator result = (ResultIterator) ResultIterator.resolveResult("a",
-        ResultIterator.ofIterator(List.of(1,5,7).iterator()));
+        (ResultIterator) new ArrayDeque<>(List.of(1,5,7))::poll);
     result = (ResultIterator) ResultIterator.resolveResult(result, "b");
     assertEquals("a", result.getNextResult());
     assertEquals(1, result.getNextResult());
@@ -42,8 +43,8 @@ class ResultIteratorTest {
   @Test
   void resolveResult_embeddedPrefixedResultIterator() {
     ResultIterator result = (ResultIterator) ResultIterator.resolveResult("a",
-        ResultIterator.prefix(ResultIterator.ofIterator(List.of(1,5,7).iterator()),
-            ResultIterator.ofIterator(List.of("g").iterator())));
+        ResultIterator.prefix(new ArrayDeque<>(List.of(1,5,7))::poll,
+            new ArrayDeque<>(List.of("g"))::poll));
     result = (ResultIterator) ResultIterator.resolveResult(result, "b");
     assertEquals("a", result.getNextResult());
     assertEquals(1, result.getNextResult());

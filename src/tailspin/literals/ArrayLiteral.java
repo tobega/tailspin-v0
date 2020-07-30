@@ -19,14 +19,7 @@ public class ArrayLiteral implements Value {
     ArrayList<Object> array = new ArrayList<>();
     for (Expression vp : valueProductions) {
       Object result = vp.getResults(it, scope);
-      if (result == null) {
-        continue;
-      }
-      if (result instanceof ResultIterator) {
-        ResultIterator.apply(array::add, (ResultIterator) result);
-      } else {
-        array.add(result);
-      }
+      ResultIterator.forEach(result, array::add);
     }
     return array;
   }

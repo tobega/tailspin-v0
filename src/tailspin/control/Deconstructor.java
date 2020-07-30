@@ -24,7 +24,10 @@ public class Deconstructor implements Expression {
         return null;
       }
       Iterator<Object> iterator = ((List<Object>) it).iterator();
-      return ResultIterator.ofIterator(iterator);
+      return () -> {
+        if (!iterator.hasNext()) return null;
+        return iterator.next();
+      };
     } else if (it instanceof String) {
       if (((String) it).isEmpty()) {
         return null;

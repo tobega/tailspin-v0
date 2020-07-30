@@ -22,7 +22,7 @@ public class StringInterpolation implements Value {
       return result.toString();
     }
     StringBuilder string = new StringBuilder();
-    ResultIterator.apply(string::append, (ResultIterator) result);
+    ResultIterator.forEach(result, string::append);
     return string.toString();
   }
 }

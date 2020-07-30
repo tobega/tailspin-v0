@@ -1,6 +1,5 @@
 package tailspin.matchers.composer;
 
-import java.util.function.Consumer;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
@@ -18,20 +17,24 @@ public class TransformSubComposer implements SubComposer {
   }
 
   private Object convert(Object matchResult) {
-    if (transform == null) {
+    if (transform == null || matchResult == null) {
       return matchResult;
     }
-    class ResultCollector implements Consumer<Object> {
-      Object result;
-      @Override
-      public void accept(Object it) {
-        Object transformed = transform.getResults(it, scope);
-        result = ResultIterator.resolveResult(result, transformed);
-      }
+    if (!(matchResult instanceof ResultIterator)) {
+      return transform.getResults(matchResult, scope);
     }
-    ResultCollector resultCollector = new ResultCollector();
-    ResultIterator.forEach(matchResult, resultCollector);
-    return resultCollector.result;
+    ResultIterator ri = (ResultIterator) matchResult;
+    Object result = null;
+    Object it;
+    while ((it = ri.getNextResult()) != null) {
+      if (it instanceof ResultIterator) {
+        ri = (ResultIterator) it;
+        continue;
+      }
+      Object transformed = transform.getResults(it, scope);
+      result = ResultIterator.resolveResult(result, transformed);
+    }
+    return result;
   }
 
   @Override

@@ -1,7 +1,6 @@
 package tailspin.control;
 
 import java.util.ArrayDeque;
-import java.util.Iterator;
 import java.util.Queue;
 import java.util.function.Consumer;
 
@@ -35,21 +34,18 @@ public interface ResultIterator {
     };
   }
 
-  static void apply(Consumer<Object> receiver, ResultIterator ri) {
-    Object r;
-    while ((r = ri.getNextResult()) != null) {
-      if (r instanceof ResultIterator) {
-        ri = (ResultIterator) r;
-      } else {
-        receiver.accept(r);
-      }
-    }
-  }
-
   static void forEach(Object obj, Consumer<Object> receiver) {
     if (obj == null) return;
     if (obj instanceof ResultIterator) {
-      apply(receiver, (ResultIterator) obj);
+      ResultIterator ri = (ResultIterator) obj;
+      Object r;
+      while ((r = ri.getNextResult()) != null) {
+        if (r instanceof ResultIterator) {
+          ri = (ResultIterator) r;
+        } else {
+          receiver.accept(r);
+        }
+      }
     } else {
       receiver.accept(obj);
     }
@@ -159,14 +155,5 @@ public interface ResultIterator {
     public void append(Object nextValue) {
       results.add(nextValue);
     }
-  }
-
-  static ResultIterator ofIterator(Iterator<?> iterator) {
-    return () -> {
-      if (!iterator.hasNext()) {
-        return null;
-      }
-      return iterator.next();
-    };
   }
 }
