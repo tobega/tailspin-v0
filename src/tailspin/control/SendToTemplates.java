@@ -16,7 +16,7 @@ public class SendToTemplates implements Expression {
   public Object getResults(Object it, Scope blockScope) {
     TransformScope transformScope = findTransformScope(blockScope);
     Templates templates = transformScope.getTemplates();
-    Object result = valueChain.getResults(it, blockScope);
+    Object result = ResultIterator.resolveSideEffects(valueChain.getResults(it, blockScope));
     if (result == null) {
       return null;
     }
@@ -24,7 +24,7 @@ public class SendToTemplates implements Expression {
       return templates.matchTemplates(result, transformScope).orElse(null);
     }
     return new DelayedExecution() {
-      final ResultIterator.Flat items = ResultIterator.flat(result);
+      final ResultIterator.Flat items = (ResultIterator.Flat) result;
       @Override
       public Object getNextResult() {
         while (true) {
@@ -36,7 +36,7 @@ public class SendToTemplates implements Expression {
           if (r.isPresent()) {
             Object results = r.get();
             if (results instanceof ResultIterator) {
-              return ResultIterator.prefix((ResultIterator) results, this);
+              return DelayedExecution.prefix((ResultIterator) results, this);
             }
             return results;
           }

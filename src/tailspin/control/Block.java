@@ -28,7 +28,7 @@ public class Block implements Expression {
           return results;
         }
         if (results instanceof ResultIterator) {
-          return ResultIterator.prefix((ResultIterator) results, this);
+          return DelayedExecution.prefix((ResultIterator) results, this);
         }
         return results;
       }

@@ -1,15 +1,5 @@
 package tailspin;
 
-import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.atn.ATNConfigSet;
-import org.antlr.v4.runtime.dfa.DFA;
-import tailspin.interpreter.BasicScope;
-import tailspin.interpreter.Program;
-import tailspin.interpreter.RunMain;
-import tailspin.parser.TailspinLexer;
-import tailspin.parser.TailspinParser;
-import tailspin.parser.TailspinParser.ProgramContext;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,6 +10,20 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
+import org.antlr.v4.runtime.ANTLRErrorListener;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Parser;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
+import org.antlr.v4.runtime.atn.ATNConfigSet;
+import org.antlr.v4.runtime.dfa.DFA;
+import tailspin.interpreter.Program;
+import tailspin.interpreter.RunMain;
+import tailspin.parser.TailspinLexer;
+import tailspin.parser.TailspinParser;
+import tailspin.parser.TailspinParser.ProgramContext;
 
 public class Tailspin {
   // TODO: make private
@@ -72,7 +76,6 @@ public class Tailspin {
   public void run(Path basePath, InputStream input, OutputStream output, List<String> args) {
     Program program = new RunMain().visitProgram(programDefinition);
     CoreSystemProvider coreSystemProvider = new CoreSystemProvider(args, input, output);
-    BasicScope scope = new BasicScope(basePath);
     program.run(basePath, coreSystemProvider);
   }
 

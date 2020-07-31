@@ -24,10 +24,10 @@ public class Test implements Expression {
   public Object getResults(Object it, Scope blockScope) {
     Object result = null;
     for (Expression expression : expressions) {
-      result = ResultIterator.resolveResult(result, expression.getResults(null, blockScope));
+      result = ResultIterator.appendResultValue(result, expression.getResults(null, blockScope));
     }
     if (result != null) {
-      result =  ResultIterator.resolveResult(
+      result =  ResultIterator.appendResultValue(
           "" + description.getResults(null, blockScope) + " failed:", result);
     }
     return result;

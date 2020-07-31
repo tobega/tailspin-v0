@@ -44,7 +44,7 @@ public class Composer implements Transform {
       if (!subComposer.isSatisfied()) {
         throw new IllegalStateException("No composer match at '" + s + "'");
       }
-      result = ResultIterator.resolveResult(result, subComposer.getValues());
+      result = ResultIterator.appendResultValue(result, subComposer.getValues());
     }
     if (!s.isEmpty()) {
       throw new IllegalStateException("Composer did not use entire string. Remaining:'" + s + "'");

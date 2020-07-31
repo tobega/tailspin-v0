@@ -131,11 +131,10 @@ public abstract class Reference implements Value {
 
     @Override
     public void setValue(boolean merge, Object value, Object it, Scope scope) {
-      ResultIterator ri = ResultIterator.flat(value);
       if (merge) {
-        collect(ri, scope.getState(stateContext));
+        collect(value, scope.getState(stateContext));
       } else {
-        scope.setState(stateContext, copy(ri.getNextResult()));
+        scope.setState(stateContext, copy(value));
       }
     }
 
@@ -146,6 +145,9 @@ public abstract class Reference implements Value {
   }
 
   public static Object copy(Object value) {
+    if (value == null) {
+      throw new IllegalArgumentException("No value given");
+    }
     if (value instanceof Map) {
       @SuppressWarnings("unchecked")
       Map<String, Object> mapValue = (Map<String, Object>) value;
@@ -212,13 +214,12 @@ public abstract class Reference implements Value {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
-      ResultIterator ri = ResultIterator.flat(value);
       if (merge) {
-        collect(ri, getValue(it, scope));
+        collect(value, getValue(it, scope));
       } else {
         @SuppressWarnings("unchecked")
         Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
-        structure.put(fieldIdentifier, Reference.copy(ri.getNextResult()));
+        structure.put(fieldIdentifier, Reference.copy(value));
       }
     }
 
@@ -267,7 +268,7 @@ public abstract class Reference implements Value {
       if (!isMutable()) {
         throw new UnsupportedOperationException("Not mutable");
       }
-      ResultIterator ri = ResultIterator.flat(value);
+      ResultIterator ri = ResultIterator.wrap(value);
       @SuppressWarnings("unchecked")
       List<Object> array = (List<Object>) parent.getValue(it, scope);
       if (merge) {

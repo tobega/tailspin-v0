@@ -15,7 +15,7 @@ public class StateAssignment implements Expression {
 
   @Override
   public Object getResults(Object it, Scope blockScope) {
-    Object values = valueChain.getResults(it, blockScope);
+    Object values = ResultIterator.resolveSideEffects(valueChain.getResults(it, blockScope));
     stateReference.setValue(merge, values, it, blockScope);
     if (values instanceof ResultIterator && ((ResultIterator) values).getNextResult() != null) {
       // TODO: add source reference

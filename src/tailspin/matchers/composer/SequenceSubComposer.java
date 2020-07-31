@@ -28,7 +28,7 @@ public class SequenceSubComposer implements SubComposer {
       s = subComposer.nibble(s);
       satisfied &= subComposer.isSatisfied();
       if (subComposer.isSatisfied()) {
-        value = ResultIterator.resolveResult(value, subComposer.getValues());
+        value = ResultIterator.appendResultValue(value, subComposer.getValues());
       } else {
         return originalS;
       }

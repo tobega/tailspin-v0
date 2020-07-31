@@ -24,7 +24,7 @@ public class MultiplierSubComposer implements SubComposer {
       s = subComposer.nibble(s);
       if (subComposer.isSatisfied()) {
         repetitions++;
-        values = ResultIterator.resolveResult(values, subComposer.getValues());
+        values = ResultIterator.appendResultValue(values, subComposer.getValues());
       } else {
         break;
       }
@@ -33,7 +33,7 @@ public class MultiplierSubComposer implements SubComposer {
       s = subComposer.nibble(s);
       if (subComposer.isSatisfied()) {
         repetitions++;
-        values = ResultIterator.resolveResult(values, subComposer.getValues());
+        values = ResultIterator.appendResultValue(values, subComposer.getValues());
       } else {
         break;
       }

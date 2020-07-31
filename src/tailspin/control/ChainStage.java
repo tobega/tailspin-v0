@@ -14,15 +14,17 @@ public class ChainStage implements Expression {
 
   @Override
   public Object getResults(Object it, Scope blockScope) {
-    // Resolve all values before running next stage
     Object nextValue = currentExpression.getResults(it, blockScope);
     return runNextStage(nextValue, blockScope);
   }
 
   private Object runNextStage(Object nextValue, Scope blockScope) {
-    if (nextValue != null && nextStage != null) {
+    if (nextStage != null) {
+      nextValue = ResultIterator.resolveSideEffects(nextValue);
+      // Delayed executions may have no results
+      if (nextValue == null) return null;
       if (nextValue instanceof ResultIterator) {
-        nextValue = nextStage.runAll(ResultIterator.flat(nextValue), blockScope);
+        nextValue = nextStage.runAll((ResultIterator.Flat) nextValue, blockScope);
       } else {
         nextValue = nextStage.getResults(nextValue, blockScope);
       }
@@ -37,7 +39,7 @@ public class ChainStage implements Expression {
       // We have to iterate through and resolve values (possible delayed executions) because
       // all values need to pass previous stage before any go to the next
       Object nextValue = ResultIterator.resolveSideEffects(currentExpression.getResults(it, scope));
-      result = ResultIterator.resolveResult(result, nextValue);
+      result = ResultIterator.appendResultValue(result, nextValue);
     }
     return runNextStage(result, scope);
   }

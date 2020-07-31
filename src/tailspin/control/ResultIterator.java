@@ -12,28 +12,6 @@ import java.util.function.Consumer;
 public interface ResultIterator {
   Object getNextResult();
 
-  static ResultIterator prefix(ResultIterator prefix, ResultIterator suffix) {
-    return new ResultIterator() {
-      ResultIterator current = prefix;
-
-      @Override
-      public Object getNextResult() {
-        Object result = null;
-        while (result == null) {
-          result = current.getNextResult();
-          if (result == null) {
-            return suffix;
-          }
-          if (result instanceof ResultIterator) {
-            current = (ResultIterator) result;
-            result = null;
-          }
-        }
-        return result;
-      }
-    };
-  }
-
   static void forEach(Object obj, Consumer<Object> receiver) {
     if (obj == null) return;
     if (obj instanceof ResultIterator) {
@@ -55,6 +33,7 @@ public interface ResultIterator {
   static Object resolveSideEffects(Object obj) {
     if (obj == null) return null;
     if (obj instanceof ResultIterator) {
+      if (obj instanceof ResultIterator.Flat) return obj;
       Object result = null;
       ResultIterator ri = (ResultIterator) obj;
       Object r;
@@ -62,7 +41,7 @@ public interface ResultIterator {
         if (r instanceof ResultIterator) {
           ri = (ResultIterator) r;
         } else {
-          result = resolveResult(result, r);
+          result = appendResultValue(result, r);
         }
       }
       return result;
@@ -74,23 +53,10 @@ public interface ResultIterator {
   /** A ResultIterator that never returns a nested ResultIterator */
   interface Flat extends ResultIterator {}
 
-  static ResultIterator.Flat flat(Object value) {
+  static ResultIterator.Flat wrap(Object value) {
+    if (value instanceof ResultIterator.Flat) return (Flat) value;
     if (value instanceof ResultIterator) {
-      return new ResultIterator.Flat() {
-        ResultIterator current = (ResultIterator) value;
-        @Override
-        public Object getNextResult() {
-          Object result;
-          while (true) {
-            result = current.getNextResult();
-            if (result instanceof ResultIterator) {
-              current = (ResultIterator) result;
-              continue;
-            }
-            return result;
-          }
-        }
-      };
+      throw new IllegalArgumentException("Non-flat ResultIterator passed to flat");
     }
     return new ResultIterator.Flat() {
       Object result = value;
@@ -104,7 +70,11 @@ public interface ResultIterator {
   }
 
   /** Returns null, a value or a ResultIterator.Flat */
-  static Object resolveResult(Object result, Object nextValue) {
+  static Object appendResultValue(Object result, Object nextValue) {
+    if ((result instanceof DelayedExecution) || (nextValue instanceof DelayedExecution)) {
+      // Current guarantee that side-effects for all values are processed before first value moves on
+      throw new AssertionError("Sequences of DelayedExecutions not allowed");
+    }
     if (result == null) {
       return nextValue;
     }

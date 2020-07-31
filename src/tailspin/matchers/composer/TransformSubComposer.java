@@ -21,7 +21,7 @@ public class TransformSubComposer implements SubComposer {
       return matchResult;
     }
     if (!(matchResult instanceof ResultIterator)) {
-      return transform.getResults(matchResult, scope);
+      return ResultIterator.resolveSideEffects(transform.getResults(matchResult, scope));
     }
     ResultIterator ri = (ResultIterator) matchResult;
     Object result = null;
@@ -31,8 +31,8 @@ public class TransformSubComposer implements SubComposer {
         ri = (ResultIterator) it;
         continue;
       }
-      Object transformed = transform.getResults(it, scope);
-      result = ResultIterator.resolveResult(result, transformed);
+      Object transformed = ResultIterator.resolveSideEffects(transform.getResults(it, scope));
+      result = ResultIterator.appendResultValue(result, transformed);
     }
     return result;
   }
