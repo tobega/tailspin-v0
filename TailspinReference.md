@@ -230,14 +230,14 @@ opening parenthesis of an [inline templates](#inline-templates).
 The index-decomppsition definition specifies an identifier for the index counter(s) within brackets,
 e.g. `[4,5,6] -> \[i]($ + $i!\)` will produce the value `[5,7,9]`.
 Multiple dimensions also work, provided that the array structure has at least as many dimensions as specified.
-e.g `[[1,2,3],[4,5,6]] -> \[i,j]($ * $i + $j ! \)` gives `[[2,4,6],[9,12,15]]`
+e.g `[[1,2,3],[4,5,6]] -> \[i;j]($ * $i + $j ! \)` gives `[[2,4,6],[9,12,15]]`
 
 Note that the array templates is currently not aware of the array other than that it has parameters for its indices,
 so each element is independently evaluated. This means that (at least currently) the [templates state](#templates-state)
 is new for each element.
 
 As with inline templates, an optional name can be attached,
-e.g. `[[1,2,3],[4,5,6]] -> \munge[i,j]($ * $i + $j !\munge)`
+e.g. `[[1,2,3],[4,5,6]] -> \munge[i;j]($ * $i + $j !\munge)`
 
 ### Composer
 A composer takes a string and composes it into other objects according to the specified pattern.
