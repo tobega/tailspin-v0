@@ -13,13 +13,15 @@ public class ChoiceSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
+  public Memo nibble(Memo s) {
     satisfied = false;
-    for (SubComposer subComposer : optionComposers) {
+    for (int i = 0; i < optionComposers.size(); i++) {
+      SubComposer subComposer = optionComposers.get(i);
       s = subComposer.nibble(s);
       if (subComposer.isSatisfied()) {
         satisfied = true;
         value = subComposer.getValues();
+        s = new Memo(s.s, i, s);
         break;
       }
     }

@@ -4,7 +4,7 @@ import tailspin.interpreter.Scope;
 
 public class StateAssignment implements Expression {
   private final Expression valueChain;
-  private final Reference stateReference;
+  public final Reference stateReference;
   private final boolean merge;
 
   public StateAssignment(Expression valueChain, Reference stateReference, boolean merge) {

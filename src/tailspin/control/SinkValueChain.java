@@ -6,7 +6,7 @@ public class SinkValueChain implements Expression {
 
   private final Expression valueChain;
   /** a void sink is null */
-  private final Expression sink;
+  public final Expression sink;
 
   public SinkValueChain(Expression valueChain, Expression sink) {
     this.valueChain = valueChain;

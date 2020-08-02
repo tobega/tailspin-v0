@@ -27,6 +27,9 @@ public class ProcessorMessage extends Reference {
         .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().getResults(it, scope)))
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     Object receiver = reference.getValue(it, scope);
+    if (receiver == null) {
+      throw new IllegalStateException("Unknown processor " + reference + ". Cannot send message " + message);
+    }
     return resolveMessage(receiver, resolvedParams);
   }
 

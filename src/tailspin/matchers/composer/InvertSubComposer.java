@@ -9,13 +9,14 @@ public class InvertSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
+  public Memo nibble(Memo memo) {
+    String s = memo.s;
     result = new StringBuilder();
-    for (subComposer.nibble(s); !s.isEmpty() && !subComposer.isSatisfied(); subComposer.nibble(s)) {
+    for (subComposer.nibble(new Memo(s, null, null)); !s.isEmpty() && !subComposer.isSatisfied(); subComposer.nibble(new Memo(s, null, null))) {
       result.append(s.charAt(0));
       s = s.substring(1);
     }
-    return s;
+    return new Memo(s, null, memo);
   }
 
   @Override

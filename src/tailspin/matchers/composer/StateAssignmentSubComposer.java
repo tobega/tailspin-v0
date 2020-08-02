@@ -1,24 +1,28 @@
 package tailspin.matchers.composer;
 
 import tailspin.control.Expression;
+import tailspin.control.Reference;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 
 public class StateAssignmentSubComposer implements SubComposer {
   private final SubComposer value;
   private final Expression stateAssignment;
+  private final Reference reference; // for backtracking
   private final Scope scope;
 
   StateAssignmentSubComposer(SubComposer value, Expression stateAssignment,
-      Scope scope) {
+      Reference reference, Scope scope) {
     this.value = value;
     this.stateAssignment = stateAssignment;
+    this.reference = reference;
     this.scope = scope;
   }
 
   @Override
-  public String nibble(String s) {
-    return value == null ? s : value.nibble(s);
+  public Memo nibble(Memo s) {
+    s = value == null ? s : value.nibble(s);
+    return new Memo(s.s, reference.getValue(null, scope), s);
   }
 
   @Override

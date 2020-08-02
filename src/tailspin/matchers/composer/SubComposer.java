@@ -2,7 +2,7 @@ package tailspin.matchers.composer;
 
 public interface SubComposer {
 
-  String nibble(String s);
+  Memo nibble(Memo s);
 
   Object getValues();
 

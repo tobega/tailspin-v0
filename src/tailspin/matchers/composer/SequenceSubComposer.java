@@ -19,8 +19,8 @@ public class SequenceSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
-    String originalS = s;
+  public Memo nibble(Memo s) {
+    Memo original = s;
     value = null;
     satisfied = true;
     for (CompositionSpec spec : sequence) {
@@ -30,7 +30,7 @@ public class SequenceSubComposer implements SubComposer {
       if (subComposer.isSatisfied()) {
         value = ResultIterator.appendResultValue(value, subComposer.getValues());
       } else {
-        return originalS;
+        return original;
       }
     }
     return s;

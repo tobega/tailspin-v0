@@ -10,7 +10,7 @@ public class MultiplierSubComposer implements SubComposer {
   private final RangeMatch multiplier;
   private final Scope scope;
   private Object values;
-  private long repetitions = 0;
+  private int repetitions;
 
   MultiplierSubComposer(SubComposer subComposer, RangeMatch multiplier, Scope scope) {
     this.subComposer = subComposer;
@@ -19,7 +19,8 @@ public class MultiplierSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
+  public Memo nibble(Memo s) {
+    repetitions = 0;
     while (!multiplier.isMet(repetitions, null, scope)) {
       s = subComposer.nibble(s);
       if (subComposer.isSatisfied()) {
@@ -38,14 +39,13 @@ public class MultiplierSubComposer implements SubComposer {
         break;
       }
     }
-    return s;
+    return new Memo(s.s, repetitions, s);
   }
 
   @Override
   public Object getValues() {
     Object result = values;
     values = null;
-    repetitions = 0;
     return result;
   }
 

@@ -11,7 +11,7 @@ public class SkipSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
+  public Memo nibble(Memo s) {
     for (SubComposer subComposer : subComposers) {
       satisfied = true;
       s = subComposer.nibble(s);

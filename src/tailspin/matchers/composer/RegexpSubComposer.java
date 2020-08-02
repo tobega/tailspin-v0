@@ -15,13 +15,13 @@ class RegexpSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
-    Matcher matcher = pattern.matcher(s);
+  public Memo nibble(Memo memo) {
+    Matcher matcher = pattern.matcher(memo.s);
     if (matcher.lookingAt()) {
       latestValue = matcher.group();
-      return s.substring(matcher.end());
+      return new Memo(memo.s.substring(matcher.end()), null, memo);
     }
-    return s;
+    return memo;
   }
 
   @Override

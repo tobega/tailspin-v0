@@ -14,6 +14,9 @@ public class TemplatesCall implements Expression {
   @Override
   public Object getResults(Object it, Scope blockScope) {
     Transform transform = (Transform) templatesReference.getValue(it, blockScope);
+    if (transform == null) {
+      throw new IllegalStateException("Unknown templates " + templatesReference);
+    }
     return transform.getResults(it, Map.of());
   }
 }

@@ -8,6 +8,7 @@ import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.composer.CompositionSpec;
+import tailspin.matchers.composer.Memo;
 import tailspin.matchers.composer.SubComposer;
 import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.types.Transform;
@@ -37,7 +38,7 @@ public class Composer implements Transform {
       stateAssignment.getResults(null, scope);
     }
     Object result = null;
-    String s = (String) Objects.requireNonNull(it);
+    Memo s = new Memo((String) Objects.requireNonNull(it), null, null);
     for (CompositionSpec spec : specs) {
       SubComposer subComposer = subComposerFactory.resolveSpec(spec, scope);
       s = subComposer.nibble(s);
@@ -46,7 +47,7 @@ public class Composer implements Transform {
       }
       result = ResultIterator.appendResultValue(result, subComposer.getValues());
     }
-    if (!s.isEmpty()) {
+    if (!s.s.isEmpty()) {
       throw new IllegalStateException("Composer did not use entire string. Remaining:'" + s + "'");
     }
     return result;

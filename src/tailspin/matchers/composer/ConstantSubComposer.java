@@ -8,7 +8,7 @@ class ConstantSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
+  public Memo nibble(Memo s) {
     return s;
   }
 

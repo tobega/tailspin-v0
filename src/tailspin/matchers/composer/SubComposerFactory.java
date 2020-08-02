@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import tailspin.control.Expression;
+import tailspin.control.Reference;
 import tailspin.control.Value;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
@@ -98,7 +99,7 @@ public class SubComposerFactory {
       StateAssignmentComposition stateSpec = (StateAssignmentComposition) spec;
       SubComposer value = stateSpec.value == null ? null : resolveSpec(stateSpec.value, scope);
       return new StateAssignmentSubComposer(value, stateSpec.stateAssignment,
-          scope);
+          stateSpec.reference, scope);
     }
     if (spec instanceof LiteralComposition) {
       return new LiteralSubComposer((String) ((LiteralComposition) spec).literal.getResults(null, scope));
@@ -124,7 +125,7 @@ public class SubComposerFactory {
     }
 
     @Override
-    public String nibble(String s) {
+    public Memo nibble(Memo s) {
       sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope),
           SubComposerFactory.this::resolveSpec);
       return sequenceSubComposer.nibble(s);
@@ -272,10 +273,13 @@ public class SubComposerFactory {
 
     private final CompositionSpec value;
     private final Expression stateAssignment;
+    public Reference reference;
 
-    public StateAssignmentComposition(/* @Nullable */ CompositionSpec value, Expression stateAssignment) {
+    public StateAssignmentComposition(/* @Nullable */ CompositionSpec value, Expression stateAssignment,
+        Reference reference) {
       this.value = value;
       this.stateAssignment = stateAssignment;
+      this.reference = reference;
     }
   }
 

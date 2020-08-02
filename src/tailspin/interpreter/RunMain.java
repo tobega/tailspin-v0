@@ -815,9 +815,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       String identifier = ctx.key().localIdentifier().getText();
       value = new SubComposerFactory.CaptureComposition(identifier, value);
     } else if (ctx.stateSink() != null){
-      value = new SubComposerFactory.StateAssignmentComposition(value, visitStateSink(ctx.stateSink()));
+      StateAssignment stateAssignment = visitStateSink(ctx.stateSink());
+      value = new SubComposerFactory.StateAssignmentComposition(value,
+          stateAssignment, stateAssignment.stateReference);
     } else if (ctx.stateAssignment() != null) {
-      value = new SubComposerFactory.StateAssignmentComposition(null, visitStateAssignment(ctx.stateAssignment()));
+      Expression stateAssignment = visitStateAssignment(ctx.stateAssignment());
+      StateAssignment sink = (StateAssignment) ((stateAssignment instanceof StateAssignment)
+                ? stateAssignment
+                : ((SinkValueChain) stateAssignment).sink);
+      value = new SubComposerFactory.StateAssignmentComposition(null,
+          stateAssignment, sink.stateReference);
     }
     return value;
   }

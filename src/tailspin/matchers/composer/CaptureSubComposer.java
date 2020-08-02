@@ -16,7 +16,7 @@ public class CaptureSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
+  public Memo nibble(Memo s) {
     s = subComposer.nibble(s);
     satisfied = subComposer.isSatisfied();
     if (subComposer.isSatisfied()) {

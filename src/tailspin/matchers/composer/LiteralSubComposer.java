@@ -13,12 +13,12 @@ public class LiteralSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
-    if (s.startsWith(literal)) {
+  public Memo nibble(Memo memo) {
+    if (memo.s.startsWith(literal)) {
       matchedValue = true;
-      s = s.substring(literal.length());
+      memo = new Memo(memo.s.substring(literal.length()), null, memo);
     }
-    return s;
+    return memo;
   }
 
   @Override

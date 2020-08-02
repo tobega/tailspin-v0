@@ -13,16 +13,16 @@ class KeyValueSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
-    String originalS = s;
+  public Memo nibble(Memo s) {
+    Memo original = s;
     s = keyComposer.nibble(s);
     if (!keyComposer.isSatisfied()) {
-      return originalS;
+      return original;
     }
     s = valueComposer.nibble(s);
     if (!valueComposer.isSatisfied()) {
       keyComposer.getValues(); // Do we need to flush here?
-      return originalS;
+      return original;
     }
     return s;
   }
