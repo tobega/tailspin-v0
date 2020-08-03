@@ -10,6 +10,7 @@ public class StateAssignmentSubComposer implements SubComposer {
   private final Expression stateAssignment;
   private final Reference reference; // for backtracking
   private final Scope scope;
+  private boolean satisfied;
 
   StateAssignmentSubComposer(SubComposer value, Expression stateAssignment,
       Reference reference, Scope scope) {
@@ -22,7 +23,15 @@ public class StateAssignmentSubComposer implements SubComposer {
   @Override
   public Memo nibble(Memo s) {
     s = value == null ? s : value.nibble(s);
+    satisfied = value == null || value.isSatisfied();
     return new Memo(s.s, reference.getValue(null, scope), s);
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    satisfied = false;
+    reference.setValue(false, memo.backtrackNote, null, scope);
+    return memo.previous;
   }
 
   @Override
@@ -37,6 +46,6 @@ public class StateAssignmentSubComposer implements SubComposer {
 
   @Override
   public boolean isSatisfied() {
-    return value == null || value.isSatisfied();
+    return satisfied;
   }
 }

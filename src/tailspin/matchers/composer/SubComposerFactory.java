@@ -128,7 +128,18 @@ public class SubComposerFactory {
     public Memo nibble(Memo s) {
       sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope),
           SubComposerFactory.this::resolveSpec);
-      return sequenceSubComposer.nibble(s);
+      s = sequenceSubComposer.nibble(s);
+      return new Memo(s.s, sequenceSubComposer, s);
+    }
+
+    @Override
+    public Memo backtrack(Memo memo) {
+      sequenceSubComposer = (SequenceSubComposer) memo.backtrackNote;
+      memo = sequenceSubComposer.backtrack(memo.previous);
+      if (sequenceSubComposer.isSatisfied()) {
+        return new Memo(memo.s, sequenceSubComposer, memo);
+      }
+      return memo;
     }
 
     @Override

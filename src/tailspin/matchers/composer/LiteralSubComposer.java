@@ -14,11 +14,18 @@ public class LiteralSubComposer implements SubComposer {
 
   @Override
   public Memo nibble(Memo memo) {
+    matchedValue = false;
     if (memo.s.startsWith(literal)) {
       matchedValue = true;
       memo = new Memo(memo.s.substring(literal.length()), null, memo);
     }
-    return memo;
+    return new Memo(memo.s, null, memo);
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    matchedValue = false;
+    return memo.previous;
   }
 
   @Override

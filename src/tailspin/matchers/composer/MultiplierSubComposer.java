@@ -20,6 +20,7 @@ public class MultiplierSubComposer implements SubComposer {
 
   @Override
   public Memo nibble(Memo s) {
+    Memo original = s;
     repetitions = 0;
     while (!multiplier.isMet(repetitions, null, scope)) {
       s = subComposer.nibble(s);
@@ -27,7 +28,7 @@ public class MultiplierSubComposer implements SubComposer {
         repetitions++;
         values = ResultIterator.appendResultValue(values, subComposer.getValues());
       } else {
-        break;
+        return original;
       }
     }
     while (multiplier.isMet(repetitions+1, null, scope)) {
@@ -40,6 +41,20 @@ public class MultiplierSubComposer implements SubComposer {
       }
     }
     return new Memo(s.s, repetitions, s);
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    repetitions = (int) memo.backtrackNote;
+    memo = memo.previous;
+    while (repetitions > 0) {
+      // TODO: figure out how to backtrack repetitions
+      do {
+        memo = subComposer.backtrack(memo);
+      } while (subComposer.isSatisfied());
+      repetitions--;
+    }
+    return memo;
   }
 
   @Override

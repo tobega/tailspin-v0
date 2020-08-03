@@ -16,6 +16,11 @@ public class ArraySubComposer implements SubComposer {
   }
 
   @Override
+  public Memo backtrack(Memo memo) {
+    return items.backtrack(memo);
+  }
+
+  @Override
   public ArrayList<Object> getValues() {
     ArrayList<Object> result = new ArrayList<>();
     ResultIterator.forEach(items.getValues(), result::add);

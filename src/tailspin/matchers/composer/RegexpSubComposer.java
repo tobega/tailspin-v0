@@ -16,12 +16,19 @@ class RegexpSubComposer implements SubComposer {
 
   @Override
   public Memo nibble(Memo memo) {
+    latestValue = null;
     Matcher matcher = pattern.matcher(memo.s);
     if (matcher.lookingAt()) {
       latestValue = matcher.group();
       return new Memo(memo.s.substring(matcher.end()), null, memo);
     }
-    return memo;
+    return new Memo(memo.s, null, memo);
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    latestValue = null;
+    return memo.previous;
   }
 
   @Override

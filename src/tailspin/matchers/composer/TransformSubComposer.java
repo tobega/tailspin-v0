@@ -43,6 +43,11 @@ public class TransformSubComposer implements SubComposer {
   }
 
   @Override
+  public Memo backtrack(Memo memo) {
+    return subComposer.backtrack(memo);
+  }
+
+  @Override
   public Object getValues() {
     return convert(subComposer.getValues());
   }

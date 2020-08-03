@@ -18,6 +18,11 @@ class StructureSubComposer implements SubComposer {
   }
 
   @Override
+  public Memo backtrack(Memo memo) {
+    return keyValues.backtrack(memo);
+  }
+
+  @Override
   public Map<String, Object> getValues() {
     Map<String, Object> value = new TreeMap<>();
     ResultIterator.forEach(keyValues.getValues(), kv -> {

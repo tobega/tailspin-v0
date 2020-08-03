@@ -18,12 +18,24 @@ public class CaptureSubComposer implements SubComposer {
   @Override
   public Memo nibble(Memo s) {
     s = subComposer.nibble(s);
+    checkSatisfaction();
+    return s;
+  }
+
+  private void checkSatisfaction() {
     satisfied = subComposer.isSatisfied();
     if (subComposer.isSatisfied()) {
       Object result = Value.oneValue(subComposer.getValues());
       scope.defineValue(identifier, result);
     }
-    return s;
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    scope.undefineValue(identifier);
+    memo = subComposer.backtrack(memo);
+    checkSatisfaction();
+    return memo;
   }
 
   @Override

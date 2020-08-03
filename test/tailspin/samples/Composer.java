@@ -45,7 +45,7 @@ class Composer {
   }
 
   @Test
-  void composeEqualsLiteralBacktracks() throws IOException {
+  void composeEqualsLiteralDoesNotMatch() throws IOException {
     String program = "composer eq\n"
         + "<='Quo vadis?'|INT>\n"
         + "end eq\n"
@@ -326,7 +326,7 @@ class Composer {
   }
 
   @Test
-  void failExtra() throws IOException {
+  void failExtraSpace() throws IOException {
     String program = "composer int\n"
         + "<INT>\n"
         + "end int\n"
@@ -1229,6 +1229,42 @@ class Composer {
   void backtrack() throws IOException {
     String program = "composer bt\n"
         + "  <='a'|='aa'> <='ab'|='bc'>\n"
+        + "end bt\n"
+        + "\n"
+        + "'aabc' -> bt -> 'wowza\n"
+        + "' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("wowza", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void backtrackOneLessRepetitions() throws IOException {
+    String program = "composer bt\n"
+        + "  <='a'>+ <='abc'>\n"
+        + "end bt\n"
+        + "\n"
+        + "'aabc' -> bt -> 'wowza\n"
+        + "' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("wowza", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void backtrackRechooseLastRepetitions() throws IOException {
+    String program = "composer bt\n"
+        + "  <='ab'|='a'>+ <='bc'>\n"
         + "end bt\n"
         + "\n"
         + "'aabc' -> bt -> 'wowza\n"

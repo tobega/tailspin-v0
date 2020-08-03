@@ -20,6 +20,12 @@ public class InvertSubComposer implements SubComposer {
   }
 
   @Override
+  public Memo backtrack(Memo memo) {
+    result = null;
+    return memo.previous;
+  }
+
+  @Override
   public String getValues() {
     if (subComposer.isSatisfied()) {
       subComposer.getValues(); // flush

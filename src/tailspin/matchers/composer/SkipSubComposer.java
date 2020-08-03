@@ -1,6 +1,7 @@
 package tailspin.matchers.composer;
 
 import java.util.List;
+import java.util.ListIterator;
 
 public class SkipSubComposer implements SubComposer {
   private final List<SubComposer> subComposers;
@@ -21,6 +22,19 @@ public class SkipSubComposer implements SubComposer {
       }
     }
     return s;
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    // TODO: allow partial backtracking
+    satisfied = false;
+    for (ListIterator<SubComposer> it = subComposers.listIterator(subComposers.size()); it.hasPrevious();) {
+      SubComposer subComposer = it.previous();
+      do {
+        memo = subComposer.backtrack(memo);
+      } while (subComposer.isSatisfied());
+    }
+    return memo;
   }
 
   @Override
