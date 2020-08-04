@@ -24,7 +24,11 @@ public class StateAssignmentSubComposer implements SubComposer {
   public Memo nibble(Memo s) {
     s = value == null ? s : value.nibble(s);
     satisfied = value == null || value.isSatisfied();
-    return new Memo(s.s, reference.getValue(null, scope), s);
+    if (satisfied) {
+      return new Memo(s.s, reference.getValue(null, scope), s);
+    } else {
+      return s;
+    }
   }
 
   @Override

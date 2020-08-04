@@ -33,9 +33,6 @@ class KeyValueSubComposer implements SubComposer {
   public Memo backtrack(Memo memo) {
     key = (String) memo.backtrackNote;
     memo = valueComposer.backtrack(memo.previous);
-    if (valueComposer.isSatisfied()) {
-      return memo;
-    }
     while (!valueComposer.isSatisfied()) {
       memo = keyComposer.backtrack(memo);
       if (!keyComposer.isSatisfied()) {
@@ -44,7 +41,7 @@ class KeyValueSubComposer implements SubComposer {
       }
       memo = valueComposer.nibble(memo);
     }
-    return memo;
+    return new Memo(memo.s, key, memo);
   }
 
   @Override

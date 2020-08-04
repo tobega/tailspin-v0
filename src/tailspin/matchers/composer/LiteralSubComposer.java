@@ -19,7 +19,7 @@ public class LiteralSubComposer implements SubComposer {
       matchedValue = true;
       memo = new Memo(memo.s.substring(literal.length()), null, memo);
     }
-    return new Memo(memo.s, null, memo);
+    return memo;
   }
 
   @Override

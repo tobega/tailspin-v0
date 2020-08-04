@@ -16,7 +16,11 @@ public class InvertSubComposer implements SubComposer {
       result.append(s.charAt(0));
       s = s.substring(1);
     }
-    return new Memo(s, null, memo);
+    if (result.length() > 0) {
+      return new Memo(s, null, memo);
+    } else {
+      return memo;
+    }
   }
 
   @Override
