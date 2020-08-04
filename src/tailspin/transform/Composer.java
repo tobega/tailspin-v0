@@ -5,11 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import tailspin.control.Expression;
-import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.Memo;
-import tailspin.matchers.composer.SubComposer;
+import tailspin.matchers.composer.SequenceSubComposer;
 import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.types.Transform;
 
@@ -37,20 +36,16 @@ public class Composer implements Transform {
     if (stateAssignment != null) {
       stateAssignment.getResults(null, scope);
     }
-    Object result = null;
-    Memo s = new Memo((String) Objects.requireNonNull(it), null, null);
-    for (CompositionSpec spec : specs) {
-      SubComposer subComposer = subComposerFactory.resolveSpec(spec, scope);
-      s = subComposer.nibble(s);
-      if (!subComposer.isSatisfied()) {
-        throw new IllegalStateException("No composer match at '" + s + "'");
-      }
-      result = ResultIterator.appendResultValue(result, subComposer.getValues());
+    Memo memo = new Memo((String) Objects.requireNonNull(it), null, null);
+    SequenceSubComposer subComposer = new SequenceSubComposer(specs, scope, subComposerFactory::resolveSpec);
+    memo = subComposer.nibble(memo);
+    while (subComposer.isSatisfied() && !memo.s.isEmpty()) {
+      memo = subComposer.backtrack(memo);
     }
-    if (!s.s.isEmpty()) {
-      throw new IllegalStateException("Composer did not use entire string. Remaining:'" + s + "'");
+    if (!subComposer.isSatisfied()) {
+      throw new IllegalStateException("Unable to compose value from string:'" + memo.s + "'");
     }
-    return result;
+    return subComposer.getValues();
   }
 
   private TransformScope createTransformScope(Object it, Map<String, Object> parameters) {

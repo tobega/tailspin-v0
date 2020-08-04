@@ -22,7 +22,7 @@ class RegexpSubComposer implements SubComposer {
       latestValue = matcher.group();
       return new Memo(memo.s.substring(matcher.end()), null, memo);
     }
-    return new Memo(memo.s, null, memo);
+    return memo;
   }
 
   @Override

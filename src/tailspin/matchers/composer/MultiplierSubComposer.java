@@ -54,6 +54,7 @@ public class MultiplierSubComposer implements SubComposer {
       } while (subComposer.isSatisfied());
       repetitions--;
     }
+    repetitions--; // Just to not be satisfied and keep backtracking
     return memo;
   }
 

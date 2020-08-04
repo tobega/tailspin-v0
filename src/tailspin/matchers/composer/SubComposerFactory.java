@@ -49,7 +49,7 @@ public class SubComposerFactory {
           Pattern.compile((String) regexSpec.pattern.getResults(null, scope)), Function.identity());
     }
     if (spec instanceof SkipComposition) {
-      return new SkipSubComposer(resolveSpecs(((SkipComposition) spec).skipSpecs, scope));
+      return new SkipSubComposer(new SequenceSubComposer(((SkipComposition) spec).skipSpecs, scope, this::resolveSpec));
     }
     if (spec instanceof ChoiceComposition) {
       ChoiceComposition choiceSpec = (ChoiceComposition) spec;
@@ -129,7 +129,7 @@ public class SubComposerFactory {
       sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope),
           SubComposerFactory.this::resolveSpec);
       s = sequenceSubComposer.nibble(s);
-      return new Memo(s.s, sequenceSubComposer, s);
+      return sequenceSubComposer.isSatisfied() ? new Memo(s.s, sequenceSubComposer, s) : s;
     }
 
     @Override

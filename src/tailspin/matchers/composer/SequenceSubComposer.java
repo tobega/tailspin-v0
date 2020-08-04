@@ -1,7 +1,6 @@
 package tailspin.matchers.composer;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import tailspin.control.ResultIterator;
@@ -12,7 +11,7 @@ public class SequenceSubComposer implements SubComposer {
   private final List<CompositionSpec> sequence;
   private final Scope scope;
   private final Resolver resolver;
-  private Deque<SubComposer> value;
+  private List<SubComposer> value;
   private boolean satisfied = false;
 
   public SequenceSubComposer(List<CompositionSpec> sequence, Scope scope, CompositionSpec.Resolver resolver) {
@@ -23,26 +22,43 @@ public class SequenceSubComposer implements SubComposer {
 
   @Override
   public Memo nibble(Memo s) {
-    Memo original = s;
-    value = new ArrayDeque<>();
+    value = new ArrayList<>();
+    return resolveRemaining(s);
+  }
+
+  private Memo resolveRemaining(Memo s) {
     satisfied = true;
-    for (CompositionSpec spec : sequence) {
+    for (CompositionSpec spec : sequence.subList(value.size(), sequence.size())) {
       SubComposer subComposer = resolver.resolveSpec(spec, scope);
       s = subComposer.nibble(s);
       satisfied &= subComposer.isSatisfied();
       if (subComposer.isSatisfied()) {
         value.add(subComposer);
       } else {
-        return original;
+        return goBack(s);
       }
     }
-    return s;
+    return new Memo(s.s, value, s);
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Memo backtrack(Memo memo) {
+    value = (List<SubComposer>) memo.backtrackNote;
+    memo = memo.previous;
+    return goBack(memo);
+  }
+
+  private Memo goBack(Memo memo) {
     satisfied = false;
-    // TODO: actually handle backtracking
+    while (!value.isEmpty()) {
+      SubComposer subComposer = value.remove(value.size() - 1);
+      memo = subComposer.backtrack(memo);
+      if (subComposer.isSatisfied()) {
+        value.add(subComposer);
+        return resolveRemaining(memo);
+      }
+    }
     return memo;
   }
 
