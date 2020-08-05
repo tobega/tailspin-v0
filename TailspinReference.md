@@ -265,7 +265,9 @@ This will match the string value exactly.
 
 Other composition matchers are the ones defined in the composer as sub-patterns (rules).
 
-There are also built-in composition matchers like `<INT>` which parses an integer and `<WS>` for a sequence of whitespace characters.
+There are also built-in composition matchers:
+  - `<INT>` which parses an integer
+  - `<WS>` for a sequence of whitespace characters.
 
 A composition matcher can have a [multiplier qualifier](#multipliers) after it to determine repetitions.
 
@@ -295,6 +297,9 @@ will print "73"
 
 A composer can have [state](#templates-state) that can be set initially as the first statement before the main pattern. It can be updated in skip compositions,
 optionally with a value stream from a matcher. It can be accessed in the usual way.
+
+A composer must match the whole string. It will backtrack and try other options, but performance-wise it is
+better if matchers are made so that backtracking never needs happen (by a prefix-free grammar).
 
 ## Matchers
 A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the
@@ -414,9 +419,9 @@ the removed entity is used as a [source](#sources). E.g. if @ is `[4,5,6]` then 
 
 ## Parameters
 Defined [templates](#defined-templates) (or [composers](#composer) or [processors](#processors)) can have parameters that vary the way they execute. Parameters are defined just after the identifier
-by an at-sign and a list of keys inside braces (similar to a structure literal), and are used as defined values, e.g.
+by an ampersand-sign and a list of keys inside braces (similar to a structure literal), and are used as defined values, e.g.
 ```
-templates add@{addend:}
+templates add&{addend:}
   $ + $addend
 end add
 ```
@@ -427,7 +432,7 @@ but cannot be passed as input.
 
 To call templates with parameters, set the values after the identifier by an at-sign and a [structure literal](#structure-literal)
 where the keys in the structure must match the defined parameters, e.g. with the above definition
-`3 -> add@{addend: 4} -> stdout` will print `7`.
+`3 -> add&{addend: 4} -> stdout` will print `7`.
 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by

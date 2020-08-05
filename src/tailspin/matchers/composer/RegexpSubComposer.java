@@ -15,20 +15,25 @@ class RegexpSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
-    Matcher matcher = pattern.matcher(s);
+  public Memo nibble(Memo memo) {
+    latestValue = null;
+    Matcher matcher = pattern.matcher(memo.s);
     if (matcher.lookingAt()) {
       latestValue = matcher.group();
-      return s.substring(matcher.end());
+      return new Memo(memo.s.substring(matcher.end()), memo);
     }
-    return s;
+    return memo;
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    latestValue = null;
+    return memo.previous;
   }
 
   @Override
   public Object getValues() {
-    Object result = valueCreator.apply(latestValue);
-    latestValue = null;
-    return result;
+    return valueCreator.apply(latestValue);
   }
 
   @Override

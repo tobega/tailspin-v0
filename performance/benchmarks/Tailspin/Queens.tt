@@ -46,4 +46,4 @@ templates runAndVerify
   <=0> @: 0;
 end runAndVerify
 
-1 -> harness/run@{name: 'Queens', benchmark:runAndVerify} -> !VOID
+1 -> harness/run&{name: 'Queens', benchmark:runAndVerify} -> !VOID

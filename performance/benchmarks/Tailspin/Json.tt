@@ -51,5 +51,5 @@ templates runAndVerify
   <> 0 !
 end runAndVerify
 
-1 -> harness/run@{name: 'Json', benchmark:runAndVerify} -> !VOID
+1 -> harness/run&{name: 'Json', benchmark:runAndVerify} -> !VOID
 

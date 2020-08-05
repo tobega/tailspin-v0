@@ -1,4 +1,4 @@
-transform shortestPaths@{graph:}
+transform shortestPaths&{graph:}
   @: [];
   [ {to: $, distance: 0, path:[]} ] -> transform
     when <[](0)> do $@shortestPaths !
@@ -23,7 +23,7 @@ def edges: [
   { edge: ['d', 'e'], cost: 6 },
   { edge: ['e', 'f'], cost: 9 }];
 
-def fromA: 'a' -> shortestPaths@{graph: $edges};
+def fromA: 'a' -> shortestPaths&{graph: $edges};
 
 $fromA... -> keep <{to:<='e'>}> -> 'Shortest path from $.path(1); to $.to; is distance $.distance; via $.path(2..last);
 ' -> !OUT::write

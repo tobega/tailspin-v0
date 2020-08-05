@@ -6,6 +6,7 @@ import tailspin.types.KeyValue;
 class KeyValueSubComposer implements SubComposer {
   private final SubComposer keyComposer;
   private final SequenceSubComposer valueComposer;
+  String key;
 
   KeyValueSubComposer(SubComposer keyComposer, SequenceSubComposer valueComposer) {
     this.keyComposer = keyComposer;
@@ -13,29 +14,43 @@ class KeyValueSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
-    String originalS = s;
+  public Memo nibble(Memo s) {
+    key = null;
+    Memo original = s;
     s = keyComposer.nibble(s);
     if (!keyComposer.isSatisfied()) {
-      return originalS;
+      return original;
     }
+    key = (String) Value.oneValue(keyComposer.getValues());
     s = valueComposer.nibble(s);
     if (!valueComposer.isSatisfied()) {
-      keyComposer.getValues(); // Do we need to flush here?
-      return originalS;
+      return original;
     }
     return s;
   }
 
   @Override
+  public Memo backtrack(Memo memo) {
+    memo = valueComposer.backtrack(memo);
+    while (!valueComposer.isSatisfied()) {
+      memo = keyComposer.backtrack(memo);
+      if (!keyComposer.isSatisfied()) {
+        key = null;
+        return memo;
+      }
+      memo = valueComposer.nibble(memo);
+    }
+    return memo;
+  }
+
+  @Override
   public KeyValue getValues() {
-    String key = (String) Value.oneValue(keyComposer.getValues());
     Object value = Value.oneValue(valueComposer.getValues());
     return new KeyValue(key, value);
   }
 
   @Override
   public boolean isSatisfied() {
-    return  keyComposer.isSatisfied() && valueComposer.isSatisfied();
+    return  key != null && valueComposer.isSatisfied();
   }
 }

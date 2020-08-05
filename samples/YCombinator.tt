@@ -1,31 +1,31 @@
 // YCombinator is not needed since tailspin supports recursion readily, but this demonstrates passing functions as parameters and currying
 
-templates combinator@{stepper:}
-  templates makeStep@{rec:}
-    $ -> stepper@{next: rec@{rec: rec}} !
+templates combinator&{stepper:}
+  templates makeStep&{rec:}
+    $ -> stepper&{next: rec&{rec: rec}} !
   end makeStep
-  $ -> makeStep@{rec: makeStep} !
+  $ -> makeStep&{rec: makeStep} !
 end combinator
 
 templates factorial
-  templates seed@{next:}
+  templates seed&{next:}
     <=0> 1 !
     <>
       $ * ($ - 1 -> next) !
   end seed
-  $ -> combinator@{stepper: seed} !
+  $ -> combinator&{stepper: seed} !
 end factorial
 
 5 -> factorial -> 'factorial 5: $;
 ' -> !OUT::write
 
 templates fibonacci
-  templates seed@{next:}
+  templates seed&{next:}
     <..1> $ !
     <>
       ($ -2 -> next) + ($ - 1 -> next) !
   end seed
-  $ -> combinator@{stepper: seed} !
+  $ -> combinator&{stepper: seed} !
 end fibonacci
 
 5 -> fibonacci -> 'fibonacci 5: $;

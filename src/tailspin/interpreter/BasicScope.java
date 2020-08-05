@@ -3,6 +3,7 @@ package tailspin.interpreter;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class BasicScope implements Scope {
   private final Path basePath;
@@ -28,6 +29,11 @@ public class BasicScope implements Scope {
       throw new IllegalStateException("Attempt to redefine " + identifier);
     }
     definitions.put(identifier, value);
+  }
+
+  @Override
+  public void undefineValue(String identifier) {
+    Objects.requireNonNull(definitions.remove(identifier), "Attempt to undefine undefined value " + identifier);
   }
 
   @Override

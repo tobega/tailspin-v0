@@ -31,6 +31,14 @@ public class NestedScope implements Scope {
   }
 
   @Override
+  public void undefineValue(String identifier) {
+    if (!definitions.containsKey(identifier)) {
+      throw new IllegalStateException("Attempt to undefine non-existent identifier " + identifier);
+    }
+    definitions.remove(identifier);
+  }
+
+  @Override
   public boolean hasDefinition(String def) {
     return definitions.containsKey(def) || parentScope.hasDefinition(def);
   }

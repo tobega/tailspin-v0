@@ -1,8 +1,5 @@
 package tailspin.matchers.composer;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-
 public class LiteralSubComposer implements SubComposer {
 
   private final String literal;
@@ -13,19 +10,24 @@ public class LiteralSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
-    if (s.startsWith(literal)) {
+  public Memo nibble(Memo memo) {
+    matchedValue = false;
+    if (memo.s.startsWith(literal)) {
       matchedValue = true;
-      s = s.substring(literal.length());
+      memo = new Memo(memo.s.substring(literal.length()), memo);
     }
-    return s;
+    return memo;
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    matchedValue = false;
+    return memo.previous;
   }
 
   @Override
   public String getValues() {
-    Queue<Object> result = new ArrayDeque<>();
     if (matchedValue) {
-      matchedValue = false;
       return literal;
     }
     return null;

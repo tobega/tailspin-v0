@@ -11,8 +11,13 @@ public class ArraySubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
+  public Memo nibble(Memo s) {
     return items.nibble(s);
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    return items.backtrack(memo);
   }
 
   @Override

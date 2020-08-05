@@ -36,6 +36,28 @@ Progress measured in how many times slower than Java. The variance on tailspin r
 |[2020-07-29 HotSpot jdk14 JVMCI](#2020-07-29)|Interpreted|883|140|293|664|886|135|557|
 |[2020-07-30 HotSpot jdk14 JVMCI](#2020-07-30)|Interpreted|839|136|291|526|833|140|541|
 |[2020-07-31 HotSpot jdk14 JVMCI](#2020-07-31)|Interpreted|741|131|273|605|672|148|524|
+|[2020-08-05 HotSpot jdk14 JVMCI](#2020-08-05)|Interpreted|686|162|259|530|784|160|556|
+
+## 2020-08-05
+machine 3, backtracking in composers
+HotSpot jdk14 JVMCI
+
+|Benchmark|Mean runtime us|
+|---|---|
+  Bounce      Java  |  14  
+  Bounce      Tailspin |  9601  
+  Json        Java  |   64  
+  Json        Tailspin | 10380  
+  List        Java  |   22  
+  List        Tailspin | 5687  
+  Permute     Java  |   20  
+  Permute     Tailspin |  10595  
+  Queens      Java  |  14  
+  Queens      Tailspin |  10978  
+  Sieve       Java  |  17  
+  Sieve       Tailspin  | 2716  
+  Towers      Java  | 20  
+  Towers      Tailspin | 11111  
 
 ## 2020-07-31
 machine 3, fix bugs, more clean up result iterator usage

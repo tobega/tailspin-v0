@@ -6,19 +6,23 @@ public class ChoiceSubComposer implements SubComposer {
   private final List<SubComposer> optionComposers;
 
   private Object value;
-  private boolean satisfied = false;
+  private int choice = -1;
 
   ChoiceSubComposer(List<SubComposer> optionComposers) {
     this.optionComposers = optionComposers;
   }
 
   @Override
-  public String nibble(String s) {
-    satisfied = false;
-    for (SubComposer subComposer : optionComposers) {
+  public Memo nibble(Memo s) {
+    choice = -1;
+    return tryNext(s);
+  }
+
+  private Memo tryNext(Memo s) {
+    for (choice++; choice < optionComposers.size(); choice++) {
+      SubComposer subComposer = optionComposers.get(choice);
       s = subComposer.nibble(s);
       if (subComposer.isSatisfied()) {
-        satisfied = true;
         value = subComposer.getValues();
         break;
       }
@@ -27,15 +31,23 @@ public class ChoiceSubComposer implements SubComposer {
   }
 
   @Override
+  public Memo backtrack(Memo memo) {
+    SubComposer subComposer = optionComposers.get(choice);
+    memo = subComposer.backtrack(memo);
+    if (subComposer.isSatisfied()) {
+      value = subComposer.getValues();
+      return memo;
+    }
+    return tryNext(memo);
+  }
+
+  @Override
   public Object getValues() {
-    Object result = value;
-    value = null;
-    satisfied = false;
-    return result;
+    return value;
   }
 
   @Override
   public boolean isSatisfied() {
-    return  satisfied;
+    return  choice >= 0 && choice < optionComposers.size();
   }
 }

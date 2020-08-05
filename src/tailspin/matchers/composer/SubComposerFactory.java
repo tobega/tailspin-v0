@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import tailspin.control.Expression;
+import tailspin.control.Reference;
 import tailspin.control.Value;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
@@ -48,7 +49,7 @@ public class SubComposerFactory {
           Pattern.compile((String) regexSpec.pattern.getResults(null, scope)), Function.identity());
     }
     if (spec instanceof SkipComposition) {
-      return new SkipSubComposer(resolveSpecs(((SkipComposition) spec).skipSpecs, scope));
+      return new SkipSubComposer(new SequenceSubComposer(((SkipComposition) spec).skipSpecs, scope, this::resolveSpec));
     }
     if (spec instanceof ChoiceComposition) {
       ChoiceComposition choiceSpec = (ChoiceComposition) spec;
@@ -71,8 +72,8 @@ public class SubComposerFactory {
     }
     if (spec instanceof MultiplierComposition) {
       return new MultiplierSubComposer(
-          resolveSpec(((MultiplierComposition) spec).compositionSpec, scope),
-          ((MultiplierComposition) spec).multiplier, scope);
+          ((MultiplierComposition) spec).compositionSpec,
+          ((MultiplierComposition) spec).multiplier, scope, this::resolveSpec);
     }
     if (spec instanceof DereferenceComposition) {
       return new DereferenceSubComposer(((DereferenceComposition) spec).source, scope);
@@ -98,7 +99,7 @@ public class SubComposerFactory {
       StateAssignmentComposition stateSpec = (StateAssignmentComposition) spec;
       SubComposer value = stateSpec.value == null ? null : resolveSpec(stateSpec.value, scope);
       return new StateAssignmentSubComposer(value, stateSpec.stateAssignment,
-          scope);
+          stateSpec.reference, scope);
     }
     if (spec instanceof LiteralComposition) {
       return new LiteralSubComposer((String) ((LiteralComposition) spec).literal.getResults(null, scope));
@@ -124,17 +125,20 @@ public class SubComposerFactory {
     }
 
     @Override
-    public String nibble(String s) {
+    public Memo nibble(Memo s) {
       sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope),
           SubComposerFactory.this::resolveSpec);
       return sequenceSubComposer.nibble(s);
     }
 
     @Override
+    public Memo backtrack(Memo memo) {
+      return sequenceSubComposer.backtrack(memo);
+    }
+
+    @Override
     public Object getValues() {
-      Object values = sequenceSubComposer.getValues();
-      sequenceSubComposer = null;
-      return values;
+      return sequenceSubComposer.getValues();
     }
 
     @Override
@@ -272,10 +276,13 @@ public class SubComposerFactory {
 
     private final CompositionSpec value;
     private final Expression stateAssignment;
+    public Reference reference;
 
-    public StateAssignmentComposition(/* @Nullable */ CompositionSpec value, Expression stateAssignment) {
+    public StateAssignmentComposition(/* @Nullable */ CompositionSpec value, Expression stateAssignment,
+        Reference reference) {
       this.value = value;
       this.stateAssignment = stateAssignment;
+      this.reference = reference;
     }
   }
 

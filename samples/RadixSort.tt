@@ -1,4 +1,4 @@
-templates radixsort@{base:}
+templates radixsort&{base:}
   sink bucketize
     def value: $;
     $ ~/ $@radixsort.digit -> #
@@ -25,13 +25,13 @@ templates radixsort@{base:}
     $@.done -> #
 end radixsort
 
-[170, 45, 75, 91, 90, 92, 802, 24, 2, 66] -> radixsort@{base:10} -> !OUT::write
+[170, 45, 75, 91, 90, 92, 802, 24, 2, 66] -> radixsort&{base:10} -> !OUT::write
 '
 ' -> !OUT::write
-[-170, -45, -91, -90, -92, -802, -24, -2, -76] -> radixsort@{base:10} -> !OUT::write
+[-170, -45, -91, -90, -92, -802, -24, -2, -76] -> radixsort&{base:10} -> !OUT::write
 '
 ' -> !OUT::write
-[170, 45, 75, -91, -90, -92, -802, 24, 2, 66] -> radixsort@{base:10} -> !OUT::write
+[170, 45, 75, -91, -90, -92, -802, 24, 2, 66] -> radixsort&{base:10} -> !OUT::write
 '
 ' -> !OUT::write
-[170, 45, 75, -91, -90, -92, -802, 24, 2, 66] -> radixsort@{base:3} -> !OUT::write
+[170, 45, 75, -91, -90, -92, -802, 24, 2, 66] -> radixsort&{base:3} -> !OUT::write

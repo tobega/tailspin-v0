@@ -6,6 +6,7 @@ import tailspin.interpreter.Scope;
 class DereferenceSubComposer implements SubComposer {
   private final Expression source;
   private final Scope scope;
+  private boolean satisfied;
 
   DereferenceSubComposer(Expression source, Scope scope) {
     this.source = source;
@@ -13,8 +14,15 @@ class DereferenceSubComposer implements SubComposer {
   }
 
   @Override
-  public String nibble(String s) {
+  public Memo nibble(Memo s) {
+    satisfied = true;
     return s;
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    satisfied = false; // Need to keep going back
+    return memo;
   }
 
   @Override
@@ -24,6 +32,6 @@ class DereferenceSubComposer implements SubComposer {
 
   @Override
   public boolean isSatisfied() {
-    return true;
+    return satisfied;
   }
 }

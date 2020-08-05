@@ -16,7 +16,7 @@ statement: Def key valueProduction SemiColon                  # definition
 
 key: localIdentifier Colon;
 
-parameterDefinitions: At LeftBrace (key Comma?)+ RightBrace;
+parameterDefinitions: And LeftBrace (key Comma?)+ RightBrace;
 
 source: sourceReference
   | deleteState
@@ -69,7 +69,7 @@ sink: ResultMarker ((anyIdentifier reference Message? parameterValues?) | Void);
 
 templatesReference:  anyIdentifier reference Message? parameterValues?;
 
-parameterValues: At LeftBrace (parameterValue Comma?)+ RightBrace;
+parameterValues: And LeftBrace (parameterValue Comma?)+ RightBrace;
 
 parameterValue: key (valueChain|templatesReference);
 
@@ -201,7 +201,7 @@ compositionKey: tokenMatcher Colon;
 
 localIdentifier: IDENTIFIER | keyword;
 
-stateIdentifier: At localIdentifier?;
+stateIdentifier: STATE_IDENTIFIER;
 
 externalIdentifier: localIdentifier (Slash localIdentifier)+;
 

@@ -16,4 +16,6 @@ public interface Scope {
   Scope getParentScope();
 
   boolean hasDefinition(String def);
+
+  void undefineValue(String identifier);
 }

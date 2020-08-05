@@ -496,8 +496,8 @@ class Templates {
 
   @Test
   void parameter() throws Exception {
-    String program = "templates comp@{pivot:} <..$pivot> 'le' ! <> 'gt' ! end comp\n"
-        + "1..6 -> comp@{pivot: 3} -> !OUT::write";
+    String program = "templates comp&{pivot:} <..$pivot> 'le' ! <> 'gt' ! end comp\n"
+        + "1..6 -> comp&{pivot: 3} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -511,8 +511,8 @@ class Templates {
   @Test
   void higherOrderFunction() throws Exception {
     String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp@{discriminator:} $ -> discriminator -> # <=1> 'yes' ! <> 'no' ! end comp\n"
-        + "1..6 -> comp@{discriminator: low} -> !OUT::write";
+        + "templates comp&{discriminator:} $ -> discriminator -> # <=1> 'yes' ! <> 'no' ! end comp\n"
+        + "1..6 -> comp&{discriminator: low} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -526,8 +526,8 @@ class Templates {
   @Test
   void throwOnDereferenceFunction() throws Exception {
     String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp@{discriminator:} $ -> $discriminator -> # <=1> 'yes' ! <> 'no' ! end comp\n"
-        + "1..6 -> comp@{discriminator: low} -> !OUT::write";
+        + "templates comp&{discriminator:} $ -> $discriminator -> # <=1> 'yes' ! <> 'no' ! end comp\n"
+        + "1..6 -> comp&{discriminator: low} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -539,9 +539,9 @@ class Templates {
   @Test
   void functionOfFunction() throws Exception {
     String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp@{discriminator:} $ -> discriminator -> # <=1> 'yes' ! <=0> 'no' ! <> $ ! end comp\n"
-        + "templates meta@{f:} $ -> f@{discriminator: low} ! end meta\n"
-        + "1..6 -> meta@{f: comp} -> !OUT::write";
+        + "templates comp&{discriminator:} $ -> discriminator -> # <=1> 'yes' ! <=0> 'no' ! <> $ ! end comp\n"
+        + "templates meta&{f:} $ -> f&{discriminator: low} ! end meta\n"
+        + "1..6 -> meta&{f: comp} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -555,9 +555,9 @@ class Templates {
   @Test
   void attemptToRedefineCurriedParameter() throws Exception {
     String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp@{discriminator:} $ -> $discriminator -> # <=1> 'yes' ! <> 'no' ! end comp\n"
-        + "templates meta@{f:} $ -> f@{discriminator: low} ! end meta\n"
-        + "1..6 -> meta@{f: comp@{discriminator: low}} -> !OUT::write";
+        + "templates comp&{discriminator:} $ -> $discriminator -> # <=1> 'yes' ! <> 'no' ! end comp\n"
+        + "templates meta&{f:} $ -> f&{discriminator: low} ! end meta\n"
+        + "1..6 -> meta&{f: comp&{discriminator: low}} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -568,8 +568,8 @@ class Templates {
 
   @Test
   void streamedParameter() throws Exception {
-    String program = "templates comp@{pivot:} 4 -> # <..$pivot> 'le' ! <> 'gt' ! end comp\n"
-        + "1..6 -> comp@{pivot: $} -> !OUT::write";
+    String program = "templates comp&{pivot:} 4 -> # <..$pivot> 'le' ! <> 'gt' ! end comp\n"
+        + "1..6 -> comp&{pivot: $} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

@@ -1,36 +1,29 @@
 package tailspin.matchers.composer;
 
-import java.util.List;
-
 public class SkipSubComposer implements SubComposer {
-  private final List<SubComposer> subComposers;
-  private boolean satisfied = false;
+  private final SequenceSubComposer subComposer;
 
-  SkipSubComposer(List<SubComposer> subComposers) {
-    this.subComposers = subComposers;
+  SkipSubComposer(SequenceSubComposer subComposer) {
+    this.subComposer = subComposer;
   }
 
   @Override
-  public String nibble(String s) {
-    for (SubComposer subComposer : subComposers) {
-      satisfied = true;
-      s = subComposer.nibble(s);
-      satisfied &= subComposer.isSatisfied();
-      if (subComposer.isSatisfied()) {
-        subComposer.getValues(); // Skip values
-      }
-    }
-    return s;
+  public Memo nibble(Memo s) {
+    return subComposer.nibble(s);
+  }
+
+  @Override
+  public Memo backtrack(Memo memo) {
+    return subComposer.backtrack(memo);
   }
 
   @Override
   public Object getValues() {
-    satisfied = false;
     return null;
   }
 
   @Override
   public boolean isSatisfied() {
-    return  satisfied;
+    return  subComposer.isSatisfied();
   }
 }

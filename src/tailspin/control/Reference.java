@@ -18,7 +18,11 @@ public abstract class Reference implements Value {
 
   @Override
   public Object getResults(Object it, Scope scope) {
-    return getValue(it, scope);
+    Object value = getValue(it, scope);
+    if (value == null) {
+      throw new IllegalStateException("Unknown value " + this);
+    }
+    return value;
   }
 
   public Reference field(String fieldIdentifier) {
@@ -186,6 +190,9 @@ public abstract class Reference implements Value {
       try {
         @SuppressWarnings("unchecked")
         Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
+        if (structure == null) {
+          throw new IllegalStateException("Unknown structure " + parent);
+        }
         return structure.get(fieldIdentifier);
       } catch (ClassCastException e) {
         throw new IllegalStateException(parent.toString() + " is not a structure. Tried to get " + fieldIdentifier, e);
@@ -201,6 +208,9 @@ public abstract class Reference implements Value {
       }
       @SuppressWarnings("unchecked")
       Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
+      if (structure == null) {
+        throw new IllegalStateException("Unknown structure " + parent);
+      }
       return structure.remove(fieldIdentifier);
     }
 
@@ -219,6 +229,9 @@ public abstract class Reference implements Value {
       } else {
         @SuppressWarnings("unchecked")
         Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
+        if (structure == null) {
+          throw new IllegalStateException("Unknown structure " + parent);
+        }
         structure.put(fieldIdentifier, Reference.copy(value));
       }
     }
@@ -245,6 +258,9 @@ public abstract class Reference implements Value {
     public Object getValue(Object it, Scope scope) {
       @SuppressWarnings("unchecked")
       List<Object> array = (List<Object>) parent.getValue(it, scope);
+      if (array == null) {
+        throw new IllegalStateException("Unknown array " + parent);
+      }
       return resolveDimensionDereference(0, array, List::get, it, scope);
     }
 
@@ -255,6 +271,9 @@ public abstract class Reference implements Value {
       }
       @SuppressWarnings("unchecked")
       List<Object> array = (List<Object>) parent.getValue(it, scope);
+      if (array == null) {
+        throw new IllegalStateException("Unknown array " + parent);
+      }
       return resolveDimensionDereference(0, array, List::remove, it, scope);
     }
 
@@ -271,6 +290,9 @@ public abstract class Reference implements Value {
       ResultIterator ri = ResultIterator.wrap(value);
       @SuppressWarnings("unchecked")
       List<Object> array = (List<Object>) parent.getValue(it, scope);
+      if (array == null) {
+        throw new IllegalStateException("Unknown array " + parent);
+      }
       if (merge) {
         class Merger implements ArrayOperation {
           int invocations = 0;
