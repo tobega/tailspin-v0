@@ -1071,12 +1071,12 @@ class Composer {
 
   @Test
   void parameters() throws IOException {
-    String program = "composer split@{separator:}\n"
+    String program = "composer split&{separator:}\n"
         + "[ <token>* ]\n"
         + "rule token: <~sep> (<sep>?)\n"
         + "rule sep: <'$separator;'>\n"
         + "end split\n"
-        + "'ab;cd;e' -> split@{separator:';'} -> !OUT::write";
+        + "'ab;cd;e' -> split&{separator:';'} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1297,5 +1297,27 @@ class Composer {
     runner.run(input, output, List.of());
 
     assertEquals("a\na\n1\nbc\n", output.toString(StandardCharsets.UTF_8));
+  }
+
+  /**
+   * The parser thought we were referencing variable $@rule followed by key-value matcher
+   */
+  @Test
+  void regressionCannotParseRule() throws IOException {
+    String program = "composer bt\n"
+        + "  <foo> $@\n"
+        + "  rule foo: <='ab'> (@:2;)\n"
+        + "end bt\n"
+        + "\n"
+        + "'ab' -> bt -> '$;\n"
+        + "' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ab\n2\n", output.toString(StandardCharsets.UTF_8));
   }
 }

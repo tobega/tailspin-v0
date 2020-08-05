@@ -203,11 +203,11 @@ public class Testing {
 
   @Test
   void dontRequireBindingOfParameters() throws Exception {
-    String program = "templates outer@{param:}\n"
+    String program = "templates outer&{param:}\n"
         + "$param !\n"
         + "end outer\n"
         + "test 'A passing test'\n"
-        + "assert 2 -> outer@{param: 1} <=1> 'outer gives 1'\n"
+        + "assert 2 -> outer&{param: 1} <=1> 'outer gives 1'\n"
         + "end 'A passing test'";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

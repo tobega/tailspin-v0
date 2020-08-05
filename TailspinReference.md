@@ -414,9 +414,9 @@ the removed entity is used as a [source](#sources). E.g. if @ is `[4,5,6]` then 
 
 ## Parameters
 Defined [templates](#defined-templates) (or [composers](#composer) or [processors](#processors)) can have parameters that vary the way they execute. Parameters are defined just after the identifier
-by an at-sign and a list of keys inside braces (similar to a structure literal), and are used as defined values, e.g.
+by an ampersand-sign and a list of keys inside braces (similar to a structure literal), and are used as defined values, e.g.
 ```
-templates add@{addend:}
+templates add&{addend:}
   $ + $addend
 end add
 ```
@@ -427,7 +427,7 @@ but cannot be passed as input.
 
 To call templates with parameters, set the values after the identifier by an at-sign and a [structure literal](#structure-literal)
 where the keys in the structure must match the defined parameters, e.g. with the above definition
-`3 -> add@{addend: 4} -> stdout` will print `7`.
+`3 -> add&{addend: 4} -> stdout` will print `7`.
 
 ## Streams
 Streams occur when several values are created as the _current value_. Streams are processed by

@@ -126,16 +126,16 @@ class Processor {
   @Test
   void parametrizedProcessor() throws Exception {
     String program =
-        "templates add@{x:}\n"
+        "templates add&{x:}\n"
             + "  $ + $x !\n"
             + "end add\n"
-            + "processor Holder@{op:}\n"
+            + "processor Holder&{op:}\n"
             + "@: $;\n"
             + "templates do\n"
-            + "  $ -> op@{x:$@Holder} !\n"
+            + "  $ -> op&{x:$@Holder} !\n"
             + "end do\n"
             + "end Holder\n"
-            + "def addFive: 5 -> Holder@{op:add};\n"
+            + "def addFive: 5 -> Holder&{op:add};\n"
             + "1..3 -> addFive::do -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -150,17 +150,17 @@ class Processor {
   @Test
   void parametrizedMessage() throws Exception {
     String program =
-        "templates add@{x:}\n"
+        "templates add&{x:}\n"
             + "  $ + $x !\n"
             + "end add\n"
             + "processor Holder\n"
             + "@: $;\n"
-            + "templates do@{op:}\n"
-            + "  $ -> op@{x:$@Holder} !\n"
+            + "templates do&{op:}\n"
+            + "  $ -> op&{x:$@Holder} !\n"
             + "end do\n"
             + "end Holder\n"
             + "def five: 5 -> Holder;\n"
-            + "1..3 -> five::do@{op:add} -> !OUT::write";
+            + "1..3 -> five::do&{op:add} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

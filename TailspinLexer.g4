@@ -26,7 +26,7 @@ SourceMarker: '$';
 
 DeleteMarker: '^';
 
-At: '@';
+And: '&';
 
 Slash: '/';
 
@@ -123,6 +123,8 @@ PositiveInteger: [1-9] Digits?;
 fragment Digits: [0-9]+;
 
 START_STRING: '\'' -> pushMode(IN_STRING);
+
+STATE_IDENTIFIER: '@' IDENTIFIER_PART*;
 
 IDENTIFIER: IDENTIFIER_START IDENTIFIER_PART*;
 
