@@ -265,7 +265,9 @@ This will match the string value exactly.
 
 Other composition matchers are the ones defined in the composer as sub-patterns (rules).
 
-There are also built-in composition matchers like `<INT>` which parses an integer and `<WS>` for a sequence of whitespace characters.
+There are also built-in composition matchers:
+  - `<INT>` which parses an integer
+  - `<WS>` for a sequence of whitespace characters.
 
 A composition matcher can have a [multiplier qualifier](#multipliers) after it to determine repetitions.
 
@@ -295,6 +297,9 @@ will print "73"
 
 A composer can have [state](#templates-state) that can be set initially as the first statement before the main pattern. It can be updated in skip compositions,
 optionally with a value stream from a matcher. It can be accessed in the usual way.
+
+A composer must match the whole string. It will backtrack and try other options, but performance-wise it is
+better if matchers are made so that backtracking never needs happen (by a prefix-free grammar).
 
 ## Matchers
 A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the

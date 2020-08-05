@@ -2,7 +2,7 @@ composer toInt
   <INT>
 end toInt
 
-templates run@{name:, benchmark:}
+templates run&{name:, benchmark:}
   templates measure
     @: 1;
     def startTime: $SYS::nanoCount;

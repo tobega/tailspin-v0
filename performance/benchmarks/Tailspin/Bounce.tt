@@ -8,7 +8,7 @@ processor Random
   end next
 end Random
 
-processor Ball@{random:}
+processor Ball&{random:}
   @: {
     x: $random::next mod 500,
     y: $random::next mod 500,
@@ -47,7 +47,7 @@ templates runAndVerify
   def random: $Random;
   def ballCount: 100;
   @: 0;
-  def balls: [1..$ballCount -> $Ball@{random: $random}];
+  def balls: [1..$ballCount -> $Ball&{random: $random}];
   1..50 -> \(
     $balls... -> @runAndVerify: $@runAndVerify + $::bounce;
   \) -> !VOID
@@ -56,4 +56,4 @@ templates runAndVerify
   <> 0 !
 end runAndVerify
 
-1 -> harness/run@{name: 'Bounce', benchmark:runAndVerify} -> !VOID
+1 -> harness/run&{name: 'Bounce', benchmark:runAndVerify} -> !VOID
