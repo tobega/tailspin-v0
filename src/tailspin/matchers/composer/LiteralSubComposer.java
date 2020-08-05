@@ -1,8 +1,5 @@
 package tailspin.matchers.composer;
 
-import java.util.ArrayDeque;
-import java.util.Queue;
-
 public class LiteralSubComposer implements SubComposer {
 
   private final String literal;
@@ -30,9 +27,7 @@ public class LiteralSubComposer implements SubComposer {
 
   @Override
   public String getValues() {
-    Queue<Object> result = new ArrayDeque<>();
     if (matchedValue) {
-      matchedValue = false;
       return literal;
     }
     return null;

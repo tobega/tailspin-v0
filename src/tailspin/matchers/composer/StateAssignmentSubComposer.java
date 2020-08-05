@@ -25,6 +25,11 @@ public class StateAssignmentSubComposer implements SubComposer {
     s = value == null ? s : value.nibble(s);
     satisfied = value == null || value.isSatisfied();
     if (satisfied) {
+      if (value == null) {
+        stateAssignment.getResults(null, scope);
+      } else {
+        ResultIterator.forEach(value.getValues(), it -> stateAssignment.getResults(it, scope));
+      }
       return new Memo(s.s, reference.getValue(null, scope), s);
     } else {
       return s;
@@ -40,11 +45,6 @@ public class StateAssignmentSubComposer implements SubComposer {
 
   @Override
   public Object getValues() {
-    if (value == null) {
-      stateAssignment.getResults(null, scope);
-    } else {
-      ResultIterator.forEach(value.getValues(), it -> stateAssignment.getResults(it, scope));
-    }
     return null;
   }
 

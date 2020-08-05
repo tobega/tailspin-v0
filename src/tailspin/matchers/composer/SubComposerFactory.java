@@ -72,8 +72,8 @@ public class SubComposerFactory {
     }
     if (spec instanceof MultiplierComposition) {
       return new MultiplierSubComposer(
-          resolveSpec(((MultiplierComposition) spec).compositionSpec, scope),
-          ((MultiplierComposition) spec).multiplier, scope);
+          ((MultiplierComposition) spec).compositionSpec,
+          ((MultiplierComposition) spec).multiplier, scope, this::resolveSpec);
     }
     if (spec instanceof DereferenceComposition) {
       return new DereferenceSubComposer(((DereferenceComposition) spec).source, scope);
@@ -128,25 +128,17 @@ public class SubComposerFactory {
     public Memo nibble(Memo s) {
       sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope),
           SubComposerFactory.this::resolveSpec);
-      s = sequenceSubComposer.nibble(s);
-      return sequenceSubComposer.isSatisfied() ? new Memo(s.s, sequenceSubComposer, s) : s;
+      return sequenceSubComposer.nibble(s);
     }
 
     @Override
     public Memo backtrack(Memo memo) {
-      sequenceSubComposer = (SequenceSubComposer) memo.backtrackNote;
-      memo = sequenceSubComposer.backtrack(memo.previous);
-      if (sequenceSubComposer.isSatisfied()) {
-        return new Memo(memo.s, sequenceSubComposer, memo);
-      }
-      return memo;
+      return sequenceSubComposer.backtrack(memo.previous);
     }
 
     @Override
     public Object getValues() {
-      Object values = sequenceSubComposer.getValues();
-      sequenceSubComposer = null;
-      return values;
+      return sequenceSubComposer.getValues();
     }
 
     @Override

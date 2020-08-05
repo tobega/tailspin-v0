@@ -33,9 +33,7 @@ class RegexpSubComposer implements SubComposer {
 
   @Override
   public Object getValues() {
-    Object result = valueCreator.apply(latestValue);
-    latestValue = null;
-    return result;
+    return valueCreator.apply(latestValue);
   }
 
   @Override

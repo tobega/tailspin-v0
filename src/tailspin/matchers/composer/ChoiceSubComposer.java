@@ -48,10 +48,7 @@ public class ChoiceSubComposer implements SubComposer {
 
   @Override
   public Object getValues() {
-    Object result = value;
-    value = null;
-    satisfied = false;
-    return result;
+    return value;
   }
 
   @Override

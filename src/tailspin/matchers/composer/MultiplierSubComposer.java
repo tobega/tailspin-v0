@@ -1,72 +1,90 @@
 package tailspin.matchers.composer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.RangeMatch;
+import tailspin.matchers.composer.CompositionSpec.Resolver;
 
 public class MultiplierSubComposer implements SubComposer {
 
-  private final SubComposer subComposer;
+  private final CompositionSpec compositionSpec;
   private final RangeMatch multiplier;
   private final Scope scope;
-  private Object values;
-  private int repetitions;
+  private final Resolver resolver;
+  private List<SubComposer> values;
 
-  MultiplierSubComposer(SubComposer subComposer, RangeMatch multiplier, Scope scope) {
-    this.subComposer = subComposer;
+  public MultiplierSubComposer(CompositionSpec compositionSpec, RangeMatch multiplier, Scope scope,
+      Resolver resolver) {
+    this.compositionSpec = compositionSpec;
     this.multiplier = multiplier;
     this.scope = scope;
+    this.resolver = resolver;
   }
 
   @Override
-  public Memo nibble(Memo s) {
-    Memo original = s;
-    repetitions = 0;
-    while (!multiplier.isMet(repetitions, null, scope)) {
-      s = subComposer.nibble(s);
+  public Memo nibble(Memo memo) {
+    values = new ArrayList<>();
+    return addRepetitions(memo);
+  }
+
+  private Memo addRepetitions(Memo memo) {
+    while (!multiplier.isMet(values.size(), null, scope) || multiplier.isMet(values.size()+1, null, scope)) {
+      SubComposer subComposer = resolver.resolveSpec(compositionSpec, scope);
+      memo = subComposer.nibble(memo);
       if (subComposer.isSatisfied()) {
-        repetitions++;
-        values = ResultIterator.appendResultValue(values, subComposer.getValues());
-      } else {
-        return original;
-      }
-    }
-    while (multiplier.isMet(repetitions+1, null, scope)) {
-      s = subComposer.nibble(s);
-      if (subComposer.isSatisfied()) {
-        repetitions++;
-        values = ResultIterator.appendResultValue(values, subComposer.getValues());
+        values.add(subComposer);
       } else {
         break;
       }
     }
-    return new Memo(s.s, repetitions, s);
+    if (!isSatisfied()) {
+      memo = rewind(memo);
+    }
+    return memo;
+  }
+
+  private Memo rewind(Memo memo) {
+    while (!values.isEmpty()) {
+      SubComposer last = values.remove(values.size() - 1);
+      do {
+        memo = last.backtrack(memo);
+      } while (last.isSatisfied());
+    }
+    values = null;
+    return memo;
   }
 
   @Override
   public Memo backtrack(Memo memo) {
-    repetitions = (int) memo.backtrackNote;
-    memo = memo.previous;
-    while (repetitions > 0) {
-      // TODO: figure out how to backtrack repetitions
-      do {
-        memo = subComposer.backtrack(memo);
-      } while (subComposer.isSatisfied());
-      repetitions--;
+    if (values.isEmpty()) {
+      values = null;
+      return memo;
     }
-    repetitions--; // Just to not be satisfied and keep backtracking
+    SubComposer last = values.remove(values.size() - 1);
+    memo = last.backtrack(memo);
+    if (last.isSatisfied()) {
+      values.add(last);
+      return addRepetitions(memo);
+    }
+    // See if we can accept just one less repetition
+    if (!isSatisfied()) {
+      memo = rewind(memo);
+    }
     return memo;
   }
 
   @Override
   public Object getValues() {
-    Object result = values;
-    values = null;
-    return result;
+    AtomicReference<Object> result = new AtomicReference<>();
+    values.forEach(v -> result.set(ResultIterator.appendResultValue(result.get(), v.getValues())));
+    return result.get();
   }
 
   @Override
   public boolean isSatisfied() {
-    return multiplier.isMet(repetitions, null, scope);
+    return values != null && multiplier.isMet(values.size(), null, scope);
   }
 }

@@ -31,12 +31,7 @@ public class InvertSubComposer implements SubComposer {
 
   @Override
   public String getValues() {
-    if (subComposer.isSatisfied()) {
-      subComposer.getValues(); // flush
-    }
-    String value = result.toString();
-    result = null;
-    return value;
+    return result.toString();
   }
 
   @Override

@@ -40,7 +40,6 @@ public class CaptureSubComposer implements SubComposer {
 
   @Override
   public Object getValues() {
-    satisfied = false;
     return null;
   }
 

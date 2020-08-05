@@ -1249,7 +1249,7 @@ class Composer {
         + "  <='a'>+ <='abc'>\n"
         + "end bt\n"
         + "\n"
-        + "'aabc' -> bt -> 'wowza\n"
+        + "'aabc' -> bt -> '$;\n"
         + "' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -1258,7 +1258,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("wowza", output.toString(StandardCharsets.UTF_8));
+    assertEquals("a\nabc\n", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1267,7 +1267,7 @@ class Composer {
         + "  <='ab'|='a'>+ <='bc'>\n"
         + "end bt\n"
         + "\n"
-        + "'aabc' -> bt -> 'wowza\n"
+        + "'aabc' -> bt -> '$;\n"
         + "' -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -1276,6 +1276,6 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("wowza", output.toString(StandardCharsets.UTF_8));
+    assertEquals("a\na\nbc\n", output.toString(StandardCharsets.UTF_8));
   }
 }

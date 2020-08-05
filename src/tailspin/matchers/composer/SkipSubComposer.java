@@ -19,7 +19,6 @@ public class SkipSubComposer implements SubComposer {
 
   @Override
   public Object getValues() {
-    subComposer.getValues(); // do we still need to flush?
     return null;
   }
 
