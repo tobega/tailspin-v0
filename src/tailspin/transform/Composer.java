@@ -36,7 +36,7 @@ public class Composer implements Transform {
     if (stateAssignment != null) {
       stateAssignment.getResults(null, scope);
     }
-    Memo memo = new Memo((String) Objects.requireNonNull(it), null, null);
+    Memo memo = new Memo((String) Objects.requireNonNull(it), null);
     SequenceSubComposer subComposer = new SequenceSubComposer(specs, scope, subComposerFactory::resolveSpec);
     memo = subComposer.nibble(memo);
     while (subComposer.isSatisfied() && !memo.s.isEmpty()) {

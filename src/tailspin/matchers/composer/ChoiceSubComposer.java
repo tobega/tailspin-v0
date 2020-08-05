@@ -6,7 +6,7 @@ public class ChoiceSubComposer implements SubComposer {
   private final List<SubComposer> optionComposers;
 
   private Object value;
-  private boolean satisfied = false;
+  private int choice = -1;
 
   ChoiceSubComposer(List<SubComposer> optionComposers) {
     this.optionComposers = optionComposers;
@@ -14,18 +14,16 @@ public class ChoiceSubComposer implements SubComposer {
 
   @Override
   public Memo nibble(Memo s) {
-    return tryFrom(s, 0);
+    choice = -1;
+    return tryNext(s);
   }
 
-  private Memo tryFrom(Memo s, int n) {
-    satisfied = false;
-    for (int i = n; i < optionComposers.size(); i++) {
-      SubComposer subComposer = optionComposers.get(i);
+  private Memo tryNext(Memo s) {
+    for (choice++; choice < optionComposers.size(); choice++) {
+      SubComposer subComposer = optionComposers.get(choice);
       s = subComposer.nibble(s);
       if (subComposer.isSatisfied()) {
-        satisfied = true;
         value = subComposer.getValues();
-        s = new Memo(s.s, i, s);
         break;
       }
     }
@@ -34,16 +32,13 @@ public class ChoiceSubComposer implements SubComposer {
 
   @Override
   public Memo backtrack(Memo memo) {
-    satisfied = false;
-    int i = (int) memo.backtrackNote;
-    SubComposer subComposer = optionComposers.get(i);
-    memo = subComposer.backtrack(memo.previous);
+    SubComposer subComposer = optionComposers.get(choice);
+    memo = subComposer.backtrack(memo);
     if (subComposer.isSatisfied()) {
-      satisfied = true;
       value = subComposer.getValues();
-      return new Memo(memo.s, i, memo);
+      return memo;
     }
-    return tryFrom(memo, ++i);
+    return tryNext(memo);
   }
 
   @Override
@@ -53,6 +48,6 @@ public class ChoiceSubComposer implements SubComposer {
 
   @Override
   public boolean isSatisfied() {
-    return  satisfied;
+    return  choice >= 0 && choice < optionComposers.size();
   }
 }

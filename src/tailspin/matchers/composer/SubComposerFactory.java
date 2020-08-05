@@ -133,7 +133,7 @@ public class SubComposerFactory {
 
     @Override
     public Memo backtrack(Memo memo) {
-      return sequenceSubComposer.backtrack(memo.previous);
+      return sequenceSubComposer.backtrack(memo);
     }
 
     @Override

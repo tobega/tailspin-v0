@@ -20,7 +20,7 @@ class RegexpSubComposer implements SubComposer {
     Matcher matcher = pattern.matcher(memo.s);
     if (matcher.lookingAt()) {
       latestValue = matcher.group();
-      return new Memo(memo.s.substring(matcher.end()), null, memo);
+      return new Memo(memo.s.substring(matcher.end()), memo);
     }
     return memo;
   }
