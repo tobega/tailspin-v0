@@ -1320,4 +1320,29 @@ class Composer {
 
     assertEquals("ab\n2\n", output.toString(StandardCharsets.UTF_8));
   }
+
+  /**
+   * Attempting to add repetitions when string is empty
+   */
+  @Test
+  void regressionDecodeRoman() throws IOException {
+    String program =
+        "def digits: [M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1];\n"
+            + "composer decodeRoman\n"
+            + "  @: 1;\n"
+            + "  [ <digit>* ] -> \\(@: 0; $... -> @: $@ + $; $@ !\\)\n"
+            + "  rule digit: <value>* (@: $@ + 1;)\n"
+            + "  rule value: <'$digits($@)::key;'> -> $digits($@)::value\n"
+            + "end decodeRoman\n"
+            + "\n"
+            + "'MMVIII' -> decodeRoman -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("2008", output.toString(StandardCharsets.UTF_8));
+  }
 }

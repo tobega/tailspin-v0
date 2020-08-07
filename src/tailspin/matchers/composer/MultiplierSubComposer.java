@@ -31,7 +31,9 @@ public class MultiplierSubComposer implements SubComposer {
   }
 
   private Memo addRepetitions(Memo memo) {
-    while (!multiplier.isMet(values.size(), null, scope) || multiplier.isMet(values.size()+1, null, scope)) {
+    while (!memo.s.isEmpty() &&
+        (!multiplier.isMet(values.size(), null, scope)
+            || multiplier.isMet(values.size()+1, null, scope))) {
       SubComposer subComposer = resolver.resolveSpec(compositionSpec, scope);
       memo = subComposer.nibble(memo);
       if (subComposer.isSatisfied()) {
