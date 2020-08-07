@@ -1299,6 +1299,49 @@ class Composer {
     assertEquals("a\na\n1\nbc\n", output.toString(StandardCharsets.UTF_8));
   }
 
+  @Test
+  void backtrackAppendedState() throws IOException {
+    String program = "composer bt\n"
+        + "  @:[1];"
+        + "  <foo|='a'>+ $@ <='bc'>\n"
+        + "  rule foo: <='ab'> (..|@:2;)\n"
+        + "end bt\n"
+        + "\n"
+        + "'aabc' -> bt -> '$;\n"
+        + "' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a\na\n[1]\nbc\n", output.toString(StandardCharsets.UTF_8));
+  }
+
+  /**
+   * This is a regression caused by introduction of backtracking, which needs to save old state
+   */
+  @Test
+  void backtrackIndexedState() throws IOException {
+    String program = "composer bt\n"
+        + "  @:[1..3 -> 0];"
+        + "  (<a|b>) $@"
+        + "  rule a: (<INT> -> @($): 1; <='a'>)\n"
+        + "  rule b: (<INT> -> @(1): $; <='b'>)\n"
+        + "end bt\n"
+        + "\n"
+        + "'2b' -> bt -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[2, 0, 0]", output.toString(StandardCharsets.UTF_8));
+  }
+
   /**
    * The parser thought we were referencing variable $@rule followed by key-value matcher
    */

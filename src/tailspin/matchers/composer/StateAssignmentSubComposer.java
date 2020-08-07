@@ -8,41 +8,50 @@ import tailspin.interpreter.Scope;
 public class StateAssignmentSubComposer implements SubComposer {
   private final SubComposer value;
   private final Expression stateAssignment;
-  private final Reference reference; // for backtracking
+  private final String stateContext; // for backtracking
   private final Scope scope;
   private boolean satisfied;
   private Object oldValue;
 
   StateAssignmentSubComposer(SubComposer value, Expression stateAssignment,
-      Reference reference, Scope scope) {
+      String stateContext, Scope scope) {
     this.value = value;
     this.stateAssignment = stateAssignment;
-    this.reference = reference;
+    this.stateContext = stateContext;
     this.scope = scope;
   }
 
   @Override
   public Memo nibble(Memo s) {
-    s = value == null ? s : value.nibble(s);
-    if (value != null && !value.isSatisfied()) {
-      satisfied = false;
-      return s;
+    if (value == null) {
+      satisfied = true;
+    } else {
+      s = value.nibble(s);
+      satisfied = value.isSatisfied();
     }
-    satisfied = true;
-    oldValue = reference.getValue(null, scope);
+    if (satisfied) assign();
+    return s;
+  }
+
+  private void assign() {
+    oldValue = Reference.copy(scope.getState(stateContext));
     if (value == null) {
       stateAssignment.getResults(null, scope);
     } else {
       ResultIterator.forEach(value.getValues(), it -> stateAssignment.getResults(it, scope));
     }
-    return s;
   }
 
   @Override
   public Memo backtrack(Memo memo) {
-    reference.setValue(false, oldValue, null, scope);
-    oldValue = null;
-    satisfied = false;
+    scope.setState(stateContext, oldValue);
+    if (value == null) {
+      satisfied = false;
+    } else {
+      memo = value.backtrack(memo);
+      satisfied = value.isSatisfied();
+    }
+    if (satisfied) assign();
     return memo;
   }
 

@@ -3,6 +3,7 @@ package tailspin.control;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -150,7 +151,7 @@ public abstract class Reference implements Value {
 
   public static Object copy(Object value) {
     if (value == null) {
-      throw new IllegalArgumentException("No value given");
+      return null;
     }
     if (value instanceof Map) {
       @SuppressWarnings("unchecked")
@@ -304,7 +305,7 @@ public abstract class Reference implements Value {
             invocations++;
             lastArray = array;
             lastIndex = index;
-            collect(copy(ri.getNextResult()), array.get(index));
+            collect(copy(Objects.requireNonNull(ri.getNextResult())), array.get(index));
             return null;
           }
 
@@ -318,7 +319,7 @@ public abstract class Reference implements Value {
         resolveDimensionDereference(0, array, merger, it, scope);
         merger.resolveSingleElementMergeMany();
       } else {
-        resolveDimensionDereference(0, array, (a, i) -> a.set(i, copy(ri.getNextResult())), it, scope);
+        resolveDimensionDereference(0, array, (a, i) -> a.set(i, copy(Objects.requireNonNull(ri.getNextResult()))), it, scope);
       }
     }
 

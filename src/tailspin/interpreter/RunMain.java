@@ -398,10 +398,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return stateAssignment;
   }
 
+  /** Ugly trick for getting the root of a state reference higher up */
+  String lastAssignedStateContext;
   @Override
   public StateAssignment visitStateSink(StateSinkContext ctx) {
-    String stateContext = ctx.stateIdentifier().getText().substring(1);
-    Reference reference = resolveReference(ctx.reference(), Reference.state(stateContext));
+    lastAssignedStateContext = ctx.stateIdentifier().getText().substring(1);
+    Reference reference = resolveReference(ctx.reference(), Reference.state(
+        lastAssignedStateContext));
     return new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, ctx.Range() != null);
   }
 
@@ -817,14 +820,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (ctx.stateSink() != null){
       StateAssignment stateAssignment = visitStateSink(ctx.stateSink());
       value = new SubComposerFactory.StateAssignmentComposition(value,
-          stateAssignment, stateAssignment.stateReference);
+          stateAssignment, lastAssignedStateContext);
     } else if (ctx.stateAssignment() != null) {
       Expression stateAssignment = visitStateAssignment(ctx.stateAssignment());
-      StateAssignment sink = (StateAssignment) ((stateAssignment instanceof StateAssignment)
-                ? stateAssignment
-                : ((SinkValueChain) stateAssignment).sink);
       value = new SubComposerFactory.StateAssignmentComposition(null,
-          stateAssignment, sink.stateReference);
+          stateAssignment, lastAssignedStateContext);
     }
     return value;
   }
