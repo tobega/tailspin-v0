@@ -116,6 +116,10 @@ Provided: 'provided';
 
 Modified: 'modified';
 
+From: 'from';
+
+StandAlone: 'stand-alone';
+
 Zero: '0';
 
 PositiveInteger: [1-9] Digits?;

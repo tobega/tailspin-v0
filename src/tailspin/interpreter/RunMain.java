@@ -50,7 +50,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public IncludedFile visitInclusion(TailspinParser.InclusionContext ctx) {
     Value dependency = visitStringLiteral(ctx.stringLiteral());
-    return new IncludedFile(dependency);
+    return new IncludedFile(null, dependency);
   }
 
   @Override
@@ -969,7 +969,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new AssertionError("Mismatched end " + ctx.stringLiteral(1).getText()
         + " to test " + ctx.stringLiteral(0).getText());
     }
-    List<ModuleProvision> dependencies = visitDependencyProvision(ctx.dependencyProvision());
+    List<SymbolLibrary> dependencies = visitDependencyProvision(ctx.dependencyProvision());
     List<Expression> testBody = visitTestBody(ctx.testBody());
     return new Test(visitStringLiteral(ctx.stringLiteral(0)), dependencies, testBody);
   }
@@ -992,13 +992,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public List<ModuleProvision> visitDependencyProvision(TailspinParser.DependencyProvisionContext ctx) {
+  public List<SymbolLibrary> visitDependencyProvision(TailspinParser.DependencyProvisionContext ctx) {
     if (ctx == null) return List.of();
-    return ctx.moduleConfiguration().stream().map(this::visitModuleConfiguration).collect(Collectors.toList());
+    return ctx.moduleConfiguration().stream().map(this::visit).map(SymbolLibrary.class::cast)
+        .collect(Collectors.toList());
   }
 
   @Override
-  public ModuleProvision visitModuleConfiguration(ModuleConfigurationContext ctx) {
+  public SymbolLibrary visitModuleModification(ModuleModificationContext ctx) {
     List<TopLevelStatement> statements = new ArrayList<>();
     ctx.statement().forEach(s -> {
       dependencyCounters.push(new DependencyCounter());
@@ -1006,6 +1007,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
       statements.add(new TopLevelStatement(statement, requiredDefinitions));
     });
-    return new ModuleProvider(statements);
+    return new ModuleModifier("", statements);
+  }
+
+  @Override
+  public SymbolLibrary visitModuleImport(ModuleImportContext ctx) {
+    Value includePath = visitStringLiteral(ctx.stringLiteral());
+    return new IncludedFile("", includePath);
   }
 }

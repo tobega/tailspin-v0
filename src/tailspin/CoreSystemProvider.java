@@ -1,17 +1,16 @@
 package tailspin;
 
-import tailspin.interpreter.SymbolLibrary;
-import tailspin.interpreter.Scope;
-import tailspin.system.StdinProcessor;
-import tailspin.system.StdoutProcessor;
-import tailspin.system.SystemProcessor;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
+import tailspin.interpreter.BasicScope;
+import tailspin.interpreter.SymbolLibrary;
+import tailspin.system.StdinProcessor;
+import tailspin.system.StdoutProcessor;
+import tailspin.system.SystemProcessor;
 
 public class CoreSystemProvider implements SymbolLibrary {
     private final List<String> args;
@@ -25,7 +24,7 @@ public class CoreSystemProvider implements SymbolLibrary {
     }
 
     @Override
-    public Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, List<SymbolLibrary> providedModules) {
+    public Set<String> installSymbols(Set<String> requiredSymbols, BasicScope scope, List<SymbolLibrary> providedModules) {
         if (!providedModules.isEmpty()) {
             throw new IllegalStateException("Core system provided with dependencies");
         }

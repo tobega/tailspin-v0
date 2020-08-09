@@ -675,5 +675,12 @@ public class TailspinParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> im
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitModuleConfiguration(TailspinParser.ModuleConfigurationContext ctx) { return visitChildren(ctx); }
+	@Override public T visitModuleModification(TailspinParser.ModuleModificationContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitModuleImport(TailspinParser.ModuleImportContext ctx) { return visitChildren(ctx); }
 }

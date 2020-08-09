@@ -11,9 +11,12 @@ import java.util.List;
 import java.util.Set;
 
 class IncludedFile implements SymbolLibrary {
+    //@Nullable
+    final String prefix;
     final Value specifier;
 
-    IncludedFile(Value specifier) {
+    IncludedFile(/*@Nullable*/ String prefix, Value specifier) {
+        this.prefix = prefix;
         this.specifier = specifier;
     }
 
@@ -27,14 +30,15 @@ class IncludedFile implements SymbolLibrary {
     }
 
     @Override
-    public Set<String> installSymbols(Set<String> requiredSymbols, Scope scope, List<SymbolLibrary> inheritedProviders) {
+    public Set<String> installSymbols(Set<String> requiredSymbols, BasicScope scope, List<SymbolLibrary> inheritedProviders) {
         String dependency = (String) specifier.getResults(null, scope);
-        String dependencyPrefix = dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
-        Path depPath = scope.basePath().resolve(dependency + ".tt");
+        String dependencyPrefix = prefix != null ? prefix : dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
+        Path basePath = scope.basePath();
+        Path depPath = basePath.resolve(dependency + ".tt");
         try {
-            if (!depPath.toRealPath().startsWith(scope.basePath().toRealPath())) {
+            if (!depPath.toRealPath().startsWith(basePath.toRealPath())) {
                 throw new IllegalArgumentException("Attempt to include file " + depPath
-                        + " from outside hierarchy of " + scope.basePath());
+                        + " from outside hierarchy of " + basePath);
             }
         } catch (IOException e) {
             throw new IllegalArgumentException("Unable to resolve " + depPath);

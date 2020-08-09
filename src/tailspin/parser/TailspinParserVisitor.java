@@ -589,9 +589,17 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDependencyProvision(TailspinParser.DependencyProvisionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#moduleConfiguration}.
+	 * Visit a parse tree produced by the {@code moduleModification}
+	 * labeled alternative in {@link TailspinParser#moduleConfiguration}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitModuleConfiguration(TailspinParser.ModuleConfigurationContext ctx);
+	T visitModuleModification(TailspinParser.ModuleModificationContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code moduleImport}
+	 * labeled alternative in {@link TailspinParser#moduleConfiguration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitModuleImport(TailspinParser.ModuleImportContext ctx);
 }

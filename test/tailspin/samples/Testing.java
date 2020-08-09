@@ -5,8 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.support.io.TempDirectory;
 import tailspin.Tailspin;
 
 public class Testing {
@@ -269,6 +274,43 @@ public class Testing {
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void mockIncludeCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "processor MockOut\n"
+        + "  @: [];\n"
+        + "  sink write\n"
+        + "    ..|@MockOut: $;\n"
+        + "  end write\n"
+        + "  source next\n"
+        + "    ^@MockOut(1) !\n"
+        + "  end next\n"
+        + "end MockOut\n"
+        + "def OUT: $MockOut;\n";
+    Path depFile = dir.resolve("mocksys.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "sink hello\n"
+            + "  'Hello $;' -> !OUT::write\n"
+            + "end hello\n"
+
+            + "test 'hello'\n"
+            + "  with\n"
+            + "    core-system/ from 'mocksys' stand-alone\n"
+            + "  provided\n"
+
+            + "  'John' -> !hello\n"
+            + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
+            + "end 'hello'";
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(dir, input, output, List.of());
 
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }

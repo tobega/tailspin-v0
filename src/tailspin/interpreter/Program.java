@@ -38,7 +38,7 @@ public class Program implements SymbolLibrary {
     }
 
     @Override
-    public Set<String> installSymbols(Set<String> requestedSymbols, Scope scope, List<SymbolLibrary> systemDeps) {
+    public Set<String> installSymbols(Set<String> requestedSymbols, BasicScope scope, List<SymbolLibrary> systemDeps) {
         Map<String,Set<String>> definedSymbols = statements.stream()
             .filter(t -> t.statement instanceof Definition)
             .collect(Collectors.toMap(t -> ((Definition) t.statement).getIdentifier(), t -> t.requiredDefinitions));

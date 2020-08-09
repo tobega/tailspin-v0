@@ -225,6 +225,12 @@ keyword: Include
   | Do
   | Otherwise
   | arithmeticContextKeyword
+  | Test
+  | Assert
+  | With
+  | Provided
+  | Modified
+  | From
 ;
 
 testBody: testBlock+;
@@ -236,5 +242,6 @@ assertion: Assert valueChain matcher stringLiteral;
 dependencyProvision: With moduleConfiguration+ Provided;
 
 moduleConfiguration:
-  Modified CoreSystem statement+ EndDefinition CoreSystem
+  Modified CoreSystem statement+ EndDefinition CoreSystem #moduleModification
+  | CoreSystem From stringLiteral StandAlone #moduleImport
 ;

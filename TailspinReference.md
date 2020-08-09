@@ -574,8 +574,14 @@ A module provision statement provides modules needed by another module. It start
 and ends with the word `provided`. The module is identified by the prefix defined to be used for its symbols
 or derived from the search path in the same way as for [included files](#including-files).
 
+Each provided module that is not inherited may need its own module provision statement for the modules it needs.
+If no provided modules are needed for a module that is included from a file, the word `stand-alone` is written instead of a module provision.
+
 Modules can be provided in the following ways (with prefix `myModule` used as example):
 * Inherited with some definitions overridden, e.g. `modified myModule ...definitions... end myModule`
+* Included from a file by a string literal path specification, optionally with a specified prefix,
+  e.g. `myPrefix from 'myfile' stand-alone`.
+
 
 NOTE: When providing [the core system module](#the-core-system-module) to another module it is referred to as `core-system/`.
  

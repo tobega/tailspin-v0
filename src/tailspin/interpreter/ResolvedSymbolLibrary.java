@@ -13,7 +13,7 @@ public class ResolvedSymbolLibrary implements SymbolLibrary {
   }
 
   @Override
-  public Set<String> installSymbols(Set<String> requiredSymbols, Scope scope,
+  public Set<String> installSymbols(Set<String> requiredSymbols, BasicScope scope,
       List<SymbolLibrary> providedModules) {
     Set<String> unprovidedSymbols = new HashSet<>();
     for (String symbol : requiredSymbols) {
