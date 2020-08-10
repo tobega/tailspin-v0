@@ -39,20 +39,27 @@ public class Program implements SymbolLibrary {
 
     @Override
     public Set<String> installSymbols(Set<String> requestedSymbols, BasicScope scope, List<SymbolLibrary> systemDeps) {
+        Set<String> providedSymbols = new HashSet<>();
+        Set<String> unprovidedSymbols = new HashSet<>(requestedSymbols);
+        statements.stream()
+            .filter(t -> t.statement instanceof Definition)
+            .map(t -> ((Definition) t.statement).getIdentifier())
+            .filter(requestedSymbols::contains)
+            .forEach(id -> {
+                unprovidedSymbols.remove(id);
+                providedSymbols.add(id);
+            });
+        installInternal(scope, systemDeps, providedSymbols);
+        return unprovidedSymbols;
+    }
+
+    void installInternal(BasicScope scope, List<SymbolLibrary> systemDeps, Set<String> providedSymbols) {
         Map<String,Set<String>> definedSymbols = statements.stream()
             .filter(t -> t.statement instanceof Definition)
             .collect(Collectors.toMap(t -> ((Definition) t.statement).getIdentifier(), t -> t.requiredDefinitions));
-        Queue<String> neededDefinitions = new ArrayDeque<>();
-        Set<String> unprovidedSymbols = new HashSet<>();
-        for (String symbol : requestedSymbols) {
-            if (definedSymbols.containsKey(symbol)) {
-                neededDefinitions.add(symbol);
-            } else {
-                unprovidedSymbols.add(symbol);
-            }
-        }
         Set<String> transientDefinitions = new HashSet<>();
         Set<String> externalDefinitions = new HashSet<>();
+        Queue<String> neededDefinitions = new ArrayDeque<>(providedSymbols);
         while (!neededDefinitions.isEmpty()) {
             String def = neededDefinitions.poll();
             if (scope.hasDefinition(def)) {
@@ -73,6 +80,5 @@ public class Program implements SymbolLibrary {
             .filter(t -> t.statement instanceof Definition)
             .filter(t -> transientDefinitions.contains(((Definition) t.statement).getIdentifier()))
             .forEach(t -> t.statement.getResults(null, scope));
-        return unprovidedSymbols;
     }
 }

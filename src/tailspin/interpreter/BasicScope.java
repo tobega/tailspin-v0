@@ -25,6 +25,9 @@ public class BasicScope implements Scope {
 
   @Override
   public void defineValue(String identifier, Object value) {
+    if (value == null) {
+      return;
+    }
     if (definitions.containsKey(identifier)) {
       throw new IllegalStateException("Attempt to redefine " + identifier);
     }

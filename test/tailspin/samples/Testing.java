@@ -1,6 +1,7 @@
 package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -278,6 +279,42 @@ public class Testing {
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
 
+  @Test
+  void mockModifyCoreSystemInherits() throws Exception {
+    String program = "sink hello\n"
+            + "  'Hello $;' -> !OUT::write\n"
+            + "end hello\n"
+
+            + "test 'hello'\n"
+            + "  with\n"
+            + "    modified core-system/\n"
+            + "      processor MockOut\n"
+            + "        @: [];\n"
+            + "        sink write\n"
+            + "          ..|@MockOut: $;\n"
+            + "        end write\n"
+            + "        source next\n"
+            + "          ^@MockOut(1) !\n"
+            + "        end next\n"
+            + "      end MockOut\n"
+
+            + "      def OUT: $MockOut;\n"
+            + "    end core-system/\n"
+            + "  provided\n"
+
+            + "  $IN::lines -> !hello\n"
+            + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
+            + "end 'hello'";
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("John".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
   @ExtendWith(TempDirectory.class)
   @Test
   void mockIncludeCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
@@ -313,5 +350,40 @@ public class Testing {
     runner.runTests(dir, input, output, List.of());
 
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void mockIncludeCoreSystemDoesNotInherit(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "processor MockOut\n"
+        + "  @: [];\n"
+        + "  sink write\n"
+        + "    ..|@MockOut: $;\n"
+        + "  end write\n"
+        + "  source next\n"
+        + "    ^@MockOut(1) !\n"
+        + "  end next\n"
+        + "end MockOut\n"
+        + "def OUT: $MockOut;\n";
+    Path depFile = dir.resolve("mocksys.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "sink hello\n"
+            + "  'Hello $;' -> !OUT::write\n"
+            + "end hello\n"
+
+            + "test 'hello'\n"
+            + "  with\n"
+            + "    core-system/ from 'mocksys' stand-alone\n"
+            + "  provided\n"
+
+            + "  $IN::lines -> !hello\n"
+            + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
+            + "end 'hello'";
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("John".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.runTests(dir, input, output, List.of()));
   }
 }

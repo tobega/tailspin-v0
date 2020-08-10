@@ -31,23 +31,17 @@ public class ModuleModifier implements SymbolLibrary {
     });
     BasicScope depScope = new BasicScope(scope.basePath());
     resolveSymbols(providedSymbols, depScope, inheritedProviders);
-    providedSymbols.forEach(s -> scope.defineValue(dependencyPrefix + s, depScope.resolveValue(s)));
+    providedSymbols.stream().filter(depScope::hasDefinition).forEach(s -> scope.defineValue(dependencyPrefix + s, depScope.resolveValue(s)));
+    // inherit
+    providedSymbols.stream().map(s -> dependencyPrefix + s).filter(s -> !scope.hasDefinition(s)).forEach(unresolvedSymbols::add);
     return unresolvedSymbols;
   }
 
-  private Set<String> resolveSymbols(Set<String> requestedSymbols, BasicScope scope, List<SymbolLibrary> systemDeps) {
+  private void resolveSymbols(Set<String> internalSymbols, BasicScope scope, List<SymbolLibrary> systemDeps) {
     Map<String,Set<String>> definedSymbols = statements.stream()
         .filter(t -> t.statement instanceof Definition)
         .collect(Collectors.toMap(t -> ((Definition) t.statement).getIdentifier(), t -> t.requiredDefinitions));
-    Queue<String> neededDefinitions = new ArrayDeque<>();
-    Set<String> unprovidedSymbols = new HashSet<>();
-    for (String symbol : requestedSymbols) {
-      if (definedSymbols.containsKey(symbol)) {
-        neededDefinitions.add(symbol);
-      } else {
-        unprovidedSymbols.add(symbol);
-      }
-    }
+    Queue<String> neededDefinitions = new ArrayDeque<>(internalSymbols);
     Set<String> transientDefinitions = new HashSet<>();
     Set<String> externalDefinitions = new HashSet<>();
     while (!neededDefinitions.isEmpty()) {
@@ -70,6 +64,5 @@ public class ModuleModifier implements SymbolLibrary {
         .filter(t -> t.statement instanceof Definition)
         .filter(t -> transientDefinitions.contains(((Definition) t.statement).getIdentifier()))
         .forEach(t -> t.statement.getResults(null, scope));
-    return unprovidedSymbols;
   }
 }
