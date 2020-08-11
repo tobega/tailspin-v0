@@ -16,7 +16,7 @@ public class TestStatement {
     public Object executeTest(Program program, Path basePath, SymbolLibrary coreSystemProvider) {
         List<SymbolLibrary> testMocks = test.getMocks(List.of(coreSystemProvider));
         BasicScope scope = new BasicScope(basePath);
-        program.installInternal(scope, testMocks, requiredDefinitions);
+        program.resolveSymbols(requiredDefinitions, scope, testMocks);
         return test.getResults(null, scope);
     }
 }

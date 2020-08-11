@@ -33,6 +33,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     List<IncludedFile> includedFiles = ctx.inclusion().stream()
         .map(this::visitInclusion).collect(Collectors.toList());
     List<TopLevelStatement> statements = new ArrayList<>();
+    List<DefinitionStatement> definitions = new ArrayList<>();
     List<TestStatement> tests = new ArrayList<>();
     ctx.statement().forEach(s -> {
       dependencyCounters.push(new DependencyCounter());
@@ -40,11 +41,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
       if (statement instanceof Test) {
         tests.add(new TestStatement((Test) statement, requiredDefinitions));
+      } else if (statement instanceof Definition) {
+        definitions.add(new DefinitionStatement((Definition) statement, requiredDefinitions));
       } else {
         statements.add(new TopLevelStatement(statement, requiredDefinitions));
       }
     });
-    return new Program(statements, tests, includedFiles);
+    return new Program(statements, definitions, tests, includedFiles);
   }
 
   @Override
@@ -1000,12 +1003,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public SymbolLibrary visitModuleModification(ModuleModificationContext ctx) {
-    List<TopLevelStatement> statements = new ArrayList<>();
+    List<DefinitionStatement> statements = new ArrayList<>();
     ctx.statement().forEach(s -> {
       dependencyCounters.push(new DependencyCounter());
-      Expression statement = (Expression) visit(s);
+      Definition statement = (Definition) visit(s);
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
-      statements.add(new TopLevelStatement(statement, requiredDefinitions));
+      statements.add(new DefinitionStatement(statement, requiredDefinitions));
     });
     return new ModuleModifier("", statements);
   }

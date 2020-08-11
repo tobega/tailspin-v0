@@ -52,9 +52,9 @@ class IncludedFile implements SymbolLibrary {
                 unresolvedSymbols.add(s);
             }
         });
-        Program program = getProgram(depPath);
+        Module module = getProgram(depPath);
         BasicScope depScope = new BasicScope(depPath.getParent());
-        program.installSymbols(providedSymbols, depScope, inheritedProviders);
+        module.resolveSymbols(providedSymbols, depScope, inheritedProviders);
         providedSymbols.forEach(s -> scope.defineValue(dependencyPrefix + s, depScope.resolveValue(s)));
         return unresolvedSymbols;
     }

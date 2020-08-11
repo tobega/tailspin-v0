@@ -191,7 +191,7 @@ class Statements {
 
   @Test
   void definedSymbolFromValueChainWithEmptyResult() throws Exception {
-    String program = "def helloWorld: 'World!' -> \\(<=2> $ !\\) ;";
+    String program = "def helloWorld: 'World!' -> \\(<=2> $ !\\) ; $helloWorld -> !VOID";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -202,7 +202,7 @@ class Statements {
 
   @Test
   void definedSymbolFromValueChainWithTooManyResults() throws Exception {
-    String program = "def helloWorld: 'World!' -> \\(<> $ ! $ !\\) ;";
+    String program = "def helloWorld: 'World!' -> \\(<> $ ! $ !\\) ; $helloWorld -> !VOID";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
