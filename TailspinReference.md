@@ -554,12 +554,19 @@ e.g. `include 'lib/dep'` will include the file named "dep.tt" from the folder na
 Search paths for included files are interpreted relative to the including file and it must be in the same directory
 as the including file or a subdirectory of it.
 
+Included files have access to all the same [modules](#using-modules) as the including file.
+
 The symbols (defined symbols, templates, processors, etc.) defined in the package will be accessible by
 prepending the unsuffixed file name and a "/" to the symbol name, e.g. file dep.tt defines templates foo which can then
 be used as `dep/foo`. Note that the search path is ignored.
 
+*NOTE*: Files that may be included can alternatively be used as [modules](#using-modules), the difference then being that
+they do not automatically inherit the use of the modules from the main program.
+
 ## Using modules
 *NOTE*: This is being [developed](dependencies.txt) and doesn't work yet
+
+A module usage is declared by a `use` statement followed by a [module specification](#module-specification).
 
 The tailspin file that is used as the main program can define which modules (libraries) it wants to use. Included
 files normally just inherit the modules declared by the main file.
@@ -570,21 +577,32 @@ dependencies injected by a [module provision](#module-provision) statement after
 e.g. `use 'myModule' with ...modules... provided` 
 
 ### Module provision
-A module provision statement provides modules needed by another module. It starts with the word `with`
-and ends with the word `provided`. The module is identified by the prefix defined to be used for its symbols
-or derived from the search path in the same way as for [included files](#including-files).
-
-Each provided module that is not inherited may need its own module provision statement for the modules it needs.
-If no provided modules are needed for a module that is included from a file, the word `stand-alone` is written instead of a module provision.
-
-Modules can be provided in the following ways (with prefix `myModule` used as example):
-* Inherited with some definitions overridden, e.g. `modified myModule ...definitions... end myModule`
-* Included from a file by a string literal path specification, optionally with a specified prefix,
-  e.g. `myPrefix from 'myfile' stand-alone`.
-
+A module provision statement provides modules needed by another module. It starts with the word `with`,
+followed by the necessary [module specifications](#module-specification) and ends with the word `provided`.
 
 NOTE: When providing [the core system module](#the-core-system-module) to another module it is referred to as `core-system/`.
- 
+
+### Module specification
+Modules are primarily identified by a string literal search path and get assigned a prefix the same way as for [including files](#including-files), i.e.
+the last part of the path. When inheriting a module, modified or not, it may be referred to by the assigned prefix.
+It is also possible to assign another prefix than the default by using a from-statement `myPrefix from 'myPath'`
+
+A plain search path is interpreted relative to the directory containing the main file and can be anywhere for modules.
+
+There is also the concept of a module path, specified in the environment variable `TAILSPIN_MODULES`. To access modules
+located there, just start the search path with `module:`
+
+Some examples of specifying modules are:
+* Inherited with some definitions overridden, e.g. `modified myModule ...definitions... end myModule`
+* Loaded from a file by a string literal path specification, optionally with a specified prefix,
+  e.g. `myPrefix from 'myfile' stand-alone`.
+* Modified loaded from a file by a string literal path specification,
+  e.g. `modified 'module:myPath' ...definitions... end 'module:myPath'`.
+
+Each provided module that is not inherited may need its own [module provision](#module-provision) statement for the modules it needs.
+
+If no provided modules are needed for a module that is included from a file, the word `stand-alone` is written instead of a module provision.
+
 ## Testing
 Tests can be defined in a tailspin source file by the keyword `test` followed by a [string literal](#string-literal),
 a series of assertions (at least one), interspersed by optional statements as needed to set up state,
@@ -601,28 +619,27 @@ end 'Example test'
 To run the tests in a file, put the command-line flag `--test` before the name of the file to run.
 
 ### Mocking, stubbing, faking
-You can override symbols by a [module provision](#module-provision) statement at the beginning of a test, e.g.
+Tests normally run with all the same modules as the main program of the file it is in, but they can also
+have their own `use` statements at the beginning of the test which get preferred, e.g.
 ```
 sink hello
   'Hello $;' -> !OUT::write
 end hello
 
 test 'hello'
-  with
-    modified core-system/
-      processor FakeOut
-        @: [];
-        sink write
-          ..|@FakeOut: $;
-        end write
-        source next
-          ^@FakeOut(1) !
-        end next
-      end FakeOut
-
-      def OUT: $FakeOut;
-    end core-system/
-  provided
+  use modified core-system/
+    processor FakeOut
+      @: [];
+      sink write
+        ..|@FakeOut: $;
+      end write
+      source next
+        ^@FakeOut(1) !
+      end next
+    end FakeOut
+    
+    def OUT: $FakeOut;
+  end core-system/
 
   'John' -> !hello
   assert $OUT::next <='Hello John'> 'Wrote greeting'

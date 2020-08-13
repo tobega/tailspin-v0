@@ -120,6 +120,8 @@ From: 'from';
 
 StandAlone: 'stand-alone';
 
+Use: 'use';
+
 Zero: '0';
 
 PositiveInteger: [1-9] Digits?;

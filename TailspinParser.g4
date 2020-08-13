@@ -2,7 +2,7 @@ parser grammar TailspinParser;
 
 options { tokenVocab = TailspinLexer; }
 
-program: inclusion* statement (statement)* EOF;
+program: useModule* inclusion* statement (statement)* EOF;
 
 inclusion: Include stringLiteral;
 
@@ -11,7 +11,7 @@ statement: Def key valueProduction SemiColon                  # definition
   | (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? templatesBody EndDefinition localIdentifier # templatesDefinition
   | StartProcessorDefinition localIdentifier parameterDefinitions? block EndDefinition localIdentifier # processorDefinition
   | StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier # composerDefinition
-  | StartTestDefinition stringLiteral dependencyProvision? testBody EndDefinition stringLiteral # testDefinition
+  | StartTestDefinition stringLiteral useModule* testBody EndDefinition stringLiteral # testDefinition
 ;
 
 key: localIdentifier Colon;
@@ -225,12 +225,13 @@ keyword: Include
   | Do
   | Otherwise
   | arithmeticContextKeyword
-  | Test
+  | StartTestDefinition
   | Assert
   | With
   | Provided
   | Modified
   | From
+  | Use
 ;
 
 testBody: testBlock+;
@@ -242,6 +243,10 @@ assertion: Assert valueChain matcher stringLiteral;
 dependencyProvision: With moduleConfiguration+ Provided;
 
 moduleConfiguration:
-  Modified CoreSystem statement+ EndDefinition CoreSystem #moduleModification
-  | CoreSystem From stringLiteral StandAlone #moduleImport
+  Modified moduleIdentifier? From? stringLiteral? statement+ EndDefinition (moduleIdentifier|stringLiteral) #moduleModification
+  | (moduleIdentifier From)? stringLiteral StandAlone #moduleImport
 ;
+
+moduleIdentifier: CoreSystem | localIdentifier;
+
+useModule: Use moduleConfiguration;

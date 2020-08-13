@@ -250,8 +250,7 @@ public class Testing {
             + "end hello\n"
 
             + "test 'hello'\n"
-            + "  with\n"
-            + "    modified core-system/\n"
+            + "  use modified core-system/\n"
             + "      processor MockOut\n"
             + "        @: [];\n"
             + "        sink write\n"
@@ -264,7 +263,6 @@ public class Testing {
 
             + "      def OUT: $MockOut;\n"
             + "    end core-system/\n"
-            + "  provided\n"
 
             + "  'John' -> !hello\n"
             + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
@@ -286,8 +284,7 @@ public class Testing {
             + "end hello\n"
 
             + "test 'hello'\n"
-            + "  with\n"
-            + "    modified core-system/\n"
+            + "  use modified core-system/\n"
             + "      processor MockOut\n"
             + "        @: [];\n"
             + "        sink write\n"
@@ -300,7 +297,6 @@ public class Testing {
 
             + "      def OUT: $MockOut;\n"
             + "    end core-system/\n"
-            + "  provided\n"
 
             + "  $IN::lines -> !hello\n"
             + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
@@ -335,9 +331,7 @@ public class Testing {
             + "end hello\n"
 
             + "test 'hello'\n"
-            + "  with\n"
-            + "    core-system/ from 'mocksys' stand-alone\n"
-            + "  provided\n"
+            + "  use core-system/ from 'mocksys' stand-alone\n"
 
             + "  'John' -> !hello\n"
             + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
@@ -372,9 +366,7 @@ public class Testing {
             + "end hello\n"
 
             + "test 'hello'\n"
-            + "  with\n"
-            + "    core-system/ from 'mocksys' stand-alone\n"
-            + "  provided\n"
+            + "  use core-system/ from 'mocksys' stand-alone\n"
 
             + "  $IN::lines -> !hello\n"
             + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"

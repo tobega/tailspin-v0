@@ -30,6 +30,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Program visitProgram(TailspinParser.ProgramContext ctx) {
+    List<SymbolLibrary> modules = ctx.useModule().stream().map(this::visitUseModule)
+        .collect(Collectors.toList());
     List<IncludedFile> includedFiles = ctx.inclusion().stream()
         .map(this::visitInclusion).collect(Collectors.toList());
     List<TopLevelStatement> statements = new ArrayList<>();
@@ -47,7 +49,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         statements.add(new TopLevelStatement(statement, requiredDefinitions));
       }
     });
-    return new Program(statements, definitions, tests, includedFiles);
+    return new Program(statements, definitions, tests, includedFiles, modules);
   }
 
   @Override
@@ -972,7 +974,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new AssertionError("Mismatched end " + ctx.stringLiteral(1).getText()
         + " to test " + ctx.stringLiteral(0).getText());
     }
-    List<SymbolLibrary> dependencies = visitDependencyProvision(ctx.dependencyProvision());
+    List<SymbolLibrary> dependencies = ctx.useModule().stream().map(this::visit)
+        .map(SymbolLibrary.class::cast).collect(Collectors.toList());
     List<Expression> testBody = visitTestBody(ctx.testBody());
     return new Test(visitStringLiteral(ctx.stringLiteral(0)), dependencies, testBody);
   }
@@ -1002,6 +1005,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
+  public SymbolLibrary visitUseModule(UseModuleContext ctx) {
+    return (SymbolLibrary) visit(ctx.moduleConfiguration());
+  }
+
+  @Override
   public SymbolLibrary visitModuleModification(ModuleModificationContext ctx) {
     List<DefinitionStatement> statements = new ArrayList<>();
     ctx.statement().forEach(s -> {
@@ -1010,12 +1018,21 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
       statements.add(new DefinitionStatement(statement, requiredDefinitions));
     });
-    return new ModuleModifier("", statements);
+    String prefix = visitModuleIdentifier(ctx.moduleIdentifier(0));
+    return new ModuleModifier(prefix, statements);
+  }
+
+  @Override
+  public String visitModuleIdentifier(ModuleIdentifierContext ctx) {
+    if (ctx == null) return null;
+    if (ctx.CoreSystem() != null) return "";
+    return ctx.localIdentifier().getText();
   }
 
   @Override
   public SymbolLibrary visitModuleImport(ModuleImportContext ctx) {
     Value includePath = visitStringLiteral(ctx.stringLiteral());
-    return new IncludedFile("", includePath);
+    String prefix = visitModuleIdentifier(ctx.moduleIdentifier());
+    return new IncludedFile(prefix, includePath);
   }
 }

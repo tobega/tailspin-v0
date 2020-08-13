@@ -11,51 +11,58 @@ import java.util.List;
 import java.util.Set;
 
 class IncludedFile implements SymbolLibrary {
-    //@Nullable
-    final String prefix;
-    final Value specifier;
+  // @Nullable
+  final String prefix;
+  final Value specifier;
 
-    IncludedFile(/*@Nullable*/ String prefix, Value specifier) {
-        this.prefix = prefix;
-        this.specifier = specifier;
+  IncludedFile(/*@Nullable*/ String prefix, Value specifier) {
+    this.prefix = prefix;
+    this.specifier = specifier;
+  }
+
+  private Program getProgram(Path depPath) {
+    try {
+      Tailspin dep = Tailspin.parse(Files.newInputStream(depPath));
+      return new RunMain().visitProgram(dep.programDefinition);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
+  }
 
-    private Program getProgram(Path depPath) {
-        try {
-          Tailspin dep = Tailspin.parse(Files.newInputStream(depPath));
-            return new RunMain().visitProgram(dep.programDefinition);
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }    
+  @Override
+  public Set<String> installSymbols(
+      Set<String> requiredSymbols, BasicScope scope, List<SymbolLibrary> inheritedProviders) {
+    String dependency = (String) specifier.getResults(null, scope);
+    Path basePath = scope.basePath();
+    if (dependency.startsWith("module:")) {
+      dependency = dependency.substring("module:".length());
+      basePath = Path.of(System.getProperty("TAILSPIN_MODULES"));
     }
-
-    @Override
-    public Set<String> installSymbols(Set<String> requiredSymbols, BasicScope scope, List<SymbolLibrary> inheritedProviders) {
-        String dependency = (String) specifier.getResults(null, scope);
-        String dependencyPrefix = prefix != null ? prefix : dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
-        Path basePath = scope.basePath();
-        Path depPath = basePath.resolve(dependency + ".tt");
-        try {
-            if (!depPath.toRealPath().startsWith(basePath.toRealPath())) {
-                throw new IllegalArgumentException("Attempt to include file " + depPath
-                        + " from outside hierarchy of " + basePath);
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to resolve " + depPath);
-        }
-        Set<String> providedSymbols = new HashSet<>();
-        Set<String> unresolvedSymbols = new HashSet<>();
-        requiredSymbols.forEach(s -> {
-            if (s.startsWith(dependencyPrefix)) {
-                providedSymbols.add(s.substring(dependencyPrefix.length()));
-            } else {
-                unresolvedSymbols.add(s);
-            }
+    String dependencyPrefix =
+        prefix != null ? prefix : dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
+    Set<String> providedSymbols = new HashSet<>();
+    Set<String> unresolvedSymbols = new HashSet<>();
+    requiredSymbols.forEach(
+        s -> {
+          if (s.startsWith(dependencyPrefix)) {
+            providedSymbols.add(s.substring(dependencyPrefix.length()));
+          } else {
+            unresolvedSymbols.add(s);
+          }
         });
-        Module module = getProgram(depPath);
-        BasicScope depScope = new BasicScope(depPath.getParent());
-        module.resolveSymbols(providedSymbols, depScope, inheritedProviders);
-        providedSymbols.forEach(s -> scope.defineValue(dependencyPrefix + s, depScope.resolveValue(s)));
-        return unresolvedSymbols;
+    Path depPath = basePath.resolve(dependency + ".tt");
+    try {
+      if (!depPath.toRealPath().startsWith(basePath.toRealPath())) {
+        throw new IllegalArgumentException(
+            "Attempt to include file " + depPath + " from outside hierarchy of " + basePath);
+      }
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Unable to resolve " + depPath);
     }
+    Module module = getProgram(depPath);
+    BasicScope depScope = new BasicScope(depPath.getParent());
+    module.resolveSymbols(providedSymbols, depScope, inheritedProviders);
+    providedSymbols.forEach(s -> scope.defineValue(dependencyPrefix + s, depScope.resolveValue(s)));
+    return unresolvedSymbols;
+  }
 }
