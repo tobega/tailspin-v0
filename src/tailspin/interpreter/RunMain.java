@@ -1026,7 +1026,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public String visitModuleIdentifier(ModuleIdentifierContext ctx) {
     if (ctx == null) return null;
     if (ctx.CoreSystem() != null) return "";
-    return ctx.localIdentifier().getText();
+    return ctx.localIdentifier().getText() + "/";
   }
 
   @Override

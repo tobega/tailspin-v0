@@ -589,8 +589,10 @@ It is also possible to assign another prefix than the default by using a from-st
 
 A plain search path is interpreted relative to the directory containing the main file and can be anywhere for modules.
 
-There is also the concept of a module path, specified in the environment variable `TAILSPIN_MODULES`. To access modules
-located there, just start the search path with `module:`
+There is also the concept of a module path, specified in an environment variable `TAILSPIN_MODULES`.
+Since this is still a java program, it can be specified as a java System property, which is used
+instead of the environment variable. (Used mainly in the junit tests)
+To access modules located there, just start the search path with `module:`
 
 Some examples of specifying modules are:
 * Inherited with some definitions overridden, e.g. `modified myModule ...definitions... end myModule`

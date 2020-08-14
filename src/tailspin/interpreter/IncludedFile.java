@@ -36,7 +36,9 @@ class IncludedFile implements SymbolLibrary {
     Path basePath = scope.basePath();
     if (dependency.startsWith("module:")) {
       dependency = dependency.substring("module:".length());
-      basePath = Path.of(System.getProperty("TAILSPIN_MODULES"));
+      String modulePath = System.getProperty("TAILSPIN_MODULES");
+      if (modulePath == null) modulePath = System.getenv("TAILSPIN_MODULES");
+      basePath = Path.of(modulePath);
     }
     String dependencyPrefix =
         prefix != null ? prefix : dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
