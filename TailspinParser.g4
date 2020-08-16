@@ -243,7 +243,7 @@ assertion: Assert valueChain matcher stringLiteral;
 dependencyProvision: With moduleConfiguration+ Provided;
 
 moduleConfiguration:
-  Modified moduleIdentifier? From? stringLiteral? statement+ EndDefinition (moduleIdentifier|stringLiteral) #moduleModification
+  Modified moduleIdentifier? From? stringLiteral? dependencyProvision? statement+ EndDefinition (moduleIdentifier|stringLiteral) #moduleModification
   | (moduleIdentifier From)? stringLiteral (StandAlone|dependencyProvision) #moduleImport
   | moduleIdentifier Inherited #inheritModule
 ;

@@ -1019,7 +1019,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       statements.add(new DefinitionStatement(statement, requiredDefinitions));
     });
     String prefix = visitModuleIdentifier(ctx.moduleIdentifier(0));
-    return new ModuleModifier(prefix, statements);
+    List<ModuleProvider> providedDependencies = visitDependencyProvision(ctx.dependencyProvision());
+    return new ModuleModifier(prefix, statements, providedDependencies);
   }
 
   @Override

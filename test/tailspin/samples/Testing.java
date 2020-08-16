@@ -378,4 +378,221 @@ public class Testing {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.runTests(dir, input, output, List.of()));
   }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void testUsesInclude(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "def greeting: 'Hello';\n"
+        + "templates greet\n"
+        + "  '$greeting; $;' !\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "include 'hi'\n"
+        + "templates hello\n"
+        + "  $ -> hi/greet !\n"
+        + "end hello\n"
+
+        + "test 'hello'\n"
+        + "  assert 'John' -> hello <='Hello John'> 'Wrote greeting'\n"
+        + "end 'hello'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(dir, input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void testUsesModule(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "def greeting: 'Hello';\n"
+        + "templates greet\n"
+        + "  '$greeting; $;' !\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "use 'hi' stand-alone\n"
+        + "templates hello\n"
+        + "  $ -> hi/greet !\n"
+        + "end hello\n"
+
+        + "test 'hello'\n"
+        + "  assert 'John' -> hello <='Hello John'> 'Wrote greeting'\n"
+        + "end 'hello'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(dir, input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void testUsesModuleUsingCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "def greeting: 'Hello';\n"
+        + "templates greet\n"
+        + "  $ -> !OUT::write\n"
+        + "  '$greeting; $;' !\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "use 'hi' with core-system/ inherited provided\n"
+        + "templates hello\n"
+        + "  $ -> hi/greet !\n"
+        + "end hello\n"
+
+        + "test 'hello'\n"
+        + "  assert 'John' -> hello <='Hello John'> 'Wrote greeting'\n"
+        + "end 'hello'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(dir, input, output, List.of());
+
+    assertEquals("JohnPass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void moduleUsesMockedCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+    String mockedCore = "processor MockOut\n"
+        + "  @: [];\n"
+        + "  sink write\n"
+        + "    ..|@MockOut: $;\n"
+        + "  end write\n"
+        + "  source next\n"
+        + "    ^@MockOut(1) !\n"
+        + "  end next\n"
+        + "end MockOut\n"
+        + "def OUT: $MockOut;\n";
+    Path mockedCoreFile = dir.resolve("mocksys.tt");
+    Files.writeString(mockedCoreFile, mockedCore, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String dep = "def greeting: 'Hello';\n"
+        + "sink greet\n"
+        + "  '$greeting; $;' -> !OUT::write\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "use 'hi' with core-system/ inherited provided\n"
+        + "sink hello\n"
+        + "  $ -> !hi/greet\n"
+        + "end hello\n"
+
+        + "test 'hello'\n"
+        + "  use core-system/ from 'mocksys' stand-alone\n"
+
+        + "  'John' -> !hello\n"
+        + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
+        + "end 'hello'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(dir, input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void nextModifiedMockInheritsMockedCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+    String mockedCore = "processor MockOut\n"
+        + "  @: [];\n"
+        + "  sink write\n"
+        + "    ..|@MockOut: $;\n"
+        + "  end write\n"
+        + "  source next\n"
+        + "    ^@MockOut(1) !\n"
+        + "  end next\n"
+        + "end MockOut\n"
+        + "def OUT: $MockOut;\n";
+    Path mockedCoreFile = dir.resolve("mocksys.tt");
+    Files.writeString(mockedCoreFile, mockedCore, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String dep = "def greeting: 'Salut';\n"
+        + "sink greet\n"
+        + "  '$greeting; $;' -> !OUT::write\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "sink hello\n"
+        + "  $ -> !hi/greet\n"
+        + "end hello\n"
+
+        + "test 'hello'\n"
+        + "  use core-system/ from 'mocksys' stand-alone\n"
+        + "  use modified 'hi'\n"
+        + "    with core-system/ inherited\n"
+        + "    provided\n"
+        + "    def greeting: 'Hello';\n"
+        + "  end 'hi'"
+
+        + "  'John' -> !hello\n"
+        + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
+        + "end 'hello'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(dir, input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void mockModifyModule(@TempDirectory.TempDir Path dir) throws Exception {
+    String mockedCore = "processor MockOut\n"
+        + "  @: [];\n"
+        + "  sink write\n"
+        + "    ..|@MockOut: $;\n"
+        + "  end write\n"
+        + "  source next\n"
+        + "    ^@MockOut(1) !\n"
+        + "  end next\n"
+        + "end MockOut\n"
+        + "def OUT: $MockOut;\n";
+    Path mockedCoreFile = dir.resolve("mocksys.tt");
+    Files.writeString(mockedCoreFile, mockedCore, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String dep = "def greeting: 'Salut';\n"
+        + "sink greet\n"
+        + "  '$greeting; $;' -> !OUT::write\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "use 'hi' with core-system/ inherited provided\n"
+        + "sink hello\n"
+        + "  $ -> !hi/greet\n"
+        + "end hello\n"
+
+        + "test 'hello'\n"
+        + "  use core-system/ from 'mocksys' stand-alone\n"
+        + "  use modified hi\n"
+        + "    with core-system/ inherited\n"
+        + "    provided\n"
+        + "    def greeting: 'Hello';\n"
+        + "  end hi"
+
+        + "  'John' -> !hello\n"
+        + "  assert $OUT::next <='Hello John'> 'Wrote greeting'\n"
+        + "end 'hello'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(dir, input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
 }

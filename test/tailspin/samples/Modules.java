@@ -73,4 +73,29 @@ public class Modules {
 
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void useIncludableModule(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "def greeting: 'Salut';\n"
+        + "sink greet\n"
+        + "  '$greeting; $;' -> !OUT::write\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "use 'hi' with core-system/ inherited provided\n"
+        + "sink hello\n"
+        + "  $ -> !hi/greet\n"
+        + "end hello\n"
+
+        + "'John' -> !hello\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("Salut John", output.toString(StandardCharsets.UTF_8));
+  }
 }

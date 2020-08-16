@@ -3,7 +3,6 @@ package tailspin.interpreter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -53,16 +52,7 @@ class ModuleImport implements ModuleProvider {
       }
       String dependencyPrefix =
           prefix != null ? prefix : dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
-      Set<String> providedSymbols = new HashSet<>();
-      Set<String> unresolvedSymbols = new HashSet<>();
-      requiredSymbols.forEach(
-          s -> {
-            if (s.startsWith(dependencyPrefix)) {
-              providedSymbols.add(s.substring(dependencyPrefix.length()));
-            } else {
-              unresolvedSymbols.add(s);
-            }
-          });
+      Set<String> providedSymbols = getProvidedSymbols(dependencyPrefix, requiredSymbols);
       Path depPath = basePath.resolve(dependency + ".tt");
       try {
         if (!depPath.toRealPath().startsWith(basePath.toRealPath())) {
@@ -77,7 +67,7 @@ class ModuleImport implements ModuleProvider {
       module.resolveSymbols(providedSymbols, depScope, getInjectedModules());
       providedSymbols.forEach(
           s -> scope.defineValue(dependencyPrefix + s, depScope.resolveValue(s)));
-      return unresolvedSymbols;
+      return getUnprovidedSymbols(dependencyPrefix, requiredSymbols);
     }
 
     private List<SymbolLibrary> getInjectedModules() {

@@ -35,8 +35,9 @@ public class ModuleInheritance implements ModuleProvider {
         Set<String> remaining = lib.installSymbols(providedSymbols, scope);
         if (!remaining.isEmpty() && remaining.size() != providedSymbols.size()) {
           throw new IllegalStateException(
-              "Some symbols not provided for " + prefix + ": " + remaining);
+              "Some symbols not provided: " + remaining);
         }
+        if (remaining.isEmpty()) break;
       }
       return requiredSymbols.stream()
           .filter(s -> !providedSymbols.contains(s))

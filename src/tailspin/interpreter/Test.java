@@ -1,6 +1,5 @@
 package tailspin.interpreter;
 
-import java.util.ArrayList;
 import java.util.List;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
@@ -30,12 +29,7 @@ public class Test implements Expression {
     return result;
   }
 
-  public List<SymbolLibrary> getMocks(List<SymbolLibrary> providedLibraries) {
-    List<SymbolLibrary> mocks = new ArrayList<>(providedLibraries);
-    for (ModuleProvider provider : injectedModules) {
-      SymbolLibrary provided = provider.installDependencies(List.copyOf(mocks));
-      mocks.add(0, provided);
-    }
-    return mocks;
+  public List<ModuleProvider> getInjectedModules() {
+    return injectedModules;
   }
 }
