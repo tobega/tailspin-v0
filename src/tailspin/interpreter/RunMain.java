@@ -768,13 +768,15 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public ComposerDefinition visitComposerBody(TailspinParser.ComposerBodyContext ctx) {
+    List<CompositionSpec> mainComposition = visitCompositionSequence(ctx.compositionSequence());
     Map<String, List<CompositionSpec>> definedSequences = new HashMap<>();
     for (DefinedCompositionSequenceContext definition : ctx.definedCompositionSequence()) {
       String key = definition.key().localIdentifier().getText();
       definedSequences.put(key, visitCompositionSequence(definition.compositionSequence()));
     }
     Expression stateAssignment = ctx.stateAssignment() == null ? null : visitStateAssignment(ctx.stateAssignment());
-    return new ComposerDefinition(stateAssignment, visitCompositionSequence(ctx.compositionSequence()),
+    return new ComposerDefinition(stateAssignment,
+        mainComposition,
         new SubComposerFactory(definedSequences));
   }
 
@@ -821,6 +823,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     CompositionSpec value = visitCompositionMatcher(ctx.compositionMatcher());
     if (ctx.key() != null) {
       String identifier = ctx.key().localIdentifier().getText();
+      dependencyCounters.peek().define(identifier);
       value = new SubComposerFactory.CaptureComposition(identifier, value);
     } else if (ctx.stateSink() != null){
       StateAssignment stateAssignment = visitStateSink(ctx.stateSink());

@@ -30,14 +30,15 @@ public class Program extends Module {
         statements.stream()
             .flatMap(t -> t.requiredDefinitions.stream())
             .collect(Collectors.toSet());
-    resolveSymbols(requiredSymbols, scope, getModules(List.of(coreSystemProvider)));
+    resolveSymbols(requiredSymbols, scope, getModules(List.of(coreSystemProvider), scope));
     statements.forEach(t -> t.statement.getResults(null, scope));
   }
 
-  private List<SymbolLibrary> getModules(List<SymbolLibrary> basicProviders) {
+  private List<SymbolLibrary> getModules(List<SymbolLibrary> basicProviders,
+      BasicScope scope) {
     List<SymbolLibrary> libs = new ArrayList<>(basicProviders);
     for (ModuleProvider provider : modules) {
-      SymbolLibrary provided = provider.installDependencies(List.copyOf(libs));
+      SymbolLibrary provided = provider.installDependencies(List.copyOf(libs), scope);
       libs.add(provided);
     }
     return libs;
@@ -52,21 +53,21 @@ public class Program extends Module {
   }
 
   private Object executeTest(TestStatement testStatement, Path basePath, SymbolLibrary coreSystemProvider) {
-    List<SymbolLibrary> testModules = getMocksAndModules(testStatement.test.getInjectedModules(), coreSystemProvider);
     BasicScope scope = new BasicScope(basePath);
+    List<SymbolLibrary> testModules = getMocksAndModules(testStatement.test.getInjectedModules(), coreSystemProvider, scope);
     resolveSymbols(testStatement.requiredDefinitions, scope, testModules);
     return testStatement.test.getResults(null, scope);
   }
 
   public List<SymbolLibrary> getMocksAndModules(List<ModuleProvider> providedLibraries,
-      SymbolLibrary coreSystemProvider) {
+      SymbolLibrary coreSystemProvider, BasicScope scope) {
     List<SymbolLibrary> mocks = new ArrayList<>();
     mocks.add(coreSystemProvider);
     for (ModuleProvider provider : providedLibraries) {
-      SymbolLibrary provided = provider.installDependencies(getModules(mocks));
+      SymbolLibrary provided = provider.installDependencies(getModules(mocks, scope), scope);
       mocks.add(0, provided);
     }
-    mocks.addAll(getModules(mocks));
+    mocks.addAll(getModules(mocks, scope));
     return mocks;
   }
 }

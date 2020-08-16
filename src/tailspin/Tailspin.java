@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.atn.ATNConfigSet;
 import org.antlr.v4.runtime.dfa.DFA;
 import tailspin.interpreter.Program;
 import tailspin.interpreter.RunMain;
+import tailspin.interpreter.SymbolLibrary;
 import tailspin.parser.TailspinLexer;
 import tailspin.parser.TailspinParser;
 import tailspin.parser.TailspinParser.ProgramContext;
@@ -65,7 +66,7 @@ public class Tailspin {
   public void runTests(Path basePath, InputStream input, OutputStream output, List<String> args)
       throws IOException {
     Program program = new RunMain().visitProgram(programDefinition);
-    CoreSystemProvider coreSystemProvider = new CoreSystemProvider(args, input, output);
+    SymbolLibrary coreSystemProvider = CoreSystemProvider.of(args, input, output);
     String result = program.runTests(basePath, coreSystemProvider);
     if (result.isEmpty()) {
       result = "Pass";
@@ -75,7 +76,7 @@ public class Tailspin {
 
   public void run(Path basePath, InputStream input, OutputStream output, List<String> args) {
     Program program = new RunMain().visitProgram(programDefinition);
-    CoreSystemProvider coreSystemProvider = new CoreSystemProvider(args, input, output);
+    SymbolLibrary coreSystemProvider = CoreSystemProvider.of(args, input, output);
     program.run(basePath, coreSystemProvider);
   }
 

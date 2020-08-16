@@ -595,11 +595,15 @@ instead of the environment variable. (Used mainly in the junit tests)
 To access modules located there, just start the search path with `module:`
 
 Some examples of specifying modules are:
-* Inherited with some definitions overridden, e.g. `modified myModule ...definitions... end myModule`
 * Loaded from a file by a string literal path specification, optionally with a specified prefix,
   e.g. `myPrefix from 'myfile' stand-alone`.
+* Inherited as-is, e.g. `myPrefix inherited`.
+* Inherited with some definitions overridden, e.g. `modified myModule ...definitions... end myModule`
 * Modified loaded from a file by a string literal path specification,
   e.g. `modified 'module:myPath' ...definitions... end 'module:myPath'`.
+
+Note that modifications (by `modified`) to a module only apply to direct external usages of the modified symbol.
+Usages from within the original module will still use the original definition.
 
 Each provided module that is not inherited may need its own [module provision](#module-provision) statement for the modules it needs.
 

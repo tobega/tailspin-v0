@@ -51,4 +51,10 @@ public class Module {
         .filter(d -> transientDefinitions.contains(d.statement.getIdentifier()))
         .forEach(d -> d.statement.getResults(null, scope));
   }
+
+  void resolveAll(BasicScope scope, List<SymbolLibrary> providedDependencies) {
+    resolveSymbols(
+        definitions.stream().map(d -> d.statement.getIdentifier()).collect(Collectors.toSet()),
+        scope, providedDependencies);
+  }
 }
