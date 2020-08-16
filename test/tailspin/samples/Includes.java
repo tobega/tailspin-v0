@@ -173,4 +173,22 @@ public class Includes {
 
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void cannotIncludeModule(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "templates quote '\"$;\"' ! end quote";
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = "include 'module:dep'\n 1 -> dep/quote -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(baseDir, input, output, List.of()));
+  }
 }

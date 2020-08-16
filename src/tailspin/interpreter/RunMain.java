@@ -30,7 +30,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Program visitProgram(TailspinParser.ProgramContext ctx) {
-    List<SymbolLibrary> modules = ctx.useModule().stream().map(this::visitUseModule)
+    List<ModuleProvider> modules = ctx.useModule().stream().map(this::visitUseModule)
         .collect(Collectors.toList());
     List<IncludedFile> includedFiles = ctx.inclusion().stream()
         .map(this::visitInclusion).collect(Collectors.toList());
@@ -974,8 +974,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new AssertionError("Mismatched end " + ctx.stringLiteral(1).getText()
         + " to test " + ctx.stringLiteral(0).getText());
     }
-    List<SymbolLibrary> dependencies = ctx.useModule().stream().map(this::visit)
-        .map(SymbolLibrary.class::cast).collect(Collectors.toList());
+    List<ModuleProvider> dependencies = ctx.useModule().stream().map(this::visit)
+        .map(ModuleProvider.class::cast).collect(Collectors.toList());
     List<Expression> testBody = visitTestBody(ctx.testBody());
     return new Test(visitStringLiteral(ctx.stringLiteral(0)), dependencies, testBody);
   }
@@ -998,19 +998,19 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public List<SymbolLibrary> visitDependencyProvision(TailspinParser.DependencyProvisionContext ctx) {
+  public List<ModuleProvider> visitDependencyProvision(TailspinParser.DependencyProvisionContext ctx) {
     if (ctx == null) return List.of();
-    return ctx.moduleConfiguration().stream().map(this::visit).map(SymbolLibrary.class::cast)
+    return ctx.moduleConfiguration().stream().map(this::visit).map(ModuleProvider.class::cast)
         .collect(Collectors.toList());
   }
 
   @Override
-  public SymbolLibrary visitUseModule(UseModuleContext ctx) {
-    return (SymbolLibrary) visit(ctx.moduleConfiguration());
+  public ModuleProvider visitUseModule(UseModuleContext ctx) {
+    return (ModuleProvider) visit(ctx.moduleConfiguration());
   }
 
   @Override
-  public SymbolLibrary visitModuleModification(ModuleModificationContext ctx) {
+  public ModuleProvider visitModuleModification(ModuleModificationContext ctx) {
     List<DefinitionStatement> statements = new ArrayList<>();
     ctx.statement().forEach(s -> {
       dependencyCounters.push(new DependencyCounter());
@@ -1030,9 +1030,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public SymbolLibrary visitModuleImport(ModuleImportContext ctx) {
+  public ModuleProvider visitModuleImport(ModuleImportContext ctx) {
     Value includePath = visitStringLiteral(ctx.stringLiteral());
     String prefix = visitModuleIdentifier(ctx.moduleIdentifier());
-    return new IncludedFile(prefix, includePath);
+    List<ModuleProvider> providedDependencies = visitDependencyProvision(ctx.dependencyProvision());
+    return new ModuleImport(prefix, includePath, providedDependencies);
+  }
+
+  @Override
+  public ModuleProvider visitInheritModule(InheritModuleContext ctx) {
+    String prefix = visitModuleIdentifier(ctx.moduleIdentifier());
+    return new ModuleInheritance(prefix);
   }
 }

@@ -244,7 +244,8 @@ dependencyProvision: With moduleConfiguration+ Provided;
 
 moduleConfiguration:
   Modified moduleIdentifier? From? stringLiteral? statement+ EndDefinition (moduleIdentifier|stringLiteral) #moduleModification
-  | (moduleIdentifier From)? stringLiteral StandAlone #moduleImport
+  | (moduleIdentifier From)? stringLiteral (StandAlone|dependencyProvision) #moduleImport
+  | moduleIdentifier Inherited #inheritModule
 ;
 
 moduleIdentifier: CoreSystem | localIdentifier;

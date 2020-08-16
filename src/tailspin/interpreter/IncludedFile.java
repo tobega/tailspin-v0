@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-class IncludedFile implements SymbolLibrary {
+class IncludedFile {
   // @Nullable
   final String prefix;
   final Value specifier;
@@ -29,17 +29,10 @@ class IncludedFile implements SymbolLibrary {
     }
   }
 
-  @Override
   public Set<String> installSymbols(
       Set<String> requiredSymbols, BasicScope scope, List<SymbolLibrary> inheritedProviders) {
     String dependency = (String) specifier.getResults(null, scope);
     Path basePath = scope.basePath();
-    if (dependency.startsWith("module:")) {
-      dependency = dependency.substring("module:".length());
-      String modulePath = System.getProperty("TAILSPIN_MODULES");
-      if (modulePath == null) modulePath = System.getenv("TAILSPIN_MODULES");
-      basePath = Path.of(modulePath);
-    }
     String dependencyPrefix =
         prefix != null ? prefix : dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
     Set<String> providedSymbols = new HashSet<>();

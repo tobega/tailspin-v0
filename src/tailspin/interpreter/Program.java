@@ -1,23 +1,23 @@
 package tailspin.interpreter;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import tailspin.control.ResultIterator;
 
 public class Program extends Module {
   private final List<TopLevelStatement> statements;
   private final List<TestStatement> tests;
-  private final List<SymbolLibrary> modules;
+  private final List<ModuleProvider> modules;
 
   public Program(
       List<TopLevelStatement> statements,
       List<DefinitionStatement> definitions,
       List<TestStatement> tests,
       List<IncludedFile> includedFiles,
-      List<SymbolLibrary> modules) {
+      List<ModuleProvider> modules) {
     super(definitions, includedFiles);
     this.statements = statements;
     this.tests = tests;
@@ -35,7 +35,13 @@ public class Program extends Module {
   }
 
   private List<SymbolLibrary> getModules(SymbolLibrary coreSystemProvider) {
-    return Stream.concat(modules.stream(), Stream.of(coreSystemProvider)).collect(Collectors.toList());
+    List<SymbolLibrary> libs = new ArrayList<>();
+    libs.add(coreSystemProvider);
+    for (ModuleProvider provider : modules) {
+      SymbolLibrary provided = provider.installDependencies(List.copyOf(libs));
+      libs.add(provided);
+    }
+    return libs;
   }
 
   public String runTests(Path basePath, SymbolLibrary coreSystemProvider) {

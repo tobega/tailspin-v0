@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import tailspin.interpreter.BasicScope;
 import tailspin.interpreter.SymbolLibrary;
 import tailspin.system.StdinProcessor;
@@ -24,10 +25,7 @@ public class CoreSystemProvider implements SymbolLibrary {
     }
 
     @Override
-    public Set<String> installSymbols(Set<String> requiredSymbols, BasicScope scope, List<SymbolLibrary> providedModules) {
-        if (!providedModules.isEmpty()) {
-            throw new IllegalStateException("Core system provided with dependencies");
-        }
+    public Set<String> installSymbols(Set<String> requiredSymbols, BasicScope scope) {
         for (String symbol : requiredSymbols) {
             switch (symbol) {
                 case "ARGS": scope.defineValue("ARGS", args); break;
@@ -36,6 +34,6 @@ public class CoreSystemProvider implements SymbolLibrary {
                 case "OUT": scope.defineValue("OUT", new StdoutProcessor(output)); break;
             }
         }
-        return Set.of();
+        return requiredSymbols.stream().filter(s -> s.contains("/")).collect(Collectors.toSet());
     }
 }

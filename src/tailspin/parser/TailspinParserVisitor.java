@@ -603,6 +603,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitModuleImport(TailspinParser.ModuleImportContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code inheritModule}
+	 * labeled alternative in {@link TailspinParser#moduleConfiguration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInheritModule(TailspinParser.InheritModuleContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#moduleIdentifier}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

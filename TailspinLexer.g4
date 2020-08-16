@@ -116,6 +116,8 @@ Provided: 'provided';
 
 Modified: 'modified';
 
+Inherited: 'inherited';
+
 From: 'from';
 
 StandAlone: 'stand-alone';

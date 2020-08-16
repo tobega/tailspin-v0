@@ -45,7 +45,7 @@ public class Module {
       externalDefinitions = dependency.installSymbols(externalDefinitions, scope, providedDependencies);
     }
     for (SymbolLibrary lib : providedDependencies) {
-      externalDefinitions = lib.installSymbols(externalDefinitions, scope, List.of());
+      externalDefinitions = lib.installSymbols(externalDefinitions, scope);
     }
     definitions.stream()
         .filter(d -> transientDefinitions.contains(d.statement.getIdentifier()))
