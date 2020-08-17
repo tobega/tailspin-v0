@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 import tailspin.Tailspin;
 import tailspin.control.Value;
 
@@ -24,7 +23,8 @@ public class ModuleModifier extends Module implements ModuleProvider {
   @Override
   public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, BasicScope scope) {
     BasicScope depScope = new BasicScope(scope.basePath());
-    resolveAll(depScope, inheritedModules);
+    List<SymbolLibrary> providedModules = getModules(providedDependencies, inheritedModules, depScope);
+    resolveAll(depScope, providedModules);
     String dependency = (String) includePath.getResults(null, scope);
     Path basePath = scope.basePath();
     if (dependency.startsWith("module:")) {
@@ -45,7 +45,7 @@ public class ModuleModifier extends Module implements ModuleProvider {
       throw new IllegalArgumentException("Unable to resolve " + depPath);
     }
     Module module = getProgram(depPath);
-    module.resolveAll(depScope, getInjectedModules(inheritedModules, depScope));
+    module.resolveAll(depScope, providedModules);
     return new SymbolLibrary(dependencyPrefix, depScope, List.of());
   }
 
@@ -56,11 +56,5 @@ public class ModuleModifier extends Module implements ModuleProvider {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  private List<SymbolLibrary> getInjectedModules(List<SymbolLibrary> inheritedProviders,
-      BasicScope depScope) {
-    return providedDependencies.stream().map(m -> m.installDependencies(inheritedProviders, depScope))
-        .collect(Collectors.toList());
   }
 }

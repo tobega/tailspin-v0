@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 import tailspin.Tailspin;
 import tailspin.control.Value;
 
@@ -53,13 +52,7 @@ class ModuleImport implements ModuleProvider {
     }
     Module module = getProgram(depPath);
     BasicScope depScope = new BasicScope(depPath.getParent());
-    module.resolveAll(depScope, getInjectedModules(inheritedProviders, depScope));
+    module.resolveAll(depScope, Module.getModules(providedDependencies, inheritedProviders, depScope));
     return new SymbolLibrary(dependencyPrefix, depScope, List.of());
-  }
-
-  private List<SymbolLibrary> getInjectedModules(List<SymbolLibrary> inheritedProviders,
-      BasicScope depScope) {
-    return providedDependencies.stream().map(m -> m.installDependencies(inheritedProviders, depScope))
-        .collect(Collectors.toList());
   }
 }

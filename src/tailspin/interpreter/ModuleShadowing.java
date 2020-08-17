@@ -16,7 +16,7 @@ public class ModuleShadowing extends Module implements ModuleProvider {
   @Override
   public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, BasicScope scope) {
     BasicScope depScope = new BasicScope(scope.basePath());
-    resolveAll(depScope, inheritedModules);
+    resolveAll(depScope, getModules(providedDependencies, inheritedModules, scope));
     return new SymbolLibrary(dependencyPrefix, depScope, inheritedModules);
   }
 }

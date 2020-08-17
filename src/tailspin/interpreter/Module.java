@@ -1,12 +1,14 @@
 package tailspin.interpreter;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Module {
 
@@ -14,8 +16,7 @@ public class Module {
   private final List<IncludedFile> includedFiles;
 
   public Module(
-      List<DefinitionStatement> definitions,
-      List<IncludedFile> includedFiles) {
+      List<DefinitionStatement> definitions, List<IncludedFile> includedFiles) {
     this.definitions = definitions;
     this.includedFiles = includedFiles;
   }
@@ -56,5 +57,17 @@ public class Module {
     resolveSymbols(
         definitions.stream().map(d -> d.statement.getIdentifier()).collect(Collectors.toSet()),
         scope, providedDependencies);
+  }
+
+  static List<SymbolLibrary> getModules(List<ModuleProvider> injectedModules,
+      List<SymbolLibrary> inheritedModules, BasicScope scope) {
+    List<SymbolLibrary> libs = new ArrayList<>();
+    for (ModuleProvider provider : injectedModules) {
+      SymbolLibrary provided = provider.installDependencies(
+          Stream.concat(libs.stream(), inheritedModules.stream()).collect(Collectors.toList()),
+          scope);
+      libs.add(provided);
+    }
+    return libs;
   }
 }

@@ -5,23 +5,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import tailspin.control.ResultIterator;
 
 public class Program extends Module {
   private final List<TopLevelStatement> statements;
   private final List<TestStatement> tests;
-  private final List<ModuleProvider> modules;
+  protected final List<ModuleProvider> injectedModules;
 
   public Program(
       List<TopLevelStatement> statements,
       List<DefinitionStatement> definitions,
       List<TestStatement> tests,
       List<IncludedFile> includedFiles,
-      List<ModuleProvider> modules) {
+      List<ModuleProvider> injectedModules) {
     super(definitions, includedFiles);
     this.statements = statements;
     this.tests = tests;
-    this.modules = modules;
+    this.injectedModules = Stream.concat(Stream.of(new ModuleInheritance("")),
+        injectedModules.stream()).collect(Collectors.toList());
   }
 
   public void run(Path basePath, SymbolLibrary coreSystemProvider) {
@@ -30,18 +32,8 @@ public class Program extends Module {
         statements.stream()
             .flatMap(t -> t.requiredDefinitions.stream())
             .collect(Collectors.toSet());
-    resolveSymbols(requiredSymbols, scope, getModules(List.of(coreSystemProvider), scope));
+    resolveSymbols(requiredSymbols, scope, getModules(injectedModules, List.of(coreSystemProvider), scope));
     statements.forEach(t -> t.statement.getResults(null, scope));
-  }
-
-  private List<SymbolLibrary> getModules(List<SymbolLibrary> basicProviders,
-      BasicScope scope) {
-    List<SymbolLibrary> libs = new ArrayList<>(basicProviders);
-    for (ModuleProvider provider : modules) {
-      SymbolLibrary provided = provider.installDependencies(List.copyOf(libs), scope);
-      libs.add(provided);
-    }
-    return libs;
   }
 
   public String runTests(Path basePath, SymbolLibrary coreSystemProvider) {
@@ -64,10 +56,10 @@ public class Program extends Module {
     List<SymbolLibrary> mocks = new ArrayList<>();
     mocks.add(coreSystemProvider);
     for (ModuleProvider provider : providedLibraries) {
-      SymbolLibrary provided = provider.installDependencies(getModules(mocks, scope), scope);
+      SymbolLibrary provided = provider.installDependencies(getModules(injectedModules, mocks, scope), scope);
       mocks.add(0, provided);
     }
-    mocks.addAll(getModules(mocks, scope));
+    mocks.addAll(getModules(injectedModules, mocks, scope));
     return mocks;
   }
 }
