@@ -589,6 +589,20 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDependencyProvision(TailspinParser.DependencyProvisionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code moduleShadowing}
+	 * labeled alternative in {@link TailspinParser#moduleConfiguration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitModuleShadowing(TailspinParser.ModuleShadowingContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code inheritModule}
+	 * labeled alternative in {@link TailspinParser#moduleConfiguration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInheritModule(TailspinParser.InheritModuleContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code moduleModification}
 	 * labeled alternative in {@link TailspinParser#moduleConfiguration}.
 	 * @param ctx the parse tree
@@ -602,13 +616,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitModuleImport(TailspinParser.ModuleImportContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code inheritModule}
-	 * labeled alternative in {@link TailspinParser#moduleConfiguration}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInheritModule(TailspinParser.InheritModuleContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#moduleIdentifier}.
 	 * @param ctx the parse tree

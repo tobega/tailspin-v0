@@ -116,6 +116,8 @@ Provided: 'provided';
 
 Modified: 'modified';
 
+Shadowed: 'shadowed';
+
 Inherited: 'inherited';
 
 From: 'from';

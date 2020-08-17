@@ -173,6 +173,10 @@ listed as [sources](#sources) qualify as transforms if they reference the _curre
 ### Deconstructor
 A deconstructor is a transform that works on [arrays](#arrays) by flowing the elements out of an array
 into a [stream](#streams), e.g. `[4,7,9]...` will create a stream of the values 4, 7 and 9.
+
+It also works on a [structure](#structures) by creating a stream of [keyed values](#keyed-values).
+This is particularly useful for creating augmented copies of a structure, e.g. to copy everything but
+replace one member `{$myStruct..., val: 5}`, or to set a value unless it is already set `{val: 5, $myStruct...}`.
  
 ### Templates
 A templates object consists of an optional _initial block_ and an optional sequence of match statements.
@@ -486,9 +490,14 @@ A structure is a collection of named values without any inherent order. The fiel
 can be accessed by appending a dot and the field key identifier to the [dereference](#dereference) of the structure.
 E.g. if the structure `{ a: 1 }` is the _current value_, the value `1` can be accessed by `$.a`.
 
+A structure is composed of [keyed values](#keyed-values) where the keys are unique. If a key exists, it has a value,
+there is no "null value" as in many other languages. To optionally set a key, use the fact that value chains may
+"dry up" if there are no more values, e.g. `{$maybeValue -> (myKey: $)}`
+
 ### Keyed values
 A structure can be [deconstructed](#deconstructor) into a stream of keyed values (or key-value pairs).
 The stream of keyed values can be captured into a [structure literal](#structure-literal) at some point.
+Of course, a keyed value is just a value and so may be captured in a definition or an array (in which case keys may, of course, repeat).
 
 When creating keyed values, the transform chain binds to the value, not the whole keyed value, e.g. `a: 1 -> (<1> 'yes')` will give the result `a: 'yes'`.
 To send the keyed value through a transform, put it in parentheses, so `(a: 1) -> ...{}` creates `{a: 1}`.
@@ -552,7 +561,9 @@ the word "include" followed by a string literal giving the search path to the fi
 e.g. `include 'lib/dep'` will include the file named "dep.tt" from the folder named "lib".
 
 Search paths for included files are interpreted relative to the including file and it must be in the same directory
-as the including file or a subdirectory of it.
+as the including file or a subdirectory of it. This is to ensure that included files count as "trusted code" from
+the point of view of the application and also allows untrusted modules to include files that can be considered to be
+part of that module.
 
 Included files have access to all the same [modules](#using-modules) as the including file.
 
@@ -564,7 +575,16 @@ be used as `dep/foo`. Note that the search path is ignored.
 they do not automatically inherit the use of the modules from the main program.
 
 ## Using modules
-*NOTE*: This is being [developed](dependencies.txt) and doesn't work yet
+*NOTE*: This is being [developed](dependencies.txt) and doesn't fully work yet. This is turning out to be rather
+complex with lots of edge cases to explore. That said, it is unlikely that there will be radical changes to
+the stuff that already works, so it is possible to go ahead and experiment with modules.
+Please report bugs and unexpected behaviour.
+
+A module is often a piece of code you have received from someone you perhaps shouldn't completely trust.
+As such, it is important that you are in control of what capabilities you grant to a module. If there seems
+to be no reason for it to use the file system, then you can pass in a dummy file system. Ideally, you should
+be able to just NOT provide a file system and should still be able to work with the parts of a module that
+don't need it.
 
 A module usage is declared by a `use` statement followed by a [module specification](#module-specification).
 
@@ -584,26 +604,32 @@ NOTE: When providing [the core system module](#the-core-system-module) to anothe
 
 ### Module specification
 Modules are primarily identified by a string literal search path and get assigned a prefix the same way as for [including files](#including-files), i.e.
-the last part of the path. When inheriting a module, modified or not, it may be referred to by the assigned prefix.
+the last part of the path. When inheriting a module, modified or not, it is referred to by the assigned prefix.
 It is also possible to assign another prefix than the default by using a from-statement `myPrefix from 'myPath'`
+
+Note that when you supply a string literal search path, you will get a new copy of a module, but when you
+identify a module by a symbol (its prefix), you will inherit the exact same copy. This is important in the case
+of stateful symbols like `OUT` from the [core system](#the-core-system-module) or when you want to record
+access as with [test doubles](#mocking-stubbing-faking).
 
 A plain search path is interpreted relative to the directory containing the main file and can be anywhere for modules.
 
 There is also the concept of a module path, specified in an environment variable `TAILSPIN_MODULES`.
-Since this is still a java program, it can be specified as a java System property, which is used
+Since this is still a java program, it can be specified as a java System property, which is then used
 instead of the environment variable. (Used mainly in the junit tests)
 To access modules located there, just start the search path with `module:`
 
 Some examples of specifying modules are:
 * Loaded from a file by a string literal path specification, optionally with a specified prefix,
-  e.g. `myPrefix from 'myfile' stand-alone`.
-* Inherited as-is, e.g. `myPrefix inherited`.
-* Inherited with some definitions overridden, e.g. `modified myModule ...definitions... end myModule`
+  e.g. `myPrefix from 'myfile' stand-alone`. (new copy of the 'myfile' module)
+* Inherited as-is, e.g. `myPrefix inherited`. (shared copy of the module with the prefix myPrefix)
+* Inherited with some definitions overridden, e.g. `shadowed myModule ...definitions... end myModule`
 * Modified loaded from a file by a string literal path specification,
   e.g. `modified 'module:myPath' ...definitions... end 'module:myPath'`.
 
-Note that modifications (by `modified`) to a module only apply to direct external usages of the modified symbol.
-Usages from within the original module will still use the original definition.
+Note that modifications (by `shadowed`) to an inherited module only apply to direct external usages of the shadowed symbol.
+Usages from within the original module will still use the original definition. Any dependency provision in shadowing
+is only used by the shadowing code.
 
 Each provided module that is not inherited may need its own [module provision](#module-provision) statement for the modules it needs.
 
@@ -626,14 +652,14 @@ To run the tests in a file, put the command-line flag `--test` before the name o
 
 ### Mocking, stubbing, faking
 Tests normally run with all the same modules as the main program of the file it is in, but they can also
-have their own `use` statements at the beginning of the test which get preferred, e.g.
+have their own `use` statements at the beginning of the test which get used instead of the same ones in the program, e.g.
 ```
 sink hello
   'Hello $;' -> !OUT::write
 end hello
 
 test 'hello'
-  use modified core-system/
+  use shadowed core-system/
     processor FakeOut
       @: [];
       sink write

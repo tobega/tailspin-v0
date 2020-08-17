@@ -1013,7 +1013,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public ModuleProvider visitModuleModification(ModuleModificationContext ctx) {
+  public ModuleProvider visitModuleShadowing(ModuleShadowingContext ctx) {
     List<DefinitionStatement> statements = new ArrayList<>();
     ctx.statement().forEach(s -> {
       dependencyCounters.push(new DependencyCounter());
@@ -1023,7 +1023,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     });
     String prefix = visitModuleIdentifier(ctx.moduleIdentifier(0));
     List<ModuleProvider> providedDependencies = visitDependencyProvision(ctx.dependencyProvision());
-    return new ModuleModifier(prefix, statements, providedDependencies);
+    return new ModuleShadowing(prefix, statements, providedDependencies);
   }
 
   @Override
@@ -1043,7 +1043,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public ModuleProvider visitInheritModule(InheritModuleContext ctx) {
-    String prefix = visitModuleIdentifier(ctx.moduleIdentifier());
+    String prefix = visitModuleIdentifier(ctx.moduleIdentifier(0));
     return new ModuleInheritance(prefix);
   }
 }

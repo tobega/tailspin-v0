@@ -27,10 +27,10 @@ public class TailspinParser extends Parser {
 		Rule=36, First=37, Last=38, TemplateMatch=39, Range=40, Plus=41, Minus=42, 
 		Star=43, TruncateDivide=44, Mod=45, Question=46, Equal=47, Else=48, EndMatcher=49, 
 		BeginCondition=50, StartTestDefinition=51, Assert=52, CoreSystem=53, With=54, 
-		Provided=55, Modified=56, Inherited=57, From=58, StandAlone=59, Use=60, 
-		Zero=61, PositiveInteger=62, START_STRING=63, STATE_IDENTIFIER=64, IDENTIFIER=65, 
-		WS=66, Comment=67, REGEX_TEXT=68, END_REGEX=69, StartCharacterCode=70, 
-		StartStringInterpolate=71, STRING_TEXT=72, END_STRING=73;
+		Provided=55, Modified=56, Shadowed=57, Inherited=58, From=59, StandAlone=60, 
+		Use=61, Zero=62, PositiveInteger=63, START_STRING=64, STATE_IDENTIFIER=65, 
+		IDENTIFIER=66, WS=67, Comment=68, REGEX_TEXT=69, END_REGEX=70, StartCharacterCode=71, 
+		StartStringInterpolate=72, STRING_TEXT=73, END_STRING=74;
 	public static final int
 		RULE_program = 0, RULE_inclusion = 1, RULE_statement = 2, RULE_key = 3, 
 		RULE_parameterDefinitions = 4, RULE_source = 5, RULE_sourceReference = 6, 
@@ -94,8 +94,8 @@ public class TailspinParser extends Parser {
 			"'\\'", "'templates'", "'source'", "'sink'", "'composer'", "'processor'", 
 			"'end'", "'rule'", "'first'", "'last'", "'#'", "'..'", "'+'", "'-'", 
 			"'*'", "'~/'", "'mod'", "'?'", "'='", "'|'", "'>'", "'?('", "'test'", 
-			"'assert'", "'core-system/'", "'with'", "'provided'", "'modified'", "'inherited'", 
-			"'from'", "'stand-alone'", "'use'", "'0'"
+			"'assert'", "'core-system/'", "'with'", "'provided'", "'modified'", "'shadowed'", 
+			"'inherited'", "'from'", "'stand-alone'", "'use'", "'0'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
@@ -111,7 +111,7 @@ public class TailspinParser extends Parser {
 			"Rule", "First", "Last", "TemplateMatch", "Range", "Plus", "Minus", "Star", 
 			"TruncateDivide", "Mod", "Question", "Equal", "Else", "EndMatcher", "BeginCondition", 
 			"StartTestDefinition", "Assert", "CoreSystem", "With", "Provided", "Modified", 
-			"Inherited", "From", "StandAlone", "Use", "Zero", "PositiveInteger", 
+			"Shadowed", "Inherited", "From", "StandAlone", "Use", "Zero", "PositiveInteger", 
 			"START_STRING", "STATE_IDENTIFIER", "IDENTIFIER", "WS", "Comment", "REGEX_TEXT", 
 			"END_REGEX", "StartCharacterCode", "StartStringInterpolate", "STRING_TEXT", 
 			"END_STRING"
@@ -244,7 +244,7 @@ public class TailspinParser extends Parser {
 			setState(188);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (SourceMarker - 2)) | (1L << (DeleteMarker - 2)) | (1L << (LeftParen - 2)) | (1L << (LeftBracket - 2)) | (1L << (LeftBrace - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Range - 2)) | (1L << (Plus - 2)) | (1L << (Minus - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (Zero - 2)) | (1L << (PositiveInteger - 2)) | (1L << (START_STRING - 2)) | (1L << (IDENTIFIER - 2)))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << SourceMarker) | (1L << DeleteMarker) | (1L << LeftParen) | (1L << LeftBracket) | (1L << LeftBrace) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Range) | (1L << Plus) | (1L << Minus) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use) | (1L << Zero) | (1L << PositiveInteger))) != 0) || _la==START_STRING || _la==IDENTIFIER) {
 				{
 				{
 				setState(185);
@@ -709,7 +709,7 @@ public class TailspinParser extends Parser {
 				setState(257); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( ((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (IDENTIFIER - 2)))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use))) != 0) || _la==IDENTIFIER );
 			setState(259);
 			match(RightBrace);
 			}
@@ -1510,7 +1510,7 @@ public class TailspinParser extends Parser {
 			setState(364);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (SourceMarker - 2)) | (1L << (DeleteMarker - 2)) | (1L << (LeftParen - 2)) | (1L << (LeftBracket - 2)) | (1L << (LeftBrace - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Range - 2)) | (1L << (Plus - 2)) | (1L << (Minus - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (Zero - 2)) | (1L << (PositiveInteger - 2)) | (1L << (START_STRING - 2)) | (1L << (IDENTIFIER - 2)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << SourceMarker) | (1L << DeleteMarker) | (1L << LeftParen) | (1L << LeftBracket) | (1L << LeftBrace) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Range) | (1L << Plus) | (1L << Minus) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use) | (1L << Zero) | (1L << PositiveInteger))) != 0) || _la==START_STRING || _la==IDENTIFIER) {
 				{
 				setState(356);
 				keyValues();
@@ -1759,7 +1759,7 @@ public class TailspinParser extends Parser {
 				setState(379);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (IDENTIFIER - 2)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use))) != 0) || _la==IDENTIFIER) {
 					{
 					setState(378);
 					localIdentifier();
@@ -1775,7 +1775,7 @@ public class TailspinParser extends Parser {
 				setState(385);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (IDENTIFIER - 2)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use))) != 0) || _la==IDENTIFIER) {
 					{
 					setState(384);
 					localIdentifier();
@@ -1803,7 +1803,7 @@ public class TailspinParser extends Parser {
 				setState(392);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (IDENTIFIER - 2)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use))) != 0) || _la==IDENTIFIER) {
 					{
 					setState(391);
 					localIdentifier();
@@ -1821,7 +1821,7 @@ public class TailspinParser extends Parser {
 				setState(399);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (IDENTIFIER - 2)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use))) != 0) || _la==IDENTIFIER) {
 					{
 					setState(398);
 					localIdentifier();
@@ -1967,6 +1967,7 @@ public class TailspinParser extends Parser {
 			case With:
 			case Provided:
 			case Modified:
+			case Shadowed:
 			case From:
 			case Use:
 			case STATE_IDENTIFIER:
@@ -2147,7 +2148,7 @@ public class TailspinParser extends Parser {
 				setState(444); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( ((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (IDENTIFIER - 2)))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use))) != 0) || _la==IDENTIFIER );
 			setState(446);
 			match(RightBrace);
 			}
@@ -2450,6 +2451,7 @@ public class TailspinParser extends Parser {
 			case With:
 			case Provided:
 			case Modified:
+			case Shadowed:
 			case From:
 			case Use:
 			case Zero:
@@ -3249,7 +3251,7 @@ public class TailspinParser extends Parser {
 				setState(576);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (IDENTIFIER - 2)))) != 0)) {
+				while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use))) != 0) || _la==IDENTIFIER) {
 					{
 					{
 					setState(569);
@@ -3565,7 +3567,7 @@ public class TailspinParser extends Parser {
 			setState(627);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SourceMarker) | (1L << DeleteMarker) | (1L << LeftParen) | (1L << First) | (1L << Last) | (1L << Plus) | (1L << Minus) | (1L << Zero) | (1L << PositiveInteger) | (1L << START_STRING))) != 0)) {
+			if (((((_la - 10)) & ~0x3f) == 0 && ((1L << (_la - 10)) & ((1L << (SourceMarker - 10)) | (1L << (DeleteMarker - 10)) | (1L << (LeftParen - 10)) | (1L << (First - 10)) | (1L << (Last - 10)) | (1L << (Plus - 10)) | (1L << (Minus - 10)) | (1L << (Zero - 10)) | (1L << (PositiveInteger - 10)) | (1L << (START_STRING - 10)))) != 0)) {
 				{
 				setState(626);
 				lowerBound();
@@ -3577,7 +3579,7 @@ public class TailspinParser extends Parser {
 			setState(631);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SourceMarker) | (1L << DeleteMarker) | (1L << Invert) | (1L << LeftParen) | (1L << First) | (1L << Last) | (1L << Plus) | (1L << Minus) | (1L << Zero) | (1L << PositiveInteger) | (1L << START_STRING))) != 0)) {
+			if (((((_la - 10)) & ~0x3f) == 0 && ((1L << (_la - 10)) & ((1L << (SourceMarker - 10)) | (1L << (DeleteMarker - 10)) | (1L << (Invert - 10)) | (1L << (LeftParen - 10)) | (1L << (First - 10)) | (1L << (Last - 10)) | (1L << (Plus - 10)) | (1L << (Minus - 10)) | (1L << (Zero - 10)) | (1L << (PositiveInteger - 10)) | (1L << (START_STRING - 10)))) != 0)) {
 				{
 				setState(630);
 				upperBound();
@@ -3825,7 +3827,7 @@ public class TailspinParser extends Parser {
 			setState(655);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << SourceMarker) | (1L << DeleteMarker) | (1L << LeftParen) | (1L << First) | (1L << Last) | (1L << Plus) | (1L << Minus) | (1L << Zero) | (1L << PositiveInteger) | (1L << START_STRING))) != 0)) {
+			if (((((_la - 10)) & ~0x3f) == 0 && ((1L << (_la - 10)) & ((1L << (SourceMarker - 10)) | (1L << (DeleteMarker - 10)) | (1L << (LeftParen - 10)) | (1L << (First - 10)) | (1L << (Last - 10)) | (1L << (Plus - 10)) | (1L << (Minus - 10)) | (1L << (Zero - 10)) | (1L << (PositiveInteger - 10)) | (1L << (START_STRING - 10)))) != 0)) {
 				{
 				setState(654);
 				lowerBound();
@@ -4003,7 +4005,7 @@ public class TailspinParser extends Parser {
 			setState(678);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (((((_la - 70)) & ~0x3f) == 0 && ((1L << (_la - 70)) & ((1L << (StartCharacterCode - 70)) | (1L << (StartStringInterpolate - 70)) | (1L << (STRING_TEXT - 70)))) != 0)) {
+			while (((((_la - 71)) & ~0x3f) == 0 && ((1L << (_la - 71)) & ((1L << (StartCharacterCode - 71)) | (1L << (StartStringInterpolate - 71)) | (1L << (STRING_TEXT - 71)))) != 0)) {
 				{
 				{
 				setState(675);
@@ -4250,6 +4252,7 @@ public class TailspinParser extends Parser {
 			case With:
 			case Provided:
 			case Modified:
+			case Shadowed:
 			case From:
 			case Use:
 			case STATE_IDENTIFIER:
@@ -4258,7 +4261,7 @@ public class TailspinParser extends Parser {
 				setState(697);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (STATE_IDENTIFIER - 2)) | (1L << (IDENTIFIER - 2)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use))) != 0) || _la==STATE_IDENTIFIER || _la==IDENTIFIER) {
 					{
 					setState(696);
 					anyIdentifier();
@@ -5106,7 +5109,7 @@ public class TailspinParser extends Parser {
 			setState(825);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (Comma - 2)) | (1L << (LeftParen - 2)) | (1L << (StartMatcher - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (IDENTIFIER - 2)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << Comma) | (1L << LeftParen) | (1L << StartMatcher) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use))) != 0) || _la==IDENTIFIER) {
 				{
 				setState(822);
 				_errHandler.sync(this);
@@ -5358,6 +5361,7 @@ public class TailspinParser extends Parser {
 			case With:
 			case Provided:
 			case Modified:
+			case Shadowed:
 			case From:
 			case Use:
 			case IDENTIFIER:
@@ -5585,7 +5589,7 @@ public class TailspinParser extends Parser {
 				setState(878); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-			} while ( ((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (SourceMarker - 2)) | (1L << (DeleteMarker - 2)) | (1L << (LeftParen - 2)) | (1L << (LeftBracket - 2)) | (1L << (LeftBrace - 2)) | (1L << (StartMatcher - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Range - 2)) | (1L << (Plus - 2)) | (1L << (Minus - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (Zero - 2)) | (1L << (PositiveInteger - 2)) | (1L << (START_STRING - 2)) | (1L << (STATE_IDENTIFIER - 2)) | (1L << (IDENTIFIER - 2)))) != 0) );
+			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << SourceMarker) | (1L << DeleteMarker) | (1L << LeftParen) | (1L << LeftBracket) | (1L << LeftBrace) | (1L << StartMatcher) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Range) | (1L << Plus) | (1L << Minus) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use) | (1L << Zero) | (1L << PositiveInteger))) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & ((1L << (START_STRING - 64)) | (1L << (STATE_IDENTIFIER - 64)) | (1L << (IDENTIFIER - 64)))) != 0) );
 			setState(880);
 			match(RightParen);
 			}
@@ -5749,6 +5753,7 @@ public class TailspinParser extends Parser {
 			case With:
 			case Provided:
 			case Modified:
+			case Shadowed:
 			case From:
 			case Use:
 			case IDENTIFIER:
@@ -5884,6 +5889,7 @@ public class TailspinParser extends Parser {
 			case With:
 			case Provided:
 			case Modified:
+			case Shadowed:
 			case From:
 			case Use:
 				enterOuterAlt(_localctx, 2);
@@ -6135,6 +6141,7 @@ public class TailspinParser extends Parser {
 		public TerminalNode With() { return getToken(TailspinParser.With, 0); }
 		public TerminalNode Provided() { return getToken(TailspinParser.Provided, 0); }
 		public TerminalNode Modified() { return getToken(TailspinParser.Modified, 0); }
+		public TerminalNode Shadowed() { return getToken(TailspinParser.Shadowed, 0); }
 		public TerminalNode From() { return getToken(TailspinParser.From, 0); }
 		public TerminalNode Use() { return getToken(TailspinParser.Use, 0); }
 		public KeywordContext(ParserRuleContext parent, int invokingState) {
@@ -6152,7 +6159,7 @@ public class TailspinParser extends Parser {
 		KeywordContext _localctx = new KeywordContext(_ctx, getState());
 		enterRule(_localctx, 156, RULE_keyword);
 		try {
-			setState(951);
+			setState(952);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case Include:
@@ -6289,17 +6296,24 @@ public class TailspinParser extends Parser {
 				match(Modified);
 				}
 				break;
-			case From:
+			case Shadowed:
 				enterOuterAlt(_localctx, 20);
 				{
 				setState(949);
+				match(Shadowed);
+				}
+				break;
+			case From:
+				enterOuterAlt(_localctx, 21);
+				{
+				setState(950);
 				match(From);
 				}
 				break;
 			case Use:
-				enterOuterAlt(_localctx, 21);
+				enterOuterAlt(_localctx, 22);
 				{
-				setState(950);
+				setState(951);
 				match(Use);
 				}
 				break;
@@ -6343,7 +6357,7 @@ public class TailspinParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(954); 
+			setState(955); 
 			_errHandler.sync(this);
 			_alt = 1;
 			do {
@@ -6351,7 +6365,7 @@ public class TailspinParser extends Parser {
 				case 1:
 					{
 					{
-					setState(953);
+					setState(954);
 					testBlock();
 					}
 					}
@@ -6359,7 +6373,7 @@ public class TailspinParser extends Parser {
 				default:
 					throw new NoViableAltException(this);
 				}
-				setState(956); 
+				setState(957); 
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,131,_ctx);
 			} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
@@ -6407,23 +6421,23 @@ public class TailspinParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(961);
+			setState(962);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,132,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
-					setState(958);
+					setState(959);
 					statement();
 					}
 					} 
 				}
-				setState(963);
+				setState(964);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,132,_ctx);
 			}
-			setState(965); 
+			setState(966); 
 			_errHandler.sync(this);
 			_alt = 1;
 			do {
@@ -6431,7 +6445,7 @@ public class TailspinParser extends Parser {
 				case 1:
 					{
 					{
-					setState(964);
+					setState(965);
 					assertion();
 					}
 					}
@@ -6439,7 +6453,7 @@ public class TailspinParser extends Parser {
 				default:
 					throw new NoViableAltException(this);
 				}
-				setState(967); 
+				setState(968); 
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,133,_ctx);
 			} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
@@ -6484,13 +6498,13 @@ public class TailspinParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(969);
-			match(Assert);
 			setState(970);
-			valueChain();
+			match(Assert);
 			setState(971);
-			matcher();
+			valueChain();
 			setState(972);
+			matcher();
+			setState(973);
 			stringLiteral();
 			}
 		}
@@ -6532,9 +6546,9 @@ public class TailspinParser extends Parser {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(974);
+			setState(975);
 			match(With);
-			setState(976); 
+			setState(977); 
 			_errHandler.sync(this);
 			_alt = 1;
 			do {
@@ -6542,7 +6556,7 @@ public class TailspinParser extends Parser {
 				case 1:
 					{
 					{
-					setState(975);
+					setState(976);
 					moduleConfiguration();
 					}
 					}
@@ -6550,11 +6564,11 @@ public class TailspinParser extends Parser {
 				default:
 					throw new NoViableAltException(this);
 				}
-				setState(978); 
+				setState(979); 
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,134,_ctx);
 			} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
-			setState(980);
+			setState(981);
 			match(Provided);
 			}
 		}
@@ -6581,10 +6595,14 @@ public class TailspinParser extends Parser {
 		}
 	}
 	public static class InheritModuleContext extends ModuleConfigurationContext {
-		public ModuleIdentifierContext moduleIdentifier() {
-			return getRuleContext(ModuleIdentifierContext.class,0);
+		public List<ModuleIdentifierContext> moduleIdentifier() {
+			return getRuleContexts(ModuleIdentifierContext.class);
+		}
+		public ModuleIdentifierContext moduleIdentifier(int i) {
+			return getRuleContext(ModuleIdentifierContext.class,i);
 		}
 		public TerminalNode Inherited() { return getToken(TailspinParser.Inherited, 0); }
+		public TerminalNode From() { return getToken(TailspinParser.From, 0); }
 		public InheritModuleContext(ModuleConfigurationContext ctx) { copyFrom(ctx); }
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
@@ -6594,18 +6612,15 @@ public class TailspinParser extends Parser {
 	}
 	public static class ModuleModificationContext extends ModuleConfigurationContext {
 		public TerminalNode Modified() { return getToken(TailspinParser.Modified, 0); }
-		public TerminalNode EndDefinition() { return getToken(TailspinParser.EndDefinition, 0); }
-		public List<ModuleIdentifierContext> moduleIdentifier() {
-			return getRuleContexts(ModuleIdentifierContext.class);
-		}
-		public ModuleIdentifierContext moduleIdentifier(int i) {
-			return getRuleContext(ModuleIdentifierContext.class,i);
-		}
 		public List<StringLiteralContext> stringLiteral() {
 			return getRuleContexts(StringLiteralContext.class);
 		}
 		public StringLiteralContext stringLiteral(int i) {
 			return getRuleContext(StringLiteralContext.class,i);
+		}
+		public TerminalNode EndDefinition() { return getToken(TailspinParser.EndDefinition, 0); }
+		public ModuleIdentifierContext moduleIdentifier() {
+			return getRuleContext(ModuleIdentifierContext.class,0);
 		}
 		public TerminalNode From() { return getToken(TailspinParser.From, 0); }
 		public DependencyProvisionContext dependencyProvision() {
@@ -6621,6 +6636,32 @@ public class TailspinParser extends Parser {
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitModuleModification(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class ModuleShadowingContext extends ModuleConfigurationContext {
+		public TerminalNode Shadowed() { return getToken(TailspinParser.Shadowed, 0); }
+		public List<ModuleIdentifierContext> moduleIdentifier() {
+			return getRuleContexts(ModuleIdentifierContext.class);
+		}
+		public ModuleIdentifierContext moduleIdentifier(int i) {
+			return getRuleContext(ModuleIdentifierContext.class,i);
+		}
+		public TerminalNode EndDefinition() { return getToken(TailspinParser.EndDefinition, 0); }
+		public TerminalNode From() { return getToken(TailspinParser.From, 0); }
+		public DependencyProvisionContext dependencyProvision() {
+			return getRuleContext(DependencyProvisionContext.class,0);
+		}
+		public List<StatementContext> statement() {
+			return getRuleContexts(StatementContext.class);
+		}
+		public StatementContext statement(int i) {
+			return getRuleContext(StatementContext.class,i);
+		}
+		public ModuleShadowingContext(ModuleConfigurationContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof TailspinParserVisitor ) return ((TailspinParserVisitor<? extends T>)visitor).visitModuleShadowing(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -6650,56 +6691,40 @@ public class TailspinParser extends Parser {
 		int _la;
 		try {
 			int _alt;
-			setState(1018);
+			setState(1035);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,143,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,144,_ctx) ) {
 			case 1:
-				_localctx = new ModuleModificationContext(_localctx);
+				_localctx = new ModuleShadowingContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(982);
-				match(Modified);
-				setState(984);
+				setState(986);
 				_errHandler.sync(this);
 				switch ( getInterpreter().adaptivePredict(_input,135,_ctx) ) {
 				case 1:
 					{
 					setState(983);
 					moduleIdentifier();
-					}
-					break;
-				}
-				setState(987);
-				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,136,_ctx) ) {
-				case 1:
-					{
-					setState(986);
+					setState(984);
 					match(From);
 					}
 					break;
 				}
-				setState(990);
+				setState(988);
+				match(Shadowed);
+				setState(989);
+				moduleIdentifier();
+				setState(991);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,137,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,136,_ctx) ) {
 				case 1:
 					{
-					setState(989);
-					stringLiteral();
-					}
-					break;
-				}
-				setState(993);
-				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,138,_ctx) ) {
-				case 1:
-					{
-					setState(992);
+					setState(990);
 					dependencyProvision();
 					}
 					break;
 				}
-				setState(996); 
+				setState(994); 
 				_errHandler.sync(this);
 				_alt = 1;
 				do {
@@ -6707,7 +6732,7 @@ public class TailspinParser extends Parser {
 					case 1:
 						{
 						{
-						setState(995);
+						setState(993);
 						statement();
 						}
 						}
@@ -6715,101 +6740,130 @@ public class TailspinParser extends Parser {
 					default:
 						throw new NoViableAltException(this);
 					}
-					setState(998); 
+					setState(996); 
 					_errHandler.sync(this);
-					_alt = getInterpreter().adaptivePredict(_input,139,_ctx);
+					_alt = getInterpreter().adaptivePredict(_input,137,_ctx);
 				} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
-				setState(1000);
+				setState(998);
 				match(EndDefinition);
-				setState(1003);
-				_errHandler.sync(this);
-				switch (_input.LA(1)) {
-				case Include:
-				case Def:
-				case When:
-				case Do:
-				case Otherwise:
-				case StartTemplatesDefinition:
-				case StartSourceDefinition:
-				case StartSinkDefinition:
-				case StartComposerDefinition:
-				case StartProcessorDefinition:
-				case EndDefinition:
-				case Rule:
-				case First:
-				case Last:
-				case Mod:
-				case StartTestDefinition:
-				case Assert:
-				case CoreSystem:
-				case With:
-				case Provided:
-				case Modified:
-				case From:
-				case Use:
-				case IDENTIFIER:
-					{
-					setState(1001);
-					moduleIdentifier();
-					}
-					break;
-				case START_STRING:
-					{
-					setState(1002);
-					stringLiteral();
-					}
-					break;
-				default:
-					throw new NoViableAltException(this);
-				}
+				setState(999);
+				moduleIdentifier();
 				}
 				break;
 			case 2:
-				_localctx = new ModuleImportContext(_localctx);
+				_localctx = new InheritModuleContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1008);
+				setState(1001);
+				moduleIdentifier();
+				setState(1002);
+				match(Inherited);
+				setState(1005);
+				_errHandler.sync(this);
+				switch ( getInterpreter().adaptivePredict(_input,138,_ctx) ) {
+				case 1:
+					{
+					setState(1003);
+					match(From);
+					setState(1004);
+					moduleIdentifier();
+					}
+					break;
+				}
+				}
+				break;
+			case 3:
+				_localctx = new ModuleModificationContext(_localctx);
+				enterOuterAlt(_localctx, 3);
+				{
+				setState(1010);
+				_errHandler.sync(this);
+				switch ( getInterpreter().adaptivePredict(_input,139,_ctx) ) {
+				case 1:
+					{
+					setState(1007);
+					moduleIdentifier();
+					setState(1008);
+					match(From);
+					}
+					break;
+				}
+				setState(1012);
+				match(Modified);
+				setState(1013);
+				stringLiteral();
+				setState(1015);
+				_errHandler.sync(this);
+				switch ( getInterpreter().adaptivePredict(_input,140,_ctx) ) {
+				case 1:
+					{
+					setState(1014);
+					dependencyProvision();
+					}
+					break;
+				}
+				setState(1018); 
+				_errHandler.sync(this);
+				_alt = 1;
+				do {
+					switch (_alt) {
+					case 1:
+						{
+						{
+						setState(1017);
+						statement();
+						}
+						}
+						break;
+					default:
+						throw new NoViableAltException(this);
+					}
+					setState(1020); 
+					_errHandler.sync(this);
+					_alt = getInterpreter().adaptivePredict(_input,141,_ctx);
+				} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
+				setState(1022);
+				match(EndDefinition);
+				setState(1023);
+				stringLiteral();
+				}
+				break;
+			case 4:
+				_localctx = new ModuleImportContext(_localctx);
+				enterOuterAlt(_localctx, 4);
+				{
+				setState(1028);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				if (((((_la - 2)) & ~0x3f) == 0 && ((1L << (_la - 2)) & ((1L << (Include - 2)) | (1L << (Def - 2)) | (1L << (When - 2)) | (1L << (Do - 2)) | (1L << (Otherwise - 2)) | (1L << (StartTemplatesDefinition - 2)) | (1L << (StartSourceDefinition - 2)) | (1L << (StartSinkDefinition - 2)) | (1L << (StartComposerDefinition - 2)) | (1L << (StartProcessorDefinition - 2)) | (1L << (EndDefinition - 2)) | (1L << (Rule - 2)) | (1L << (First - 2)) | (1L << (Last - 2)) | (1L << (Mod - 2)) | (1L << (StartTestDefinition - 2)) | (1L << (Assert - 2)) | (1L << (CoreSystem - 2)) | (1L << (With - 2)) | (1L << (Provided - 2)) | (1L << (Modified - 2)) | (1L << (From - 2)) | (1L << (Use - 2)) | (1L << (IDENTIFIER - 2)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << CoreSystem) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From) | (1L << Use))) != 0) || _la==IDENTIFIER) {
 					{
-					setState(1005);
+					setState(1025);
 					moduleIdentifier();
-					setState(1006);
+					setState(1026);
 					match(From);
 					}
 				}
 
-				setState(1010);
+				setState(1030);
 				stringLiteral();
-				setState(1013);
+				setState(1033);
 				_errHandler.sync(this);
 				switch (_input.LA(1)) {
 				case StandAlone:
 					{
-					setState(1011);
+					setState(1031);
 					match(StandAlone);
 					}
 					break;
 				case With:
 					{
-					setState(1012);
+					setState(1032);
 					dependencyProvision();
 					}
 					break;
 				default:
 					throw new NoViableAltException(this);
 				}
-				}
-				break;
-			case 3:
-				_localctx = new InheritModuleContext(_localctx);
-				enterOuterAlt(_localctx, 3);
-				{
-				setState(1015);
-				moduleIdentifier();
-				setState(1016);
-				match(Inherited);
 				}
 				break;
 			}
@@ -6845,13 +6899,13 @@ public class TailspinParser extends Parser {
 		ModuleIdentifierContext _localctx = new ModuleIdentifierContext(_ctx, getState());
 		enterRule(_localctx, 168, RULE_moduleIdentifier);
 		try {
-			setState(1022);
+			setState(1039);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case CoreSystem:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1020);
+				setState(1037);
 				match(CoreSystem);
 				}
 				break;
@@ -6875,12 +6929,13 @@ public class TailspinParser extends Parser {
 			case With:
 			case Provided:
 			case Modified:
+			case Shadowed:
 			case From:
 			case Use:
 			case IDENTIFIER:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(1021);
+				setState(1038);
 				localIdentifier();
 				}
 				break;
@@ -6921,9 +6976,9 @@ public class TailspinParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(1024);
+			setState(1041);
 			match(Use);
-			setState(1025);
+			setState(1042);
 			moduleConfiguration();
 			}
 		}
@@ -6956,7 +7011,7 @@ public class TailspinParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3K\u0406\4\2\t\2\4"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3L\u0417\4\2\t\2\4"+
 		"\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t"+
 		"\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -7023,16 +7078,17 @@ public class TailspinParser extends Parser {
 		"\nH\3H\5H\u0380\nH\3I\3I\5I\u0384\nI\3I\7I\u0387\nI\fI\16I\u038a\13I\3"+
 		"I\3I\3J\3J\3J\3K\3K\5K\u0393\nK\3L\3L\3M\3M\3M\6M\u039a\nM\rM\16M\u039b"+
 		"\3N\3N\3N\5N\u03a1\nN\3O\3O\3P\3P\3P\3P\3P\3P\3P\3P\3P\3P\3P\3P\3P\3P"+
-		"\3P\3P\3P\3P\3P\3P\3P\5P\u03ba\nP\3Q\6Q\u03bd\nQ\rQ\16Q\u03be\3R\7R\u03c2"+
-		"\nR\fR\16R\u03c5\13R\3R\6R\u03c8\nR\rR\16R\u03c9\3S\3S\3S\3S\3S\3T\3T"+
-		"\6T\u03d3\nT\rT\16T\u03d4\3T\3T\3U\3U\5U\u03db\nU\3U\5U\u03de\nU\3U\5"+
-		"U\u03e1\nU\3U\5U\u03e4\nU\3U\6U\u03e7\nU\rU\16U\u03e8\3U\3U\3U\5U\u03ee"+
-		"\nU\3U\3U\3U\5U\u03f3\nU\3U\3U\3U\5U\u03f8\nU\3U\3U\3U\5U\u03fd\nU\3V"+
-		"\3V\5V\u0401\nV\3W\3W\3W\3W\2\3nX\2\4\6\b\n\f\16\20\22\24\26\30\32\34"+
-		"\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtvxz|~\u0080\u0082"+
+		"\3P\3P\3P\3P\3P\3P\3P\3P\5P\u03bb\nP\3Q\6Q\u03be\nQ\rQ\16Q\u03bf\3R\7"+
+		"R\u03c3\nR\fR\16R\u03c6\13R\3R\6R\u03c9\nR\rR\16R\u03ca\3S\3S\3S\3S\3"+
+		"S\3T\3T\6T\u03d4\nT\rT\16T\u03d5\3T\3T\3U\3U\3U\5U\u03dd\nU\3U\3U\3U\5"+
+		"U\u03e2\nU\3U\6U\u03e5\nU\rU\16U\u03e6\3U\3U\3U\3U\3U\3U\3U\5U\u03f0\n"+
+		"U\3U\3U\3U\5U\u03f5\nU\3U\3U\3U\5U\u03fa\nU\3U\6U\u03fd\nU\rU\16U\u03fe"+
+		"\3U\3U\3U\3U\3U\3U\5U\u0407\nU\3U\3U\3U\5U\u040c\nU\5U\u040e\nU\3V\3V"+
+		"\5V\u0412\nV\3W\3W\3W\3W\2\3nX\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36"+
+		" \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtvxz|~\u0080\u0082"+
 		"\u0084\u0086\u0088\u008a\u008c\u008e\u0090\u0092\u0094\u0096\u0098\u009a"+
 		"\u009c\u009e\u00a0\u00a2\u00a4\u00a6\u00a8\u00aa\u00ac\2\6\3\2 \"\3\2"+
-		"+,\3\2-/\3\2\'(\2\u0478\2\u00b1\3\2\2\2\4\u00c3\3\2\2\2\6\u00f6\3\2\2"+
+		"+,\3\2-/\3\2\'(\2\u048c\2\u00b1\3\2\2\2\4\u00c3\3\2\2\2\6\u00f6\3\2\2"+
 		"\2\b\u00f8\3\2\2\2\n\u00fb\3\2\2\2\f\u0112\3\2\2\2\16\u0114\3\2\2\2\20"+
 		"\u011f\3\2\2\2\22\u0127\3\2\2\2\24\u012f\3\2\2\2\26\u0136\3\2\2\2\30\u0140"+
 		"\3\2\2\2\32\u0145\3\2\2\2\34\u0147\3\2\2\2\36\u015f\3\2\2\2 \u0163\3\2"+
@@ -7050,9 +7106,9 @@ public class TailspinParser extends Parser {
 		"\2\2\u0086\u035a\3\2\2\2\u0088\u035c\3\2\2\2\u008a\u036a\3\2\2\2\u008c"+
 		"\u036c\3\2\2\2\u008e\u037f\3\2\2\2\u0090\u0383\3\2\2\2\u0092\u038d\3\2"+
 		"\2\2\u0094\u0392\3\2\2\2\u0096\u0394\3\2\2\2\u0098\u0396\3\2\2\2\u009a"+
-		"\u03a0\3\2\2\2\u009c\u03a2\3\2\2\2\u009e\u03b9\3\2\2\2\u00a0\u03bc\3\2"+
-		"\2\2\u00a2\u03c3\3\2\2\2\u00a4\u03cb\3\2\2\2\u00a6\u03d0\3\2\2\2\u00a8"+
-		"\u03fc\3\2\2\2\u00aa\u0400\3\2\2\2\u00ac\u0402\3\2\2\2\u00ae\u00b0\5\u00ac"+
+		"\u03a0\3\2\2\2\u009c\u03a2\3\2\2\2\u009e\u03ba\3\2\2\2\u00a0\u03bd\3\2"+
+		"\2\2\u00a2\u03c4\3\2\2\2\u00a4\u03cc\3\2\2\2\u00a6\u03d1\3\2\2\2\u00a8"+
+		"\u040d\3\2\2\2\u00aa\u0411\3\2\2\2\u00ac\u0413\3\2\2\2\u00ae\u00b0\5\u00ac"+
 		"W\2\u00af\u00ae\3\2\2\2\u00b0\u00b3\3\2\2\2\u00b1\u00af\3\2\2\2\u00b1"+
 		"\u00b2\3\2\2\2\u00b2\u00b7\3\2\2\2\u00b3\u00b1\3\2\2\2\u00b4\u00b6\5\4"+
 		"\3\2\u00b5\u00b4\3\2\2\2\u00b6\u00b9\3\2\2\2\u00b7\u00b5\3\2\2\2\u00b7"+
@@ -7220,16 +7276,16 @@ public class TailspinParser extends Parser {
 		"\3\2\2\2\u0291\u0292\3\2\2\2\u0292\u0293\3\2\2\2\u0293\u0295\7*\2\2\u0294"+
 		"\u0296\5\\/\2\u0295\u0294\3\2\2\2\u0295\u0296\3\2\2\2\u0296\u0299\3\2"+
 		"\2\2\u0297\u0298\7\20\2\2\u0298\u029a\5n8\2\u0299\u0297\3\2\2\2\u0299"+
-		"\u029a\3\2\2\2\u029a_\3\2\2\2\u029b\u029e\7?\2\2\u029c\u029e\5b\62\2\u029d"+
+		"\u029a\3\2\2\2\u029a_\3\2\2\2\u029b\u029e\7@\2\2\u029c\u029e\5b\62\2\u029d"+
 		"\u029b\3\2\2\2\u029d\u029c\3\2\2\2\u029ea\3\2\2\2\u029f\u02a1\5p9\2\u02a0"+
-		"\u029f\3\2\2\2\u02a0\u02a1\3\2\2\2\u02a1\u02a2\3\2\2\2\u02a2\u02a3\7@"+
-		"\2\2\u02a3c\3\2\2\2\u02a4\u02a8\7A\2\2\u02a5\u02a7\5f\64\2\u02a6\u02a5"+
+		"\u029f\3\2\2\2\u02a0\u02a1\3\2\2\2\u02a1\u02a2\3\2\2\2\u02a2\u02a3\7A"+
+		"\2\2\u02a3c\3\2\2\2\u02a4\u02a8\7B\2\2\u02a5\u02a7\5f\64\2\u02a6\u02a5"+
 		"\3\2\2\2\u02a7\u02aa\3\2\2\2\u02a8\u02a6\3\2\2\2\u02a8\u02a9\3\2\2\2\u02a9"+
-		"\u02ab\3\2\2\2\u02aa\u02a8\3\2\2\2\u02ab\u02ac\7K\2\2\u02ace\3\2\2\2\u02ad"+
-		"\u02b0\5h\65\2\u02ae\u02b0\7J\2\2\u02af\u02ad\3\2\2\2\u02af\u02ae\3\2"+
+		"\u02ab\3\2\2\2\u02aa\u02a8\3\2\2\2\u02ab\u02ac\7L\2\2\u02ace\3\2\2\2\u02ad"+
+		"\u02b0\5h\65\2\u02ae\u02b0\7K\2\2\u02af\u02ad\3\2\2\2\u02af\u02ae\3\2"+
 		"\2\2\u02b0g\3\2\2\2\u02b1\u02b4\5l\67\2\u02b2\u02b4\5j\66\2\u02b3\u02b1"+
-		"\3\2\2\2\u02b3\u02b2\3\2\2\2\u02b4i\3\2\2\2\u02b5\u02b6\7H\2\2\u02b6\u02b7"+
-		"\5n8\2\u02b7\u02b8\7\23\2\2\u02b8k\3\2\2\2\u02b9\u02c6\7I\2\2\u02ba\u02bc"+
+		"\3\2\2\2\u02b3\u02b2\3\2\2\2\u02b4i\3\2\2\2\u02b5\u02b6\7I\2\2\u02b6\u02b7"+
+		"\5n8\2\u02b7\u02b8\7\23\2\2\u02b8k\3\2\2\2\u02b9\u02c6\7J\2\2\u02ba\u02bc"+
 		"\5\u009aN\2\u02bb\u02ba\3\2\2\2\u02bb\u02bc\3\2\2\2\u02bc\u02bd\3\2\2"+
 		"\2\u02bd\u02bf\5\22\n\2\u02be\u02c0\7\21\2\2\u02bf\u02be\3\2\2\2\u02bf"+
 		"\u02c0\3\2\2\2\u02c0\u02c2\3\2\2\2\u02c1\u02c3\5\60\31\2\u02c2\u02c1\3"+
@@ -7290,7 +7346,7 @@ public class TailspinParser extends Parser {
 		"\2\2\u035d\u0361\5\16\b\2\u035e\u0361\5\20\t\2\u035f\u0361\5d\63\2\u0360"+
 		"\u035d\3\2\2\2\u0360\u035e\3\2\2\2\u0360\u035f\3\2\2\2\u0361\u0089\3\2"+
 		"\2\2\u0362\u036b\7+\2\2\u0363\u036b\7-\2\2\u0364\u036b\7\60\2\2\u0365"+
-		"\u0368\7\61\2\2\u0366\u0369\7@\2\2\u0367\u0369\5\16\b\2\u0368\u0366\3"+
+		"\u0368\7\61\2\2\u0366\u0369\7A\2\2\u0367\u0369\5\16\b\2\u0368\u0366\3"+
 		"\2\2\2\u0368\u0367\3\2\2\2\u0369\u036b\3\2\2\2\u036a\u0362\3\2\2\2\u036a"+
 		"\u0363\3\2\2\2\u036a\u0364\3\2\2\2\u036a\u0365\3\2\2\2\u036b\u008b\3\2"+
 		"\2\2\u036c\u036e\7\30\2\2\u036d\u036f\5\u008eH\2\u036e\u036d\3\2\2\2\u036f"+
@@ -7305,63 +7361,69 @@ public class TailspinParser extends Parser {
 		"\3\2\2\2\u0387\u038a\3\2\2\2\u0388\u0386\3\2\2\2\u0388\u0389\3\2\2\2\u0389"+
 		"\u038b\3\2\2\2\u038a\u0388\3\2\2\2\u038b\u038c\5|?\2\u038c\u0091\3\2\2"+
 		"\2\u038d\u038e\5\u0084C\2\u038e\u038f\7\20\2\2\u038f\u0093\3\2\2\2\u0390"+
-		"\u0393\7C\2\2\u0391\u0393\5\u009eP\2\u0392\u0390\3\2\2\2\u0392\u0391\3"+
-		"\2\2\2\u0393\u0095\3\2\2\2\u0394\u0395\7B\2\2\u0395\u0097\3\2\2\2\u0396"+
+		"\u0393\7D\2\2\u0391\u0393\5\u009eP\2\u0392\u0390\3\2\2\2\u0392\u0391\3"+
+		"\2\2\2\u0393\u0095\3\2\2\2\u0394\u0395\7C\2\2\u0395\u0097\3\2\2\2\u0396"+
 		"\u0399\5\u0094K\2\u0397\u0398\7\17\2\2\u0398\u039a\5\u0094K\2\u0399\u0397"+
 		"\3\2\2\2\u039a\u039b\3\2\2\2\u039b\u0399\3\2\2\2\u039b\u039c\3\2\2\2\u039c"+
 		"\u0099\3\2\2\2\u039d\u03a1\5\u0096L\2\u039e\u03a1\5\u0094K\2\u039f\u03a1"+
 		"\5\u0098M\2\u03a0\u039d\3\2\2\2\u03a0\u039e\3\2\2\2\u03a0\u039f\3\2\2"+
-		"\2\u03a1\u009b\3\2\2\2\u03a2\u03a3\t\5\2\2\u03a3\u009d\3\2\2\2\u03a4\u03ba"+
-		"\7\4\2\2\u03a5\u03ba\7\6\2\2\u03a6\u03ba\7 \2\2\u03a7\u03ba\7!\2\2\u03a8"+
-		"\u03ba\7\"\2\2\u03a9\u03ba\7#\2\2\u03aa\u03ba\7$\2\2\u03ab\u03ba\7%\2"+
-		"\2\u03ac\u03ba\7/\2\2\u03ad\u03ba\7&\2\2\u03ae\u03ba\7\7\2\2\u03af\u03ba"+
-		"\7\b\2\2\u03b0\u03ba\7\t\2\2\u03b1\u03ba\5\u009cO\2\u03b2\u03ba\7\65\2"+
-		"\2\u03b3\u03ba\7\66\2\2\u03b4\u03ba\78\2\2\u03b5\u03ba\79\2\2\u03b6\u03ba"+
-		"\7:\2\2\u03b7\u03ba\7<\2\2\u03b8\u03ba\7>\2\2\u03b9\u03a4\3\2\2\2\u03b9"+
-		"\u03a5\3\2\2\2\u03b9\u03a6\3\2\2\2\u03b9\u03a7\3\2\2\2\u03b9\u03a8\3\2"+
-		"\2\2\u03b9\u03a9\3\2\2\2\u03b9\u03aa\3\2\2\2\u03b9\u03ab\3\2\2\2\u03b9"+
-		"\u03ac\3\2\2\2\u03b9\u03ad\3\2\2\2\u03b9\u03ae\3\2\2\2\u03b9\u03af\3\2"+
-		"\2\2\u03b9\u03b0\3\2\2\2\u03b9\u03b1\3\2\2\2\u03b9\u03b2\3\2\2\2\u03b9"+
-		"\u03b3\3\2\2\2\u03b9\u03b4\3\2\2\2\u03b9\u03b5\3\2\2\2\u03b9\u03b6\3\2"+
-		"\2\2\u03b9\u03b7\3\2\2\2\u03b9\u03b8\3\2\2\2\u03ba\u009f\3\2\2\2\u03bb"+
-		"\u03bd\5\u00a2R\2\u03bc\u03bb\3\2\2\2\u03bd\u03be\3\2\2\2\u03be\u03bc"+
-		"\3\2\2\2\u03be\u03bf\3\2\2\2\u03bf\u00a1\3\2\2\2\u03c0\u03c2\5\6\4\2\u03c1"+
-		"\u03c0\3\2\2\2\u03c2\u03c5\3\2\2\2\u03c3\u03c1\3\2\2\2\u03c3\u03c4\3\2"+
-		"\2\2\u03c4\u03c7\3\2\2\2\u03c5\u03c3\3\2\2\2\u03c6\u03c8\5\u00a4S\2\u03c7"+
-		"\u03c6\3\2\2\2\u03c8\u03c9\3\2\2\2\u03c9\u03c7\3\2\2\2\u03c9\u03ca\3\2"+
-		"\2\2\u03ca\u00a3\3\2\2\2\u03cb\u03cc\7\66\2\2\u03cc\u03cd\5F$\2\u03cd"+
-		"\u03ce\5J&\2\u03ce\u03cf\5d\63\2\u03cf\u00a5\3\2\2\2\u03d0\u03d2\78\2"+
-		"\2\u03d1\u03d3\5\u00a8U\2\u03d2\u03d1\3\2\2\2\u03d3\u03d4\3\2\2\2\u03d4"+
-		"\u03d2\3\2\2\2\u03d4\u03d5\3\2\2\2\u03d5\u03d6\3\2\2\2\u03d6\u03d7\79"+
-		"\2\2\u03d7\u00a7\3\2\2\2\u03d8\u03da\7:\2\2\u03d9\u03db\5\u00aaV\2\u03da"+
-		"\u03d9\3\2\2\2\u03da\u03db\3\2\2\2\u03db\u03dd\3\2\2\2\u03dc\u03de\7<"+
-		"\2\2\u03dd\u03dc\3\2\2\2\u03dd\u03de\3\2\2\2\u03de\u03e0\3\2\2\2\u03df"+
-		"\u03e1\5d\63\2\u03e0\u03df\3\2\2\2\u03e0\u03e1\3\2\2\2\u03e1\u03e3\3\2"+
-		"\2\2\u03e2\u03e4\5\u00a6T\2\u03e3\u03e2\3\2\2\2\u03e3\u03e4\3\2\2\2\u03e4"+
-		"\u03e6\3\2\2\2\u03e5\u03e7\5\6\4\2\u03e6\u03e5\3\2\2\2\u03e7\u03e8\3\2"+
-		"\2\2\u03e8\u03e6\3\2\2\2\u03e8\u03e9\3\2\2\2\u03e9\u03ea\3\2\2\2\u03ea"+
-		"\u03ed\7%\2\2\u03eb\u03ee\5\u00aaV\2\u03ec\u03ee\5d\63\2\u03ed\u03eb\3"+
-		"\2\2\2\u03ed\u03ec\3\2\2\2\u03ee\u03fd\3\2\2\2\u03ef\u03f0\5\u00aaV\2"+
-		"\u03f0\u03f1\7<\2\2\u03f1\u03f3\3\2\2\2\u03f2\u03ef\3\2\2\2\u03f2\u03f3"+
-		"\3\2\2\2\u03f3\u03f4\3\2\2\2\u03f4\u03f7\5d\63\2\u03f5\u03f8\7=\2\2\u03f6"+
-		"\u03f8\5\u00a6T\2\u03f7\u03f5\3\2\2\2\u03f7\u03f6\3\2\2\2\u03f8\u03fd"+
-		"\3\2\2\2\u03f9\u03fa\5\u00aaV\2\u03fa\u03fb\7;\2\2\u03fb\u03fd\3\2\2\2"+
-		"\u03fc\u03d8\3\2\2\2\u03fc\u03f2\3\2\2\2\u03fc\u03f9\3\2\2\2\u03fd\u00a9"+
-		"\3\2\2\2\u03fe\u0401\7\67\2\2\u03ff\u0401\5\u0094K\2\u0400\u03fe\3\2\2"+
-		"\2\u0400\u03ff\3\2\2\2\u0401\u00ab\3\2\2\2\u0402\u0403\7>\2\2\u0403\u0404"+
-		"\5\u00a8U\2\u0404\u00ad\3\2\2\2\u0093\u00b1\u00b7\u00be\u00d2\u00db\u00e4"+
-		"\u00ef\u00f6\u00ff\u0103\u0112\u0116\u011a\u011d\u0127\u012c\u0134\u013b"+
-		"\u0140\u0145\u014d\u015a\u015f\u0163\u016b\u016e\u0175\u017d\u0183\u018a"+
-		"\u0191\u0195\u019d\u01a6\u01a9\u01ac\u01b1\u01b4\u01ba\u01be\u01c5\u01cb"+
-		"\u01d1\u01d3\u01d9\u01dd\u01e3\u01e8\u01ec\u01f2\u0200\u0206\u0213\u0218"+
-		"\u021c\u021e\u0222\u0229\u0230\u0235\u023e\u0242\u0246\u0249\u024e\u0254"+
-		"\u0258\u025b\u0261\u0265\u0267\u026b\u026f\u0275\u0279\u0283\u0286\u0289"+
-		"\u028e\u0291\u0295\u0299\u029d\u02a0\u02a8\u02af\u02b3\u02bb\u02bf\u02c2"+
-		"\u02c6\u02c9\u02cd\u02d8\u02dc\u02df\u02e9\u02eb\u02f3\u02f9\u0304\u0306"+
-		"\u030b\u0310\u0313\u0319\u0320\u0326\u032b\u032e\u0333\u0338\u033b\u033f"+
-		"\u0344\u0349\u0350\u0355\u035a\u0360\u0368\u036a\u0370\u037c\u037f\u0383"+
-		"\u0388\u0392\u039b\u03a0\u03b9\u03be\u03c3\u03c9\u03d4\u03da\u03dd\u03e0"+
-		"\u03e3\u03e8\u03ed\u03f2\u03f7\u03fc\u0400";
+		"\2\u03a1\u009b\3\2\2\2\u03a2\u03a3\t\5\2\2\u03a3\u009d\3\2\2\2\u03a4\u03bb"+
+		"\7\4\2\2\u03a5\u03bb\7\6\2\2\u03a6\u03bb\7 \2\2\u03a7\u03bb\7!\2\2\u03a8"+
+		"\u03bb\7\"\2\2\u03a9\u03bb\7#\2\2\u03aa\u03bb\7$\2\2\u03ab\u03bb\7%\2"+
+		"\2\u03ac\u03bb\7/\2\2\u03ad\u03bb\7&\2\2\u03ae\u03bb\7\7\2\2\u03af\u03bb"+
+		"\7\b\2\2\u03b0\u03bb\7\t\2\2\u03b1\u03bb\5\u009cO\2\u03b2\u03bb\7\65\2"+
+		"\2\u03b3\u03bb\7\66\2\2\u03b4\u03bb\78\2\2\u03b5\u03bb\79\2\2\u03b6\u03bb"+
+		"\7:\2\2\u03b7\u03bb\7;\2\2\u03b8\u03bb\7=\2\2\u03b9\u03bb\7?\2\2\u03ba"+
+		"\u03a4\3\2\2\2\u03ba\u03a5\3\2\2\2\u03ba\u03a6\3\2\2\2\u03ba\u03a7\3\2"+
+		"\2\2\u03ba\u03a8\3\2\2\2\u03ba\u03a9\3\2\2\2\u03ba\u03aa\3\2\2\2\u03ba"+
+		"\u03ab\3\2\2\2\u03ba\u03ac\3\2\2\2\u03ba\u03ad\3\2\2\2\u03ba\u03ae\3\2"+
+		"\2\2\u03ba\u03af\3\2\2\2\u03ba\u03b0\3\2\2\2\u03ba\u03b1\3\2\2\2\u03ba"+
+		"\u03b2\3\2\2\2\u03ba\u03b3\3\2\2\2\u03ba\u03b4\3\2\2\2\u03ba\u03b5\3\2"+
+		"\2\2\u03ba\u03b6\3\2\2\2\u03ba\u03b7\3\2\2\2\u03ba\u03b8\3\2\2\2\u03ba"+
+		"\u03b9\3\2\2\2\u03bb\u009f\3\2\2\2\u03bc\u03be\5\u00a2R\2\u03bd\u03bc"+
+		"\3\2\2\2\u03be\u03bf\3\2\2\2\u03bf\u03bd\3\2\2\2\u03bf\u03c0\3\2\2\2\u03c0"+
+		"\u00a1\3\2\2\2\u03c1\u03c3\5\6\4\2\u03c2\u03c1\3\2\2\2\u03c3\u03c6\3\2"+
+		"\2\2\u03c4\u03c2\3\2\2\2\u03c4\u03c5\3\2\2\2\u03c5\u03c8\3\2\2\2\u03c6"+
+		"\u03c4\3\2\2\2\u03c7\u03c9\5\u00a4S\2\u03c8\u03c7\3\2\2\2\u03c9\u03ca"+
+		"\3\2\2\2\u03ca\u03c8\3\2\2\2\u03ca\u03cb\3\2\2\2\u03cb\u00a3\3\2\2\2\u03cc"+
+		"\u03cd\7\66\2\2\u03cd\u03ce\5F$\2\u03ce\u03cf\5J&\2\u03cf\u03d0\5d\63"+
+		"\2\u03d0\u00a5\3\2\2\2\u03d1\u03d3\78\2\2\u03d2\u03d4\5\u00a8U\2\u03d3"+
+		"\u03d2\3\2\2\2\u03d4\u03d5\3\2\2\2\u03d5\u03d3\3\2\2\2\u03d5\u03d6\3\2"+
+		"\2\2\u03d6\u03d7\3\2\2\2\u03d7\u03d8\79\2\2\u03d8\u00a7\3\2\2\2\u03d9"+
+		"\u03da\5\u00aaV\2\u03da\u03db\7=\2\2\u03db\u03dd\3\2\2\2\u03dc\u03d9\3"+
+		"\2\2\2\u03dc\u03dd\3\2\2\2\u03dd\u03de\3\2\2\2\u03de\u03df\7;\2\2\u03df"+
+		"\u03e1\5\u00aaV\2\u03e0\u03e2\5\u00a6T\2\u03e1\u03e0\3\2\2\2\u03e1\u03e2"+
+		"\3\2\2\2\u03e2\u03e4\3\2\2\2\u03e3\u03e5\5\6\4\2\u03e4\u03e3\3\2\2\2\u03e5"+
+		"\u03e6\3\2\2\2\u03e6\u03e4\3\2\2\2\u03e6\u03e7\3\2\2\2\u03e7\u03e8\3\2"+
+		"\2\2\u03e8\u03e9\7%\2\2\u03e9\u03ea\5\u00aaV\2\u03ea\u040e\3\2\2\2\u03eb"+
+		"\u03ec\5\u00aaV\2\u03ec\u03ef\7<\2\2\u03ed\u03ee\7=\2\2\u03ee\u03f0\5"+
+		"\u00aaV\2\u03ef\u03ed\3\2\2\2\u03ef\u03f0\3\2\2\2\u03f0\u040e\3\2\2\2"+
+		"\u03f1\u03f2\5\u00aaV\2\u03f2\u03f3\7=\2\2\u03f3\u03f5\3\2\2\2\u03f4\u03f1"+
+		"\3\2\2\2\u03f4\u03f5\3\2\2\2\u03f5\u03f6\3\2\2\2\u03f6\u03f7\7:\2\2\u03f7"+
+		"\u03f9\5d\63\2\u03f8\u03fa\5\u00a6T\2\u03f9\u03f8\3\2\2\2\u03f9\u03fa"+
+		"\3\2\2\2\u03fa\u03fc\3\2\2\2\u03fb\u03fd\5\6\4\2\u03fc\u03fb\3\2\2\2\u03fd"+
+		"\u03fe\3\2\2\2\u03fe\u03fc\3\2\2\2\u03fe\u03ff\3\2\2\2\u03ff\u0400\3\2"+
+		"\2\2\u0400\u0401\7%\2\2\u0401\u0402\5d\63\2\u0402\u040e\3\2\2\2\u0403"+
+		"\u0404\5\u00aaV\2\u0404\u0405\7=\2\2\u0405\u0407\3\2\2\2\u0406\u0403\3"+
+		"\2\2\2\u0406\u0407\3\2\2\2\u0407\u0408\3\2\2\2\u0408\u040b\5d\63\2\u0409"+
+		"\u040c\7>\2\2\u040a\u040c\5\u00a6T\2\u040b\u0409\3\2\2\2\u040b\u040a\3"+
+		"\2\2\2\u040c\u040e\3\2\2\2\u040d\u03dc\3\2\2\2\u040d\u03eb\3\2\2\2\u040d"+
+		"\u03f4\3\2\2\2\u040d\u0406\3\2\2\2\u040e\u00a9\3\2\2\2\u040f\u0412\7\67"+
+		"\2\2\u0410\u0412\5\u0094K\2\u0411\u040f\3\2\2\2\u0411\u0410\3\2\2\2\u0412"+
+		"\u00ab\3\2\2\2\u0413\u0414\7?\2\2\u0414\u0415\5\u00a8U\2\u0415\u00ad\3"+
+		"\2\2\2\u0094\u00b1\u00b7\u00be\u00d2\u00db\u00e4\u00ef\u00f6\u00ff\u0103"+
+		"\u0112\u0116\u011a\u011d\u0127\u012c\u0134\u013b\u0140\u0145\u014d\u015a"+
+		"\u015f\u0163\u016b\u016e\u0175\u017d\u0183\u018a\u0191\u0195\u019d\u01a6"+
+		"\u01a9\u01ac\u01b1\u01b4\u01ba\u01be\u01c5\u01cb\u01d1\u01d3\u01d9\u01dd"+
+		"\u01e3\u01e8\u01ec\u01f2\u0200\u0206\u0213\u0218\u021c\u021e\u0222\u0229"+
+		"\u0230\u0235\u023e\u0242\u0246\u0249\u024e\u0254\u0258\u025b\u0261\u0265"+
+		"\u0267\u026b\u026f\u0275\u0279\u0283\u0286\u0289\u028e\u0291\u0295\u0299"+
+		"\u029d\u02a0\u02a8\u02af\u02b3\u02bb\u02bf\u02c2\u02c6\u02c9\u02cd\u02d8"+
+		"\u02dc\u02df\u02e9\u02eb\u02f3\u02f9\u0304\u0306\u030b\u0310\u0313\u0319"+
+		"\u0320\u0326\u032b\u032e\u0333\u0338\u033b\u033f\u0344\u0349\u0350\u0355"+
+		"\u035a\u0360\u0368\u036a\u0370\u037c\u037f\u0383\u0388\u0392\u039b\u03a0"+
+		"\u03ba\u03bf\u03c4\u03ca\u03d5\u03dc\u03e1\u03e6\u03ef\u03f4\u03f9\u03fe"+
+		"\u0406\u040b\u040d\u0411";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

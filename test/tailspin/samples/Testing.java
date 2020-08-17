@@ -244,13 +244,13 @@ public class Testing {
   }
 
   @Test
-  void mockModifyCoreSystem() throws Exception {
+  void mockShadowCoreSystem() throws Exception {
     String program = "sink hello\n"
             + "  'Hello $;' -> !OUT::write\n"
             + "end hello\n"
 
             + "test 'hello'\n"
-            + "  use modified core-system/\n"
+            + "  use shadowed core-system/\n"
             + "      processor MockOut\n"
             + "        @: [];\n"
             + "        sink write\n"
@@ -278,13 +278,13 @@ public class Testing {
   }
 
   @Test
-  void mockModifyCoreSystemInherits() throws Exception {
+  void mockShadowCoreSystemInherits() throws Exception {
     String program = "sink hello\n"
             + "  'Hello $;' -> !OUT::write\n"
             + "end hello\n"
 
             + "test 'hello'\n"
-            + "  use modified core-system/\n"
+            + "  use shadowed core-system/\n"
             + "      processor MockOut\n"
             + "        @: [];\n"
             + "        sink write\n"
@@ -505,7 +505,7 @@ public class Testing {
 
   @ExtendWith(TempDirectory.class)
   @Test
-  void mockModifyModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void mockShadowModule(@TempDirectory.TempDir Path dir) throws Exception {
     String mockedCore = "processor MockOut\n"
         + "  @: [];\n"
         + "  sink write\n"
@@ -531,7 +531,7 @@ public class Testing {
 
         + "test 'hello'\n"
         + "  use core-system/ from 'mocksys' stand-alone\n"
-        + "  use modified hi\n"
+        + "  use shadowed hi\n"
         + "    with core-system/ inherited\n"
         + "    provided\n"
         + "    sink greet\n"

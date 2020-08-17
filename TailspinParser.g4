@@ -230,6 +230,7 @@ keyword: Include
   | With
   | Provided
   | Modified
+  | Shadowed
   | From
   | Use
 ;
@@ -243,9 +244,10 @@ assertion: Assert valueChain matcher stringLiteral;
 dependencyProvision: With moduleConfiguration+ Provided;
 
 moduleConfiguration:
-  Modified moduleIdentifier? From? stringLiteral? dependencyProvision? statement+ EndDefinition (moduleIdentifier|stringLiteral) #moduleModification
+  (moduleIdentifier From)? Shadowed moduleIdentifier dependencyProvision? statement+ EndDefinition moduleIdentifier #moduleShadowing
+  | moduleIdentifier Inherited (From moduleIdentifier)? #inheritModule
+  | (moduleIdentifier From)? Modified stringLiteral dependencyProvision? statement+ EndDefinition stringLiteral #moduleModification
   | (moduleIdentifier From)? stringLiteral (StandAlone|dependencyProvision) #moduleImport
-  | moduleIdentifier Inherited #inheritModule
 ;
 
 moduleIdentifier: CoreSystem | localIdentifier;
