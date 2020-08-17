@@ -1027,6 +1027,21 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
+  public Object visitModuleModification(ModuleModificationContext ctx) {
+    Value includePath = visitStringLiteral(ctx.stringLiteral(0));
+    List<DefinitionStatement> statements = new ArrayList<>();
+    ctx.statement().forEach(s -> {
+      dependencyCounters.push(new DependencyCounter());
+      Definition statement = (Definition) visit(s);
+      Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
+      statements.add(new DefinitionStatement(statement, requiredDefinitions));
+    });
+    String prefix = visitModuleIdentifier(ctx.moduleIdentifier());
+    List<ModuleProvider> providedDependencies = visitDependencyProvision(ctx.dependencyProvision());
+    return new ModuleModifier(prefix, statements, includePath, providedDependencies);
+  }
+
+  @Override
   public String visitModuleIdentifier(ModuleIdentifierContext ctx) {
     if (ctx == null) return null;
     if (ctx.CoreSystem() != null) return "";

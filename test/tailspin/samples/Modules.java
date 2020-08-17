@@ -98,4 +98,34 @@ public class Modules {
 
     assertEquals("Salut John", output.toString(StandardCharsets.UTF_8));
   }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void useModifiedImport(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "def greeting: 'Hello';\n"
+        + "sink greet\n"
+        + "  '$greeting; $;' -> !OUT::write\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program =
+        "  use modified 'hi'\n"
+            + "  with core-system/ inherited\n"
+            + "  provided\n"
+            + "  def greeting: 'Goodbye';\n"
+            + "  end 'hi'\n"
+        + "sink hello\n"
+        + "  $ -> !hi/greet\n"
+        + "end hello\n"
+
+        + "'John' -> !hello\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("Goodbye John", output.toString(StandardCharsets.UTF_8));
+  }
 }

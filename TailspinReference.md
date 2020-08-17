@@ -631,6 +631,8 @@ Note that modifications (by `shadowed`) to an inherited module only apply to dir
 Usages from within the original module will still use the original definition. Any dependency provision in shadowing
 is only used by the shadowing code.
 
+Modifications to an imported library (by `modified`), however, will replace those symbols also internally in the module.
+
 Each provided module that is not inherited may need its own [module provision](#module-provision) statement for the modules it needs.
 
 If no provided modules are needed for a module that is included from a file, the word `stand-alone` is written instead of a module provision.
