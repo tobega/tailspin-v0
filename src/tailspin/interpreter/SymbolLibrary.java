@@ -1,7 +1,7 @@
 package tailspin.interpreter;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -9,13 +9,13 @@ public class SymbolLibrary {
 
     private final String prefix;
     private final BasicScope depScope;
-    private final List<SymbolLibrary> inheritedProviders;
+    private final Optional<SymbolLibrary> inheritedProvider;
 
     public SymbolLibrary(String prefix,
         BasicScope depScope, List<SymbolLibrary> inheritedProviders) {
         this.prefix = prefix;
         this.depScope = depScope;
-        this.inheritedProviders = inheritedProviders;
+        this.inheritedProvider = inheritedProviders.stream().filter(s -> prefix.equals(s.prefix)).findFirst();
     }
 
     /**
@@ -44,17 +44,14 @@ public class SymbolLibrary {
     }
 
     private void inheritSymbols(Set<String> inheritedSymbols, BasicScope scope) {
-        Set<String> remaining = new HashSet<>(inheritedSymbols);
-        for (SymbolLibrary lib : inheritedProviders) {
-            remaining = lib.installSymbols(remaining, scope);
+        inheritedProvider.ifPresentOrElse(lib -> {
+            Set<String> remaining = lib.installSymbols(inheritedSymbols, scope);
             if (!remaining.isEmpty() && remaining.size() != inheritedSymbols.size()) {
                 throw new IllegalStateException(
                     "Some symbols not provided: " + remaining);
             }
-            if (remaining.isEmpty()) break;
-        }
-        if (!remaining.isEmpty()) throw new IllegalStateException(
-            "Some symbols not provided for " + prefix + ":\n" + remaining);
+        }, () -> {if (!inheritedSymbols.isEmpty()) throw new IllegalStateException(
+            "Some symbols not provided:\n" + inheritedSymbols);});
     }
 
     private Set<String> getProvidedSymbols(Set<String> requiredSymbols) {
