@@ -46,7 +46,7 @@ public class ModuleModifier extends Module implements ModuleProvider {
     }
     Module module = getProgram(depPath);
     module.resolveAll(depScope, providedModules);
-    return new SymbolLibrary(dependencyPrefix, depScope, List.of());
+    return new SymbolLibrary(dependencyPrefix, null, depScope, List.of());
   }
 
   private Program getProgram(Path depPath) {

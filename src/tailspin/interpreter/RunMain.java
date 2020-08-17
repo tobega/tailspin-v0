@@ -55,7 +55,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public IncludedFile visitInclusion(TailspinParser.InclusionContext ctx) {
     Value dependency = visitStringLiteral(ctx.stringLiteral());
-    return new IncludedFile(null, dependency);
+    String prefix = ctx.From() == null ? null : ctx.localIdentifier().getText() + "/";
+    return new IncludedFile(prefix, dependency);
   }
 
   @Override
@@ -1022,8 +1023,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       statements.add(new DefinitionStatement(statement, requiredDefinitions));
     });
     String prefix = visitModuleIdentifier(ctx.moduleIdentifier(0));
+    String inheritedModulePrefix = ctx.From() == null ? prefix : visitModuleIdentifier(ctx.moduleIdentifier(1));
     List<ModuleProvider> providedDependencies = visitDependencyProvision(ctx.dependencyProvision());
-    return new ModuleShadowing(prefix, statements, providedDependencies);
+    return new ModuleShadowing(prefix, inheritedModulePrefix, statements, providedDependencies);
   }
 
   @Override
@@ -1059,6 +1061,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public ModuleProvider visitInheritModule(InheritModuleContext ctx) {
     String prefix = visitModuleIdentifier(ctx.moduleIdentifier(0));
-    return new ModuleInheritance(prefix);
+    String inheritedModulePrefix = ctx.From() == null ? prefix : visitModuleIdentifier(ctx.moduleIdentifier(1));
+    return new ModuleInheritance(prefix, inheritedModulePrefix);
   }
 }

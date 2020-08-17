@@ -191,4 +191,21 @@ public class Includes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(baseDir, input, output, List.of()));
   }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void includeReprefixed(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "templates quote '\"$;\"' ! end quote";
+    Path depFile = dir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "include q from 'dep'\n 1 -> q/quote -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
+  }
 }

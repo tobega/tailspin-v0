@@ -4,7 +4,7 @@ options { tokenVocab = TailspinLexer; }
 
 program: useModule* inclusion* statement (statement)* EOF;
 
-inclusion: Include stringLiteral;
+inclusion: Include (localIdentifier From)? stringLiteral;
 
 statement: Def key valueProduction SemiColon                  # definition
   | valueChain To sink                                   # valueChainToSink

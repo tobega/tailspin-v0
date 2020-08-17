@@ -53,6 +53,6 @@ class ModuleImport implements ModuleProvider {
     Module module = getProgram(depPath);
     BasicScope depScope = new BasicScope(depPath.getParent());
     module.resolveAll(depScope, Module.getModules(providedDependencies, inheritedProviders, depScope));
-    return new SymbolLibrary(dependencyPrefix, depScope, List.of());
+    return new SymbolLibrary(dependencyPrefix, null, depScope, List.of());
   }
 }

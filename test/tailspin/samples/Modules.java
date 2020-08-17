@@ -38,6 +38,26 @@ public class Modules {
 
   @ExtendWith(TempDirectory.class)
   @Test
+  void useRenamedModule(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "templates quote '\"$;\"' ! end quote";
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = "use q from 'module:dep' stand-alone\n 1 -> q/quote -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
   void moduleDoesNotAutomaticallyInheritCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
     String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
@@ -114,6 +134,36 @@ public class Modules {
             + "  provided\n"
             + "  def greeting: 'Goodbye';\n"
             + "  end 'hi'\n"
+        + "sink hello\n"
+        + "  $ -> !hi/greet\n"
+        + "end hello\n"
+
+        + "'John' -> !hello\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("Goodbye John", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void useRenamedModifiedImport(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "def greeting: 'Hello';\n"
+        + "sink greet\n"
+        + "  '$greeting; $;' -> !OUT::write\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi2.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program =
+        "  use hi from modified 'hi2'\n"
+            + "  with core-system/ inherited\n"
+            + "  provided\n"
+            + "  def greeting: 'Goodbye';\n"
+            + "  end 'hi2'\n"
         + "sink hello\n"
         + "  $ -> !hi/greet\n"
         + "end hello\n"

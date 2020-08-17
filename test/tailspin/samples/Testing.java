@@ -554,6 +554,55 @@ public class Testing {
 
   @ExtendWith(TempDirectory.class)
   @Test
+  void mockRenamedShadowModule(@TempDirectory.TempDir Path dir) throws Exception {
+    String mockedCore = "processor MockOut\n"
+        + "  @: [];\n"
+        + "  sink write\n"
+        + "    ..|@MockOut: $;\n"
+        + "  end write\n"
+        + "  source next\n"
+        + "    ^@MockOut(1) !\n"
+        + "  end next\n"
+        + "end MockOut\n"
+        + "def OUT: $MockOut;\n";
+    Path mockedCoreFile = dir.resolve("mocksys.tt");
+    Files.writeString(mockedCoreFile, mockedCore, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String dep = "def greeting: 'Hello';\n"
+        + "sink greet\n"
+        + "  '$greeting; $;' -> !OUT::write\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi2.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "use 'hi2' with core-system/ inherited provided\n"
+        + "sink hello\n"
+        + "  $ -> !hi/greet\n"
+        + "end hello\n"
+
+        + "test 'hello'\n"
+        + "  use core-system/ from 'mocksys' stand-alone\n"
+        + "  use hi from shadowed hi2\n"
+        + "    with core-system/ inherited\n"
+        + "    provided\n"
+        + "    sink greet\n"
+        + "      'Hello, $;' -> !OUT::write\n"
+        + "    end greet\n"
+        + "  end hi2"
+
+        + "  '$hi/greeting; John' -> !hello\n"
+        + "  assert $OUT::next <='Hello, Hello John'> 'Wrote greeting'\n"
+        + "end 'hello'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(dir, input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
   void mockShadowModuleDoesNotAutomaticallyGetInjectedModules(@TempDirectory.TempDir Path dir) throws Exception {
     String mockedCore = "processor MockOut\n"
         + "  @: [];\n"

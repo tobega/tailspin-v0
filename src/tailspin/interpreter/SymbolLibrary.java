@@ -7,15 +7,19 @@ import java.util.stream.Collectors;
 
 public class SymbolLibrary {
 
-    private final String prefix;
+    final String prefix;
+    private final String inheritedModulePrefix;
     private final BasicScope depScope;
     private final Optional<SymbolLibrary> inheritedProvider;
 
     public SymbolLibrary(String prefix,
-        BasicScope depScope, List<SymbolLibrary> inheritedProviders) {
+        String inheritedModulePrefix, BasicScope depScope,
+        List<SymbolLibrary> inheritedProviders) {
         this.prefix = prefix;
+        this.inheritedModulePrefix = inheritedModulePrefix;
         this.depScope = depScope;
-        this.inheritedProvider = inheritedProviders.stream().filter(s -> prefix.equals(s.prefix)).findFirst();
+        this.inheritedProvider = inheritedProviders.stream()
+            .filter(s -> inheritedModulePrefix.equals(s.prefix)).findFirst();
     }
 
     /**
@@ -39,17 +43,21 @@ public class SymbolLibrary {
             .filter(depScope::hasDefinition)
             .forEach(s -> scope.defineValue(prefix + s, depScope.resolveValue(s)));
         return providedSymbols.stream()
-            .map(s -> prefix + s)
-            .filter(s -> !scope.hasDefinition(s)).collect(Collectors.toSet());
+            .filter(s -> !depScope.hasDefinition(s))
+            .collect(Collectors.toSet());
     }
 
     private void inheritSymbols(Set<String> inheritedSymbols, BasicScope scope) {
         inheritedProvider.ifPresentOrElse(lib -> {
-            Set<String> remaining = lib.installSymbols(inheritedSymbols, scope);
+            BasicScope inheritedScope = new BasicScope(scope.basePath());
+            Set<String> remaining = lib.installSymbols(
+                inheritedSymbols.stream().map(s -> inheritedModulePrefix + s).collect(Collectors.toSet()),
+                inheritedScope);
             if (!remaining.isEmpty() && remaining.size() != inheritedSymbols.size()) {
                 throw new IllegalStateException(
                     "Some symbols not provided: " + remaining);
             }
+            inheritedSymbols.forEach(s -> scope.defineValue(prefix + s, inheritedScope.resolveValue(inheritedModulePrefix + s)));
         }, () -> {if (!inheritedSymbols.isEmpty()) throw new IllegalStateException(
             "Some symbols not provided:\n" + inheritedSymbols);});
     }

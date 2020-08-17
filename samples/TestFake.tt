@@ -3,7 +3,7 @@ sink hello
 end hello
 
 test 'hello'
-  use modified core-system/
+  use shadowed core-system/
     processor FakeOut
       @: [];
       sink write

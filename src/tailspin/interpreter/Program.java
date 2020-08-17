@@ -22,7 +22,7 @@ public class Program extends Module {
     super(definitions, includedFiles);
     this.statements = statements;
     this.tests = tests;
-    this.injectedModules = Stream.concat(Stream.of(new ModuleInheritance("")),
+    this.injectedModules = Stream.concat(Stream.of(new ModuleInheritance("", "")),
         injectedModules.stream()).collect(Collectors.toList());
   }
 

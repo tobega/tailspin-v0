@@ -575,16 +575,17 @@ be used as `dep/foo`. Note that the search path is ignored.
 they do not automatically inherit the use of the modules from the main program.
 
 ## Using modules
-*NOTE*: This is being [developed](dependencies.txt) and doesn't fully work yet. This is turning out to be rather
-complex with lots of edge cases to explore. That said, it is unlikely that there will be radical changes to
-the stuff that already works, so it is possible to go ahead and experiment with modules.
-Please report bugs and unexpected behaviour.
+A module is a reusable piece of code. It is often received from someone you perhaps shouldn't completely trust.
+As such, it is important that you are in control of what capabilities you grant to a module.
 
-A module is often a piece of code you have received from someone you perhaps shouldn't completely trust.
-As such, it is important that you are in control of what capabilities you grant to a module. If there seems
-to be no reason for it to use the file system, then you can pass in a dummy file system. Ideally, you should
+For example, if there seems
+to be no reason for a module to use the file system, then you can pass in a dummy file system. Ideally, you should
 be able to just NOT provide a file system and should still be able to work with the parts of a module that
-don't need it.
+don't need it, safe in the knowledge that your files will not be accessed.
+
+You should have full freedom to decide which implementation of a particular set of symbols (a module) is
+used by another module. In particular, you may be using two modules that each want to use a different version of
+a third module.
 
 A module usage is declared by a `use` statement followed by a [module specification](#module-specification).
 
@@ -604,7 +605,8 @@ NOTE: When providing [the core system module](#the-core-system-module) to anothe
 
 ### Module specification
 Modules are primarily identified by a string literal search path and get assigned a prefix the same way as for [including files](#including-files), i.e.
-the last part of the path. When inheriting a module, modified or not, it is referred to by the assigned prefix.
+the last part of the path. When inheriting a module, modified or not, it is simply referred to by the assigned prefix
+as a symbol.
 It is also possible to assign another prefix than the default by using a from-statement `myPrefix from 'myPath'`
 
 Note that when you supply a string literal search path, you will get a new copy of a module, but when you
@@ -615,17 +617,22 @@ access as with [test doubles](#mocking-stubbing-faking).
 A plain search path is interpreted relative to the directory containing the main file and can be anywhere for modules.
 
 There is also the concept of a module path, specified in an environment variable `TAILSPIN_MODULES`.
-Since this is still a java program, it can be specified as a java System property, which is then used
+Since this is still a java program, it may be specified as a java System property, which is then used
 instead of the environment variable. (Used mainly in the junit tests)
-To access modules located there, just start the search path with `module:`
+To access modules located in the module path, just start the search path with `module:`
 
 Some examples of specifying modules are:
 * Loaded from a file by a string literal path specification, optionally with a specified prefix,
-  e.g. `myPrefix from 'myfile' stand-alone`. (new copy of the 'myfile' module)
+  e.g. `myPrefix from 'myfile' stand-alone` or just `'myfile' stand-alone`. (new copy of the 'myfile' module)
+  If you need to provide modules to the module use "with .. provided" instead of "stand-alone": `'myfile' with ...... provided`
 * Inherited as-is, e.g. `myPrefix inherited`. (shared copy of the module with the prefix myPrefix)
-* Inherited with some definitions overridden, e.g. `shadowed myModule ...definitions... end myModule`
+* Inherited renamed, e.g. `myPrefix inherited from theirPrefix`. (shared copy of the module with the prefix theirPrefix now installed as myPrefix)
+* Inherited with some definitions overridden, e.g. `shadowed myModule ...definitions... end myModule`,
+  optionally renamed `myModule from shadowed theirModule ...definitions... end theirModule`.
+  If the shadowing code needs some modules, provide them: `shadowed myModule with ... provided ...definitions... end myModule`
 * Modified loaded from a file by a string literal path specification,
   e.g. `modified 'module:myPath' ...definitions... end 'module:myPath'`.
+  If modules are needed by the modifying code and/or the imported code, provide them: `modified 'file' with .... provided ...definitions... end 'file'`
 
 Note that modifications (by `shadowed`) to an inherited module only apply to direct external usages of the shadowed symbol.
 Usages from within the original module will still use the original definition. Any dependency provision in shadowing
