@@ -644,6 +644,21 @@ Each provided module that is not inherited may need its own [module provision](#
 
 If no provided modules are needed for a module that is included from a file, the word `stand-alone` is written instead of a module provision.
 
+Note that when providing a modified version of a module, if you need access to the original, simply provide it renamed, e.g.:
+```
+use shadowed core-system/
+  with
+    super inherited from core-system/
+  provided
+  processor ShadowOut
+    sink write
+      '-$;-' -> !super/OUT::write
+    end write
+  end ShadowOut
+  def OUT: $ShadowOut;
+end core-system/
+```
+
 ## Testing
 Tests can be defined in a tailspin source file by the keyword `test` followed by a [string literal](#string-literal),
 a series of assertions (at least one), interspersed by optional statements as needed to set up state,

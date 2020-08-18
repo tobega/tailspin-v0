@@ -66,7 +66,7 @@ public class Module {
       SymbolLibrary provided = provider.installDependencies(
           Stream.concat(libs.stream(), inheritedModules.stream()).collect(Collectors.toList()),
           scope);
-      libs.add(provided);
+      libs.add(0, provided);
     }
     return libs;
   }

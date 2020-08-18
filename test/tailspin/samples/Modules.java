@@ -178,4 +178,58 @@ public class Modules {
 
     assertEquals("Goodbye John", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void wrapCore() throws Exception {
+    String program = "use shadowed core-system/ with super inherited from core-system/ provided\n"
+        + "  processor ShadowOut\n"
+        + "    sink write\n"
+        + "      '-$;-' -> !super/OUT::write\n"
+        + "    end write\n"
+        + "  end ShadowOut\n"
+        + "  def OUT: $ShadowOut;\n"
+        + "end core-system/\n"
+        + "'Hello World' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("-Hello World-", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void moduleInheritsWrappedCore(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = "def greeting: 'Salut';\n"
+        + "sink greet\n"
+        + "  '$greeting; $;' -> !OUT::write\n"
+        + "end greet";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "use shadowed core-system/ with super inherited from core-system/ provided\n"
+        + "  processor ShadowOut\n"
+        + "    sink write\n"
+        + "      '-$;-' -> !super/OUT::write\n"
+        + "    end write\n"
+        + "  end ShadowOut\n"
+        + "  def OUT: $ShadowOut;\n"
+        + "end core-system/\n"
+        + "use 'hi' with core-system/ inherited provided\n"
+        + "sink hello\n"
+        + "  $ -> !hi/greet\n"
+        + "end hello\n"
+
+        + "'John' -> !hello\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("-Salut John-", output.toString(StandardCharsets.UTF_8));
+  }
 }
