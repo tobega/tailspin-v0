@@ -11,7 +11,7 @@ class ModuleImport implements ModuleProvider {
   // @Nullable
   final String prefix;
   final Value specifier;
-  private final List<ModuleProvider> providedDependencies;
+  final List<ModuleProvider> providedDependencies;
 
   ModuleImport(/*@Nullable*/ String prefix, Value specifier,
       List<ModuleProvider> providedDependencies) {
@@ -30,7 +30,7 @@ class ModuleImport implements ModuleProvider {
   }
 
   @Override
-  public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedProviders, BasicScope scope) {
+  public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, BasicScope scope) {
     String dependency = (String) specifier.getResults(null, scope);
     Path basePath = scope.basePath();
     if (dependency.startsWith("module:")) {
@@ -52,7 +52,12 @@ class ModuleImport implements ModuleProvider {
     }
     Module module = getProgram(depPath);
     BasicScope depScope = new BasicScope(depPath.getParent());
-    module.resolveAll(depScope, Module.getModules(providedDependencies, inheritedProviders, depScope));
+    module.resolveAll(depScope, getModulesAndPrepScope(inheritedModules, depScope));
     return new SymbolLibrary(dependencyPrefix, null, depScope, List.of());
+  }
+
+  List<SymbolLibrary> getModulesAndPrepScope(List<SymbolLibrary> inheritedModules,
+      BasicScope depScope) {
+    return Module.getModules(providedDependencies, inheritedModules, depScope);
   }
 }
