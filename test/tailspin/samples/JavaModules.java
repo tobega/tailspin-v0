@@ -1,6 +1,7 @@
 package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -78,5 +79,45 @@ public class JavaModules {
     runner.run(input, output, List.of());
 
     assertEquals("128", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void doubleResultCannotBeUsedInArithmetic() throws Exception {
+    String program = "use 'java:java.lang' stand-alone\n"
+        + "[30] -> lang/Math::toRadians -> $ + 1 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void doubleResultReusedAsParameter() throws Exception {
+    String program = "use 'java:java.lang' stand-alone\n"
+        + "[[90] -> lang/Math::toRadians] -> lang/Math::toDegrees -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("90.0", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void useMostSpecificMethodForDoubles() throws Exception {
+    String program = "use 'java:java.lang' stand-alone\n"
+        + "[[[90] -> lang/Math::toRadians, [180] -> lang/Math::toRadians] -> lang/Math::max] -> lang/Math::toDegrees -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("180.0", output.toString(StandardCharsets.UTF_8));
   }
 }

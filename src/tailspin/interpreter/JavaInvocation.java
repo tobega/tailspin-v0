@@ -45,6 +45,23 @@ class JavaInvocation implements Transform {
     numberTypeConversions.put(Float.class, (o) -> ((Number) o).floatValue());
   }
 
+  private static final Map<Class<?>, Function<Object, Object>> resultTypeConversions = new HashMap<>();
+
+  static {
+    resultTypeConversions.put(long.class, Function.identity());
+    resultTypeConversions.put(Long.class, Function.identity());
+    resultTypeConversions.put(int.class, (o) -> ((Number) o).longValue());
+    resultTypeConversions.put(Integer.class, (o) -> ((Number) o).longValue());
+    resultTypeConversions.put(short.class, (o) -> ((Number) o).longValue());
+    resultTypeConversions.put(Short.class, (o) -> ((Number) o).longValue());
+    resultTypeConversions.put(byte.class, (o) -> ((Number) o).longValue());
+    resultTypeConversions.put(Byte.class, (o) -> ((Number) o).longValue());
+    resultTypeConversions.put(double.class, JavaObject::new);
+    resultTypeConversions.put(Double.class, JavaObject::new);
+    resultTypeConversions.put(float.class, JavaObject::new);
+    resultTypeConversions.put(Float.class, JavaObject::new);
+  }
+
   private final Class<?> c;
   private final Object o;
   private final String message;
@@ -60,7 +77,7 @@ class JavaInvocation implements Transform {
     @SuppressWarnings("unchecked")
     List<Object> params = (List<Object>) it;
     Method bestM = null;
-    int leastPenalty = 1000;
+    int leastPenalty = 999;
     for (Method m : c.getMethods()) {
       if (!m.getName().equals(message)) {
         continue;
@@ -69,7 +86,13 @@ class JavaInvocation implements Transform {
         continue;
       }
       int penalty = 0;
-      for (Parameter p : m.getParameters()) {
+      Parameter[] methodParameters = m.getParameters();
+      for (int i = 0; i < methodParameters.length; i++) {
+        Parameter p = methodParameters[i];
+        if (params.get(i) instanceof JavaObject) {
+          penalty += calculatePenalty((JavaObject) params.get(i), p.getType());
+          continue;
+        }
         if (!numberTypePenalties.containsKey(p.getType())) continue;
         penalty += numberTypePenalties.get(p.getType());
       }
@@ -89,15 +112,45 @@ class JavaInvocation implements Transform {
     List<Object> invokeParams = new ArrayList<>();
     for (Parameter p : bestM.getParameters()) {
       Object param = params.get(invokeParams.size());
-      if (numberTypeConversions.containsKey(p.getType())) {
+      if (param instanceof JavaObject) {
+        param = ((JavaObject) param).getRealObject();
+      } else if (numberTypeConversions.containsKey(p.getType())) {
         param = numberTypeConversions.get(p.getType()).apply(param);
       }
       invokeParams.add(param);
     }
     try {
-      return bestM.invoke(o, invokeParams.toArray());
+      return tailspinTypeOf(bestM.invoke(o, invokeParams.toArray()));
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e.getCause());
     }
+  }
+
+  private int calculatePenalty(JavaObject obj, Class<?> type) {
+    if (type.equals(float.class)) {
+      if (obj.getRealObject().getClass().equals(Float.class)) return 0;
+      if (obj.getRealObject().getClass().equals(Double.class)) return 2;
+      return 999;
+    }
+    if (type.equals(double.class)) {
+      if (obj.getRealObject().getClass().equals(Double.class)) return 0;
+      if (obj.getRealObject().getClass().equals(Float.class)) return 1;
+      return 999;
+    }
+    int penalty = 0;
+    Class<?> cls = obj.getClass();
+    if (!type.isAssignableFrom(cls)) return 999;
+    while(!Object.class.equals(cls) && type.isAssignableFrom(cls.getSuperclass())) {
+      penalty++;
+      cls = cls.getSuperclass();
+    }
+    return penalty;
+  }
+
+  private Object tailspinTypeOf(Object result) {
+    if (resultTypeConversions.containsKey(result.getClass())) {
+      return resultTypeConversions.get(result.getClass()).apply(result);
+    }
+    return result;
   }
 }
