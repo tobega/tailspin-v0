@@ -69,7 +69,7 @@ public class JavaModules {
   @Test
   void integerArgument() throws Exception {
     String program = "use 'java:java.lang' stand-alone\n"
-        + "['ff', 16] -> lang/Byte::parseByte -> $ + 1 -> !OUT::write";
+        + "['7f', 16] -> lang/Byte::parseByte -> $ + 1 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -77,6 +77,6 @@ public class JavaModules {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("256", output.toString(StandardCharsets.UTF_8));
+    assertEquals("128", output.toString(StandardCharsets.UTF_8));
   }
 }
