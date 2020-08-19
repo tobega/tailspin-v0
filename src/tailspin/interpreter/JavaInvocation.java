@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -76,9 +77,28 @@ class JavaInvocation implements Transform {
   public Object getResults(Object it, Map<String, Object> unused) {
     @SuppressWarnings("unchecked")
     List<Object> params = (List<Object>) it;
-    Method bestM = null;
+    Executable[] methods = c.getMethods();
+    Executable bestM = getBestExecutable(params, methods, message);
+    if (bestM == null)
+      throw new IllegalStateException(
+          "Unknown method "
+              + message
+              + " on class "
+              + c.getName()
+              + " for parameters "
+              + params);
+    Object[] invokeParams = getInvocationParameters(params, bestM);
+    try {
+      return tailspinTypeOf(((Method) bestM).invoke(o, invokeParams));
+    } catch (IllegalAccessException | InvocationTargetException e) {
+      throw new RuntimeException(e.getCause());
+    }
+  }
+
+  static Executable getBestExecutable(List<Object> params, Executable[] methods, String message) {
+    Executable bestM = null;
     int leastPenalty = 999;
-    for (Method m : c.getMethods()) {
+    for (Executable m : methods) {
       if (!m.getName().equals(message)) {
         continue;
       }
@@ -101,14 +121,10 @@ class JavaInvocation implements Transform {
         bestM = m;
       }
     }
-    if (bestM == null)
-      throw new IllegalStateException(
-          "Unknown method "
-              + message
-              + " on class "
-              + c.getCanonicalName()
-              + " for parameters "
-              + params);
+    return bestM;
+  }
+
+  static Object[] getInvocationParameters(List<Object> params, Executable bestM) {
     List<Object> invokeParams = new ArrayList<>();
     for (Parameter p : bestM.getParameters()) {
       Object param = params.get(invokeParams.size());
@@ -119,22 +135,19 @@ class JavaInvocation implements Transform {
       }
       invokeParams.add(param);
     }
-    try {
-      return tailspinTypeOf(bestM.invoke(o, invokeParams.toArray()));
-    } catch (IllegalAccessException | InvocationTargetException e) {
-      throw new RuntimeException(e.getCause());
-    }
+    return invokeParams.toArray();
   }
 
-  private int calculatePenalty(JavaObject obj, Class<?> type) {
+  private static int calculatePenalty(JavaObject obj, Class<?> type) {
     if (type.equals(float.class)) {
       if (obj.getRealObject().getClass().equals(Float.class)) return 0;
       if (obj.getRealObject().getClass().equals(Double.class)) return 2;
+      if (Number.class.isAssignableFrom(obj.getRealObject().getClass())) return 1;
       return 999;
     }
     if (type.equals(double.class)) {
       if (obj.getRealObject().getClass().equals(Double.class)) return 0;
-      if (obj.getRealObject().getClass().equals(Float.class)) return 1;
+      if (Number.class.isAssignableFrom(obj.getRealObject().getClass())) return 1;
       return 999;
     }
     int penalty = 0;
