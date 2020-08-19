@@ -134,4 +134,46 @@ public class JavaModules {
 
     assertEquals("{}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void callObjectMethod() throws Exception {
+    String program = "use 'java:java.util' stand-alone\n"
+        + "def map: [] -> util/HashMap; [] -> map::isEmpty -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("true", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void callVoidMethod() throws Exception {
+    String program = "use 'java:java.util' stand-alone\n"
+        + "def map: [] -> util/HashMap; ['foo', 'bar'] -> !map::put $map -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{foo=bar}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void useZeroParameterMethodsAsSources() throws Exception {
+    String program = "use 'java:java.util' stand-alone\n"
+        + "def map: $util/HashMap; $map::isEmpty -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("true", output.toString(StandardCharsets.UTF_8));
+  }
 }

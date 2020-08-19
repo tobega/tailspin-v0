@@ -1,6 +1,10 @@
 package tailspin.interpreter;
 
-public class JavaObject {
+import java.util.Map;
+import tailspin.types.Processor;
+import tailspin.types.Transform;
+
+public class JavaObject implements Processor {
 
   private final Object o;
 
@@ -15,5 +19,10 @@ public class JavaObject {
   @Override
   public String toString() {
     return o.toString();
+  }
+
+  @Override
+  public Transform resolveMessage(String message, Map<String, Object> parameters) {
+    return new JavaInvocation(o.getClass(), o, message);
   }
 }

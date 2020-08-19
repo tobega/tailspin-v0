@@ -76,7 +76,7 @@ class JavaInvocation implements Transform {
   @Override
   public Object getResults(Object it, Map<String, Object> unused) {
     @SuppressWarnings("unchecked")
-    List<Object> params = (List<Object>) it;
+    List<Object> params = it == null ? List.of() : (List<Object>) it;
     Executable[] methods = c.getMethods();
     Executable bestM = getBestExecutable(params, methods, message);
     if (bestM == null)
@@ -161,6 +161,7 @@ class JavaInvocation implements Transform {
   }
 
   private Object tailspinTypeOf(Object result) {
+    if (result == null) return null;
     if (resultTypeConversions.containsKey(result.getClass())) {
       return resultTypeConversions.get(result.getClass()).apply(result);
     }
