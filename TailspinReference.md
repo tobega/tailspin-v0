@@ -5,8 +5,6 @@ More thoughts in [my notes](notes.txt).
 Note that you may think that concepts in the language already have other established names that
 should have been used instead. This is deliberate in order to free the mind of preconceived notions. 
 
-_Current limitations_: The current implementation cannot handle very deep recursion.
-
 ## Basic structure
 A typical tailspin statement starts with a [source](#sources) for a value,
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
@@ -701,3 +699,28 @@ test 'hello'
   assert $OUT::next <='Hello John'> 'Wrote greeting'
 end 'hello'
 ```
+
+## Calling java code
+_NOTE:_ This is a temporary measure (for a few years) to allow using Tailspin for everything and allowing
+experimentation with tailspin API:s. Ideally tailspin modules will be created that encapsulate the java usage.
+
+Java packages (either from the JVM or supplied in the classpath) can be imported as modules by the "java:" module type,
+e.g. `use 'java:java.util' stand-alone` will let you use any public class in the java.util package. A java
+module is always provided stand-alone, but by java rules it can access anything in the classpath.
+
+A java class, referenced as e.g. `util/HashMap` is both a [processor](#processors) instance that handles
+messages corresponding to static methods and a processor constructor.
+
+Java methods are called with a list/array of parameters as the current value, e.g. `[5, 3] -> lang/Math::max` will return a `5`.
+Void methods may be called as [sinks](#sinks) and methods without parameters msay be called as [sources](#sources),
+e.g. `def map: $util/HashMap; ['foo', 2] -> !map::put`
+
+Integral values (byte, short, int, long) are automatically converted to tailspin integers (unless you specifically
+construct the value, e.g. `[5] -> lang/Byte::valueOf` which becomes a java Byte object)
+
+Other java objects are treated separately from tailspin objects and are [processors](#processors) that handle
+the instance methods on the object.
+
+Fields are currently not accessible, which makes using boolean values and enums a bit of a pain.
+
+The null value is currently not representable in tailspin code.
