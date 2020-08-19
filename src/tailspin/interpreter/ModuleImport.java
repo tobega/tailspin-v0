@@ -32,6 +32,11 @@ class ModuleImport implements ModuleProvider {
   @Override
   public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, BasicScope scope) {
     String dependency = (String) specifier.getResults(null, scope);
+    if (dependency.startsWith("java:")) {
+      BasicScope depScope = new BasicScope(scope.basePath());
+      getModulesAndPrepScope(inheritedModules, depScope);
+      return new JavaSymbolLibrary(dependency.substring("java:".length()), depScope);
+    }
     Path basePath = scope.basePath();
     if (dependency.startsWith("module:")) {
       dependency = dependency.substring("module:".length());

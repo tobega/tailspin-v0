@@ -9,7 +9,7 @@ public class SymbolLibrary {
 
     final String prefix;
     private final String inheritedModulePrefix;
-    private final BasicScope depScope;
+    BasicScope depScope;
     private final Optional<SymbolLibrary> inheritedProvider;
 
     public SymbolLibrary(String prefix,
@@ -37,8 +37,7 @@ public class SymbolLibrary {
      * Resolves the symbols provided by this module, returning any which are to be installed
      * from inherited modules.
      */
-    private Set<String> resolveSymbols(Set<String> providedSymbols,
-        BasicScope scope) {
+    Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
         providedSymbols.stream()
             .filter(depScope::hasDefinition)
             .forEach(s -> scope.defineValue(prefix + s, depScope.resolveValue(s)));
