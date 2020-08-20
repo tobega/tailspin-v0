@@ -3,7 +3,7 @@ templates bubblesort
     @: 1;
     1..$-1 -> #
     $@ !
-    <?($@bubblesort($+1) <..~$@bubblesort($)>)>
+    when <?($@bubblesort($+1) <..~$@bubblesort($)>)> do
       @: $;
       def temp: $@bubblesort($@);
       @bubblesort($@): $@bubblesort($@+1);
@@ -14,7 +14,7 @@ templates bubblesort
   $::length -> #
   $@ !
 
-  <2..>
+  when <2..> do
     $ -> bubble -> #
 end bubblesort
 

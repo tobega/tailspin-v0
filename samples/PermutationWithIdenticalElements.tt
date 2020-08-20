@@ -1,13 +1,13 @@
 templates distinctPerms
   templates perms
-    <[](1)> $(1) !
-    <>
+    when <[](1)> do $(1) !
+    otherwise
       def elements: $;
       1..$::length -> \(
         def k: $;
         def tail: $elements -> \[i](
-          <?($i <=$k>)> $ -> \(<[](2..)> $(2..last)!\) !
-          <> $!
+          when <?($i <=$k>)> do $ -> \(when <[](2..)> do $(2..last)!\) !
+          otherwise $!
         \);
         $tail -> perms -> [$elements($k;1), $...] !
       \) !

@@ -1,12 +1,12 @@
 templates fizz
   $ mod 3 -> #
-  <=0> 'Fizz' !
+  when <=0> do 'Fizz' !
 end fizz
 
 templates buzz
   $ mod 5 -> #
-  <=0> 'Buzz' !
+  when <=0> do 'Buzz' !
 end buzz
 
-[ 1..100 -> '$->fizz;$->buzz;' ] -> \[i](<''> $i ! <> $ !\)... -> '$;
+[ 1..100 -> '$->fizz;$->buzz;' ] -> \[i](when <''> do $i ! otherwise $ !\)... -> '$;
 ' -> !OUT::write

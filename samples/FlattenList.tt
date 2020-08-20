@@ -1,8 +1,8 @@
 templates flatten
   [ $ -> # ] !
-  <[]>
+  when <[]> do
     $... -> #
-  <>
+  otherwise
     $ !
 end flatten
 

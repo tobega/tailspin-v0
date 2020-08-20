@@ -2,10 +2,10 @@ templates mergesort
   templates merge
     @: $(2);
     [ $(1)... -> \(
-      <?($@merge<[](0)>)
-      | ..$@merge(1)>
+      when <?($@merge<[](0)>)
+      | ..$@merge(1)> do
         $ !
-      <>
+      otherwise
         ^@merge(1) !
         $ -> #
      \),
@@ -13,8 +13,8 @@ templates mergesort
   end merge
   $ -> #
 
-  <[](0..1)> $!
-  <>
+  when <[](0..1)> do $!
+  otherwise
     def half: $::length ~/ 2;
     [$(1..$half) -> mergesort, $($half+1..last) -> mergesort] -> merge !
 end mergesort

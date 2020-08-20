@@ -7,16 +7,16 @@ templates queens
       def minor: $ - $prev::length - 1;
       def major: $ + $prev::length + 1;
       // If prev is not an array that contains row, send it on...
-      $prev -> \(<~[<=$row>]> $ !\)
-            -> \(<?($ -> \[i]($ - $i !\) <~[<=$minor>]>)> $ !\)
-            -> \(<?($ -> \[i]($ + $i !\) <~[<=$major>]>)> $ !\)
+      $prev -> \(when <~[<=$row>]> do $ !\)
+            -> \(when <?($ -> \[i]($ - $i !\) <~[<=$minor>]>)> do $ !\)
+            -> \(when <?($ -> \[i]($ + $i !\) <~[<=$major>]>)> do $ !\)
             -> [ $..., $row] !
     end addIfPossible
     1..$n -> addIfPossible !
   end addColumn
   1..$n -> [$] -> #
-  <[]($n)> $ !
-  <> $ -> addColumn -> #
+  when <[]($n)> do $ !
+  otherwise $ -> addColumn -> #
 end queens
 
 def solutions: [ 8 -> queens ];

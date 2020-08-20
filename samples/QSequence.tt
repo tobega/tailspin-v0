@@ -3,10 +3,10 @@ templates q
   def until: $(2);
   @: [1,1];
   1..$until -> #
-  <$@::length~..>
+  when <$@::length~..> do
     ..|@: $@($ - $@($ - 1)) + $@($ - $@($ - 2));
     $ -> #
-  <$outputFrom..>
+  when <$outputFrom..> do
     $@($) !
 end q
 
@@ -22,7 +22,7 @@ templates countDownSteps
   def qs: $;
   2..$qs::length -> #
   $@ !
-  <?($qs($) <..~$qs($-1)>)> @: $@ + 1;
+  when <?($qs($) <..~$qs($-1)>)> do @: $@ + 1;
 end countDownSteps
 
 [[1, 100000] -> q] -> countDownSteps -> 'Less than previous $; times' -> !OUT::write

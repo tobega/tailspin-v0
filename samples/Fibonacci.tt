@@ -1,10 +1,10 @@
 templates nthFibonacci
   { N: $, n0: 0, n1: 1 } -> #
-  <{ N: <=0> }>
+  when <{ N: <=0> }> do
     $.n0 !
-  <{ N: <1..>}>
+  when <{ N: <1..>}> do
     { N: $.N - 1, n0: $.n1, n1: $.n0 + $.n1} -> #
-  <>
+  otherwise
     { N: $.N + 1, n1: $.n0, n0: $.n1 - $.n0} -> #
 end nthFibonacci
 

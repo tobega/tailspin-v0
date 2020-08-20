@@ -4,14 +4,14 @@ templates sieve
   1 -> #
   $@ !
 
-  <..$@::length ?($@($) * $@($) <..$limit>)>
+  when <..$@::length ?($@($) * $@($) <..$limit>)> do
     templates sift
       def prime: $;
       @: $prime * $prime;
       @sieve: [ $@sieve... -> # ];
-      <..~$@>
+      when <..~$@> do
         $ !
-      <$@~..>
+      when <$@~..> do
         @: $@ + $prime;
         $ -> #
     end sift

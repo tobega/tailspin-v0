@@ -11,6 +11,9 @@ templates transpose
   [ 1..$n -> $a(1..last; $) ] !
 end transpose
 
+'
+' -> !OUT::write
+
 [$x, $y, $z] -> transpose... -> '$...;
 ' -> !OUT::write
 
@@ -21,12 +24,18 @@ def w: [1];
 templates transpose2
   @: [];
   $... -> \[i](
-    <?($i <..$@transpose2::length>)> ..|@transpose2($i): $;
-    <> ..|@transpose2: [$];\) -> !VOID
+    when <?($i <..$@transpose2::length>)> do ..|@transpose2($i): $;
+    otherwise ..|@transpose2: [$];\) -> !VOID
   $@ !
 end transpose2
 
+'
+' -> !OUT::write
+
 [$x, $y, $z] -> transpose2... -> '$...;
+' -> !OUT::write
+
+'
 ' -> !OUT::write
 
 [$u,$v,$w] -> transpose2... -> '$...;

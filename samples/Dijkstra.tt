@@ -1,13 +1,16 @@
 templates shortestPaths&{graph:}
   @: [];
   [ {to: $, distance: 0, path:[]} ] -> #
-  <[](0)> $@ !
-  <>
-    def closest: $ -> \(@: $(1); $(2..last)... -> # $@! <{distance: <..~$@.distance>}> @: $;\);
+  when <[](0)> do $@ !
+  otherwise
+    def closest: $ -> \(@: $(1);
+      $(2..last)... -> #
+      $@!
+      when <{distance: <..~$@.distance>}> do @: $;\);
     $closest -> ..|@: $;
     def path: [ $closest.path..., $closest.to ];
-    [ $... -> \(<{to: <~=$closest.to>}> $!\),
-      $graph... -> \(<?($.edge(1) <=$closest.to>) ?($@shortestPaths <~[<{to: <=$.edge(2)>}>]>)> $!\)
+    [ $... -> \(when <{to: <~=$closest.to>}> do $!\),
+      $graph... -> \(when <?($.edge(1) <=$closest.to>) ?($@shortestPaths <~[<{to: <=$.edge(2)>}>]>)> do $!\)
         -> { to: $.edge(2), distance: $.cost + $closest.distance, path: $path} ] -> #
 end shortestPaths
 

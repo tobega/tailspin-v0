@@ -5,20 +5,20 @@ templates quicksort
     def pivot: $@quicksort($first);
     [ $(1) + 1, $(2)  ] -> #
 
-    <?($(2) <..~$(1)>)>
+    when <?($(2) <..~$(1)>)> do
       def limit: $(2);
       @quicksort($first): $@quicksort($limit);
       @quicksort($limit): $pivot;
       [ $first, $limit - 1 ] !
       [ $limit + 1, $last ] !
 
-    <?($@quicksort($(2)) <$pivot~..>)>
+    when <?($@quicksort($(2)) <$pivot~..>)> do
       [ $(1), $(2) - 1] -> #
 
-    <?($@quicksort($(1)) <..$pivot>)>
+    when <?($@quicksort($(1)) <..$pivot>)> do
       [ $(1) + 1, $(2)] -> #
 
-    <>
+    otherwise
       def temp: $@quicksort($(1));
       @quicksort($(1)): $@quicksort($(2));
       @quicksort($(2)): $temp;
@@ -28,7 +28,7 @@ templates quicksort
   [1, $@::length] -> #
   $@ !
 
-  <?($(1) <..~$(2)>)>
+  when <?($(1) <..~$(2)>)> do
     $ -> partial -> #
 end quicksort
 

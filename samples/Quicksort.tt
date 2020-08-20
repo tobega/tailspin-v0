@@ -1,15 +1,15 @@
 templates quicksort
   @: [];
   $ -> #
-  <[](2..)>
+  when <[](2..)> do
     def pivot: $(1);
     [ [ $(2..last)... -> \(
-      <..$pivot>
+      when <..$pivot> do
         $ !
-      <>
+      otherwise
         ..|@quicksort: $;
      \)] -> quicksort..., $pivot, $@ -> quicksort... ] !
-   <>
+   otherwise
      $ !
 end quicksort
 

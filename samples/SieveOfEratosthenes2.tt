@@ -5,7 +5,7 @@ templates sieve
   2..$limit -> #
   $@ -> \[i](<=1> $i !\) !
 
-  <?($@($) <=1>)>
+  when <?($@($) <=1>)> do
     def prime2: $ * $;
     $prime2..$limit:$ -> @sieve($): 0;
 end sieve

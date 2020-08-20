@@ -1,6 +1,6 @@
 templates permutations
-  <=1> [1] !
-  <>
+  when <=1> do [1] !
+  otherwise
     def n: $;
     templates expand
       def p: $;
@@ -17,12 +17,12 @@ def alpha: ['ABCD'...];
 ' -> !OUT::write
 
 templates lexicalPermutations
-  <=1> [1] !
-  <>
+  when <=1> do [1] !
+  otherwise
     def n: $;
     def p: [ $n - 1 -> lexicalPermutations ];
     1..$n -> \(def k: $;
-      def tail: [1..$n -> \(<~=$k> $ !\)];
+      def tail: [1..$n -> \(when <~=$k> do $ !\)];
       $p... -> [ $k, $tail($)...] !\) !
 end lexicalPermutations
 

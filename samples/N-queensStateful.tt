@@ -1,10 +1,10 @@
 templates queens
   def n: $;
   templates getRowColumn
-    <?($@queens.freeRows($.r) <=0>)> 0 !
-    <?($@queens.freeMaxs($.r + $.c) <=0>)> 0 !
-    <?($@queens.freeMins($.c - $.r + $n) <=0>)> 0 !
-    <> 1!
+    when <?($@queens.freeRows($.r) <=0>)> do 0 !
+    when <?($@queens.freeMaxs($.r + $.c) <=0>)> do 0 !
+    when <?($@queens.freeMins($.c - $.r + $n) <=0>)> do 0 !
+    otherwise 1!
   end getRowColumn
 
   sink setRowColumn
@@ -17,9 +17,9 @@ templates queens
   templates placeQueen
     def c: $;
     1 -> #
-    <=-1> 1! // Use -1 to signal successful completion
-    <=$n+1> 0 !
-    <?({r: $, c: $c} -> getRowColumn <=1>)>
+    when <=-1> do 1! // Use -1 to signal successful completion
+    when <=$n+1> do 0 !
+    when <?({r: $, c: $c} -> getRowColumn <=1>)> do
       def r: $;
       @queens.queenRows($r): $c;
       {r: $, c: $c, val: 0} -> !setRowColumn
@@ -28,7 +28,7 @@ templates queens
         <>
           {r: $r, c: $c, val: 1} -> !setRowColumn
           $r + 1 !\) -> #
-    <> $ + 1 -> #
+    otherwise $ + 1 -> #
   end placeQueen
 
   @: { freeRows: [1..$n -> 1],

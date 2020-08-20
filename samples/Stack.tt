@@ -15,8 +15,8 @@ processor Stack
 
   source empty
     $@Stack::length -> #
-    <=0> 1 !
-    <> 0 !
+    when <=0> do 1 !
+    otherwise 0 !
   end empty
 end Stack
 
