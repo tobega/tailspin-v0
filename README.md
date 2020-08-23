@@ -1,5 +1,14 @@
 # tailspin-v0
-A programming language with extreme pattern matching and declarative syntax, hopefully different enough to be interesting.
+Tailspin simplifies data transfer and the processing of data according to rules and conditions.
+Thanks to its declarative data structures and corresponding condition matching syntax,
+many algorithms look exactly like the specification, for example, compare the
+[json parser](https://github.com/tobega/tailspin-v0/blob/master/samples/JSON.tt#L14)
+and the [json specification](https://www.json.org/json-en.html).
+
+Despite the grounding in business data processing, Tailspin turns out to be fun to use and has been
+used for the [adventofcode](https://adventofcode.com/) events of [2018](https://github.com/tobega/aoc2018)
+and [2019](https://github.com/tobega/aoc2019)
+
 The inspiration comes mostly from xslt, but data structures are json-like. The main idea is to let your data flow through
 a series of transforms so it should be easy to specify that flow. Transform steps can be specified as a set of templates with
 pattern-matching determining which template to apply. Output is generally specified as literals with interpolation of values.
