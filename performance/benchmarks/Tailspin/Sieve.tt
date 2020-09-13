@@ -16,4 +16,4 @@ templates runAndVerify
   <> 0 !
 end runAndVerify
 
-1 -> harness/run&{name: 'List', benchmark:runAndVerify} -> !VOID
+1 -> harness/run&{name: 'Sieve', benchmark:runAndVerify} -> !VOID
