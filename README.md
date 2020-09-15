@@ -15,7 +15,8 @@ pattern-matching determining which template to apply. Output is generally specif
 For more info see the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html)
  and the [language reference documentation](TailspinReference.md)
 
-Some of my thinking that went into tailspin is [elaborated here](https://cygni.se/the-perfect-programming-language/).
+Some of my thinking that went into tailspin is elaborated in my [perfect programming language essay](https://cygni.se/the-perfect-programming-language/)
+and in my [multidimensional plasma essay](https://cygni.se/is-your-programming-language-made-of-multidimensional-plasma/).
 
 ## Status
 The syntax has been mainly determined to be sane and runnable. Did Adventofcode 2019 in Tailspin, found and fixed issues.
@@ -26,13 +27,13 @@ Next step is up in the air. Thoughts somewhere on the roadmap are in [my notes](
 
 ## Code samples
 Small code samples can be found in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
-Development is driven by code snippets in the [test/tailspin/samples folder](https://github.com/tobega/tailspin-v0/tree/master/test/tailspin/samples).
+Development is driven by unit test code snippets in the [test/tailspin/samples folder](https://github.com/tobega/tailspin-v0/tree/master/test/tailspin/samples).
 
 Larger example programs where I developed a tentative syntax are the [.tt files here](https://github.com/tobega/aoc2018) where the
 problems are taken from [adventofcode 2018](https://adventofcode.com/2018) and the numbers in the filename match the day. These have now all been reworked to
 be runnable.
 
-Also did [adventofcode 2019](https://adventofcode.com/2019) in Tailspin in [my repository](https://github.com/tobega/aoc2019)
+I also did [adventofcode 2019](https://adventofcode.com/2019) in Tailspin in [my repository](https://github.com/tobega/aoc2019)
 
 Examples can also be found at [Rosetta code](http://www.rosettacode.org/wiki/Category:Tailspin)
 
@@ -46,7 +47,7 @@ To build from source, clone this repo and use Apache Ant and run "ant jar" in th
 If you want to compile it your own way, set the compiled .class files on your
 classpath and execute `java tailspin.Tailspin path_to_your_program`
 Oh, you'll need the antlr4 java runtime on your classpath as well, http://antlr4.org
-In my setup this ends up as `java -cp out/production/tailspin-v0/:lib/antlr-runtime-4.7.2.jar tailspin.Tailspin samples/FizzBuzz.tt`
+In my setup this ends up as `java -cp out/production/tailspin-v0/:lib/antlr-runtime-4.8.jar tailspin.Tailspin samples/FizzBuzz.tt`
 
 ## Mucking about with the parser and lexer
 Generate code by
@@ -73,4 +74,4 @@ Happy to accept contributions that fix up the build system and make it easier to
 Happy to accept suggestions for cleaning up the code.
 
 Happy to accept contributions that aim to move this beyond interpreter stage (well, guess that would be another project, tailspin-v1).
-My basic idea is to finally have a runtime engine, I think the Dart VM might be a good match.
+My basic idea is to finally have a dedicated Tailspin vm.

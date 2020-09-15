@@ -1,14 +1,12 @@
 Things to add/improve
-- Backtracking and left-recursion in composers
-- modules/packages, imports/exports. Interfaces vs implementations? Module interfaces (free templates) vs Processor protocols?
-  I like that code should be able to specify what it needs and let it be fulfilled by duck typing.
+- left-recursion in composers
 - Standard library.
   - Should definitely include relvars as DB-interface (see The Third Manifesto). API vs impl?
   - networking
   - files. File systems? module loading of API vs implementation? Handled by duck-typing?
 - Contracts and type specifications: Based on matchers. Maybe "templates connect requires <[<point>*]> produces <line>*"
   How about matchers for processor protocols? Specify minimum requirements, extra stuff allowed.
-- More matchers. Additive types. Do we need restrictive matchers, specifying e.g. "and nothing else"? More specific list content matchers?
+- More matchers. Additive types?
 - Concurrency: The basic idea is that state variable changes will be transactional/atomic for each processor template or template chain stage.
   Mechanism will likely be "CAS or retry". How about processors holding processors, giving a "distributed" transaction?
 - Rational numbers, exact math?
@@ -16,7 +14,10 @@ Things to add/improve
 - Performance. Definitely need better data structures for lists and structures.
 - Error handling. Error path/exception path? VOID path? Need examples to play with.
 - Want prepend to array/structure. Syntax? ..< and ..> instead of ..| maybe or >> and << ? Does a stream get prepended
-  in reverse or as a chunk? 1..3 -> |..@: $;
+  in reverse or as a chunk? 1..3 -> |..@: $; is probably the best prepend syntax
+- Maybe some kind of reflective access? E.g. field access like myStruct."$fieldName;"? Probably needed for things like table joins.
+  Or just a way to pass a field accessor as a parameter?
+- Binary operators are probably useful both for code readability and for use in metaprogramming.
 
 Errors easy to make
 - Mixed up ..$bound and $bound.., hard to see error
@@ -24,7 +25,8 @@ Errors easy to make
 - Easy to forget to use the name of the outer template in a simple filter \(<=$@.foo> $ !\)
 
 Illogical?
-- We should be able to use inline templates as sources and sinks (?) array generators (array template source)?
+- Should we be able to use inline templates as sources and sinks?
+- What about array generators (array template source)?
 - Should we be able to specify defined templates to be array templates?
 
 Bugs
@@ -41,10 +43,7 @@ Too much syntax?
 Other thoughts
 - Use more words instead of symbols? YES, easier to scan and search. Even redundant words (to some limit).
 - How much meta-programming do we want to let loose? Should everything be assignable as data? In that case, what about serialization?
-  Currently processors are a little in-between: if we can pass processor instances, why not templates? Or conversely?
-- Maybe some kind of reflective access? E.g. field access like myStruct."$fieldName;"? But do we need it?
-  I really want to avoid things that complicate if there is a reasonable way to do something similar.
+  Currently processors are a little in-between: if we can pass processor instances in the chain, why not templates?
 - Different kinds of hand-over between transforms? E.g. '=>' for proceed in parallel.
 - Do we need some kind of exit statement to abandon a stream? e.g. "findFirst"/"findAny" Or do you have to code it as iterated matching?
 - Vector arithmetic?
-- Binary operators?
