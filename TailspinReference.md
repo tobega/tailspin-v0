@@ -175,6 +175,9 @@ into a [stream](#streams), e.g. `[4,7,9]...` will create a stream of the values 
 It also works on a [structure](#structures) by creating a stream of [keyed values](#keyed-values).
 This is particularly useful for creating augmented copies of a structure, e.g. to copy everything but
 replace one member `{$myStruct..., val: 5}`, or to set a value unless it is already set `{val: 5, $myStruct...}`.
+
+A string can also be deconstructed into a stream of strings where each string is what is normally considered
+a character, but may be a composition of several unicode codepoints.
  
 ### Templates
 A templates object consists of an optional _initial block_ and an optional sequence of match statements.
