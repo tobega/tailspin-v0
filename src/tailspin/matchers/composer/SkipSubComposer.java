@@ -8,13 +8,13 @@ public class SkipSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo s) {
-    return subComposer.nibble(s);
+  public Memo nibble(String s, Memo memo) {
+    return subComposer.nibble(s, memo);
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
-    return subComposer.backtrack(memo);
+  public Memo backtrack(String s, Memo memo) {
+    return subComposer.backtrack(s, memo);
   }
 
   @Override

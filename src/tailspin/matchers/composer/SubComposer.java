@@ -2,9 +2,9 @@ package tailspin.matchers.composer;
 
 public interface SubComposer {
 
-  Memo nibble(Memo s);
+  Memo nibble(String s, Memo memo);
 
-  Memo backtrack(Memo memo);
+  Memo backtrack(String s, Memo memo);
 
   Object getValues();
 

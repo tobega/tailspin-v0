@@ -20,32 +20,32 @@ public class SequenceSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo s) {
+  public Memo nibble(String s, Memo memo) {
     value = new ArrayList<>();
-    return resolveRemaining(s);
+    return resolveRemaining(s, memo);
   }
 
-  private Memo resolveRemaining(Memo s) {
+  private Memo resolveRemaining(String s, Memo memo) {
     for (CompositionSpec spec : sequence.subList(value.size(), sequence.size())) {
       SubComposer subComposer = resolver.resolveSpec(spec, scope);
-      s = subComposer.nibble(s);
+      memo = subComposer.nibble(s, memo);
       if (subComposer.isSatisfied()) {
         value.add(subComposer);
       } else {
-        return backtrack(s);
+        return backtrack(s, memo);
       }
     }
-    return s;
+    return memo;
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
+  public Memo backtrack(String s, Memo memo) {
     while (!value.isEmpty()) {
       SubComposer subComposer = value.remove(value.size() - 1);
-      memo = subComposer.backtrack(memo);
+      memo = subComposer.backtrack(s, memo);
       if (subComposer.isSatisfied()) {
         value.add(subComposer);
-        return resolveRemaining(memo);
+        return resolveRemaining(s, memo);
       }
     }
     value = null;

@@ -13,13 +13,13 @@ class StructureSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo s) {
-    return keyValues.nibble(s);
+  public Memo nibble(String s, Memo memo) {
+    return keyValues.nibble(s, memo);
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
-    return keyValues.backtrack(memo);
+  public Memo backtrack(String s, Memo memo) {
+    return keyValues.backtrack(s, memo);
   }
 
   @Override

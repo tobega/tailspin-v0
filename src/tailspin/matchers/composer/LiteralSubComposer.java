@@ -10,17 +10,17 @@ public class LiteralSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo memo) {
+  public Memo nibble(String s, Memo memo) {
     matchedValue = false;
-    if (memo.s.startsWith(literal)) {
+    if (s.substring(memo.pos).startsWith(literal)) {
       matchedValue = true;
-      memo = new Memo(memo.s.substring(literal.length()), memo);
+      memo = new Memo(memo.pos + literal.length(), memo);
     }
     return memo;
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
+  public Memo backtrack(String s, Memo memo) {
     matchedValue = false;
     return memo.previous;
   }

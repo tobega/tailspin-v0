@@ -13,32 +13,32 @@ public class ChoiceSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo s) {
+  public Memo nibble(String s, Memo memo) {
     choice = -1;
-    return tryNext(s);
+    return tryNext(s, memo);
   }
 
-  private Memo tryNext(Memo s) {
+  private Memo tryNext(String s, Memo memo) {
     for (choice++; choice < optionComposers.size(); choice++) {
       SubComposer subComposer = optionComposers.get(choice);
-      s = subComposer.nibble(s);
+      memo = subComposer.nibble(s, memo);
       if (subComposer.isSatisfied()) {
         value = subComposer.getValues();
         break;
       }
     }
-    return s;
+    return memo;
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
+  public Memo backtrack(String s, Memo memo) {
     SubComposer subComposer = optionComposers.get(choice);
-    memo = subComposer.backtrack(memo);
+    memo = subComposer.backtrack(s, memo);
     if (subComposer.isSatisfied()) {
       value = subComposer.getValues();
       return memo;
     }
-    return tryNext(memo);
+    return tryNext(s, memo);
   }
 
   @Override

@@ -1,11 +1,11 @@
 package tailspin.matchers.composer;
 
 public class Memo {
-  public final String s;
+  public final int pos;
   public final Memo previous;
 
-  public Memo(String s, Memo previous) {
-    this.s = s;
+  public Memo(int pos, Memo previous) {
+    this.pos = pos;
     this.previous = previous;
   }
 }

@@ -124,15 +124,15 @@ public class SubComposerFactory {
     }
 
     @Override
-    public Memo nibble(Memo s) {
+    public Memo nibble(String s, Memo memo) {
       sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope),
           SubComposerFactory.this::resolveSpec);
-      return sequenceSubComposer.nibble(s);
+      return sequenceSubComposer.nibble(s, memo);
     }
 
     @Override
-    public Memo backtrack(Memo memo) {
-      return sequenceSubComposer.backtrack(memo);
+    public Memo backtrack(String s, Memo memo) {
+      return sequenceSubComposer.backtrack(s, memo);
     }
 
     @Override

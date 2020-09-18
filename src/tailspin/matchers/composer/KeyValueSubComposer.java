@@ -14,31 +14,31 @@ class KeyValueSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo s) {
+  public Memo nibble(String s, Memo memo) {
     key = null;
-    Memo original = s;
-    s = keyComposer.nibble(s);
+    Memo original = memo;
+    memo = keyComposer.nibble(s, memo);
     if (!keyComposer.isSatisfied()) {
       return original;
     }
     key = (String) Value.oneValue(keyComposer.getValues());
-    s = valueComposer.nibble(s);
+    memo = valueComposer.nibble(s, memo);
     if (!valueComposer.isSatisfied()) {
       return original;
     }
-    return s;
+    return memo;
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
-    memo = valueComposer.backtrack(memo);
+  public Memo backtrack(String s, Memo memo) {
+    memo = valueComposer.backtrack(s, memo);
     while (!valueComposer.isSatisfied()) {
-      memo = keyComposer.backtrack(memo);
+      memo = keyComposer.backtrack(s, memo);
       if (!keyComposer.isSatisfied()) {
         key = null;
         return memo;
       }
-      memo = valueComposer.nibble(memo);
+      memo = valueComposer.nibble(s, memo);
     }
     return memo;
   }

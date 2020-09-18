@@ -1388,4 +1388,80 @@ class Composer {
 
     assertEquals("2008", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void positiveLookbehind() throws IOException {
+    String program = "composer foo\n"
+        + "  [<tar|not>*]"
+        + "  rule tar: <'(?<=s)tar'>\n"
+        + "  rule not: <~tar>\n"
+        + "end foo\n"
+        + "\n"
+        + "'startare' -> foo -> '$;' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[s, tar, tare]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void negativeLookbehind() throws IOException {
+    String program = "composer foo\n"
+        + "  [<tar|not>*]"
+        + "  rule tar: <'(?<!s)tar'>\n"
+        + "  rule not: <~tar>\n"
+        + "end foo\n"
+        + "\n"
+        + "'startare' -> foo -> '$;' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[star, tar, e]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void noAnchorInTheMiddle() throws IOException {
+    String program = "composer foo\n"
+        + "  <bad|good>\n"
+        + "  rule bad: (<='s'>) <'^tar'>"
+        + "  rule good: <'.*'>\n"
+        + "end foo\n"
+        + "\n"
+        + "'star' -> foo -> '$;' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("star", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void anchorAtStart() throws IOException {
+    String program = "composer foo\n"
+        + "  <good|bad>\n"
+        + "  rule good: (<'^s'>) <='tar'>"
+        + "  rule bad: <'.*'>\n"
+        + "end foo\n"
+        + "\n"
+        + "'star' -> foo -> '$;' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("tar", output.toString(StandardCharsets.UTF_8));
+  }
 }

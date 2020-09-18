@@ -14,13 +14,13 @@ class DereferenceSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo s) {
+  public Memo nibble(String s, Memo memo) {
     satisfied = true;
-    return s;
+    return memo;
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
+  public Memo backtrack(String s, Memo memo) {
     satisfied = false; // Need to keep going back
     return memo;
   }

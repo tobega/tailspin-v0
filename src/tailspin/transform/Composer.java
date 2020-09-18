@@ -36,14 +36,15 @@ public class Composer implements Transform {
     if (stateAssignment != null) {
       stateAssignment.getResults(null, scope);
     }
-    Memo memo = new Memo((String) Objects.requireNonNull(it), null);
+    String s = (String) Objects.requireNonNull(it);
+    Memo memo = new Memo(0, null);
     SequenceSubComposer subComposer = new SequenceSubComposer(specs, scope, subComposerFactory::resolveSpec);
-    memo = subComposer.nibble(memo);
-    while (subComposer.isSatisfied() && !memo.s.isEmpty()) {
-      memo = subComposer.backtrack(memo);
+    memo = subComposer.nibble(s, memo);
+    while (subComposer.isSatisfied() && memo.pos < s.length()) {
+      memo = subComposer.backtrack(s, memo);
     }
     if (!subComposer.isSatisfied()) {
-      throw new IllegalStateException("Unable to compose value from string:'" + memo.s + "'");
+      throw new IllegalStateException("Unable to compose value from string:'" + s + "'");
     }
     return subComposer.getValues();
   }

@@ -16,10 +16,10 @@ public class CaptureSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo s) {
-    s = subComposer.nibble(s);
+  public Memo nibble(String s, Memo memo) {
+    memo = subComposer.nibble(s, memo);
     checkSatisfaction();
-    return s;
+    return memo;
   }
 
   private void checkSatisfaction() {
@@ -31,9 +31,9 @@ public class CaptureSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
+  public Memo backtrack(String s, Memo memo) {
     scope.undefineValue(identifier);
-    memo = subComposer.backtrack(memo);
+    memo = subComposer.backtrack(s, memo);
     checkSatisfaction();
     return memo;
   }

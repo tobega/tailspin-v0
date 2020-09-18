@@ -25,17 +25,17 @@ public class MultiplierSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo memo) {
+  public Memo nibble(String s, Memo memo) {
     values = new ArrayList<>();
-    return addRepetitions(memo);
+    return addRepetitions(s, memo);
   }
 
-  private Memo addRepetitions(Memo memo) {
-    while (!memo.s.isEmpty() &&
+  private Memo addRepetitions(String s, Memo memo) {
+    while (memo.pos < s.length() &&
         (!multiplier.isMet(values.size(), null, scope)
             || multiplier.isMet(values.size()+1, null, scope))) {
       SubComposer subComposer = resolver.resolveSpec(compositionSpec, scope);
-      memo = subComposer.nibble(memo);
+      memo = subComposer.nibble(s, memo);
       if (subComposer.isSatisfied()) {
         values.add(subComposer);
       } else {
@@ -43,16 +43,16 @@ public class MultiplierSubComposer implements SubComposer {
       }
     }
     if (!isSatisfied()) {
-      memo = rewind(memo);
+      memo = rewind(s, memo);
     }
     return memo;
   }
 
-  private Memo rewind(Memo memo) {
+  private Memo rewind(String s, Memo memo) {
     while (!values.isEmpty()) {
       SubComposer last = values.remove(values.size() - 1);
       do {
-        memo = last.backtrack(memo);
+        memo = last.backtrack(s, memo);
       } while (last.isSatisfied());
     }
     values = null;
@@ -60,20 +60,20 @@ public class MultiplierSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
+  public Memo backtrack(String s, Memo memo) {
     if (values.isEmpty()) {
       values = null;
       return memo;
     }
     SubComposer last = values.remove(values.size() - 1);
-    memo = last.backtrack(memo);
+    memo = last.backtrack(s, memo);
     if (last.isSatisfied()) {
       values.add(last);
-      return addRepetitions(memo);
+      return addRepetitions(s, memo);
     }
     // See if we can accept just one less repetition
     if (!isSatisfied()) {
-      memo = rewind(memo);
+      memo = rewind(s, memo);
     }
     return memo;
   }

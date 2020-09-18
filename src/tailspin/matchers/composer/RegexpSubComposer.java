@@ -15,18 +15,19 @@ class RegexpSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo memo) {
+  public Memo nibble(String s, Memo memo) {
     latestValue = null;
-    Matcher matcher = pattern.matcher(memo.s);
+    Matcher matcher = pattern.matcher(s);
+    matcher.useTransparentBounds(true).useAnchoringBounds(false).region(memo.pos, s.length());
     if (matcher.lookingAt()) {
       latestValue = matcher.group();
-      return new Memo(memo.s.substring(matcher.end()), memo);
+      return new Memo(matcher.end(), memo);
     }
     return memo;
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
+  public Memo backtrack(String s, Memo memo) {
     latestValue = null;
     return memo.previous;
   }

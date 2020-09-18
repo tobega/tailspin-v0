@@ -22,15 +22,15 @@ public class StateAssignmentSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo nibble(Memo s) {
+  public Memo nibble(String s, Memo memo) {
     if (value == null) {
       satisfied = true;
     } else {
-      s = value.nibble(s);
+      memo = value.nibble(s, memo);
       satisfied = value.isSatisfied();
     }
     if (satisfied) assign();
-    return s;
+    return memo;
   }
 
   private void assign() {
@@ -43,12 +43,12 @@ public class StateAssignmentSubComposer implements SubComposer {
   }
 
   @Override
-  public Memo backtrack(Memo memo) {
+  public Memo backtrack(String s, Memo memo) {
     scope.setState(stateContext, oldValue);
     if (value == null) {
       satisfied = false;
     } else {
-      memo = value.backtrack(memo);
+      memo = value.backtrack(s, memo);
       satisfied = value.isSatisfied();
     }
     if (satisfied) assign();
