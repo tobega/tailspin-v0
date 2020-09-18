@@ -10,6 +10,8 @@ import tailspin.interpreter.Scope;
 public class Deconstructor implements Expression {
   public static final Deconstructor INSTANCE = new Deconstructor();
 
+  private static final char ZERO_WIDTH_JOINER = 8205;
+
   private Deconstructor() {}
 
   @Override
@@ -33,7 +35,17 @@ public class Deconstructor implements Expression {
         return null;
       }
       ArrayDeque<String> deconstructed = new ArrayDeque<>();
+      String pending = null;
       for (char c : ((String) it).toCharArray()) {
+        if (pending != null) {
+          deconstructed.add(pending + c);
+          pending = null;
+          continue;
+        }
+        if (c == ZERO_WIDTH_JOINER) {
+          pending = deconstructed.removeLast() + c;
+          continue;
+        }
         int type = Character.getType(c);
         if (Character.isLowSurrogate(c)
             || type == Character.COMBINING_SPACING_MARK
