@@ -727,3 +727,6 @@ the instance methods on the object.
 Fields are currently not accessible, which makes using boolean values and enums a bit of a pain.
 
 The null value is currently not representable in tailspin code.
+
+Tailspin processor instances can be provided instead of java objects, they simply need to implement templates
+with the same name as the java interface methods. Note that parameters will be passed as a list of objects in the current value.

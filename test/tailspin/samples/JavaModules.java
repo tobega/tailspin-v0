@@ -176,4 +176,23 @@ public class JavaModules {
 
     assertEquals("true", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void tailspinConsumer() throws Exception {
+    String program = "use 'java:java.util' stand-alone\n"
+        + "processor Consumer\n"
+        + "  sink accept\n"
+        + "    $(1) * 4 -> '$;,' -> !OUT::write\n"
+        + "  end accept\n"
+        + "end Consumer\n"
+        + "def list: [[1,2,3]] -> util/ArrayList; [$Consumer] -> list::forEach -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4,8,12,", output.toString(StandardCharsets.UTF_8));
+  }
 }

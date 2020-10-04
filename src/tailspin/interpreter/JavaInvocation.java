@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import tailspin.types.Processor;
 import tailspin.types.Transform;
 
 class JavaInvocation implements Transform {
@@ -130,6 +131,8 @@ class JavaInvocation implements Transform {
       Object param = params.get(invokeParams.size());
       if (param instanceof JavaObject) {
         param = ((JavaObject) param).getRealObject();
+      } else if (param instanceof Processor) {
+        param = JavaProxy.of(p.getType(), (Processor) param);
       } else if (numberTypeConversions.containsKey(p.getType())) {
         param = numberTypeConversions.get(p.getType()).apply(param);
       }
