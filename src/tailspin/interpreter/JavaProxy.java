@@ -25,8 +25,14 @@ public class JavaProxy implements InvocationHandler {
 
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) {
+    Object convertedArgs = null;
+    if (args.length == 1) {
+      convertedArgs = JavaInvocation.tailspinTypeOf(args[0]);
+    } else if (args.length > 1) {
+      convertedArgs = JavaInvocation.tailspinTypeOf(Arrays.asList(args));
+    }
     Object results = processor.resolveMessage(method.getName(), Map.of())
-        .getResults(Arrays.asList(args), Map.of());
+        .getResults(convertedArgs, Map.of());
     return ResultIterator.resolveSideEffects(results);
   }
 }

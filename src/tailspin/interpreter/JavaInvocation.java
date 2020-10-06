@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import tailspin.types.Processor;
 import tailspin.types.Transform;
 
@@ -30,38 +32,39 @@ class JavaInvocation implements Transform {
     numberTypePenalties.put(Float.class, 2);
   }
 
-  private static final Map<Class<?>, Function<Object, Object>> numberTypeConversions = new HashMap<>();
+  private static final Map<Class<?>, Function<Object, Object>> tsToJavaTypeConversions = new HashMap<>();
 
   static {
-    numberTypeConversions.put(long.class, Function.identity());
-    numberTypeConversions.put(Long.class, Function.identity());
-    numberTypeConversions.put(int.class, (o) -> ((Number) o).intValue());
-    numberTypeConversions.put(Integer.class, (o) -> ((Number) o).intValue());
-    numberTypeConversions.put(short.class, (o) -> ((Number) o).shortValue());
-    numberTypeConversions.put(Short.class, (o) -> ((Number) o).shortValue());
-    numberTypeConversions.put(byte.class, (o) -> ((Number) o).byteValue());
-    numberTypeConversions.put(Byte.class, (o) -> ((Number) o).byteValue());
-    numberTypeConversions.put(double.class, (o) -> ((Number) o).doubleValue());
-    numberTypeConversions.put(Double.class, (o) -> ((Number) o).doubleValue());
-    numberTypeConversions.put(float.class, (o) -> ((Number) o).floatValue());
-    numberTypeConversions.put(Float.class, (o) -> ((Number) o).floatValue());
+    tsToJavaTypeConversions.put(long.class, Function.identity());
+    tsToJavaTypeConversions.put(Long.class, Function.identity());
+    tsToJavaTypeConversions.put(int.class, (o) -> ((Number) o).intValue());
+    tsToJavaTypeConversions.put(Integer.class, (o) -> ((Number) o).intValue());
+    tsToJavaTypeConversions.put(short.class, (o) -> ((Number) o).shortValue());
+    tsToJavaTypeConversions.put(Short.class, (o) -> ((Number) o).shortValue());
+    tsToJavaTypeConversions.put(byte.class, (o) -> ((Number) o).byteValue());
+    tsToJavaTypeConversions.put(Byte.class, (o) -> ((Number) o).byteValue());
+    tsToJavaTypeConversions.put(double.class, (o) -> ((Number) o).doubleValue());
+    tsToJavaTypeConversions.put(Double.class, (o) -> ((Number) o).doubleValue());
+    tsToJavaTypeConversions.put(float.class, (o) -> ((Number) o).floatValue());
+    tsToJavaTypeConversions.put(Float.class, (o) -> ((Number) o).floatValue());
   }
 
-  private static final Map<Class<?>, Function<Object, Object>> resultTypeConversions = new HashMap<>();
+  private static final Map<Class<?>, Function<Object, Object>> javaToTsTypeConversions = new HashMap<>();
 
   static {
-    resultTypeConversions.put(long.class, Function.identity());
-    resultTypeConversions.put(Long.class, Function.identity());
-    resultTypeConversions.put(int.class, (o) -> ((Number) o).longValue());
-    resultTypeConversions.put(Integer.class, (o) -> ((Number) o).longValue());
-    resultTypeConversions.put(short.class, (o) -> ((Number) o).longValue());
-    resultTypeConversions.put(Short.class, (o) -> ((Number) o).longValue());
-    resultTypeConversions.put(byte.class, (o) -> ((Number) o).longValue());
-    resultTypeConversions.put(Byte.class, (o) -> ((Number) o).longValue());
-    resultTypeConversions.put(double.class, JavaObject::new);
-    resultTypeConversions.put(Double.class, JavaObject::new);
-    resultTypeConversions.put(float.class, JavaObject::new);
-    resultTypeConversions.put(Float.class, JavaObject::new);
+    javaToTsTypeConversions.put(long.class, Function.identity());
+    javaToTsTypeConversions.put(Long.class, Function.identity());
+    javaToTsTypeConversions.put(int.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(Integer.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(short.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(Short.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(byte.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(Byte.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(double.class, JavaObject::new);
+    javaToTsTypeConversions.put(Double.class, JavaObject::new);
+    javaToTsTypeConversions.put(float.class, JavaObject::new);
+    javaToTsTypeConversions.put(Float.class, JavaObject::new);
+    javaToTsTypeConversions.put(String.class, Function.identity());
   }
 
   private final Class<?> c;
@@ -90,6 +93,7 @@ class JavaInvocation implements Transform {
               + params);
     Object[] invokeParams = getInvocationParameters(params, bestM);
     try {
+      bestM.trySetAccessible();
       return tailspinTypeOf(((Method) bestM).invoke(o, invokeParams));
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e.getCause());
@@ -110,12 +114,15 @@ class JavaInvocation implements Transform {
       Parameter[] methodParameters = m.getParameters();
       for (int i = 0; i < methodParameters.length; i++) {
         Parameter p = methodParameters[i];
-        if (params.get(i) instanceof JavaObject) {
-          penalty += calculatePenalty((JavaObject) params.get(i), p.getType());
+        if (p.isVarArgs() && (params.get(i) instanceof List)) {
+          @SuppressWarnings("unchecked")
+          List<Object> list = (List<Object>) params.get(i);
+          for (Object param : list) {
+            penalty += getPenalty(param, p.getType().getComponentType());
+          }
           continue;
         }
-        if (!numberTypePenalties.containsKey(p.getType())) continue;
-        penalty += numberTypePenalties.get(p.getType());
+        penalty += getPenalty(params.get(i), p.getType());
       }
       if (penalty < leastPenalty) {
         leastPenalty = penalty;
@@ -125,20 +132,68 @@ class JavaInvocation implements Transform {
     return bestM;
   }
 
+  private static int getPenalty(Object param, Class<?> type) {
+    if (param instanceof JavaObject) {
+      return calculatePenalty((JavaObject) param, type);
+    }
+    if (param instanceof Processor) return 0; // Will proxy
+    if ((param instanceof Number) && numberTypePenalties.containsKey(type)) {
+      return numberTypePenalties.get(type);
+    } else if (!type.isAssignableFrom(param.getClass())) {
+      return  999;
+    }
+    return 0;
+  }
+
   static Object[] getInvocationParameters(List<Object> params, Executable bestM) {
     List<Object> invokeParams = new ArrayList<>();
     for (Parameter p : bestM.getParameters()) {
       Object param = params.get(invokeParams.size());
-      if (param instanceof JavaObject) {
-        param = ((JavaObject) param).getRealObject();
-      } else if (param instanceof Processor) {
-        param = JavaProxy.of(p.getType(), (Processor) param);
-      } else if (numberTypeConversions.containsKey(p.getType())) {
-        param = numberTypeConversions.get(p.getType()).apply(param);
+      if (p.isVarArgs() && (param instanceof List)) {
+        @SuppressWarnings("unchecked")
+        List<Object> list = (List<Object>) param;
+        param = Array.newInstance(p.getType().getComponentType(), list.size());
+        for (int i = 0; i < list.size(); i++) {
+          setArrayValue(param, i, toJavaType(p.getType().getComponentType(), list.get(i)));
+        }
+      } else {
+        param = toJavaType(p.getType(), param);
       }
       invokeParams.add(param);
     }
     return invokeParams.toArray();
+  }
+
+  private static void setArrayValue(Object array, int index, Object value) {
+    Class<?> componentType = array.getClass().getComponentType();
+    if (componentType.equals(long.class)) {
+      Array.setLong(array, index, ((Number) value).longValue());
+    } else if (componentType.equals(int.class)) {
+      Array.setInt(array, index, ((Number) value).intValue());
+    } else if (componentType.equals(short.class)) {
+      Array.setShort(array, index, ((Number) value).shortValue());
+    } else if (componentType.equals(byte.class)) {
+      Array.setByte(array, index, ((Number) value).byteValue());
+    } else if (componentType.equals(float.class)) {
+      Array.setFloat(array, index, ((Number) value).floatValue());
+    } else if (componentType.equals(double.class)) {
+      Array.setDouble(array, index, ((Number) value).doubleValue());
+    } else if (componentType.equals(boolean.class)) {
+      Array.setBoolean(array, index, (Boolean) value);
+    } else {
+      Array.set(array, index, value);
+    }
+  }
+
+  private static Object toJavaType(Class<?> type, Object param) {
+    if (param instanceof JavaObject) {
+      param = ((JavaObject) param).getRealObject();
+    } else if (param instanceof Processor) {
+      param = JavaProxy.of(type, (Processor) param);
+    } else if (tsToJavaTypeConversions.containsKey(type)) {
+      param = tsToJavaTypeConversions.get(type).apply(param);
+    }
+    return param;
   }
 
   private static int calculatePenalty(JavaObject obj, Class<?> type) {
@@ -163,11 +218,17 @@ class JavaInvocation implements Transform {
     return penalty;
   }
 
-  private Object tailspinTypeOf(Object result) {
+  public static Object tailspinTypeOf(Object result) {
     if (result == null) return null;
-    if (resultTypeConversions.containsKey(result.getClass())) {
-      return resultTypeConversions.get(result.getClass()).apply(result);
+    if (javaToTsTypeConversions.containsKey(result.getClass())) {
+      return javaToTsTypeConversions.get(result.getClass()).apply(result);
     }
-    return result;
+    if (List.class.isAssignableFrom(result.getClass())) {
+      @SuppressWarnings("unchecked")
+      List<Object> list = (List<Object>) result;
+      return list.stream().map(JavaInvocation::tailspinTypeOf).collect(
+          Collectors.toList());
+    }
+    return new JavaObject(result);
   }
 }

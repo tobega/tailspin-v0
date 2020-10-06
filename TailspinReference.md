@@ -721,6 +721,9 @@ e.g. `def map: $util/HashMap; ['foo', 2] -> !map::put`
 Integral values (byte, short, int, long) are automatically converted to tailspin integers (unless you specifically
 construct the value, e.g. `[5] -> lang/Byte::valueOf` which becomes a java Byte object)
 
+Java lists (java.util.List) and String instances are normally treated as tailspin arrays and strings. If you need a
+java object version, call a constructor, as constructor results always give the java object unconverted.
+
 Other java objects are treated separately from tailspin objects and are [processors](#processors) that handle
 the instance methods on the object.
 
@@ -729,4 +732,5 @@ Fields are currently not accessible, which makes using boolean values and enums 
 The null value is currently not representable in tailspin code.
 
 Tailspin processor instances can be provided instead of java objects, they simply need to implement templates
-with the same name as the java interface methods. Note that parameters will be passed as a list of objects in the current value.
+with the same name as the java interface methods. Note that a single parameter will be passed in as-is,
+but multiple parameters will be passed as a list of objects in the current value (and of course no current value for methods without parameters).
