@@ -79,8 +79,9 @@ class JavaInvocation implements Transform {
 
   @Override
   public Object getResults(Object it, Map<String, Object> unused) {
+    if (it == null) it = List.of();
     @SuppressWarnings("unchecked")
-    List<Object> params = it == null ? List.of() : (List<Object>) it;
+    List<Object> params = (it instanceof List) ? (List<Object>) it : List.of(it);
     Executable[] methods = c.getMethods();
     Executable bestM = getBestExecutable(params, methods, message);
     if (bestM == null)

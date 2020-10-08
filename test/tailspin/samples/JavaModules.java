@@ -353,4 +353,18 @@ public class JavaModules {
 
     assertEquals("123", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void singleArgumentMethodCanBeCalledWithoutWrappingArray() throws Exception {
+    String program = "use 'java:java.lang' stand-alone\n"
+        + "-2 -> lang/Math::abs -> $ + 1 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
 }
