@@ -337,4 +337,20 @@ public class JavaModules {
 
     assertEquals("19", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void javaObjectParameters() throws Exception {
+    // The string constructor will wrap the string as a java object, which needs to be properly
+    // matched when used as a parameter
+    String program = "use 'java:java.lang' stand-alone\n"
+        + "def string: ['7b'] -> lang/String; [$string, 16] -> lang/Integer::parseInt -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("123", output.toString(StandardCharsets.UTF_8));
+  }
 }

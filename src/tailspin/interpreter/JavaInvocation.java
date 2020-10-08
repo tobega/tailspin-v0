@@ -90,7 +90,7 @@ class JavaInvocation implements Transform {
               + " on class "
               + c.getName()
               + " for parameters "
-              + params);
+              + params.stream().map(Object::getClass).map(Class::getName).collect(Collectors.toList()));
     Object[] invokeParams = getInvocationParameters(params, bestM);
     try {
       bestM.trySetAccessible();
@@ -209,7 +209,7 @@ class JavaInvocation implements Transform {
       return 999;
     }
     int penalty = 0;
-    Class<?> cls = obj.getClass();
+    Class<?> cls = obj.getRealObject().getClass();
     if (!type.isAssignableFrom(cls)) return 999;
     while(!Object.class.equals(cls) && type.isAssignableFrom(cls.getSuperclass())) {
       penalty++;
