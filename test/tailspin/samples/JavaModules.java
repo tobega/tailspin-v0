@@ -367,4 +367,18 @@ public class JavaModules {
 
     assertEquals("3", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void singleArgumentConstructorCanBeCalledWithoutWrappingArray() throws Exception {
+    String program = "use 'java:java.lang' stand-alone\n"
+        + "'hello' -> lang/String -> $::toUpperCase -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("HELLO", output.toString(StandardCharsets.UTF_8));
+  }
 }

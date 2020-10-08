@@ -23,8 +23,9 @@ public class JavaClass implements Processor, Transform {
 
   @Override
   public Object getResults(Object it, Map<String, Object> parameters) {
+    if (it == null) it = List.of();
     @SuppressWarnings("unchecked")
-    List<Object> params = it == null ? List.of() : (List<Object>) it;
+    List<Object> params = (it instanceof List) ? (List<Object>) it : List.of(it);
     Executable[] methods = c.getConstructors();
     Executable bestM = JavaInvocation.getBestExecutable(params, methods, c.getName());
     if (bestM == null)
