@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
+import tailspin.types.KeyValue;
 import tailspin.types.Processor;
 
 public abstract class Reference implements Value {
@@ -305,7 +306,7 @@ public abstract class Reference implements Value {
             invocations++;
             lastArray = array;
             lastIndex = index;
-            collect(copy(Objects.requireNonNull(ri.getNextResult())), array.get(index));
+            collect(Objects.requireNonNull(ri.getNextResult()), array.get(index));
             return null;
           }
 
@@ -380,17 +381,17 @@ public abstract class Reference implements Value {
             if (m instanceof Map) {
               @SuppressWarnings("unchecked")
               Map<String, Object> itMap = (Map<String, Object>) m;
-              collectorMap.putAll(itMap);
+              itMap.forEach((key, value) -> collectorMap.put(key, copy(value)));
             } else {
               @SuppressWarnings("unchecked")
               Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) m;
-              collectorMap.put(itEntry.getKey(), itEntry.getValue());
+              collectorMap.put(itEntry.getKey(), copy(itEntry.getValue()));
             }
           });
     } else if (collector instanceof List) {
       @SuppressWarnings("unchecked")
       List<Object> collectorList = (List<Object>) collector;
-      ResultIterator.forEach(it, collectorList::add);
+      ResultIterator.forEach(it, value -> collectorList.add(copy(value)));
     } else {
       throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
     }

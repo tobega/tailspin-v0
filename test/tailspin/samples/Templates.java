@@ -609,6 +609,20 @@ class Templates {
   }
 
   @Test
+  void mergeKeyValueToStateArrayElementStructure() throws Exception {
+    String program =
+        "templates state\n@: [{ a: 0, b: 0 }];\n..|@(1): (b: $);\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{a=0, b=1}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void mergeStateField() throws Exception {
     String program =
         "templates state\n@: { a: []};\n..|@.a: 1..3;\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
@@ -623,6 +637,54 @@ class Templates {
   }
 
   @Test
+  void mergedStructureStateFieldArray_mutationOnlyOnState() throws Exception {
+    String program =
+        "templates state\n@: { };\n"
+            + "def in: $;\n"
+            + "..|@: {a:$in, b:0};\n@.a(1): 2; $in !\nend state\n" + "[1] -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[1]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mergedStateFieldArray_mutationOnlyOnState() throws Exception {
+    String program =
+        "templates state\n@: { };\n"
+            + "def in: $;\n"
+            + "..|@: (a:$in);\n@.a(1): 2; $in !\nend state\n" + "[1] -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[1]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mergedStateStructureFieldArray_mutationOnlyOnState() throws Exception {
+    String program =
+        "templates state\n@: { foo: {} };\n"
+            + "def in: $;\n"
+            + "..|@.foo: (a:$in);\n@.foo.a(1): 2; $in !\nend state\n" + "[1] -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[1]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void mergeStateArrayElementArray() throws Exception {
     String program =
         "templates state\n@: [[],[]];\n..|@(2): 1..3;\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
@@ -634,6 +696,24 @@ class Templates {
     runner.run(input, output, List.of());
 
     assertEquals("[[], [1, 2, 3]]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mergeStateArrayElementArray_mutationOnlyOnState() throws Exception {
+    String program =
+        "templates state\n@: [[],[]];\n"
+            + "def foo: [{a:0}, {a:2}];\n"
+            + "..|@(2): $foo...;\n"
+            + "@(2;1).a: 1;"
+            + "$foo !\nend state\n" + "1 -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{a=0}, {a=2}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
