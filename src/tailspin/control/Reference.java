@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
-import tailspin.types.KeyValue;
 import tailspin.types.Processor;
 
 public abstract class Reference implements Value {
