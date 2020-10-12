@@ -1,4 +1,4 @@
-package tailspin.interpreter;
+package tailspin.java;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -27,9 +27,9 @@ public class JavaProxy implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) {
     Object convertedArgs = null;
     if (args.length == 1) {
-      convertedArgs = JavaInvocation.tailspinTypeOf(args[0]);
+      convertedArgs = JavaTypeConverter.tailspinTypeOf(args[0]);
     } else if (args.length > 1) {
-      convertedArgs = JavaInvocation.tailspinTypeOf(Arrays.asList(args));
+      convertedArgs = JavaTypeConverter.tailspinTypeOf(Arrays.asList(args));
     }
     Object results = processor.resolveMessage(method.getName(), Map.of())
         .getResults(convertedArgs, Map.of());

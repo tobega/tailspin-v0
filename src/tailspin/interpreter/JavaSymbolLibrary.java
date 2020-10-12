@@ -2,6 +2,7 @@ package tailspin.interpreter;
 
 import java.util.List;
 import java.util.Set;
+import tailspin.java.JavaClass;
 
 public class JavaSymbolLibrary extends SymbolLibrary {
 

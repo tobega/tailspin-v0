@@ -1,4 +1,4 @@
-package tailspin.interpreter;
+package tailspin.java;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Executable;
@@ -49,22 +49,20 @@ class JavaInvocation implements Transform {
     tsToJavaTypeConversions.put(Float.class, (o) -> ((Number) o).floatValue());
   }
 
-  private static final Map<Class<?>, Function<Object, Object>> javaToTsTypeConversions = new HashMap<>();
-
   static {
-    javaToTsTypeConversions.put(long.class, Function.identity());
-    javaToTsTypeConversions.put(Long.class, Function.identity());
-    javaToTsTypeConversions.put(int.class, (o) -> ((Number) o).longValue());
-    javaToTsTypeConversions.put(Integer.class, (o) -> ((Number) o).longValue());
-    javaToTsTypeConversions.put(short.class, (o) -> ((Number) o).longValue());
-    javaToTsTypeConversions.put(Short.class, (o) -> ((Number) o).longValue());
-    javaToTsTypeConversions.put(byte.class, (o) -> ((Number) o).longValue());
-    javaToTsTypeConversions.put(Byte.class, (o) -> ((Number) o).longValue());
-    javaToTsTypeConversions.put(double.class, JavaObject::new);
-    javaToTsTypeConversions.put(Double.class, JavaObject::new);
-    javaToTsTypeConversions.put(float.class, JavaObject::new);
-    javaToTsTypeConversions.put(Float.class, JavaObject::new);
-    javaToTsTypeConversions.put(String.class, Function.identity());
+    JavaTypeConverter.javaToTsTypeConversions.put(long.class, Function.identity());
+    JavaTypeConverter.javaToTsTypeConversions.put(Long.class, Function.identity());
+    JavaTypeConverter.javaToTsTypeConversions.put(int.class, (o) -> ((Number) o).longValue());
+    JavaTypeConverter.javaToTsTypeConversions.put(Integer.class, (o) -> ((Number) o).longValue());
+    JavaTypeConverter.javaToTsTypeConversions.put(short.class, (o) -> ((Number) o).longValue());
+    JavaTypeConverter.javaToTsTypeConversions.put(Short.class, (o) -> ((Number) o).longValue());
+    JavaTypeConverter.javaToTsTypeConversions.put(byte.class, (o) -> ((Number) o).longValue());
+    JavaTypeConverter.javaToTsTypeConversions.put(Byte.class, (o) -> ((Number) o).longValue());
+    JavaTypeConverter.javaToTsTypeConversions.put(double.class, JavaObject::new);
+    JavaTypeConverter.javaToTsTypeConversions.put(Double.class, JavaObject::new);
+    JavaTypeConverter.javaToTsTypeConversions.put(float.class, JavaObject::new);
+    JavaTypeConverter.javaToTsTypeConversions.put(Float.class, JavaObject::new);
+    JavaTypeConverter.javaToTsTypeConversions.put(String.class, Function.identity());
   }
 
   private final Class<?> c;
@@ -95,7 +93,7 @@ class JavaInvocation implements Transform {
     Object[] invokeParams = getInvocationParameters(params, bestM);
     try {
       bestM.trySetAccessible();
-      return tailspinTypeOf(((Method) bestM).invoke(o, invokeParams));
+      return JavaTypeConverter.tailspinTypeOf(((Method) bestM).invoke(o, invokeParams));
     } catch (IllegalAccessException | InvocationTargetException e) {
       throw new RuntimeException(e.getCause());
     }
@@ -219,17 +217,4 @@ class JavaInvocation implements Transform {
     return penalty;
   }
 
-  public static Object tailspinTypeOf(Object result) {
-    if (result == null) return null;
-    if (javaToTsTypeConversions.containsKey(result.getClass())) {
-      return javaToTsTypeConversions.get(result.getClass()).apply(result);
-    }
-    if (List.class.isAssignableFrom(result.getClass())) {
-      @SuppressWarnings("unchecked")
-      List<Object> list = (List<Object>) result;
-      return list.stream().map(JavaInvocation::tailspinTypeOf).collect(
-          Collectors.toList());
-    }
-    return new JavaObject(result);
-  }
 }

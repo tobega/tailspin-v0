@@ -1,4 +1,4 @@
-package tailspin.interpreter;
+package tailspin.java;
 
 import java.util.Map;
 import tailspin.types.Processor;

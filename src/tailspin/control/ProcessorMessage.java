@@ -48,7 +48,7 @@ public class ProcessorMessage extends Reference {
       if (message.equals("asCodePoints")) {
         return (it, params) -> ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList());
       } else {
-        throw new UnsupportedOperationException("Unknown array message " + message);
+        throw new UnsupportedOperationException("Unknown string message " + message);
       }
     } else if (receiver instanceof KeyValue) {
       if (message.equals("key")) {
@@ -56,7 +56,7 @@ public class ProcessorMessage extends Reference {
       } else if (message.equals("value")) {
         return (it, params) -> ((KeyValue) receiver).getValue();
       } else {
-        throw new UnsupportedOperationException("Unknown array message " + message);
+        throw new UnsupportedOperationException("Unknown keyValue message " + message);
       }
     } else {
       throw new UnsupportedOperationException("Unimplemented message " + message + " on  processor type " + receiver.getClass().getSimpleName());

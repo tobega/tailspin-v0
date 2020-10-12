@@ -4,6 +4,8 @@ import java.util.ArrayDeque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import tailspin.java.JavaObject;
+import tailspin.java.JavaTypeConverter;
 import tailspin.types.KeyValue;
 import tailspin.interpreter.Scope;
 
@@ -71,6 +73,17 @@ public class Deconstructor implements Expression {
         Map.Entry<String, Object> e = iterator.next();
         return new KeyValue(e.getKey(), e.getValue());
       };
+    } else if (it instanceof JavaObject) {
+      Object realObject = ((JavaObject) it).getRealObject();
+      if (realObject instanceof Iterable) {
+        Iterator<Object> iterator = ((Iterable<Object>) realObject).iterator();
+        return () -> {
+          if (!iterator.hasNext()) return null;
+          return JavaTypeConverter.tailspinTypeOf(iterator.next());
+        };
+      } else {
+        throw new UnsupportedOperationException("Cannot deconstruct java object " + realObject.getClass());
+      }
     } else {
       throw new UnsupportedOperationException("Cannot deconstruct " + it.getClass());
     }
