@@ -397,7 +397,7 @@ public class JavaModules {
   }
 
   @Test
-  void DeconstructedJavaIterablesSupplyTailspinObjects() throws Exception {
+  void deconstructedJavaIterablesSupplyTailspinObjects() throws Exception {
     String program = "use 'java:java.util' stand-alone\n"
         + "use 'java:java.lang' stand-alone\n"
         + "['ok' -> lang/StringBuilder, 'bye' -> lang/StringBuilder] -> util/Set::of"
@@ -410,5 +410,36 @@ public class JavaModules {
     runner.run(input, output, List.of());
 
     assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void javaObjectEquality() throws Exception {
+    String program = "use 'java:java.math' stand-alone\n"
+        + "def five: 5 -> math/BigInteger::valueOf;\n"
+        + "5 -> math/BigInteger::valueOf -> \\(<=$five> $!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void javaObjectRangeMatch() throws Exception {
+    String program = "use 'java:java.math' stand-alone\n"
+        + "def three: 3 -> math/BigInteger::valueOf;\n"
+        + "def five: 5 -> math/BigInteger::valueOf;\n"
+        + "4 -> math/BigInteger::valueOf -> \\(<$three..$five> $!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
   }
 }
