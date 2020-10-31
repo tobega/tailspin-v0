@@ -22,6 +22,17 @@ public class JavaObject implements Processor {
   }
 
   @Override
+  public int hashCode() {
+    return o.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj instanceof JavaObject) obj = ((JavaObject) obj).o;
+    return o.equals(obj);
+  }
+
+  @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     return new JavaInvocation(o.getClass(), o, message);
   }

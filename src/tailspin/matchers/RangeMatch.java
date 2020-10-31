@@ -2,6 +2,7 @@ package tailspin.matchers;
 
 import tailspin.control.Bound;
 import tailspin.interpreter.Scope;
+import tailspin.java.JavaObject;
 import tailspin.types.Criterion;
 
 public class RangeMatch implements Criterion {
@@ -51,6 +52,14 @@ public class RangeMatch implements Criterion {
       return Comparison.of(((String) lhs).compareTo((String) rhs));
     } else if ((lhs instanceof Number) && (rhs instanceof Number)) {
       return Comparison.of(Long.compare(((Number) lhs).longValue(), ((Number) rhs).longValue()));
+    } else if ((lhs instanceof JavaObject) && (rhs instanceof JavaObject)) {
+      lhs = ((JavaObject) lhs).getRealObject();
+      rhs = ((JavaObject) rhs).getRealObject();
+      if ((lhs instanceof Comparable) && (rhs instanceof Comparable)) {
+        @SuppressWarnings("unchecked")
+        Comparable<Object> comparable = (Comparable<Object>) lhs;
+        return Comparison.of(comparable.compareTo(rhs));
+      }
     }
     return Comparison.INCOMPARABLE;
   }
