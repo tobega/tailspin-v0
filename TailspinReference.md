@@ -5,6 +5,28 @@ More thoughts in [my notes](notes.txt).
 Note that you may think that concepts in the language already have other established names that
 should have been used instead. This is deliberate in order to free the mind of preconceived notions. 
 
+1. [Basic structure](#basic-structure)
+1. [Sources](#sources)
+1. [Sinks](#sinks)
+1. [Transforms](#transforms)
+    1. [Literal transforms](#literal-transform)
+    1. [Deconstructor](#deconstructor)
+    1. [Templates](#templates)
+    1. [Composer](#composer)
+1. [Matchers](#matchers)
+1. [Mutable state](#templates-state) (see also [Processors](#processors))
+1. [Parameters](#parameters)
+1. [Streams](#streams)
+1. [Arrays](#arrays)
+1. [Structures](#structures)
+1. [Processors](#processors)
+1. [Messages on standard objects](#built-in-messages)
+1. [Core system module](#the-core-system-module)
+1. [Including source files](#including-files)
+1. [Using modules](#using-modules)
+1. [Testing](#testing)
+1. [Calling java code](#calling-java-code)
+
 ## Basic structure
 A typical tailspin statement starts with a [source](#sources) for a value,
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
@@ -32,11 +54,11 @@ Rather than using control flow keywords, you would in tailspin produce streams o
 
 Comments are started with `//` and continue to the end of the line.
 
-## Side effects
+### Side effects
 The current specification is that each step of a _value chain_ is executed
 for all of the values of a stream of current values, `$`, before the next step is evaluated. This may change.
 
-## Command line arguments
+### Command line arguments
 Command line arguments are available as a list of strings in the predefined value ARGS, accessible as `$ARGS`.
 
 ## Sources
@@ -529,19 +551,6 @@ if the message represents a source, with `!` if the message represents a sink an
 Processor messages are implemented as [defined templates](#defined-templates), [defined sources](#defined-sources) or [defined sinks](#defined-sinks) within the processor which then
 run within the scope of the processor instance. Therefore messages can also take parameters.
 
-## The Core System module
-The Core System module is provided by default to a main program and has no prefix. The module contains the following symbols:
-
-A predefined symbol `SYS` can be used to access certain system-defined functions:
-* `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
-* `$N -> SYS::randomInt` returns a random integer value between 0 and N-1 (inclusive)
-
-`IN` accesses user data entered in the terminal (or data from the unix standard input pipe).
-* `$IN::lines` Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).
-
-`OUT` sends data to the standard output pipe (by default the terminal)
-* `!OUT::write` writes a string representation of each of the objects in the stream. (Note the `!` prefix for a [sink](#sinks))
-
 ## Built-in messages
 All objects
 * `$::hashCode` returns a hash code consistent with equality.
@@ -555,6 +564,19 @@ Keyed values
 
 Strings
 * `$::asCodePoints` returns an array of Unicode code points corresponding to the string.
+
+## The Core System module
+The Core System module is provided by default to a main program and has no prefix. The module contains the following symbols:
+
+A predefined symbol `SYS` can be used to access certain system-defined functions:
+* `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
+* `$N -> SYS::randomInt` returns a random integer value between 0 and N-1 (inclusive)
+
+`IN` accesses user data entered in the terminal (or data from the unix standard input pipe).
+* `$IN::lines` Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).
+
+`OUT` sends data to the standard output pipe (by default the terminal)
+* `!OUT::write` writes a string representation of each of the objects in the stream. (Note the `!` prefix for a [sink](#sinks))
 
 ## Including files
 A tailspin file can include other files before any other statement by writing
@@ -676,7 +698,7 @@ end 'Example test'
 To run the tests in a file, put the command-line flag `--test` before the name of the file to run.
 
 ### Mocking, stubbing, faking
-Tests normally run with all the same modules as the main program of the file it is in, but they can also
+Tests normally run with all the same [modules](#using-modules) as the main program of the file it is in, but they can also
 have their own `use` statements at the beginning of the test which get used instead of the same ones in the program, e.g.
 ```
 sink hello
