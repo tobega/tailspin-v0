@@ -329,4 +329,18 @@ class Statements {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Throwable.class, () -> runner.run(input, output, List.of()));
   }
+
+  @Test
+  void nonArithmeticParenthesizedValueProductionIsCompileError() {
+    String program = "(1 -> [$]) -> !OUT::write\n";
+    assertThrows(Throwable.class, () ->
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  @Test
+  void parenthesizedPartOfValueProductionIsCompileError() {
+    String program = "2 -> (1 -> [$]) -> !OUT::write\n";
+    assertThrows(Throwable.class, () ->
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
 }

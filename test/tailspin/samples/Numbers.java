@@ -181,6 +181,19 @@ class Numbers {
   }
 
   @Test
+  void simplePrecedence() throws IOException {
+    String program = "3 * 2 + 4 * 5 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("26", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void dereference() throws IOException {
     String program = "def x: 5;\n 3 * $x -> !OUT::write";
     Tailspin runner =
@@ -313,6 +326,32 @@ class Numbers {
   @Test
   void valueChainStartsExpression() throws IOException {
     String program = "templates add $ + 1 ! end add\n (5 -> add) - 2 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void valueChainEndsExpression() throws IOException {
+    String program = "templates add $ + 1 ! end add\n 6 - (1 -> add) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void valueChainSurroundsExpression() throws IOException {
+    String program = "templates add $ + 1 ! end add\n (5 -> add) - (1 -> add) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

@@ -145,11 +145,20 @@ interpolateEvaluate: StartStringInterpolate (anyIdentifier? reference Message? p
   transform? (To TemplateMatch)? EndStringInterpolate;
 
 arithmeticExpression: integerLiteral
-  | LeftParen valueProduction RightParen
+  | LeftParen arithmeticExpression RightParen
   | additiveOperator? (sourceReference|deleteState)
   | arithmeticExpression multiplicativeOperator arithmeticExpression
   | arithmeticExpression additiveOperator arithmeticExpression
   | arithmeticContextKeyword
+  | arithmeticExpression multiplicativeOperator term
+  | arithmeticExpression additiveOperator term
+  | termArithmeticOperation
+;
+
+term: LeftParen valueProduction RightParen;
+
+termArithmeticOperation: term multiplicativeOperator (term|arithmeticExpression)
+  | term additiveOperator (term|arithmeticExpression)
 ;
 
 additiveOperator: Plus | Minus;

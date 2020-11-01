@@ -23,7 +23,6 @@ Errors easy to make
 - Mixed up ..$bound and $bound.., hard to see error
 - Given source abc, hard to see call to $abc when intended $@abc
 - Easy to forget to use the name of the outer template in a simple filter \(<=$@.foo> $ !\)
-- (a -> b) -> c doesn't make sense, but passes compilation and (a->b) gets interpreted as an integer expression
 
 Illogical?
 - Should we be able to use inline templates as sources and sinks?

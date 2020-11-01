@@ -624,37 +624,70 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return new IntegerExpression(isNegative, Value.of(visitDeleteState(ctx.deleteState())));
     }
     if (ctx.LeftParen() != null) {
-      return new IntegerExpression(false, Value.of(visitValueProduction(ctx.valueProduction())));
+      return visitArithmeticExpression(ctx.arithmeticExpression(0));
     }
     if (ctx.additiveOperator() != null) {
-      Value left = (Value) visit(ctx.arithmeticExpression(0));
-      Value right = (Value) visit(ctx.arithmeticExpression(1));
+      Value left = visitArithmeticExpression(ctx.arithmeticExpression(0));
+      Value right = ctx.term() == null ? visitArithmeticExpression(ctx.arithmeticExpression(1))
+          : visitTerm(ctx.term());
       String operation = ctx.additiveOperator().getText();
-      switch (operation) {
-        case "+":
-          return new ArithmeticOperation(left, ArithmeticOperation.Op.Add, right);
-        case "-":
-          return new ArithmeticOperation(left, ArithmeticOperation.Op.Subtract, right);
-      }
+      return newArithmeticOperation(left, right, operation);
     }
     if (ctx.multiplicativeOperator() != null) {
-      Value left = (Value) visit(ctx.arithmeticExpression(0));
-      Value right = (Value) visit(ctx.arithmeticExpression(1));
+      Value left = visitArithmeticExpression(ctx.arithmeticExpression(0));
+      Value right = ctx.term() == null ? visitArithmeticExpression(ctx.arithmeticExpression(1))
+          : visitTerm(ctx.term());
       String operation = ctx.multiplicativeOperator().getText();
-      switch (operation) {
-        case "*":
-          return new ArithmeticOperation(left, ArithmeticOperation.Op.Multiply, right);
-        case "~/":
-          return new ArithmeticOperation(left, ArithmeticOperation.Op.DivideTruncate, right);
-        case "mod":
-          return new ArithmeticOperation(left, ArithmeticOperation.Op.Modulo, right);
-      }
+      return newArithmeticOperation(left, right, operation);
     }
     if (ctx.integerLiteral() != null) {
       return (Value) visit(ctx.integerLiteral());
     }
     if (!resolver.isEmpty() && ctx.arithmeticContextKeyword() != null) {
       return new ArithmeticContextValue(ctx.arithmeticContextKeyword().getText(), resolver.peek());
+    }
+    if (ctx.termArithmeticOperation() != null) {
+      return visitTermArithmeticOperation(ctx.termArithmeticOperation());
+    }
+    throw new UnsupportedOperationException();
+  }
+
+  ArithmeticOperation newArithmeticOperation(Value left, Value right, String operation) {
+    switch (operation) {
+      case "+":
+        return new ArithmeticOperation(left, ArithmeticOperation.Op.Add, right);
+      case "-":
+        return new ArithmeticOperation(left, ArithmeticOperation.Op.Subtract, right);
+      case "*":
+        return new ArithmeticOperation(left, ArithmeticOperation.Op.Multiply, right);
+      case "~/":
+        return new ArithmeticOperation(left, ArithmeticOperation.Op.DivideTruncate, right);
+      case "mod":
+        return new ArithmeticOperation(left, ArithmeticOperation.Op.Modulo, right);
+    }
+    throw new UnsupportedOperationException("Unknown arithmetic operator '" + operation + "'");
+  }
+
+  @Override
+  public Value visitTerm(TermContext ctx) {
+    return Value.of(visitValueProduction(ctx.valueProduction()));
+  }
+
+  @Override
+  public Value visitTermArithmeticOperation(TermArithmeticOperationContext ctx) {
+    if (ctx.additiveOperator() != null) {
+      Value left = visitTerm(ctx.term(0));
+      Value right = ctx.arithmeticExpression() != null ? visitArithmeticExpression(ctx.arithmeticExpression())
+          : visitTerm(ctx.term(1));
+      String operation = ctx.additiveOperator().getText();
+      return newArithmeticOperation(left, right, operation);
+    }
+    if (ctx.multiplicativeOperator() != null) {
+      Value left = visitTerm(ctx.term(0));
+      Value right = ctx.arithmeticExpression() != null ? visitArithmeticExpression(ctx.arithmeticExpression())
+          : visitTerm(ctx.term(1));
+      String operation = ctx.multiplicativeOperator().getText();
+      return newArithmeticOperation(left, right, operation);
     }
     throw new UnsupportedOperationException();
   }
