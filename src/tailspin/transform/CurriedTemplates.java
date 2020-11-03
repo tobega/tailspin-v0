@@ -23,4 +23,9 @@ public class CurriedTemplates implements Transform {
     }
     return transform.getResults(it, params);
   }
+
+  @Override
+  public String[] getOperandNames() {
+    return transform.getOperandNames();
+  }
 }

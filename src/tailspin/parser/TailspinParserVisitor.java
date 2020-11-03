@@ -65,6 +65,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitTestDefinition(TailspinParser.TestDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code operatorDefinition}
+	 * labeled alternative in {@link TailspinParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperatorDefinition(TailspinParser.OperatorDefinitionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#key}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -421,12 +428,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#term}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTerm(TailspinParser.TermContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link TailspinParser#termArithmeticOperation}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -444,6 +445,24 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMultiplicativeOperator(TailspinParser.MultiplicativeOperatorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#term}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTerm(TailspinParser.TermContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#operatorExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperatorExpression(TailspinParser.OperatorExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#operand}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOperand(TailspinParser.OperandContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#composerBody}.
 	 * @param ctx the parse tree

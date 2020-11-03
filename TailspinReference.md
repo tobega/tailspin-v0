@@ -21,6 +21,7 @@ should have been used instead. This is deliberate in order to free the mind of p
     1. [Deconstructor](#deconstructor)
     1. [Templates](#templates)
     1. [Composer](#composer)
+    1. [Operator](#operator)
 1. [Matchers](#matchers)
 1. [Mutable state](#templates-state) (see also [Processors](#processors))
 1. [Parameters](#parameters)
@@ -104,6 +105,8 @@ Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 * addition `+`
 * subtraction `-`
 * parenthesized sub-expressions
+
+A value chain that yields a number can be used as an operand on either side of an operator, if it is eclosed in parentheses.
 
 _Current limitations_: Only integers are supported.
 
@@ -335,6 +338,25 @@ optionally with a value stream from a matcher. It can be accessed in the usual w
 
 A composer must match the whole string. It will backtrack and try other options, but performance-wise it is
 better if matchers are made so that backtracking never needs happen (by a prefix-free grammar).
+
+### Operator
+An operator (or more correctly, binary operator) is a type of transform that takes two arguments, one on the left of the
+operator, the other on the right. This is a construct intended to show intent more readably than the alternative of passing in
+a current value that is a list of two items, or by using parameters.
+
+You define an operator like this:
+```
+operator (left name right)
+  // optional block, followed by optional matchers, just as in templates
+  // the operand values are accessed as $left and $right
+end name
+```
+The identifiers `left`, `right` and `name` can be replaced with names of your choice.
+
+To apply an operator, you write the left operand value, the operator name and the right operand value in parentheses, e.g. `(5 add 2)`
+An operand value can be any [source](#sources), or a value chain enclosed in parentheses.
+
+You can specify [parameters](#parameters) to modify/control certain aspects of the execution.
 
 ## Matchers
 A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the

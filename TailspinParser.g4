@@ -12,6 +12,7 @@ statement: Def key valueProduction SemiColon                  # definition
   | StartProcessorDefinition localIdentifier parameterDefinitions? block EndDefinition localIdentifier # processorDefinition
   | StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier # composerDefinition
   | StartTestDefinition stringLiteral useModule* testBody EndDefinition stringLiteral # testDefinition
+  | StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen templatesBody EndDefinition localIdentifier # operatorDefinition
 ;
 
 key: localIdentifier Colon;
@@ -26,6 +27,7 @@ source: sourceReference
   | structureLiteral
   | LeftParen keyValue RightParen
   | arithmeticExpression
+  | operatorExpression
 ;
 
 sourceReference: SourceMarker anyIdentifier? reference Message? parameterValues?;
@@ -155,8 +157,6 @@ arithmeticExpression: integerLiteral
   | termArithmeticOperation
 ;
 
-term: LeftParen valueProduction RightParen;
-
 termArithmeticOperation: term multiplicativeOperator (term|arithmeticExpression)
   | term additiveOperator (term|arithmeticExpression)
 ;
@@ -164,6 +164,12 @@ termArithmeticOperation: term multiplicativeOperator (term|arithmeticExpression)
 additiveOperator: Plus | Minus;
 
 multiplicativeOperator: Star | TruncateDivide | Mod;
+
+term: LeftParen valueProduction RightParen;
+
+operatorExpression: LeftParen operand templatesReference operand RightParen;
+
+operand: source | term;
 
 composerBody: stateAssignment? compositionSequence definedCompositionSequence*
 ;
@@ -227,6 +233,7 @@ keyword: Include
   | StartSinkDefinition
   | StartComposerDefinition
   | StartProcessorDefinition
+  | StartOperatorDefinition
   | EndDefinition
   | Mod
   | Rule

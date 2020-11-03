@@ -72,6 +72,8 @@ StartComposerDefinition: 'composer' ;
 
 StartProcessorDefinition: 'processor';
 
+StartOperatorDefinition: 'operator';
+
 EndDefinition: 'end';
 
 Rule: 'rule';
