@@ -47,6 +47,7 @@ import tailspin.control.TemplatesDefinition.TemplatesConstructor;
 import tailspin.control.TemplatesReference;
 import tailspin.control.Value;
 import tailspin.literals.ArrayLiteral;
+import tailspin.literals.BytesConstant;
 import tailspin.literals.CodedCharacter;
 import tailspin.literals.KeyValueExpression;
 import tailspin.literals.StringConstant;
@@ -68,6 +69,7 @@ import tailspin.matchers.ValueMatcher;
 import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.parser.TailspinParser;
+import tailspin.parser.TailspinParser.BytesLiteralContext;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
 import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
 import tailspin.parser.TailspinParser.DimensionReferenceContext;
@@ -178,6 +180,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     if (ctx.operatorExpression() != null) {
       return visitOperatorExpression(ctx.operatorExpression());
+    }
+    if (ctx.bytesLiteral() != null) {
+      return visitBytesLiteral(ctx.bytesLiteral());
     }
     throw new UnsupportedOperationException(ctx.getText());
   }
@@ -914,6 +919,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public KeyValueExpression visitKeyValue(TailspinParser.KeyValueContext ctx) {
     String key = ctx.key().localIdentifier().getText();
     return new KeyValueExpression(key, Value.of(visitValueProduction(ctx.valueProduction())));
+  }
+
+  @Override
+  public BytesConstant visitBytesLiteral(BytesLiteralContext ctx) {
+    String hex = ctx.Bytes().getText();
+    byte[] bytes = new byte[hex.length()/2];
+    for (int i = 0; i < hex.length(); i += 2) {
+      bytes[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+          + Character.digit(hex.charAt(i+1), 16));
+    }
+    return new BytesConstant(bytes);
   }
 
   @Override

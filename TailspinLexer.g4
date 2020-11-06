@@ -58,6 +58,8 @@ LeftBrace: '{';
 
 RightBrace: '}';
 
+StartBytes: '[x' -> pushMode(IN_BYTES);
+
 StartMatcher: '<';
 
 Lambda: '\\';
@@ -173,3 +175,12 @@ STRING_TEXT: STRING_CHAR+;
 fragment STRING_CHAR: '\'\'' | '$$' | ~['$];
 
 END_STRING: '\'' -> popMode;
+
+
+mode IN_BYTES;
+
+Bytes: ([0-9a-f][0-9a-f])+;
+
+Bytes_WS : [ \r\t\n]+ -> skip ;
+
+EndBytes: 'x]' -> popMode;

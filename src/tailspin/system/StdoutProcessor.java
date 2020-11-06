@@ -20,7 +20,13 @@ public class StdoutProcessor implements Processor {
     return (it, params) -> {
       if (message.equals("write")) {
         try {
-          output.write(it.toString().getBytes(StandardCharsets.UTF_8));
+          String s;
+          if (it instanceof byte[]) {
+            s = formatByteArray((byte[]) it);
+          } else {
+            s = it.toString();
+          }
+          output.write(s.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
@@ -29,5 +35,15 @@ public class StdoutProcessor implements Processor {
       }
       return null;
     };
+  }
+
+  private String formatByteArray(byte[] it) {
+    StringBuilder builder = new StringBuilder();
+    builder.append("[x ");
+    for (byte b : it) {
+      builder.append(String.format("%02x", b));
+    }
+    builder.append(" x]");
+    return builder.toString();
   }
 }

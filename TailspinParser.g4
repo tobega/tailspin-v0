@@ -25,6 +25,7 @@ source: sourceReference
   | rangeLiteral
   | arrayLiteral
   | structureLiteral
+  | bytesLiteral
   | LeftParen keyValue RightParen
   | arithmeticExpression
   | operatorExpression
@@ -51,6 +52,8 @@ arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valu
 valueProduction: sendToTemplates | valueChain;
 
 structureLiteral: LeftBrace (keyValues (Comma keyValues)*)? RightBrace;
+
+bytesLiteral: StartBytes Bytes EndBytes;
 
 keyValues: keyValue
   | valueProduction
