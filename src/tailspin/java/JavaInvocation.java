@@ -49,22 +49,6 @@ class JavaInvocation implements Transform {
     tsToJavaTypeConversions.put(Float.class, (o) -> ((Number) o).floatValue());
   }
 
-  static {
-    JavaTypeConverter.javaToTsTypeConversions.put(long.class, Function.identity());
-    JavaTypeConverter.javaToTsTypeConversions.put(Long.class, Function.identity());
-    JavaTypeConverter.javaToTsTypeConversions.put(int.class, (o) -> ((Number) o).longValue());
-    JavaTypeConverter.javaToTsTypeConversions.put(Integer.class, (o) -> ((Number) o).longValue());
-    JavaTypeConverter.javaToTsTypeConversions.put(short.class, (o) -> ((Number) o).longValue());
-    JavaTypeConverter.javaToTsTypeConversions.put(Short.class, (o) -> ((Number) o).longValue());
-    JavaTypeConverter.javaToTsTypeConversions.put(byte.class, (o) -> ((Number) o).longValue());
-    JavaTypeConverter.javaToTsTypeConversions.put(Byte.class, (o) -> ((Number) o).longValue());
-    JavaTypeConverter.javaToTsTypeConversions.put(double.class, JavaObject::new);
-    JavaTypeConverter.javaToTsTypeConversions.put(Double.class, JavaObject::new);
-    JavaTypeConverter.javaToTsTypeConversions.put(float.class, JavaObject::new);
-    JavaTypeConverter.javaToTsTypeConversions.put(Float.class, JavaObject::new);
-    JavaTypeConverter.javaToTsTypeConversions.put(String.class, Function.identity());
-  }
-
   private final Class<?> c;
   private final Object o;
   private final String message;

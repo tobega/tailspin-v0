@@ -10,6 +10,23 @@ public class JavaTypeConverter {
 
   static final Map<Class<?>, Function<Object, Object>> javaToTsTypeConversions = new HashMap<>();
 
+  static {
+    javaToTsTypeConversions.put(long.class, Function.identity());
+    javaToTsTypeConversions.put(Long.class, Function.identity());
+    javaToTsTypeConversions.put(int.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(Integer.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(short.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(Short.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(byte.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(Byte.class, (o) -> ((Number) o).longValue());
+    javaToTsTypeConversions.put(double.class, JavaObject::new);
+    javaToTsTypeConversions.put(Double.class, JavaObject::new);
+    javaToTsTypeConversions.put(float.class, JavaObject::new);
+    javaToTsTypeConversions.put(Float.class, JavaObject::new);
+    javaToTsTypeConversions.put(String.class, Function.identity());
+    javaToTsTypeConversions.put(byte[].class, Function.identity());
+  }
+
   private JavaTypeConverter() {}
 
   public static Object tailspinTypeOf(Object result) {

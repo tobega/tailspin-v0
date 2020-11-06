@@ -442,4 +442,32 @@ public class JavaModules {
 
     assertEquals("4", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void byteArrayIsTailspinBytes() throws Exception {
+    String program = "use 'java:java.math' stand-alone\n"
+        + "3147 -> math/BigInteger::valueOf -> $::toByteArray -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[x 0c4b x]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void tailspinBytesIsByteArray() throws Exception {
+    String program = "use 'java:java.math' stand-alone\n"
+        + "[x 0c4b x] -> math/BigInteger -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("3147", output.toString(StandardCharsets.UTF_8));
+  }
 }
