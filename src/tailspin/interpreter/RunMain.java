@@ -755,14 +755,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.additiveOperator() != null) {
       Value left = visitArithmeticExpression(ctx.arithmeticExpression(0));
       Value right = ctx.term() == null ? visitArithmeticExpression(ctx.arithmeticExpression(1))
-          : visitTerm(ctx.term());
+          : Value.of(visitTerm(ctx.term()));
       String operation = ctx.additiveOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
     if (ctx.multiplicativeOperator() != null) {
       Value left = visitArithmeticExpression(ctx.arithmeticExpression(0));
       Value right = ctx.term() == null ? visitArithmeticExpression(ctx.arithmeticExpression(1))
-          : visitTerm(ctx.term());
+          : Value.of(visitTerm(ctx.term()));
       String operation = ctx.multiplicativeOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
@@ -797,16 +797,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Value visitTermArithmeticOperation(TermArithmeticOperationContext ctx) {
     if (ctx.additiveOperator() != null) {
-      Value left = visitTerm(ctx.term(0));
+      Value left = Value.of(visitTerm(ctx.term(0)));
       Value right = ctx.arithmeticExpression() != null ? visitArithmeticExpression(ctx.arithmeticExpression())
-          : visitTerm(ctx.term(1));
+          : Value.of(visitTerm(ctx.term(1)));
       String operation = ctx.additiveOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
     if (ctx.multiplicativeOperator() != null) {
-      Value left = visitTerm(ctx.term(0));
+      Value left = Value.of(visitTerm(ctx.term(0)));
       Value right = ctx.arithmeticExpression() != null ? visitArithmeticExpression(ctx.arithmeticExpression())
-          : visitTerm(ctx.term(1));
+          : Value.of(visitTerm(ctx.term(1)));
       String operation = ctx.multiplicativeOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
@@ -814,8 +814,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Value visitTerm(TermContext ctx) {
-    return Value.of(visitValueProduction(ctx.valueProduction()));
+  public Expression visitTerm(TermContext ctx) {
+    return visitValueProduction(ctx.valueProduction());
   }
 
   @Override
@@ -829,7 +829,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Value visitOperand(OperandContext ctx) {
     if (ctx.term() != null) {
-      return visitTerm(ctx.term());
+      return Value.of(visitTerm(ctx.term()));
     }
     if (ctx.source() != null) {
       return Value.of(visitSource(ctx.source()));
@@ -930,7 +930,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Value visitByteValue(ByteValueContext ctx) {
+  public Expression visitByteValue(ByteValueContext ctx) {
     if (ctx.Bytes() != null) {
       String hex = ctx.Bytes().getText();
       byte[] bytes = new byte[hex.length()/2];
