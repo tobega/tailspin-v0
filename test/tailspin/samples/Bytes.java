@@ -25,4 +25,17 @@ public class Bytes {
     assertEquals("[x 06a3 x]", output.toString(StandardCharsets.UTF_8));
   }
 
+  @Test
+  void concatenateBytes() throws IOException {
+    String program = "def a: [x 06a3 x];\n"
+        + "[x ff ($a) 00 x] -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[x ff06a300 x]", output.toString(StandardCharsets.UTF_8));
+  }
 }

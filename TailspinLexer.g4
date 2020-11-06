@@ -181,6 +181,8 @@ mode IN_BYTES;
 
 Bytes: ([0-9a-f][0-9a-f])+;
 
-Bytes_WS : [ \r\t\n]+ -> skip ;
+Bytes_WS : WS -> skip ;
+
+StartBytesExpression: LeftParen -> type(LeftParen), pushMode(DEFAULT_MODE);
 
 EndBytes: 'x]' -> popMode;

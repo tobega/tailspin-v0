@@ -47,6 +47,7 @@ import tailspin.control.TemplatesDefinition.TemplatesConstructor;
 import tailspin.control.TemplatesReference;
 import tailspin.control.Value;
 import tailspin.literals.ArrayLiteral;
+import tailspin.literals.ByteLiteral;
 import tailspin.literals.BytesConstant;
 import tailspin.literals.CodedCharacter;
 import tailspin.literals.KeyValueExpression;
@@ -69,6 +70,7 @@ import tailspin.matchers.ValueMatcher;
 import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.parser.TailspinParser;
+import tailspin.parser.TailspinParser.ByteValueContext;
 import tailspin.parser.TailspinParser.BytesLiteralContext;
 import tailspin.parser.TailspinParser.CompositionSequenceContext;
 import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
@@ -922,14 +924,26 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public BytesConstant visitBytesLiteral(BytesLiteralContext ctx) {
-    String hex = ctx.Bytes().getText();
-    byte[] bytes = new byte[hex.length()/2];
-    for (int i = 0; i < hex.length(); i += 2) {
-      bytes[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-          + Character.digit(hex.charAt(i+1), 16));
+  public Value visitBytesLiteral(BytesLiteralContext ctx) {
+    return new ByteLiteral(
+        ctx.byteValue().stream().map(this::visitByteValue).collect(Collectors.toList()));
+  }
+
+  @Override
+  public Value visitByteValue(ByteValueContext ctx) {
+    if (ctx.Bytes() != null) {
+      String hex = ctx.Bytes().getText();
+      byte[] bytes = new byte[hex.length()/2];
+      for (int i = 0; i < hex.length(); i += 2) {
+        bytes[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
+            + Character.digit(hex.charAt(i+1), 16));
+      }
+      return new BytesConstant(bytes);
     }
-    return new BytesConstant(bytes);
+    if (ctx.term() != null) {
+      return visitTerm(ctx.term());
+    }
+    throw new UnsupportedOperationException();
   }
 
   @Override

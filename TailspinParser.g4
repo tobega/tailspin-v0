@@ -53,7 +53,9 @@ valueProduction: sendToTemplates | valueChain;
 
 structureLiteral: LeftBrace (keyValues (Comma keyValues)*)? RightBrace;
 
-bytesLiteral: StartBytes Bytes EndBytes;
+bytesLiteral: StartBytes byteValue (byteValue)* EndBytes;
+
+byteValue: Bytes | term;
 
 keyValues: keyValue
   | valueProduction
