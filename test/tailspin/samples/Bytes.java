@@ -135,4 +135,30 @@ public class Bytes {
 
     assertEquals("[x fe7e x]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void invert() throws IOException {
+    String program = "[x 0125 x] -> $::invert -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[x feda x]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void length() throws IOException {
+    String program = "[x 0125fe x] -> $::length -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
 }

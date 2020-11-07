@@ -58,6 +58,20 @@ public class ProcessorMessage extends Reference {
       } else {
         throw new UnsupportedOperationException("Unknown keyValue message " + message);
       }
+    } else if (receiver instanceof byte[]) {
+      switch (message) {
+        case "invert":
+          return (it, params) -> {
+            byte[] in = (byte[]) receiver;
+            byte[] result = new byte[in.length];
+            for (int i = 0; i < in.length; i++) {
+              result[i] = (byte) ~in[i];
+            }
+            return result;
+          };
+        case "length": return (it, parameters) -> ((byte[]) receiver).length;
+        default: throw new UnsupportedOperationException("Unknown bytes message " + message);
+      }
     } else {
       throw new UnsupportedOperationException("Unimplemented message " + message + " on  processor type " + receiver.getClass().getSimpleName());
     }
