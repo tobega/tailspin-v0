@@ -38,4 +38,11 @@ public abstract class BitwiseOperator extends BuiltInOperator {
       return (byte) (left | right);
     }
   }
+
+  public static class Xor extends BitwiseOperator {
+    @Override
+    byte getResultByte(byte left, byte right) {
+      return (byte) (left ^ right);
+    }
+  }
 }
