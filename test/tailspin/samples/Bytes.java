@@ -52,4 +52,35 @@ public class Bytes {
 
     assertEquals("[x 262626 x]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void matchEqualLiteral() throws IOException {
+    String program = "[x 06a3 x] -> \\(\n"
+        + "  <=[x 06a3 x]> 'yes' !\n"
+        + "  otherwise 'no' !\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void matchEqualValue() throws IOException {
+    String program = "def a: [x 06a3 x];\n"
+        + "[x 06a3 x] -> \\(\n"
+        + "  <=$a> 'yes' !\n"
+        + "  otherwise 'no' !\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
 }
