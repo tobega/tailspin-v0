@@ -6,7 +6,8 @@ import java.util.Map;
 public class Lang {
   public static final Map<String, Object> builtIns = new HashMap<>();
   static {
-    builtIns.put("and", new And());
+    builtIns.put("and", new BitwiseOperator.And());
+    builtIns.put("or", new BitwiseOperator.Or());
   }
   private Lang() {}
 }
