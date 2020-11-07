@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import tailspin.interpreter.lang.Lang;
 
 public class BasicScope implements Scope {
   private final Path basePath;
@@ -12,6 +13,7 @@ public class BasicScope implements Scope {
 
   public BasicScope(Path basePath) {
     this.basePath = basePath;
+    definitions.putAll(Lang.builtIns);
   }
 
   @Override
