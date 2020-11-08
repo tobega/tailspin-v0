@@ -1,5 +1,6 @@
 package tailspin.control;
 
+import java.util.Arrays;
 import tailspin.interpreter.Scope;
 import tailspin.types.KeyValue;
 import tailspin.types.Processor;
@@ -37,6 +38,7 @@ public class ProcessorMessage extends Reference {
     if (receiver instanceof Processor) {
       return  ((Processor) receiver).resolveMessage(message, resolvedParams);
     } else if (message.equals("hashCode")) {
+      if (receiver instanceof byte[]) return (it, parameters) -> Arrays.hashCode((byte[]) receiver);
       return (it, params) -> ((Number) receiver.hashCode()).longValue();
     } else if (receiver instanceof List) {
       if (message.equals("length")) {
