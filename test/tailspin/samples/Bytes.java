@@ -62,6 +62,19 @@ public class Bytes {
   }
 
   @Test
+  void emptyStreamIsNothing() throws IOException {
+    String program = "[[x (1..-1 -> [x 11 x]) x]] -> \\(<=[]> 'nothing' ! <> $!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("nothing", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void matchEqualLiteral() throws IOException {
     String program = "[x 06a3 x] -> \\(\n"
         + "  <=[x 06a3 x]> 'yes' !\n"
@@ -414,5 +427,31 @@ public class Bytes {
     runner.run(input, output, List.of());
 
     assertEquals("7f8049", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void utf8String() throws IOException {
+    String program = "[x 48616c6cc3a5 x] -> $::asUtf8String -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("Hallå", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void integer() throws IOException {
+    String program = "[x 0081 x] -> $::asInteger -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("129", output.toString(StandardCharsets.UTF_8));
   }
 }

@@ -12,6 +12,7 @@ should have been used instead. This is deliberate in order to free the mind of p
     1. [Range](#range-literal)
     1. [Array](#array-literal)
     1. [Structure](#structure-literal)
+    1. [Bytes literal](#bytes-literal)
     1. [Terminal input](#input)
     1. [Defined value (Dereference)](#dereference)
     1. [Value generator (Defined source)](#defined-sources)
@@ -28,6 +29,7 @@ should have been used instead. This is deliberate in order to free the mind of p
 1. [Streams](#streams)
 1. [Arrays](#arrays)
 1. [Structures](#structures)
+1. [Bytes](#bytes)
 1. [Processors](#processors)
 1. [Messages on standard objects](#built-in-messages)
 1. [Core system module](#the-core-system-module)
@@ -133,6 +135,16 @@ literal key-value pairs or expressions generating [streams](#streams) of key-val
 A literal key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
 An example of an expression generating a stream of key-value pairs is a [deconstruct](#deconstructor)
  of a [dereferenced](#dereference) structure value.
+
+### Bytes literal
+A bytes literal produces a [bytes](#bytes) value. In the simplest form it starts with the marker `[x` and ends with `x]`, with a sequence
+of an even number of hexadecimal digits between them, e.g. `[x 81a5 x]`.
+
+To generate bytes values, value chains yielding streams of bytes results can be set within parentheses within
+the bytes markers. Several bytes values can be concatenated by space-separated generators and hexadecimal digit
+sequences between the markers, e.g. `[x 1a (1..3 -> [x 00 x]) ff x]` yields `1a000000ff`.
+
+A bytes literal that ends up having no values between the markers becomes nothing.
 
 ### Input
 Input is data obtained from an external source. See the [core system module](#the-core-system-module),
@@ -555,6 +567,60 @@ Of course, a keyed value is just a value and so may be captured in a definition 
 When creating keyed values, the transform chain binds to the value, not the whole keyed value, e.g. `a: 1 -> (<1> 'yes')` will give the result `a: 'yes'`.
 To send the keyed value through a transform, put it in parentheses, so `(a: 1) -> ...{}` creates `{a: 1}`.
 
+A keyed value responds to the following messages:
+* `::key` returns the key as a string.
+* `::value` returns the value.
+
+## Bytes
+Bytes values represent a sequence of bytes and can be created through a [bytes literal](#bytes-literal)
+or a transformation from other values (e.g. by [built-in messages](#built-in-messages) on strings and integers).
+
+Slices (sub-sequences) of bytes values can be obtained by indexed retrieval much like for [arrays](#arrays).
+One difference is that the retrieved value is always also a bytes value. Another difference from arrays
+is that negative indices and the zero index are defined as being filled by the highest bit of the first byte
+(sign extension). Of course, a bytes value only has one dimension to index.
+
+Bytes can be operated on through the bitwise `and`, `or` and `xor` [operators](#operator). If the
+two bytes values supplied have different lengths, the shorter will be extended to the left by repeating
+its highest (leftmost) bit, a.k.a. sign extension.
+
+Bytes values respond to the following messages:
+* `::invert` returns a bytes value with all ones turned to zeroes and all zeroes turned to ones.
+* `::length` returns the number of bytes in the bytes value.
+* `::shift&{left:, fill:}` where left is an integer and fill is a bytes value. If left is positive,
+  the value is shifted that many bits to the left while if it is negative, the shift is to the right.
+  Vacated bit positions are filled from infinite repetitions of the fill pattern, as needed.
+* `::asUtf8String` returns a string as coded by the bytes in utf8 (or an error if coding is incorrect)
+* `::asInteger` returns the integer that the bytes code by twos complement representation.
+
+Examples:
+```
+def a: [x f075 x];
+def b: [x 81 x];
+
+($a and $b) -> '$a; and $b; is $;$#10;' -> !OUT::write
+($a or $b) -> '$a; or $b; is $;$#10;' -> !OUT::write
+($a xor $b) -> '$a; xor $b; is $;$#10;' -> !OUT::write
+$a::invert -> 'not $a; is $;$#10;' -> !OUT::write
+$a::shift&{left: 3, fill: [x 00 x]} -> '$a; shifted left 3 bits is $;$#10;' -> !OUT::write
+$a::shift&{left: -3, fill: [x 00 x]} -> '$a; shifted right 3 bits is $;$#10;' -> !OUT::write
+$a::shift&{left: -3, fill: $a(0)} -> '$a; arithmetically shifted right 3 bits is $;$#10;' -> !OUT::write
+$a::shift&{left: 3, fill: $a} -> '$a; rotated left 3 bits is $;$#10;' -> !OUT::write
+$a::shift&{left: -3, fill: $a} -> '$a; rotated right 3 bits is $;$#10;' -> !OUT::write
+```
+gives the result
+```
+f075 and 81 is f001
+f075 or 81 is fff5
+f075 xor 81 is 0ff4
+not f075 is 0f8a
+f075 shifted left 3 bits is 83a8
+f075 shifted right 3 bits is 1e0e
+f075 arithmetically shifted right 3 bits is fe0e
+f075 rotated left 3 bits is 83af
+f075 rotated right 3 bits is be0e
+```
+
 ## Processors
 A processor is an object that is more complex than simply data. It would normally have some
 state that is kept over time (several accesses) and could possibly change.
@@ -594,6 +660,19 @@ Keyed values
 
 Strings
 * `$::asCodePoints` returns an array of Unicode code points corresponding to the string.
+* `$::asUtf8Bytes` returns the string encoded as utf8 [bytes](#bytes)
+
+Integer
+* `$::asBytes` returns the minimal [bytes value](#bytes) that can represent the integer in twos complement notation.
+
+Bytes
+* `$::invert` returns a bytes value with all ones turned to zeroes and all zeroes turned to ones.
+* `$::length` returns the number of bytes in the bytes value.
+* `$::shift&{left:, fill:}` where left is an integer and fill is a bytes value. If left is positive,
+  the value is shifted that many bits to the left while if it is negative, the shift is to the right.
+  Vacated bit positions are filled from infinite repetitions of the fill pattern, as needed.
+* `$::asUtf8String` returns a string as coded by the bytes in utf8 (or an error if coding is incorrect)
+* `$::asInteger` returns the integer that the bytes code by twos complement representation.
 
 ## The Core System module
 The Core System module is provided by default to a main program and has no prefix. The module contains the following symbols:

@@ -25,6 +25,6 @@ public class ByteLiteral implements Value {
         .flatMap(v -> Stream.iterate(v.getNextResult(), Objects::nonNull, o -> v.getNextResult()))
         .map(byte[].class::cast)
         .forEach(result::writeBytes);
-    return result.toByteArray();
+    return result.size() == 0 ? null : result.toByteArray();
   }
 }
