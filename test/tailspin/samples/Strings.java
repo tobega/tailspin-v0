@@ -292,6 +292,19 @@ class Strings {
   }
 
   @Test
+  void interpolateBytes() throws Exception {
+    String program = "[x 75f3 x] -> '$;' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("75f3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void interpolateArrayElement() throws Exception {
     String program = "['yo', 'hi'] -> '$(2);' -> !OUT::write";
     Tailspin runner =

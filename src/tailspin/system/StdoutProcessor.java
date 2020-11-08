@@ -1,5 +1,6 @@
 package tailspin.system;
 
+import tailspin.literals.StringInterpolation;
 import tailspin.types.Processor;
 import tailspin.types.Transform;
 
@@ -20,13 +21,8 @@ public class StdoutProcessor implements Processor {
     return (it, params) -> {
       if (message.equals("write")) {
         try {
-          String s;
-          if (it instanceof byte[]) {
-            s = formatByteArray((byte[]) it);
-          } else {
-            s = it.toString();
-          }
-          output.write(s.getBytes(StandardCharsets.UTF_8));
+          output.write(StringInterpolation.appendStringValue(new StringBuilder(), it)
+              .toString().getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
           throw new RuntimeException(e);
         }

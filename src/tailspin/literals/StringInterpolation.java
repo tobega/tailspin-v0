@@ -18,11 +18,19 @@ public class StringInterpolation implements Value {
     if (result == null) {
       return "";
     }
-    if (!(result instanceof ResultIterator)) {
-      return result.toString();
-    }
     StringBuilder string = new StringBuilder();
-    ResultIterator.forEach(result, string::append);
+    ResultIterator.forEach(result, r -> appendStringValue(string, r));
     return string.toString();
+  }
+
+  public static StringBuilder appendStringValue(StringBuilder builder, Object it) {
+    if (it instanceof byte[]) {
+      for (byte b : (byte[]) it) {
+        builder.append(String.format("%02x", b));
+      }
+    } else {
+      builder.append(it);
+    }
+    return builder;
   }
 }
