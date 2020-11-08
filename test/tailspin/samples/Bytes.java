@@ -259,4 +259,160 @@ public class Bytes {
 
     assertEquals("000125fe", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void shiftLeftFillZero() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: 2, fill: [x 00 x]} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("0497f8", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void shiftLeftFillOnes() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: 2, fill: [x ff x]} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("0497fb", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void shiftFarLeftFillZero() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: 10, fill: [x 00 x]} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("97f800", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void shiftFarLeftFillOnes() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: 10, fill: [x ff x]} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("97fbff", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rotateFarLeft() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: 10, fill: $} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("97f804", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rotateVeryFarLeft() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: 34, fill: $} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("97f804", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void shiftRightFillZero() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: -2, fill: [x 00 x]} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("00497f", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void shiftRightFillOnes() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: -2, fill: [x ff x]} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("c0497f", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void shiftFarRightFillZero() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: -10, fill: [x 00 x]} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("000049", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void shiftFarRightFillOnes() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: -10, fill: [x ff x]} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ffc049", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rotateFarRight() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: -10, fill: $} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("7f8049", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rotateVeryFarRight() throws IOException {
+    String program = "[x 0125fe x] -> $::shift&{left: -34, fill: $} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("7f8049", output.toString(StandardCharsets.UTF_8));
+  }
 }

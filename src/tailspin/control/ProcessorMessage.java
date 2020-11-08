@@ -72,6 +72,60 @@ public class ProcessorMessage extends Reference {
             return result;
           };
         case "length": return (it, parameters) -> ((byte[]) receiver).length;
+        case "shift": return new Transform() {
+          final byte[] original = (byte[]) receiver;
+          @Override
+          public Object getResults(Object it, Map<String, Object> parameters) {
+            long amount = (long) resolvedParams.get("left");
+            if (amount == 0) return original;
+            byte[] fill = (byte[]) resolvedParams.get("fill");
+            if (amount < 0) return shiftRight(-amount, fill);
+            return shiftLeft(amount, fill);
+          }
+
+          private byte[] shiftLeft(long amount, byte[] fill) {
+            byte[] result = new byte[original.length];
+            for (int i = 0; i < result.length; i ++) {
+              int byteShift = (int) (i + amount / 8);
+              long bitShift = amount % 8;
+              result[i] = (byte) ((getLeftShiftedByte(byteShift, fill) << bitShift)
+                  | getLeftFill(byteShift+1, bitShift, fill));
+            }
+            return result;
+          }
+
+          private byte getLeftShiftedByte(int byteShift, byte[] fill) {
+            if (byteShift < original.length) return original[byteShift];
+            byteShift -= original.length;
+            return fill[byteShift % fill.length];
+          }
+
+          private int getLeftFill(int i, long amount, byte[] fill) {
+            return (getLeftShiftedByte(i, fill) & 0xff) >>> (8 - amount);
+          }
+
+          private byte[] shiftRight(long amount, byte[] fill) {
+            byte[] result = new byte[original.length];
+            for (int i = 0; i < result.length; i ++) {
+              int byteShift = (int) (i - amount / 8);
+              long bitShift = amount % 8;
+              result[i] = (byte) (((getRightShiftedByte(byteShift, fill) & 0xff) >>> bitShift)
+                  | getRightFill(byteShift-1, bitShift, fill));
+            }
+            return result;
+          }
+
+          private byte getRightShiftedByte(int byteShift, byte[] fill) {
+            if (byteShift >= 0) return original[byteShift];
+            byteShift = (fill.length + byteShift) % fill.length;
+            if (byteShift < 0) byteShift += fill.length;
+            return fill[byteShift];
+          }
+
+          private int getRightFill(int i, long amount, byte[] fill) {
+            return (getRightShiftedByte(i, fill) & 0xff) << (8 - amount);
+          }
+        };
         default: throw new UnsupportedOperationException("Unknown bytes message " + message);
       }
     } else {
