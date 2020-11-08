@@ -1,15 +1,14 @@
 package tailspin.control;
 
-import java.util.List;
 import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 
 public class DimensionContextKeywordResolver implements ArithmeticContextKeywordResolver {
-  private List<?> dimension;
+  private Integer dimensionSize;
 
   @Override
   public long getValue(String name) {
     if (name.equals("last")) {
-      return dimension.size();
+      return dimensionSize;
     } else if (name.equals("first")) {
       return 1;
     } else {
@@ -17,19 +16,26 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
     }
   }
 
-  public Context with(List<?> context) {
-    dimension = context;
-    return new Context();
+  public Context with(Integer size, boolean allowNegative) {
+    dimensionSize = size;
+    return new Context(allowNegative);
   }
 
   public class Context implements AutoCloseable {
+
+    private final boolean allowNegative;
+
+    public Context(boolean allowNegative) {
+      this.allowNegative = allowNegative;
+    }
+
     @Override
     public void close() {
-      dimension = null;
+      dimensionSize = null;
     }
 
     public Long resolveIndex(int index) {
-      if (index <= 0 || index > dimension.size()) return null;
+      if ((!allowNegative && index <= 0) || index > dimensionSize) return null;
       return (long) (index - 1);
     }
   }

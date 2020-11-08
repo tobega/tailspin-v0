@@ -1,6 +1,7 @@
 package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -174,5 +175,81 @@ public class Bytes {
     runner.run(input, output, List.of());
 
     assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void index() throws IOException {
+    String program = "[x 0125fe x] -> $(2) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[x 25 x]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void slice() throws IOException {
+    String program = "[x 0125fe x] -> $(first..2) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[x 0125 x]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void permute() throws IOException {
+    String program = "[x 0125fe x] -> $([3, 2]) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[x fe25 x]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void indexTooLargeThrows() throws IOException {
+    String program = "[x 0125fe x] -> $(4) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void indexZeroGivesSignExtension() throws IOException {
+    String program = "[x ([x 01 x] -> $(0)) ([x 80 x] -> $(0)) x] -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[x 00ff x]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void fixSize() throws IOException {
+    String program = "[x 0125fe x] -> $(last-3..last) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[x 000125fe x]", output.toString(StandardCharsets.UTF_8));
   }
 }
