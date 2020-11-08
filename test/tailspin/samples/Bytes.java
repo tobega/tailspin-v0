@@ -27,6 +27,13 @@ public class Bytes {
   }
 
   @Test
+  void byteConstantMustHaveEvenNumberOfDigits() {
+    String program = "[x 6a3 x] -> !OUT::write";
+    assertThrows(Exception.class,
+        () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  @Test
   void concatenateBytes() throws IOException {
     String program = "def a: [x 06a3 x];\n"
         + "[x ff ($a) 00 x] -> !OUT::write";
