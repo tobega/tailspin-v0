@@ -454,7 +454,7 @@ public class JavaModules {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x 0c4b x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("0c4b", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

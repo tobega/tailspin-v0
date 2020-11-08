@@ -39,11 +39,9 @@ public class StdoutProcessor implements Processor {
 
   private String formatByteArray(byte[] it) {
     StringBuilder builder = new StringBuilder();
-    builder.append("[x ");
     for (byte b : it) {
       builder.append(String.format("%02x", b));
     }
-    builder.append(" x]");
     return builder.toString();
   }
 }

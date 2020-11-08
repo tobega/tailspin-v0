@@ -23,7 +23,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x 06a3 x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("06a3", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -37,7 +37,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x ff06a300 x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("ff06a300", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -51,7 +51,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x 262626 x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("262626", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -95,7 +95,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x 0180 x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("0180", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -108,7 +108,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x 0180 x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("0180", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -121,7 +121,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x fffe x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("fffe", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -134,7 +134,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x fe7e x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("fe7e", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -147,7 +147,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x feda x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("feda", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -187,7 +187,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x 25 x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("25", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -200,7 +200,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x 0125 x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("0125", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -213,7 +213,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x fe25 x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("fe25", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -237,7 +237,7 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x 00ff x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("00ff", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -250,6 +250,6 @@ public class Bytes {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x 000125fe x]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("000125fe", output.toString(StandardCharsets.UTF_8));
   }
 }
