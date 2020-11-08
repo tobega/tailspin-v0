@@ -563,4 +563,17 @@ class Strings {
 
     assertEquals("[97, 65, 229, 197]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void utf8Bytes() throws IOException {
+    String program = "'Hallå' -> $::asUtf8Bytes -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("48616c6cc3a5", output.toString(StandardCharsets.UTF_8));
+  }
 }

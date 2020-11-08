@@ -1,5 +1,7 @@
 package tailspin.control;
 
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import tailspin.interpreter.Scope;
 import tailspin.types.KeyValue;
@@ -46,9 +48,17 @@ public class ProcessorMessage extends Reference {
       } else {
         throw new UnsupportedOperationException("Unknown array message " + message);
       }
+    } else if (receiver instanceof Long) {
+      if (message.equals("asBytes")) {
+        return (it, params) -> BigInteger.valueOf((Long) receiver).toByteArray();
+      } else {
+        throw new UnsupportedOperationException("Unknown array message " + message);
+      }
     } else if (receiver instanceof String) {
       if (message.equals("asCodePoints")) {
         return (it, params) -> ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList());
+      } if (message.equals("asUtf8Bytes")) {
+        return (it, params) -> ((String) receiver).getBytes(StandardCharsets.UTF_8);
       } else {
         throw new UnsupportedOperationException("Unknown string message " + message);
       }
@@ -72,6 +82,8 @@ public class ProcessorMessage extends Reference {
             return result;
           };
         case "length": return (it, parameters) -> ((byte[]) receiver).length;
+        case "asUtf8String": return (it, parameters) -> new String((byte[]) receiver, StandardCharsets.UTF_8);
+        case "asInteger": return (it, parameters) -> new BigInteger((byte[]) receiver).longValue();
         case "shift": return new Transform() {
           final byte[] original = (byte[]) receiver;
           @Override

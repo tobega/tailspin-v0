@@ -16,6 +16,7 @@ should have been used instead. This is deliberate in order to free the mind of p
     1. [Terminal input](#input)
     1. [Defined value (Dereference)](#dereference)
     1. [Value generator (Defined source)](#defined-sources)
+    1. [Operator expression](#operator-expression)
 1. [Sinks](#sinks)
 1. [Transforms](#transforms)
     1. [Literal transforms](#literal-transform)
@@ -172,6 +173,11 @@ the declaration starts with the word `source` instead.
 A defined source must, of course, have an _initial block_ and will not have any valid value for the _current value_ at the start of each statement.
 
 A defined source is called by dereferencing the given identifier with a dollar sign, e.g. `$mySource`.
+
+### Operator expression
+An [operator](#operator) expression functions as a source and is written within parentheses with a value on the left, the operator name
+and a value on the right. Either or both values may in turn be a value chain within parentheses, but only
+one value may be produced, e.g. `(5 oper (2 -> SYS::randomInt))`
 
 ## Sinks
 A sink is a place where a value "disappears" and the _value chain_ ends.
