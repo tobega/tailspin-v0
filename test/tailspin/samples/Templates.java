@@ -1089,6 +1089,48 @@ class Templates {
   }
 
   @Test
+  void deleteStateArrayElements() throws Exception {
+    String program =
+        "templates state\n@: $;\n^@([1,3]) !\n$@ !\nend state\n" + "[4,5,6] -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[4, 6][5]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deleteSameStateArrayElements() throws Exception {
+    String program =
+        "templates state\n@: $;\n^@([1,1]) !\n$@ !\nend state\n" + "[4,5,6] -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[4, 4][5, 6]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deleteStateMultiDimensionalArrayElements() throws Exception {
+    String program =
+        "templates state\n@: $;\n^@([1,3];[3,1]) !\n$@ !\nend state\n" + "[[1,2,3],[4,5,6],[7,8,9]] -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[3, 1], [9, 7]][[2], [4, 5, 6], [8]]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void cannotAccessCallingScope() throws Exception {
     String program =
         "templates bar\n$ + $foo !\nend bar\n"

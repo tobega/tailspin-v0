@@ -29,7 +29,7 @@ Illogical?
 - Should we be able to specify defined templates to be array templates?
 
 Bugs
-- delete of several array elements doesn't work as expected
+// none currently known
 
 Too much syntax?
 - quick filter by \<match> to mean \(<match> $!\).
