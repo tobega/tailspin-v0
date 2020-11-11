@@ -13,7 +13,9 @@ The inspiration comes mostly from xslt, but data structures are json-like. The m
 a series of transforms so it should be easy to specify that flow. Transform steps can be specified as a set of templates with
 pattern-matching determining which template to apply. Output is generally specified as literals with interpolation of values.
 For more info see the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html)
- and the [language reference documentation](TailspinReference.md)
+and the [language reference documentation](TailspinReference.md).
+A more advanced programming example is [TDD-ing a sudoku solver](https://tobega.blogspot.com/2020/05/creating-algorithm.html).
+There is also an example of integrating with java to create a [rock-paper-scissors REST service](https://github.com/tobega/rps-tailspin).
 
 Some of my thinking that went into tailspin is elaborated in my [perfect programming language essay](https://cygni.se/the-perfect-programming-language/)
 and in my [multidimensional plasma essay](https://cygni.se/is-your-programming-language-made-of-multidimensional-plasma/).
