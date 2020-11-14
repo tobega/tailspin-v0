@@ -128,7 +128,7 @@ public abstract class Reference implements Value {
       }
       return result;
     }
-    if (value instanceof String || value instanceof Number || value instanceof Processor) {
+    if (value instanceof String || value instanceof Number || value instanceof Processor || value instanceof byte[]) {
       return value;
     }
     throw new IllegalArgumentException("Unknown value type " + value.getClass().getName());

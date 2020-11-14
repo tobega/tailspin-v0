@@ -22,6 +22,8 @@ Errors easy to make
 - Mixed up ..$bound and $bound.., hard to see error
 - Given source abc, hard to see call to $abc when intended $@abc
 - Easy to forget to use the name of the outer template in a simple filter \(<=$@.foo> $ !\)
+- Comparing the wrong type in the branch to stop recursion. In future, a type analysis should catch it,
+  for now you can defensively always stop recursion on the otherwise-branch
 
 Illogical?
 - Should we be able to use inline templates as sources and sinks?

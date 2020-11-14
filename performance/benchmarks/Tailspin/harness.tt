@@ -6,7 +6,7 @@ templates run&{name:, benchmark:}
   templates measure
     @: 1;
     def startTime: $SYS::nanoCount;
-    1..$ -> benchmark -> \(<=0> @measure: 0;\) -> !VOID
+    1..$ -> [$ -> benchmark] -> \(<=[]> 0! <> $(1)!\) -> \(<=0> @measure: 0;\) -> !VOID
     $@ -> #
     <=1>
       def endTime: $SYS::nanoCount;
