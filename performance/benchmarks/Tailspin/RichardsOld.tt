@@ -17,22 +17,6 @@ def DATA_SIZE: 4;
 
 def TRACING: 0;
 
-processor Stats
-  @: {
-    queuePacketCount: 0,
-    holdCount: 0
-  };
-  sink incrementQueuePacketCount
-    @Stats.queuePacketCount: $ + $@Stats.queuePacketCount;
-  end incrementQueuePacketCount
-  sink incrementHoldCount
-    @Stats.holdCount: $ + $@Stats.holdCount;
-  end incrementHoldCount
-  source get
-    $@Stats!
-  end get
-end Stats
-
 operator (packet appendTo queueHead)
   $NO_WORK -> !packet::setLink
   $queueHead -> #
@@ -42,9 +26,11 @@ operator (packet appendTo queueHead)
     $queueHead !
 end appendTo
 
-processor Scheduler&{stats:}
+processor Scheduler
   @: {
     layout: 0,
+    queuePacketCount: 0,
+    holdCount: 0,
     taskTable: [1..$NUM_TYPES -> $NO_TASK],
     taskList: $NO_TASK,
     currentTask: $NO_TASK,
@@ -75,17 +61,19 @@ processor Scheduler&{stats:}
     when <=$NO_TASK> do $NO_TASK !
     otherwise
       def t: $;
-      1 -> !stats::incrementQueuePacketCount
+      @Scheduler.queuePacketCount: $@Scheduler.queuePacketCount + 1;
       $NO_WORK -> !packet::setLink
       $@Scheduler.currentTaskIdentity -> !packet::setIdentity
-      $packet -> !t::addInput
-      $t!
+      $packet -> t::addInputAndGetPriority -> \(
+        when <$@Scheduler.currentTask::getPriority~..> do $t !
+        otherwise $@Scheduler.currentTask !
+      \) !
   end queuePacket
 
   source holdSelf
-    1 -> !stats::incrementHoldCount
+    @Scheduler.holdCount: $@Scheduler.holdCount + 1;
     1 -> !@Scheduler.currentTask::setTaskHolding
-    $@Scheduler.currentTask!
+    $@Scheduler.currentTask::getLink!
   end holdSelf
 
   templates release
@@ -94,7 +82,10 @@ processor Scheduler&{stats:}
     otherwise
       def t: $;
       0 -> !t::setTaskHolding
-      $t !
+      $t -> \(
+        when <?($::getPriority <$@Scheduler.currentTask::getPriority~..>)> do $!
+        otherwise $@Scheduler.currentTask !
+      \) !
   end release
 
   source markWaiting
@@ -203,16 +194,7 @@ processor Scheduler&{stats:}
     otherwise
       @Scheduler.currentTaskIdentity: $::getIdentity;
       $::getIdentity -> \(<?($TRACING <=1>)> $!\) -> !trace
-      @Scheduler.currentTask: $::runTask -> \(
-        when <?($::getPriority <$@Scheduler.currentTask::getPriority~..>)> do $!
-        otherwise $@Scheduler.currentTask !
-      \);
-//      @Scheduler.currentTask: 1 -> \(@: {priority: -1, taskIdentity: 0};
-//        $@Scheduler.taskTable... -> #
-//        $@.taskIdentity -> \(<=0> $NO_TASK! <> $@Scheduler.taskTable($) ! \)!
-//        when <?($::isTaskHoldingOrWaiting <=1>)> do !VOID
-//        when <?($::getPriority <$@.priority~..>)> do @: { priority: $::getPriority, taskIdentity: $::getIdentity};
-//      \);
+      @Scheduler.currentTask: $::runTask;
       $@Scheduler.currentTask -> #
   end schedule
 
@@ -236,7 +218,11 @@ processor Scheduler&{stats:}
     [$DEVICE_A, 4000, $NO_WORK, $taskStateWaiting] -> !createDevice
     [$DEVICE_B, 5000, $NO_WORK, $taskStateWaiting] -> !createDevice
 
-    $schedule -> !VOID
+    [$schedule] -> #
+    <?($@Scheduler.queuePacketCount <=23246>)?($@Scheduler.holdCount <=9297>)>
+      1 !
+    otherwise
+      0 !
   end start
 end Scheduler
 
@@ -339,13 +325,15 @@ processor TaskControlBlock&{link:, data:, function:}
   def priority: $(2);
   @: {input: $(3), $(4)...};
 
-  sink addInput
+  templates addInputAndGetPriority
     when <?($@TaskControlBlock.input <=$NO_WORK>)> do
       @TaskControlBlock.input: $;
       @TaskControlBlock.packetPending: 1;
+      $priority!
     otherwise
       @TaskControlBlock.input: ($ appendTo $@TaskControlBlock.input);
-  end addInput
+      0!
+  end addInputAndGetPriority
 
   source getLink
     $link!
@@ -412,13 +400,7 @@ source taskStateWaitingWithPacket
 end taskStateWaitingWithPacket
 
 templates run
-  def stats: $Stats;
-  $Scheduler&{stats: $stats} -> $::start -> !VOID
-  $stats::get -> #
-  <{queuePacketCount: <=23246>, holdCount: <=9297>}>
-    1 !
-  otherwise
-    0 !
+  $Scheduler -> $::start !
 end run
 
 1 -> harness/run&{name: 'Richards', benchmark:run} -> !VOID
