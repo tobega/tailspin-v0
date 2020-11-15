@@ -43,7 +43,7 @@ processor Scheduler&{stats:}
   };
 
   sink createTask&{task:}
-    $ -> TaskControlBlock&{link: $@Scheduler.taskList, task: $task}
+    $ -> TaskControlBlock&{link: $@Scheduler.taskList, task: $task, stats: $stats}
       -> \(
         @Scheduler.taskList: $;
         @Scheduler.taskTable($::getIdentity): $;
@@ -71,12 +71,6 @@ processor Scheduler&{stats:}
       $t!
   end queuePacket
 
-  source holdSelf
-    1 -> !stats::incrementHoldCount
-    1 -> !@Scheduler.currentTask::setTaskHolding
-    $@Scheduler.currentTask!
-  end holdSelf
-
   templates release
     $ -> findTask -> #
     when <=$NO_TASK> do $NO_TASK !
@@ -86,28 +80,23 @@ processor Scheduler&{stats:}
       $t !
   end release
 
-  source markWaiting
-    1 -> !@Scheduler.currentTask::setTaskWaiting
-    $@Scheduler.currentTask !
-  end markWaiting
-
   sink createDevice
-    def task: $DeviceTask&{holdSelf: holdSelf, markWaiting: markWaiting};
+    def task: $DeviceTask;
     $ -> !createTask&{task: $task}
   end createDevice
 
   sink createHandler
-    def task: $HandlerTask&{markWaiting: markWaiting};
+    def task: $HandlerTask;
     $ -> !createTask&{task: $task}
   end createHandler
 
   sink createIdler
-    def task: $IdleTask&{release: release, holdSelf: holdSelf};
+    def task: $IdleTask&{release: release};
     $ -> !createTask&{task: $task}
   end createIdler
 
   sink createWorker
-    def task: $WorkerTask&{markWaiting: markWaiting};
+    def task: $WorkerTask;
     $ -> !createTask&{task: $task}
   end createWorker
 
@@ -121,9 +110,10 @@ processor Scheduler&{stats:}
     otherwise
       @Scheduler.currentTaskIdentity: $::getIdentity;
       $::getIdentity -> \(<?($TRACING <=1>)> $!\) -> !trace
-      @Scheduler.currentTask: $::runTask -> \(
-        when <{}> do $ -> queuePacket -> #
-        when <?($::getPriority <$@Scheduler.currentTask::getPriority~..>)> do $!
+      @Scheduler.currentTask: [$::runTask] -> \(
+        when <=[]> $@Scheduler.currentTask !
+        when <?($(1) <{}>)> do [$(1) -> queuePacket] -> #
+        when <?($(1)::getPriority <$@Scheduler.currentTask::getPriority~..>)> do $(1)!
         otherwise $@Scheduler.currentTask !
       \);
 //      @Scheduler.currentTask: 1 -> \(@: {priority: -1, taskIdentity: 0};
@@ -154,12 +144,12 @@ processor Scheduler&{stats:}
   end start
 end Scheduler
 
-processor DeviceTask&{holdSelf:, markWaiting:}
+processor DeviceTask
   @:$NO_WORK;
-  templates function
+  templates function&{holdSelf:, markWaiting:}
     when <=$NO_WORK> do
       $@DeviceTask -> \(
-        <=$NO_WORK> $markWaiting !
+        <=$NO_WORK> 1 -> !markWaiting
         otherwise
           @DeviceTask: $NO_WORK;
           $ !
@@ -167,13 +157,13 @@ processor DeviceTask&{holdSelf:, markWaiting:}
     otherwise
       @DeviceTask: $;
 //      $ -> \(<?($TRACING <=1>)> $::getDatum !\) -> !trace
-      $holdSelf !
+      1 -> !holdSelf
   end function
 end DeviceTask
 
-processor HandlerTask&{markWaiting:}
+processor HandlerTask
   @: { workIn: [], deviceIn: []};
-  templates function
+  templates function&{holdSelf:, markWaiting:}
     $ -> \(<~=$NO_WORK> $! \)
       -> \(
         when <?($.kind <=$WORK_PACKET_KIND>)> do
@@ -182,7 +172,7 @@ processor HandlerTask&{markWaiting:}
           ..|@HandlerTask.deviceIn: $;
       \) -> !VOID
     $@HandlerTask.workIn::length -> \(
-      when <=0> do $markWaiting!
+      when <=0> do 1 -> !markWaiting
       otherwise
         $@HandlerTask.workIn(1).datum -> \(
           when <$DATA_SIZE..> do
@@ -190,7 +180,7 @@ processor HandlerTask&{markWaiting:}
           otherwise
             def count: $;
             $@HandlerTask.deviceIn::length -> \(
-              when <=0> do $markWaiting!
+              when <=0> do 1 -> !markWaiting
               otherwise
                 @HandlerTask.deviceIn(1).datum: $@HandlerTask.workIn(1).data($count+1);
                 @HandlerTask.workIn(1).datum: $count + 1;
@@ -201,15 +191,15 @@ processor HandlerTask&{markWaiting:}
   end function
 end HandlerTask
 
-processor IdleTask&{release:, holdSelf:}
+processor IdleTask&{release:}
   @: { control: [x01x] -> $(last-3..last), count: 10000};
   source decrementCount
     @IdleTask.count: $@IdleTask.count - 1;
     $@IdleTask.count !
   end decrementCount
-  templates function
+  templates function&{holdSelf:, markWaiting:}
     $decrementCount -> \(
-      when <=0> do $holdSelf!
+      when <=0> do 1 -> !holdSelf
       otherwise
         ($@IdleTask.control and [x01x]) -> $(last) -> \(
           when <=[x00x]> do
@@ -224,10 +214,10 @@ processor IdleTask&{release:, holdSelf:}
   end function
 end IdleTask
 
-processor WorkerTask&{markWaiting:}
+processor WorkerTask
   @: {destination: $HANDLER_A, count: 0};
-  templates function
-    when <=$NO_WORK> do $markWaiting!
+  templates function&{holdSelf:, markWaiting:}
+    when <=$NO_WORK> do 1 -> !markWaiting
     otherwise
       @WorkerTask.destination: $@WorkerTask.destination -> \(<=$HANDLER_A> $HANDLER_B! <> $HANDLER_A!\);
       { kind: $.kind,
@@ -241,7 +231,7 @@ processor WorkerTask&{markWaiting:}
   end function
 end WorkerTask
 
-processor TaskControlBlock&{link:, task:}
+processor TaskControlBlock&{link:, task:, stats:}
   def identity: $(1);
   def priority: $(2);
   @: {input: $(3), $(4)...};
@@ -266,6 +256,7 @@ processor TaskControlBlock&{link:, task:}
   end getIdentity
 
   sink setTaskHolding
+    $ -> !stats::incrementHoldCount
     @TaskControlBlock.taskHolding: $;
   end setTaskHolding
 
@@ -296,7 +287,7 @@ processor TaskControlBlock&{link:, task:}
           <>  ..|@TaskControlBlock: $taskStatePacketPending;
         \) -> !VOID
       otherwise $NO_WORK !
-    \) -> task::function !
+    \) -> task::function&{holdSelf: setTaskHolding, markWaiting: setTaskWaiting} !
   end runTask
 end TaskControlBlock
 
