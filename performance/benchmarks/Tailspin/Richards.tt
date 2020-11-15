@@ -33,15 +33,6 @@ processor Stats
   end get
 end Stats
 
-operator (packet appendTo queueHead)
-  $NO_WORK -> !packet::setLink
-  $queueHead -> #
-  when <?($queueHead <=$NO_WORK>)> do $packet!
-  when <?($::getLink <~=$NO_WORK>)> do $::getLink -> #
-  otherwise def mouse: $; $packet -> !mouse::setLink
-    $queueHead !
-end appendTo
-
 processor Scheduler&{stats:}
   @: {
     layout: 0,
@@ -76,7 +67,6 @@ processor Scheduler&{stats:}
     otherwise
       def t: $;
       1 -> !stats::incrementQueuePacketCount
-      $NO_WORK -> !packet::setLink
       $@Scheduler.currentTaskIdentity -> !packet::setIdentity
       $packet -> !t::addInput
       $t!
@@ -148,22 +138,17 @@ processor Scheduler&{stats:}
   source start
     [$IDLER, 0, $NO_WORK, $taskStateRunning] -> !createIdler
 
-    {link: $NO_WORK, identity: $WORKER, kind: $WORK_PACKET_KIND} -> Packet
-    -> {link: $, identity: $WORKER, kind: $WORK_PACKET_KIND} -> Packet
+    [1..2 -> {identity: $WORKER, kind: $WORK_PACKET_KIND} -> Packet]
     -> [$WORKER, 1000, $, $taskStateWaitingWithPacket] -> !createWorker
 
-    {link: $NO_WORK, identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND} -> Packet
-    -> {link: $, identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND} -> Packet
-    -> {link: $, identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND} -> Packet
+    [1..3 -> {identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND} -> Packet]
     -> [$HANDLER_A, 2000, $, $taskStateWaitingWithPacket] -> !createHandler
 
-    {link: $NO_WORK, identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND} -> Packet
-    -> {link: $, identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND} -> Packet
-    -> {link: $, identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND} -> Packet
+    [1..3 -> {identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND} -> Packet]
     -> [$HANDLER_B, 3000, $, $taskStateWaitingWithPacket] -> !createHandler
 
-    [$DEVICE_A, 4000, $NO_WORK, $taskStateWaiting] -> !createDevice
-    [$DEVICE_B, 5000, $NO_WORK, $taskStateWaiting] -> !createDevice
+    [$DEVICE_A, 4000, [], $taskStateWaiting] -> !createDevice
+    [$DEVICE_B, 5000, [], $taskStateWaiting] -> !createDevice
 
     $schedule -> !VOID
   end start
@@ -187,30 +172,28 @@ processor DeviceTask&{queuePacket:, holdSelf:, markWaiting:}
 end DeviceTask
 
 processor HandlerTask&{queuePacket:, markWaiting:}
-  @: { workIn: {}, deviceIn: {}};
+  @: { workIn: [], deviceIn: []};
   templates function
     $ -> \(<~=$NO_WORK> $! \)
       -> \(
         when <?($::getKind <=$WORK_PACKET_KIND>)> do
-          @HandlerTask.workIn: ($ appendTo $@HandlerTask.workIn);
+          ..|@HandlerTask.workIn: $;
         otherwise
-          @HandlerTask.deviceIn: ($ appendTo $@HandlerTask.deviceIn);
+          ..|@HandlerTask.deviceIn: $;
       \) -> !VOID
-    $@HandlerTask.workIn -> \(
-      when <=$NO_WORK> do $markWaiting!
+    $@HandlerTask.workIn::length -> \(
+      when <=0> do $markWaiting!
       otherwise
-        def count: $::getDatum;
-        $ -> \(
-          when <?($count <$DATA_SIZE..>)> do
-            @HandlerTask.workIn: $::getLink;
-            $ -> queuePacket !
+        $@HandlerTask.workIn(1)::getDatum -> \(
+          when <$DATA_SIZE..> do
+            ^@HandlerTask.workIn(1) -> queuePacket !
           otherwise
-            def workPacket: $;
-            $@HandlerTask.deviceIn -> \(
-              when <=$NO_WORK> do $markWaiting!
+            def count: $;
+            def workPacket: $@HandlerTask.workIn(1);
+            $@HandlerTask.deviceIn::length -> \(
+              when <=0> do $markWaiting!
               otherwise
-                def devicePacket: $;
-                @HandlerTask.deviceIn: $::getLink;
+                def devicePacket: ^@HandlerTask.deviceIn(1);
                 $workPacket::getData&{i: $count} -> !devicePacket::setDatum
                 $count + 1 -> !workPacket::setDatum
                 $devicePacket -> queuePacket !
@@ -266,12 +249,6 @@ processor Packet
   source getKind
     $@Packet.kind!
   end getKind
-  source getLink
-    $@Packet.link!
-  end getLink
-  sink setLink
-    @Packet.link: $;
-  end setLink
   source getDatum
     $@Packet.datum !
   end getDatum
@@ -298,11 +275,10 @@ processor TaskControlBlock&{link:, task:}
   @: {input: $(3), $(4)...};
 
   sink addInput
-    when <?($@TaskControlBlock.input <=$NO_WORK>)> do
-      @TaskControlBlock.input: $;
-      @TaskControlBlock.packetPending: 1;
-    otherwise
-      @TaskControlBlock.input: ($ appendTo $@TaskControlBlock.input);
+    $@TaskControlBlock.input::length -> \(
+      when <=0> do @TaskControlBlock.packetPending: 1;
+    \) -> !VOID
+    ..|@TaskControlBlock.input: $;
   end addInput
 
   source getLink
@@ -342,10 +318,9 @@ processor TaskControlBlock&{link:, task:}
   source runTask
     $isWaitingWithPacket -> \(
       when <=1> do
-        $@TaskControlBlock.input !
-        @TaskControlBlock.input: $@TaskControlBlock.input::getLink;
-        $@TaskControlBlock.input -> \(
-          <=$NO_WORK> ..|@TaskControlBlock: $taskStateRunning;
+        ^@TaskControlBlock.input(1) !
+        $@TaskControlBlock.input::length -> \(
+          <=0> ..|@TaskControlBlock: $taskStateRunning;
           <>  ..|@TaskControlBlock: $taskStatePacketPending;
         \) -> !VOID
       otherwise $NO_WORK !
