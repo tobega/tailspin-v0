@@ -22,8 +22,19 @@ templates lexicalPermutations
     def n: $;
     def p: [ $n - 1 -> lexicalPermutations ];
     1..$n -> \(def k: $;
-      def tail: [1..$n -> \(when <~=$k> do $ !\)];
-      $p... -> [ $k, $tail($)...] !\) !
+      $p... -> [ $k, $... -> \(when <$k..> do $+1! otherwise $!\)] !\) !
 end lexicalPermutations
 
-[ $alpha::length -> lexicalPermutations -> '$alpha($)...;' ] -> !OUT::write
+templates lexicalPermutations2
+  def N: $;
+  [[1]] -> #
+  when <[<[]($N)>]> do $... !
+  otherwise
+    def tails: $;
+    [1..$tails(1)::length+1 -> \(
+      def first: $;
+      $tails... -> [$first, $... -> \(when <$first..> do $+1! otherwise $!\)] !
+    \)] -> #
+end lexicalPermutations2
+
+[ $alpha::length -> lexicalPermutations2 -> '$alpha($)...;' ] -> !OUT::write
