@@ -62,13 +62,12 @@ processor Scheduler&{stats:}
 
   templates queuePacket
     def packet: $;
-    $packet::getIdentity -> findTask -> #
+    $packet.identity -> findTask -> #
     when <=$NO_TASK> do $NO_TASK !
     otherwise
       def t: $;
       1 -> !stats::incrementQueuePacketCount
-      $@Scheduler.currentTaskIdentity -> !packet::setIdentity
-      $packet -> !t::addInput
+      {$packet..., identity:$@Scheduler.currentTaskIdentity} -> !t::addInput
       $t!
   end queuePacket
 
@@ -138,13 +137,13 @@ processor Scheduler&{stats:}
   source start
     [$IDLER, 0, $NO_WORK, $taskStateRunning] -> !createIdler
 
-    [1..2 -> {identity: $WORKER, kind: $WORK_PACKET_KIND} -> Packet]
+    [1..2 -> {identity: $WORKER, kind: $WORK_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
     -> [$WORKER, 1000, $, $taskStateWaitingWithPacket] -> !createWorker
 
-    [1..3 -> {identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND} -> Packet]
+    [1..3 -> {identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
     -> [$HANDLER_A, 2000, $, $taskStateWaitingWithPacket] -> !createHandler
 
-    [1..3 -> {identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND} -> Packet]
+    [1..3 -> {identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
     -> [$HANDLER_B, 3000, $, $taskStateWaitingWithPacket] -> !createHandler
 
     [$DEVICE_A, 4000, [], $taskStateWaiting] -> !createDevice
@@ -176,7 +175,7 @@ processor HandlerTask&{queuePacket:, markWaiting:}
   templates function
     $ -> \(<~=$NO_WORK> $! \)
       -> \(
-        when <?($::getKind <=$WORK_PACKET_KIND>)> do
+        when <?($.kind <=$WORK_PACKET_KIND>)> do
           ..|@HandlerTask.workIn: $;
         otherwise
           ..|@HandlerTask.deviceIn: $;
@@ -184,19 +183,17 @@ processor HandlerTask&{queuePacket:, markWaiting:}
     $@HandlerTask.workIn::length -> \(
       when <=0> do $markWaiting!
       otherwise
-        $@HandlerTask.workIn(1)::getDatum -> \(
+        $@HandlerTask.workIn(1).datum -> \(
           when <$DATA_SIZE..> do
             ^@HandlerTask.workIn(1) -> queuePacket !
           otherwise
             def count: $;
-            def workPacket: $@HandlerTask.workIn(1);
             $@HandlerTask.deviceIn::length -> \(
               when <=0> do $markWaiting!
               otherwise
-                def devicePacket: ^@HandlerTask.deviceIn(1);
-                $workPacket::getData&{i: $count} -> !devicePacket::setDatum
-                $count + 1 -> !workPacket::setDatum
-                $devicePacket -> queuePacket !
+                @HandlerTask.deviceIn(1).datum: $@HandlerTask.workIn(1).data($count+1);
+                @HandlerTask.workIn(1).datum: $count + 1;
+                ^@HandlerTask.deviceIn(1) -> queuePacket !
             \) !
         \) !
     \) !
@@ -231,43 +228,17 @@ processor WorkerTask&{queuePacket:, markWaiting:}
   templates function
     when <=$NO_WORK> do $markWaiting!
     otherwise
-      def work: $;
       @WorkerTask.destination: $@WorkerTask.destination -> \(<=$HANDLER_A> $HANDLER_B! <> $HANDLER_A!\);
-      $@WorkerTask.destination -> !work::setIdentity
-      0 -> !work::setDatum
-      0..~$DATA_SIZE -> \(
-        def i: $;
-        @WorkerTask.count: $@WorkerTask.count + 1 -> \(<..26> $! <> 1!\);
-        65 + $@WorkerTask.count - 1 -> !work::setData&{i: $i}
-      \) -> !VOID
-      $work -> queuePacket !
+      { kind: $.kind,
+        identity: $@WorkerTask.destination,
+        datum: 0,
+        data: $.data -> \[i](
+          @WorkerTask.count: $@WorkerTask.count + 1 -> \(<..26> $! <> 1!\);
+          65 + $@WorkerTask.count - 1 !
+        \)
+       } -> queuePacket !
   end function
 end WorkerTask
-
-processor Packet
-  @: { $..., datum: 0, data: [1..$DATA_SIZE -> 0] };
-  source getKind
-    $@Packet.kind!
-  end getKind
-  source getDatum
-    $@Packet.datum !
-  end getDatum
-  sink setDatum
-    @Packet.datum: $;
-  end setDatum
-  source getData&{i:}
-    $@Packet.data($i+1)!
-  end getData
-  sink setData&{i:}
-    @Packet.data($i+1): $;
-  end setData
-  source getIdentity
-    $@Packet.identity!
-  end getIdentity
-  sink setIdentity
-    @Packet.identity: $;
-  end setIdentity
-end Packet
 
 processor TaskControlBlock&{link:, task:}
   def identity: $(1);
