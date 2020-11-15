@@ -2,13 +2,12 @@ include 'harness'
 
 def NO_TASK: {};
 def NO_WORK: {};
-def IDLER: 1;
-def WORKER: 2;
-def HANDLER_A: 3;
-def HANDLER_B: 4;
-def DEVICE_A: 5;
-def DEVICE_B: 6;
-def NUM_TYPES: 6;
+def WORKER: 1;
+def HANDLER_A: 2;
+def HANDLER_B: 3;
+def DEVICE_A: 4;
+def DEVICE_B: 5;
+def NUM_TYPES: 5;
 
 def DEVICE_PACKET_KIND: 0;
 def WORK_PACKET_KIND: 1;
@@ -34,6 +33,7 @@ processor Stats
 end Stats
 
 processor Scheduler&{stats:}
+  def idle: $Idle;
   @: {
     layout: 0,
     taskTable: [1..$NUM_TYPES -> $NO_TASK],
@@ -90,11 +90,6 @@ processor Scheduler&{stats:}
     $ -> !createTask&{task: $task}
   end createHandler
 
-  sink createIdler
-    def task: $IdleTask&{release: release};
-    $ -> !createTask&{task: $task}
-  end createIdler
-
   sink createWorker
     def task: $WorkerTask;
     $ -> !createTask&{task: $task}
@@ -103,10 +98,15 @@ processor Scheduler&{stats:}
   source schedule
     @Scheduler.currentTask: $@Scheduler.taskList;
     $@Scheduler.currentTask -> #
-    when <=$NO_TASK> do !VOID
     when <?($::isTaskHoldingOrWaiting <=1>)> do
-      @Scheduler.currentTask: $::getLink;
-      $@Scheduler.currentTask -> #
+      $::getLink -> \(
+        when <=$NO_TASK> do
+          $idle::getNextTask -> release !
+        otherwise $!
+      \) -> \(
+        @Scheduler.currentTask: $;
+        $ !
+      \) -> #
     otherwise
       @Scheduler.currentTaskIdentity: $::getIdentity;
       $::getIdentity -> \(<?($TRACING <=1>)> $!\) -> !trace
@@ -126,8 +126,6 @@ processor Scheduler&{stats:}
   end schedule
 
   source start
-    [$IDLER, 0, $NO_WORK, $taskStateRunning] -> !createIdler
-
     [1..2 -> {identity: $WORKER, kind: $WORK_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
     -> [$WORKER, 1000, $, $taskStateWaitingWithPacket] -> !createWorker
 
@@ -191,28 +189,27 @@ processor HandlerTask
   end function
 end HandlerTask
 
-processor IdleTask&{release:}
+processor Idle
   @: { control: [x01x] -> $(last-3..last), count: 10000};
   source decrementCount
-    @IdleTask.count: $@IdleTask.count - 1;
-    $@IdleTask.count !
+    @Idle.count: $@Idle.count - 1;
+    $@Idle.count !
   end decrementCount
-  templates function&{holdSelf:, markWaiting:}
+  templates getNextTask
     $decrementCount -> \(
-      when <=0> do 1 -> !holdSelf
-      otherwise
-        ($@IdleTask.control and [x01x]) -> $(last) -> \(
+      when <1..> do
+        ($@Idle.control and [x01x]) -> $(last) -> \(
           when <=[x00x]> do
-            @IdleTask.control: $@IdleTask.control -> $::shift&{left:-1, fill: $(0)};
-            $DEVICE_A -> release !
+            @Idle.control: $@Idle.control -> $::shift&{left:-1, fill: $(0)};
+            $DEVICE_A !
           otherwise
-            @IdleTask.control: $@IdleTask.control
+            @Idle.control: $@Idle.control
               -> ($::shift&{left:-1, fill: $(0)} xor (53256 -> $::asBytes));
-            $DEVICE_B -> release !
+            $DEVICE_B !
         \) !
     \) !
-  end function
-end IdleTask
+  end getNextTask
+end Idle
 
 processor WorkerTask
   @: {destination: $HANDLER_A, count: 0};
@@ -311,7 +308,7 @@ templates run
   def stats: $Stats;
   $Scheduler&{stats: $stats} -> $::start -> !VOID
   $stats::get -> #
-  <{queuePacketCount: <=23246>, holdCount: <=9297>}>
+  <{queuePacketCount: <=23246>, holdCount: <=9296>}>
     1 !
   otherwise
     0 !
