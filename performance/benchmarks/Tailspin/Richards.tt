@@ -92,12 +92,12 @@ processor Scheduler&{stats:}
   end markWaiting
 
   sink createDevice
-    def task: $DeviceTask&{queuePacket: queuePacket, holdSelf: holdSelf, markWaiting: markWaiting};
+    def task: $DeviceTask&{holdSelf: holdSelf, markWaiting: markWaiting};
     $ -> !createTask&{task: $task}
   end createDevice
 
   sink createHandler
-    def task: $HandlerTask&{queuePacket: queuePacket, markWaiting: markWaiting};
+    def task: $HandlerTask&{markWaiting: markWaiting};
     $ -> !createTask&{task: $task}
   end createHandler
 
@@ -107,14 +107,14 @@ processor Scheduler&{stats:}
   end createIdler
 
   sink createWorker
-    def task: $WorkerTask&{queuePacket: queuePacket, markWaiting: markWaiting};
+    def task: $WorkerTask&{markWaiting: markWaiting};
     $ -> !createTask&{task: $task}
   end createWorker
 
   source schedule
     @Scheduler.currentTask: $@Scheduler.taskList;
     $@Scheduler.currentTask -> #
-    when <=$NO_TASK> !VOID
+    when <=$NO_TASK> do !VOID
     when <?($::isTaskHoldingOrWaiting <=1>)> do
       @Scheduler.currentTask: $::getLink;
       $@Scheduler.currentTask -> #
@@ -122,6 +122,7 @@ processor Scheduler&{stats:}
       @Scheduler.currentTaskIdentity: $::getIdentity;
       $::getIdentity -> \(<?($TRACING <=1>)> $!\) -> !trace
       @Scheduler.currentTask: $::runTask -> \(
+        when <{}> do $ -> queuePacket -> #
         when <?($::getPriority <$@Scheduler.currentTask::getPriority~..>)> do $!
         otherwise $@Scheduler.currentTask !
       \);
@@ -153,7 +154,7 @@ processor Scheduler&{stats:}
   end start
 end Scheduler
 
-processor DeviceTask&{queuePacket:, holdSelf:, markWaiting:}
+processor DeviceTask&{holdSelf:, markWaiting:}
   @:$NO_WORK;
   templates function
     when <=$NO_WORK> do
@@ -161,7 +162,7 @@ processor DeviceTask&{queuePacket:, holdSelf:, markWaiting:}
         <=$NO_WORK> $markWaiting !
         otherwise
           @DeviceTask: $NO_WORK;
-          $ -> queuePacket !
+          $ !
       \) !
     otherwise
       @DeviceTask: $;
@@ -170,7 +171,7 @@ processor DeviceTask&{queuePacket:, holdSelf:, markWaiting:}
   end function
 end DeviceTask
 
-processor HandlerTask&{queuePacket:, markWaiting:}
+processor HandlerTask&{markWaiting:}
   @: { workIn: [], deviceIn: []};
   templates function
     $ -> \(<~=$NO_WORK> $! \)
@@ -185,7 +186,7 @@ processor HandlerTask&{queuePacket:, markWaiting:}
       otherwise
         $@HandlerTask.workIn(1).datum -> \(
           when <$DATA_SIZE..> do
-            ^@HandlerTask.workIn(1) -> queuePacket !
+            ^@HandlerTask.workIn(1) !
           otherwise
             def count: $;
             $@HandlerTask.deviceIn::length -> \(
@@ -193,7 +194,7 @@ processor HandlerTask&{queuePacket:, markWaiting:}
               otherwise
                 @HandlerTask.deviceIn(1).datum: $@HandlerTask.workIn(1).data($count+1);
                 @HandlerTask.workIn(1).datum: $count + 1;
-                ^@HandlerTask.deviceIn(1) -> queuePacket !
+                ^@HandlerTask.deviceIn(1) !
             \) !
         \) !
     \) !
@@ -223,7 +224,7 @@ processor IdleTask&{release:, holdSelf:}
   end function
 end IdleTask
 
-processor WorkerTask&{queuePacket:, markWaiting:}
+processor WorkerTask&{markWaiting:}
   @: {destination: $HANDLER_A, count: 0};
   templates function
     when <=$NO_WORK> do $markWaiting!
@@ -236,7 +237,7 @@ processor WorkerTask&{queuePacket:, markWaiting:}
           @WorkerTask.count: $@WorkerTask.count + 1 -> \(<..26> $! <> 1!\);
           65 + $@WorkerTask.count - 1 !
         \)
-       } -> queuePacket !
+       } !
   end function
 end WorkerTask
 
