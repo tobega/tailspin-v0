@@ -51,8 +51,8 @@ processor Scheduler&{stats:}
     currentTaskIdentity: 0
   };
 
-  sink createTask&{data:, function:}
-    $ -> TaskControlBlock&{link: $@Scheduler.taskList, data: $data, function: function}
+  sink createTask&{task:}
+    $ -> TaskControlBlock&{link: $@Scheduler.taskList, task: $task}
       -> \(
         @Scheduler.taskList: $;
         @Scheduler.taskTable($::getIdentity): $;
@@ -104,22 +104,22 @@ processor Scheduler&{stats:}
 
   sink createDevice
     def task: $DeviceTask&{queuePacket: queuePacket, holdSelf: holdSelf, markWaiting: markWaiting};
-    $ -> !createTask&{data: $task, function: task::function}
+    $ -> !createTask&{task: $task}
   end createDevice
 
   sink createHandler
     def task: $HandlerTask&{queuePacket: queuePacket, markWaiting: markWaiting};
-    $ -> !createTask&{data: $task, function: task::function}
+    $ -> !createTask&{task: $task}
   end createHandler
 
   sink createIdler
     def task: $IdleTask&{release: release, holdSelf: holdSelf};
-    $ -> !createTask&{data: $task, function: task::function}
+    $ -> !createTask&{task: $task}
   end createIdler
 
   sink createWorker
     def task: $WorkerTask&{queuePacket: queuePacket, markWaiting: markWaiting};
-    $ -> !createTask&{data: $task, function: task::function}
+    $ -> !createTask&{task: $task}
   end createWorker
 
   source schedule
@@ -172,7 +172,7 @@ end Scheduler
 processor DeviceTask&{queuePacket:, holdSelf:, markWaiting:}
   @:$NO_WORK;
   templates function
-    when <?($(1) <=$NO_WORK>)> do
+    when <=$NO_WORK> do
       $@DeviceTask -> \(
         <=$NO_WORK> $markWaiting !
         otherwise
@@ -180,8 +180,8 @@ processor DeviceTask&{queuePacket:, holdSelf:, markWaiting:}
           $ -> queuePacket !
       \) !
     otherwise
-      @DeviceTask: $(1);
-//      $(1) -> \(<?($TRACING <=1>)> $::getDatum !\) -> !trace
+      @DeviceTask: $;
+//      $ -> \(<?($TRACING <=1>)> $::getDatum !\) -> !trace
       $holdSelf !
   end function
 end DeviceTask
@@ -189,7 +189,7 @@ end DeviceTask
 processor HandlerTask&{queuePacket:, markWaiting:}
   @: { workIn: {}, deviceIn: {}};
   templates function
-    $(1) -> \(<~=$NO_WORK> $! \)
+    $ -> \(<~=$NO_WORK> $! \)
       -> \(
         when <?($::getKind <=$WORK_PACKET_KIND>)> do
           @HandlerTask.workIn: ($ appendTo $@HandlerTask.workIn);
@@ -246,20 +246,18 @@ end IdleTask
 processor WorkerTask&{queuePacket:, markWaiting:}
   @: {destination: $HANDLER_A, count: 0};
   templates function
-    def work: $(1);
-    $(1) -> \(
-      when <=$NO_WORK> do $markWaiting!
-      otherwise
-        @WorkerTask.destination: $@WorkerTask.destination -> \(<=$HANDLER_A> $HANDLER_B! <> $HANDLER_A!\);
-        $@WorkerTask.destination -> !work::setIdentity
-        0 -> !work::setDatum
-        0..~$DATA_SIZE -> \(
-          def i: $;
-          @WorkerTask.count: $@WorkerTask.count + 1 -> \(<..26> $! <> 1!\);
-          65 + $@WorkerTask.count - 1 -> !work::setData&{i: $i}
-        \) -> !VOID
-        $work -> queuePacket !
-    \) !
+    when <=$NO_WORK> do $markWaiting!
+    otherwise
+      def work: $;
+      @WorkerTask.destination: $@WorkerTask.destination -> \(<=$HANDLER_A> $HANDLER_B! <> $HANDLER_A!\);
+      $@WorkerTask.destination -> !work::setIdentity
+      0 -> !work::setDatum
+      0..~$DATA_SIZE -> \(
+        def i: $;
+        @WorkerTask.count: $@WorkerTask.count + 1 -> \(<..26> $! <> 1!\);
+        65 + $@WorkerTask.count - 1 -> !work::setData&{i: $i}
+      \) -> !VOID
+      $work -> queuePacket !
   end function
 end WorkerTask
 
@@ -294,7 +292,7 @@ processor Packet
   end setIdentity
 end Packet
 
-processor TaskControlBlock&{link:, data:, function:}
+processor TaskControlBlock&{link:, task:}
   def identity: $(1);
   def priority: $(2);
   @: {input: $(3), $(4)...};
@@ -351,7 +349,7 @@ processor TaskControlBlock&{link:, data:, function:}
           <>  ..|@TaskControlBlock: $taskStatePacketPending;
         \) -> !VOID
       otherwise $NO_WORK !
-    \) -> [$, $data] -> function !
+    \) -> task::function !
   end runTask
 end TaskControlBlock
 
