@@ -30,44 +30,59 @@ processor Stats
   source get
     $@Stats!
   end get
+  sink clear
+    @Stats: {
+              queuePacketCount: 0,
+              holdCount: 0
+            };
+  end clear
 end Stats
 
-processor Scheduler&{stats:}
+def stats: $Stats;
+
+processor Trace
+  @: 0;
+  sink trace
+    when <?($TRACING <=1>)> do
+      @Trace: $@Trace - 1
+        -> \(<..0> '$#10;' -> !OUT::write 50! <> $! \);
+      $ -> !OUT::write
+  end trace
+  sink clear
+    @Trace: 0;
+  end clear
+end Trace
+
+def trace: $Trace;
+
+processor Scheduler
   def idle: $Idle;
   @: {
     layout: 0,
     taskTable: [1..$NUM_TYPES -> $NO_TASK],
-    taskList: $NO_TASK,
-    currentTask: $NO_TASK,
-    currentTaskIdentity: 0
+    taskList: $NO_TASK
   };
 
   sink createTask&{task:}
-    $ -> TaskControlBlock&{link: $@Scheduler.taskList, task: $task, stats: $stats}
+    $ -> TaskControlBlock&{link: $@Scheduler.taskList, task: $task}
       -> \(
         @Scheduler.taskList: $;
         @Scheduler.taskTable($::getIdentity): $;
       \) -> !VOID
   end createTask
 
-  sink trace
-    @Scheduler.layout: $@Scheduler.layout - 1
-      -> \(<..0> '$#10;' -> !OUT::write 50! <> $! \);
-    $ -> !OUT::write
-  end trace
-
   templates findTask
     $@Scheduler.taskTable($)!
   end findTask
 
-  templates queuePacket
+  templates queuePacket&{currentId:}
     def packet: $;
     $packet.identity -> findTask -> #
     when <=$NO_TASK> do $NO_TASK !
     otherwise
       def t: $;
       1 -> !stats::incrementQueuePacketCount
-      {$packet..., identity:$@Scheduler.currentTaskIdentity} -> !t::addInput
+      {$packet..., identity:$currentId} -> !t::addInput
       $t!
   end queuePacket
 
@@ -80,63 +95,39 @@ processor Scheduler&{stats:}
       $t !
   end release
 
-  sink createDevice
-    def task: $DeviceTask;
-    $ -> !createTask&{task: $task}
-  end createDevice
-
-  sink createHandler
-    def task: $HandlerTask;
-    $ -> !createTask&{task: $task}
-  end createHandler
-
-  sink createWorker
-    def task: $WorkerTask;
-    $ -> !createTask&{task: $task}
-  end createWorker
-
   source schedule
-    @Scheduler.currentTask: $@Scheduler.taskList;
-    $@Scheduler.currentTask -> #
+    $@Scheduler.taskList -> #
     when <?($::isTaskHoldingOrWaiting <=1>)> do
       $::getLink -> \(
         when <=$NO_TASK> do
           $idle::getNextTask -> release !
         otherwise $!
-      \) -> \(
-        @Scheduler.currentTask: $;
-        $ !
       \) -> #
     otherwise
-      @Scheduler.currentTaskIdentity: $::getIdentity;
-      $::getIdentity -> \(<?($TRACING <=1>)> $!\) -> !trace
-      @Scheduler.currentTask: [$::runTask] -> \(
-        when <=[]> $@Scheduler.currentTask !
-        when <?($(1) <{}>)> do [$(1) -> queuePacket] -> #
-        when <?($(1)::getPriority <$@Scheduler.currentTask::getPriority~..>)> do $(1)!
-        otherwise $@Scheduler.currentTask !
-      \);
-//      @Scheduler.currentTask: 1 -> \(@: {priority: -1, taskIdentity: 0};
-//        $@Scheduler.taskTable... -> #
-//        $@.taskIdentity -> \(<=0> $NO_TASK! <> $@Scheduler.taskTable($) ! \)!
-//        when <?($::isTaskHoldingOrWaiting <=1>)> do !VOID
-//        when <?($::getPriority <$@.priority~..>)> do @: { priority: $::getPriority, taskIdentity: $::getIdentity};
-//      \);
-      $@Scheduler.currentTask -> #
+      def currentTask: $;
+      $::getIdentity -> !trace::trace
+      [$::runTask] -> \(
+        when <=[]> $currentTask !
+        when <?($(1) <{}>)> do $(1) -> queuePacket&{currentId: $currentTask::getIdentity} -> \(
+          when <?($::getPriority <$currentTask::getPriority~..>)> do $!
+          otherwise $currentTask !
+        \)!
+      \) -> #
   end schedule
 
+  // tasks must be created in priority order here
   source start
     [1..2 -> {identity: $WORKER, kind: $WORK_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
-    -> [$WORKER, 1000, $, $taskStateWaitingWithPacket] -> !createWorker
+    -> [$WORKER, 1000, $, $taskStateWaitingWithPacket] -> !createTask&{task: $WorkerTask}
 
     [1..3 -> {identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
-    -> [$HANDLER_A, 2000, $, $taskStateWaitingWithPacket] -> !createHandler
+    -> [$HANDLER_A, 2000, $, $taskStateWaitingWithPacket] -> !createTask&{task: $HandlerTask}
 
     [1..3 -> {identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
-    -> [$HANDLER_B, 3000, $, $taskStateWaitingWithPacket] -> !createHandler
+    -> [$HANDLER_B, 3000, $, $taskStateWaitingWithPacket] -> !createTask&{task: $HandlerTask}
 
-    [$DEVICE_A, 4000, [], $taskStateWaiting] -> !createDevice
-    [$DEVICE_B, 5000, [], $taskStateWaiting] -> !createDevice
+    [$DEVICE_A, 4000, [], $taskStateWaiting] -> !createTask&{task: $DeviceTask}
+    [$DEVICE_B, 5000, [], $taskStateWaiting] -> !createTask&{task: $DeviceTask}
 
     $schedule -> !VOID
   end start
@@ -154,7 +145,7 @@ processor DeviceTask
       \) !
     otherwise
       @DeviceTask: $;
-//      $ -> \(<?($TRACING <=1>)> $::getDatum !\) -> !trace
+      $.datum -> !trace::trace
       1 -> !holdSelf
   end function
 end DeviceTask
@@ -228,7 +219,7 @@ processor WorkerTask
   end function
 end WorkerTask
 
-processor TaskControlBlock&{link:, task:, stats:}
+processor TaskControlBlock&{link:, task:}
   def identity: $(1);
   def priority: $(2);
   @: {input: $(3), $(4)...};
@@ -305,8 +296,9 @@ source taskStateWaitingWithPacket
 end taskStateWaitingWithPacket
 
 templates run
-  def stats: $Stats;
-  $Scheduler&{stats: $stats} -> $::start -> !VOID
+  0 -> !stats::clear
+  0 -> !trace::clear
+  $Scheduler -> $::start -> !VOID
   $stats::get -> #
   <{queuePacketCount: <=23246>, holdCount: <=9296>}>
     1 !
