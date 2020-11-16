@@ -5,11 +5,11 @@ a better-designed version of Richards with immutable packets.
 
 |Date|Implementation|Bounce|Json|List|Permute|Queens|Richards|Richards2|Sieve|Towers|
 |---|---|---|---|---|---|---|---|---|---|---|
-|[2020-07-30 HotSpot jdk14 JVMCI](#2020-07-30)|Interpreted|839|136|291|526|833|   ||140|541|
-|[2020-07-31 HotSpot jdk14 JVMCI](#2020-07-31)|Interpreted|741|131|273|605|672|   ||148|524|
-|[2020-08-05 HotSpot jdk14 JVMCI](#2020-08-05)|Interpreted|686|162|259|530|784|   ||160|556|
-|[2020-11-11 HotSpot jdk14 JVMCI](#2020-11-11)|Interpreted|732|118|256|564|688|   ||152|586|
-|[2020-11-14 HotSpot jdk14 JVMCI](#2020-11-14)|Interpreted|746|120|252|561|755|911||163|585|
+|[2020-07-30 HotSpot jdk14 JVMCI](#2020-07-30)|Interpreted|839|136|291|526|833|   | |140|541|
+|[2020-07-31 HotSpot jdk14 JVMCI](#2020-07-31)|Interpreted|741|131|273|605|672|   | |148|524|
+|[2020-08-05 HotSpot jdk14 JVMCI](#2020-08-05)|Interpreted|686|162|259|530|784|   | |160|556|
+|[2020-11-11 HotSpot jdk14 JVMCI](#2020-11-11)|Interpreted|732|118|256|564|688|   | |152|586|
+|[2020-11-14 HotSpot jdk14 JVMCI](#2020-11-14)|Interpreted|746|120|252|561|755|911| |163|585|
 |[2020-11-16 HotSpot jdk14 JVMCI](#2020-11-16)|Interpreted|686|129|268|555|747|798|642|150|602|
 
 ## 2020-11-16
