@@ -17,7 +17,7 @@ machine 3, added Richards2, a better-designed version
 HotSpot jdk14 JVMCI
 
 |Benchmark|Mean runtime us|
-|---|---|
+|---|--:|
 Bounce Java|14
 Bounce Tailspin|9607
 Json Java|65
