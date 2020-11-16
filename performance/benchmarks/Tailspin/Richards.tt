@@ -1,13 +1,16 @@
+// This is a very baroque implementation, see Richards2.tt for a saner one
+
 include 'harness'
 
 def NO_TASK: {};
 def NO_WORK: {};
-def WORKER: 1;
-def HANDLER_A: 2;
-def HANDLER_B: 3;
-def DEVICE_A: 4;
-def DEVICE_B: 5;
-def NUM_TYPES: 5;
+def IDLER: 1;
+def WORKER: 2;
+def HANDLER_A: 3;
+def HANDLER_B: 4;
+def DEVICE_A: 5;
+def DEVICE_B: 6;
+def NUM_TYPES: 6;
 
 def DEVICE_PACKET_KIND: 0;
 def WORK_PACKET_KIND: 1;
@@ -16,75 +19,64 @@ def DATA_SIZE: 4;
 
 def TRACING: 0;
 
-processor Stats
-  @: {
-    queuePacketCount: 0,
-    holdCount: 0
-  };
-  sink incrementQueuePacketCount
-    @Stats.queuePacketCount: $ + $@Stats.queuePacketCount;
-  end incrementQueuePacketCount
-  sink incrementHoldCount
-    @Stats.holdCount: $ + $@Stats.holdCount;
-  end incrementHoldCount
-  source get
-    $@Stats!
-  end get
-  sink clear
-    @Stats: {
-              queuePacketCount: 0,
-              holdCount: 0
-            };
-  end clear
-end Stats
-
-def stats: $Stats;
-
-processor Trace
-  @: 0;
-  sink trace
-    when <?($TRACING <=1>)> do
-      @Trace: $@Trace - 1
-        -> \(<..0> '$#10;' -> !OUT::write 50! <> $! \);
-      $ -> !OUT::write
-  end trace
-  sink clear
-    @Trace: 0;
-  end clear
-end Trace
-
-def trace: $Trace;
+operator (packet appendTo queueHead)
+  $NO_WORK -> !packet::setLink
+  $queueHead -> #
+  when <?($queueHead <=$NO_WORK>)> do $packet!
+  when <?($::getLink <~=$NO_WORK>)> do $::getLink -> #
+  otherwise def mouse: $; $packet -> !mouse::setLink
+    $queueHead !
+end appendTo
 
 processor Scheduler
-  def idle: $Idle;
   @: {
     layout: 0,
+    queuePacketCount: 0,
+    holdCount: 0,
     taskTable: [1..$NUM_TYPES -> $NO_TASK],
-    taskList: $NO_TASK
+    taskList: $NO_TASK,
+    currentTask: $NO_TASK,
+    currentTaskIdentity: 0
   };
 
-  sink createTask&{task:}
-    $ -> TaskControlBlock&{link: $@Scheduler.taskList, task: $task}
+  sink createTask&{data:, function:}
+    $ -> TaskControlBlock&{link: $@Scheduler.taskList, data: $data, function: function}
       -> \(
         @Scheduler.taskList: $;
         @Scheduler.taskTable($::getIdentity): $;
       \) -> !VOID
   end createTask
 
+  sink trace
+    @Scheduler.layout: $@Scheduler.layout - 1
+      -> \(<..0> '$#10;' -> !OUT::write 50! <> $! \);
+    $ -> !OUT::write
+  end trace
+
   templates findTask
     $@Scheduler.taskTable($)!
   end findTask
 
-  templates queuePacket&{currentId:}
+  templates queuePacket
     def packet: $;
-    $packet.identity -> findTask -> #
+    $packet::getIdentity -> findTask -> #
     when <=$NO_TASK> do $NO_TASK !
     otherwise
       def t: $;
-      1 -> !stats::incrementQueuePacketCount
-      {$packet..., identity:$currentId} -> !t::addInput
-      $t!
+      @Scheduler.queuePacketCount: $@Scheduler.queuePacketCount + 1;
+      $NO_WORK -> !packet::setLink
+      $@Scheduler.currentTaskIdentity -> !packet::setIdentity
+      $packet -> t::addInputAndGetPriority -> \(
+        when <$@Scheduler.currentTask::getPriority~..> do $t !
+        otherwise $@Scheduler.currentTask !
+      \) !
   end queuePacket
+
+  source holdSelf
+    @Scheduler.holdCount: $@Scheduler.holdCount + 1;
+    1 -> !@Scheduler.currentTask::setTaskHolding
+    $@Scheduler.currentTask::getLink!
+  end holdSelf
 
   templates release
     $ -> findTask -> #
@@ -92,144 +84,258 @@ processor Scheduler
     otherwise
       def t: $;
       0 -> !t::setTaskHolding
-      $t !
+      $t -> \(
+        when <?($::getPriority <$@Scheduler.currentTask::getPriority~..>)> do $!
+        otherwise $@Scheduler.currentTask !
+      \) !
   end release
 
+  source markWaiting
+    1 -> !@Scheduler.currentTask::setTaskWaiting
+    $@Scheduler.currentTask !
+  end markWaiting
+
+  sink createDevice
+    templates deviceFunction
+      when <?($(1) <=$NO_WORK>)> do
+        $(2)::removePending -> \(
+          <=$NO_WORK> $markWaiting !
+          otherwise $ -> queuePacket !
+        \) !
+      otherwise
+        def dataRecord: $(2);
+        $(1) -> !dataRecord::setPending
+        $(1) -> \(<?($TRACING <=1>)> $::getDatum !\) -> !trace
+        $holdSelf !
+    end deviceFunction
+    $ -> !createTask&{data: $DeviceTaskDataRecord, function: deviceFunction}
+  end createDevice
+
+  sink createHandler
+    templates handlerFunction
+      def dataRecord: $(2);
+      $(1) -> \(<~=$NO_WORK> $! \)
+        -> \(
+          when <?($::getKind <=$WORK_PACKET_KIND>)> do $ -> !dataRecord::workInAdd
+          otherwise $ -> !dataRecord::deviceInAdd
+        \) -> !VOID
+      $dataRecord::getWorkIn -> \(
+        when <=$NO_WORK> do $markWaiting!
+        otherwise
+          def count: $::getDatum;
+          $ -> \(
+            when <?($count <$DATA_SIZE..>)> do
+              $::getLink -> !dataRecord::setWorkIn
+              $ -> queuePacket !
+            otherwise
+              def workPacket: $;
+              $dataRecord::getDeviceIn -> \(
+                when <=$NO_WORK> do $markWaiting!
+                otherwise
+                  def devicePacket: $;
+                  $::getLink -> !dataRecord::setDeviceIn
+                  $workPacket::getData&{i: $count} -> !devicePacket::setDatum
+                  $count + 1 -> !workPacket::setDatum
+                  $devicePacket -> queuePacket !
+              \) !
+          \) !
+      \) !
+    end handlerFunction
+    $ -> !createTask&{data: $HandlerTaskDataRecord, function: handlerFunction}
+  end createHandler
+
+  sink createIdler
+    templates idlerFunction
+      def dataRecord: $(2);
+      $dataRecord::decrementCount -> \(
+        when <=0> do $holdSelf!
+        otherwise
+          ($dataRecord::getControl and [x01x]) -> $(last) -> \(
+            when <=[x00x]> do
+              $dataRecord::getControl -> $::shift&{left:-1, fill: $(0)} -> !dataRecord::setControl
+              $DEVICE_A -> release !
+            otherwise
+              $dataRecord::getControl -> ($::shift&{left:-1, fill: $(0)} xor (53256 -> $::asBytes))
+                -> !dataRecord::setControl
+              $DEVICE_B -> release !
+          \) !
+      \) !
+    end idlerFunction
+
+    $ -> !createTask&{data: $IdleTaskDataRecord, function: idlerFunction}
+  end createIdler
+
+  sink createWorker
+    templates workerFunction
+      def work: $(1);
+      def data: $(2);
+      $(1) -> \(
+        when <=$NO_WORK> do $markWaiting!
+        otherwise
+          $data::getDestination -> \(<=$HANDLER_A> $HANDLER_B! <> $HANDLER_A!\) -> !data::setDestination
+          $data::getDestination -> !work::setIdentity
+          0 -> !work::setDatum
+          0..~$DATA_SIZE -> \(
+            def i: $;
+            $data::getCount + 1 -> \(<..26> $! <> 1!\) -> !data::setCount
+            65 + $data::getCount - 1 -> !work::setData&{i: $i}
+          \) -> !VOID
+          $work -> queuePacket !
+      \) !
+    end workerFunction
+    $ -> !createTask&{data: $WorkerTaskDataRecord, function: workerFunction}
+  end createWorker
+
   source schedule
-    $@Scheduler.taskList -> #
+    @Scheduler.currentTask: $@Scheduler.taskList;
+    $@Scheduler.currentTask -> #
+    when <=$NO_TASK> !VOID
     when <?($::isTaskHoldingOrWaiting <=1>)> do
-      $::getLink -> \(
-        when <=$NO_TASK> do
-          $idle::getNextTask -> release !
-        otherwise $!
-      \) -> #
+      @Scheduler.currentTask: $::getLink;
+      $@Scheduler.currentTask -> #
     otherwise
-      def currentTask: $;
-      $::getIdentity -> !trace::trace
-      [$::runTask] -> \(
-        when <=[]> $currentTask !
-        when <?($(1) <{}>)> do $(1) -> queuePacket&{currentId: $currentTask::getIdentity} -> \(
-          when <?($::getPriority <$currentTask::getPriority~..>)> do $!
-          otherwise $currentTask !
-        \)!
-      \) -> #
+      @Scheduler.currentTaskIdentity: $::getIdentity;
+      $::getIdentity -> \(<?($TRACING <=1>)> $!\) -> !trace
+      @Scheduler.currentTask: $::runTask;
+      $@Scheduler.currentTask -> #
   end schedule
 
-  // tasks must be created in priority order here
   source start
-    [1..2 -> {identity: $WORKER, kind: $WORK_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
-    -> [$WORKER, 1000, $, $taskStateWaitingWithPacket] -> !createTask&{task: $WorkerTask}
+    [$IDLER, 0, $NO_WORK, $taskStateRunning] -> !createIdler
 
-    [1..3 -> {identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
-    -> [$HANDLER_A, 2000, $, $taskStateWaitingWithPacket] -> !createTask&{task: $HandlerTask}
+    {link: $NO_WORK, identity: $WORKER, kind: $WORK_PACKET_KIND} -> Packet
+    -> {link: $, identity: $WORKER, kind: $WORK_PACKET_KIND} -> Packet
+    -> [$WORKER, 1000, $, $taskStateWaitingWithPacket] -> !createWorker
 
-    [1..3 -> {identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
-    -> [$HANDLER_B, 3000, $, $taskStateWaitingWithPacket] -> !createTask&{task: $HandlerTask}
+    {link: $NO_WORK, identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND} -> Packet
+    -> {link: $, identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND} -> Packet
+    -> {link: $, identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND} -> Packet
+    -> [$HANDLER_A, 2000, $, $taskStateWaitingWithPacket] -> !createHandler
 
-    [$DEVICE_A, 4000, [], $taskStateWaiting] -> !createTask&{task: $DeviceTask}
-    [$DEVICE_B, 5000, [], $taskStateWaiting] -> !createTask&{task: $DeviceTask}
+    {link: $NO_WORK, identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND} -> Packet
+    -> {link: $, identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND} -> Packet
+    -> {link: $, identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND} -> Packet
+    -> [$HANDLER_B, 3000, $, $taskStateWaitingWithPacket] -> !createHandler
 
-    $schedule -> !VOID
+    [$DEVICE_A, 4000, $NO_WORK, $taskStateWaiting] -> !createDevice
+    [$DEVICE_B, 5000, $NO_WORK, $taskStateWaiting] -> !createDevice
+
+    [$schedule] -> #
+    <?($@Scheduler.queuePacketCount <=23246>)?($@Scheduler.holdCount <=9297>)>
+      1 !
+    otherwise
+      0 !
   end start
 end Scheduler
 
-processor DeviceTask
+processor DeviceTaskDataRecord
   @:$NO_WORK;
-  templates function&{holdSelf:, markWaiting:}
-    when <=$NO_WORK> do
-      $@DeviceTask -> \(
-        <=$NO_WORK> 1 -> !markWaiting
-        otherwise
-          @DeviceTask: $NO_WORK;
-          $ !
-      \) !
-    otherwise
-      @DeviceTask: $;
-      $.datum -> !trace::trace
-      1 -> !holdSelf
-  end function
-end DeviceTask
+  source removePending
+    $@DeviceTaskDataRecord !
+    @DeviceTaskDataRecord: $NO_WORK;
+  end removePending
+  sink setPending
+    @DeviceTaskDataRecord: $;
+  end setPending
+end DeviceTaskDataRecord
 
-processor HandlerTask
-  @: { workIn: [], deviceIn: []};
-  templates function&{holdSelf:, markWaiting:}
-    $ -> \(<~=$NO_WORK> $! \)
-      -> \(
-        when <?($.kind <=$WORK_PACKET_KIND>)> do
-          ..|@HandlerTask.workIn: $;
-        otherwise
-          ..|@HandlerTask.deviceIn: $;
-      \) -> !VOID
-    $@HandlerTask.workIn::length -> \(
-      when <=0> do 1 -> !markWaiting
-      otherwise
-        $@HandlerTask.workIn(1).datum -> \(
-          when <$DATA_SIZE..> do
-            ^@HandlerTask.workIn(1) !
-          otherwise
-            def count: $;
-            $@HandlerTask.deviceIn::length -> \(
-              when <=0> do 1 -> !markWaiting
-              otherwise
-                @HandlerTask.deviceIn(1).datum: $@HandlerTask.workIn(1).data($count+1);
-                @HandlerTask.workIn(1).datum: $count + 1;
-                ^@HandlerTask.deviceIn(1) !
-            \) !
-        \) !
-    \) !
-  end function
-end HandlerTask
+processor HandlerTaskDataRecord
+  @: { workIn: {}, deviceIn: {}};
+  sink workInAdd
+    @HandlerTaskDataRecord.workIn: ($ appendTo $@HandlerTaskDataRecord.workIn);
+  end workInAdd
+  source getWorkIn
+    $@HandlerTaskDataRecord.workIn !
+  end getWorkIn
+  sink setWorkIn
+    @HandlerTaskDataRecord.workIn: $;
+  end setWorkIn
+  sink deviceInAdd
+    @HandlerTaskDataRecord.deviceIn: ($ appendTo $@HandlerTaskDataRecord.deviceIn);
+  end deviceInAdd
+  source getDeviceIn
+    $@HandlerTaskDataRecord.deviceIn !
+  end getDeviceIn
+  sink setDeviceIn
+    @HandlerTaskDataRecord.deviceIn: $;
+  end setDeviceIn
+end HandlerTaskDataRecord
 
-processor Idle
+processor IdleTaskDataRecord
   @: { control: [x01x] -> $(last-3..last), count: 10000};
   source decrementCount
-    @Idle.count: $@Idle.count - 1;
-    $@Idle.count !
+    @IdleTaskDataRecord.count: $@IdleTaskDataRecord.count - 1;
+    $@IdleTaskDataRecord.count !
   end decrementCount
-  templates getNextTask
-    $decrementCount -> \(
-      when <1..> do
-        ($@Idle.control and [x01x]) -> $(last) -> \(
-          when <=[x00x]> do
-            @Idle.control: $@Idle.control -> $::shift&{left:-1, fill: $(0)};
-            $DEVICE_A !
-          otherwise
-            @Idle.control: $@Idle.control
-              -> ($::shift&{left:-1, fill: $(0)} xor (53256 -> $::asBytes));
-            $DEVICE_B !
-        \) !
-    \) !
-  end getNextTask
-end Idle
+  source getControl
+    $@IdleTaskDataRecord.control !
+  end getControl
+  sink setControl
+    @IdleTaskDataRecord.control: $;
+  end setControl
+end IdleTaskDataRecord
 
-processor WorkerTask
+processor WorkerTaskDataRecord
   @: {destination: $HANDLER_A, count: 0};
-  templates function&{holdSelf:, markWaiting:}
-    when <=$NO_WORK> do 1 -> !markWaiting
-    otherwise
-      @WorkerTask.destination: $@WorkerTask.destination -> \(<=$HANDLER_A> $HANDLER_B! <> $HANDLER_A!\);
-      { kind: $.kind,
-        identity: $@WorkerTask.destination,
-        datum: 0,
-        data: $.data -> \[i](
-          @WorkerTask.count: $@WorkerTask.count + 1 -> \(<..26> $! <> 1!\);
-          65 + $@WorkerTask.count - 1 !
-        \)
-       } !
-  end function
-end WorkerTask
+  source getCount
+    $@WorkerTaskDataRecord.count!
+  end getCount
+  sink setCount
+    @WorkerTaskDataRecord.count: $;
+  end setCount
+  source getDestination
+    $@WorkerTaskDataRecord.destination!
+  end getDestination
+  sink setDestination
+    @WorkerTaskDataRecord.destination: $;
+  end setDestination
+end WorkerTaskDataRecord
 
-processor TaskControlBlock&{link:, task:}
+processor Packet
+  @: { $..., datum: 0, data: [1..$DATA_SIZE -> 0] };
+  source getKind
+    $@Packet.kind!
+  end getKind
+  source getLink
+    $@Packet.link!
+  end getLink
+  sink setLink
+    @Packet.link: $;
+  end setLink
+  source getDatum
+    $@Packet.datum !
+  end getDatum
+  sink setDatum
+    @Packet.datum: $;
+  end setDatum
+  source getData&{i:}
+    $@Packet.data($i+1)!
+  end getData
+  sink setData&{i:}
+    @Packet.data($i+1): $;
+  end setData
+  source getIdentity
+    $@Packet.identity!
+  end getIdentity
+  sink setIdentity
+    @Packet.identity: $;
+  end setIdentity
+end Packet
+
+processor TaskControlBlock&{link:, data:, function:}
   def identity: $(1);
   def priority: $(2);
   @: {input: $(3), $(4)...};
 
-  sink addInput
-    $@TaskControlBlock.input::length -> \(
-      when <=0> do @TaskControlBlock.packetPending: 1;
-    \) -> !VOID
-    ..|@TaskControlBlock.input: $;
-  end addInput
+  templates addInputAndGetPriority
+    when <?($@TaskControlBlock.input <=$NO_WORK>)> do
+      @TaskControlBlock.input: $;
+      @TaskControlBlock.packetPending: 1;
+      $priority!
+    otherwise
+      @TaskControlBlock.input: ($ appendTo $@TaskControlBlock.input);
+      0!
+  end addInputAndGetPriority
 
   source getLink
     $link!
@@ -244,7 +350,6 @@ processor TaskControlBlock&{link:, task:}
   end getIdentity
 
   sink setTaskHolding
-    $ -> !stats::incrementHoldCount
     @TaskControlBlock.taskHolding: $;
   end setTaskHolding
 
@@ -269,13 +374,14 @@ processor TaskControlBlock&{link:, task:}
   source runTask
     $isWaitingWithPacket -> \(
       when <=1> do
-        ^@TaskControlBlock.input(1) !
-        $@TaskControlBlock.input::length -> \(
-          <=0> ..|@TaskControlBlock: $taskStateRunning;
+        $@TaskControlBlock.input !
+        @TaskControlBlock.input: $@TaskControlBlock.input::getLink;
+        $@TaskControlBlock.input -> \(
+          <=$NO_WORK> ..|@TaskControlBlock: $taskStateRunning;
           <>  ..|@TaskControlBlock: $taskStatePacketPending;
         \) -> !VOID
       otherwise $NO_WORK !
-    \) -> task::function&{holdSelf: setTaskHolding, markWaiting: setTaskWaiting} !
+    \) -> [$, $data] -> function !
   end runTask
 end TaskControlBlock
 
@@ -296,14 +402,7 @@ source taskStateWaitingWithPacket
 end taskStateWaitingWithPacket
 
 templates run
-  0 -> !stats::clear
-  0 -> !trace::clear
-  $Scheduler -> $::start -> !VOID
-  $stats::get -> #
-  <{queuePacketCount: <=23246>, holdCount: <=9296>}>
-    1 !
-  otherwise
-    0 !
+  $Scheduler -> $::start !
 end run
 
 1 -> harness/run&{name: 'Richards', benchmark:run} -> !VOID
