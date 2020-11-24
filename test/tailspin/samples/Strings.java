@@ -576,4 +576,17 @@ class Strings {
 
     assertEquals("48616c6cc3a5", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void interpolate2dArray() throws IOException {
+    String program = "def a: [[1,2,3],[4,5,6]]; '$a(2;2);' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
 }

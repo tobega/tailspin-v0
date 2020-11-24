@@ -94,13 +94,13 @@ public class TailspinParser extends Parser {
 		return new String[] {
 			null, "'//'", "'include'", "'VOID'", "'def'", "'when'", "'do'", "'otherwise'", 
 			"'->'", "'!'", "'$'", "'^'", "'&'", "'/'", "':'", null, null, null, "';'", 
-			"','", "'...'", "'~'", "'('", "')'", "'['", "']'", "'{'", "'}'", "'[x'", 
+			"','", "'...'", "'~'", null, null, "'['", "']'", "'{'", "'}'", "'[x'", 
 			"'<'", "'\\'", "'templates'", "'source'", "'sink'", "'composer'", "'processor'", 
 			"'operator'", "'end'", "'rule'", "'first'", "'last'", "'#'", "'..'", 
-			"'+'", "'-'", "'*'", "'~/'", "'mod'", "'?'", "'='", "'|'", "'>'", "'?('", 
+			"'+'", "'-'", "'*'", "'~/'", "'mod'", "'?'", "'='", "'|'", "'>'", null, 
 			"'test'", "'assert'", "'core-system/'", "'with'", "'provided'", "'modified'", 
 			"'shadowed'", "'inherited'", "'from'", "'stand-alone'", "'use'", "'0'", 
-			null, null, null, null, null, null, null, null, null, null, null, null, 
+			null, null, null, null, null, null, null, "'''", null, null, null, null, 
 			null, null, "'x]'"
 		};
 	}

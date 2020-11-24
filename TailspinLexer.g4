@@ -1,7 +1,12 @@
 lexer grammar TailspinLexer;
 
+@header {
+  import java.util.Deque;
+  import java.util.ArrayDeque;
+}
+
 @members {
-  int stringInterpolate = 0;
+  Deque<Character> ctx = new ArrayDeque<>();
 }
 
 StartComment: '//' -> skip, pushMode(COMMENT_MODE);
@@ -36,7 +41,7 @@ Message: '::' IDENTIFIER;
 
 FieldReference: '.' IDENTIFIER;
 
-EndStringInterpolate: ';' {stringInterpolate > 0}? {stringInterpolate--;} -> popMode;
+EndStringInterpolate: ';' {!ctx.isEmpty() && ctx.peek() == '$'}? {ctx.pop();} -> popMode;
 
 SemiColon: ';';
 
@@ -46,9 +51,9 @@ Deconstructor: '...';
 
 Invert: '~';
 
-LeftParen: '(' -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
+LeftParen: '(' {ctx.push('(');} -> pushMode(DEFAULT_MODE); // Just to allow RightParen to popMode
 
-RightParen: ')' -> popMode;
+RightParen: ')' {ctx.pop() == '('}? -> popMode;
 
 LeftBracket: '[';
 
@@ -106,7 +111,7 @@ Else: '|';
 
 EndMatcher: '>';
 
-BeginCondition: '?(' -> pushMode(DEFAULT_MODE);
+BeginCondition: '?(' {ctx.push('(');} -> pushMode(DEFAULT_MODE);
 
 StartTestDefinition: 'test';
 
@@ -136,7 +141,7 @@ PositiveInteger: [1-9] Digits?;
 
 fragment Digits: [0-9]+;
 
-START_STRING: '\'' -> pushMode(IN_STRING);
+START_STRING: '\'' {ctx.push('\'');} -> pushMode(IN_STRING);
 
 STATE_IDENTIFIER: '@' IDENTIFIER_PART*;
 
@@ -166,15 +171,15 @@ END_REGEX: '\'' -> popMode;
 
 mode IN_STRING;
 
-StartCharacterCode: '$#' { stringInterpolate++; } -> pushMode(DEFAULT_MODE);
+StartCharacterCode: '$#' { ctx.push('$'); } -> pushMode(DEFAULT_MODE);
 
-StartStringInterpolate: '$' { stringInterpolate++; } -> pushMode(DEFAULT_MODE);
+StartStringInterpolate: '$' { ctx.push('$'); } -> pushMode(DEFAULT_MODE);
 
 STRING_TEXT: STRING_CHAR+;
 
 fragment STRING_CHAR: '\'\'' | '$$' | ~['$];
 
-END_STRING: '\'' -> popMode;
+END_STRING: '\'' {ctx.pop() == '\''}? -> popMode;
 
 
 mode IN_BYTES;
@@ -183,6 +188,6 @@ Bytes: ([0-9a-f][0-9a-f])+;
 
 Bytes_WS : WS -> skip ;
 
-StartBytesExpression: LeftParen -> type(LeftParen), pushMode(DEFAULT_MODE);
+StartBytesExpression: LeftParen {ctx.push('(');} -> type(LeftParen), pushMode(DEFAULT_MODE);
 
 EndBytes: 'x]' -> popMode;

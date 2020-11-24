@@ -21,8 +21,8 @@ null
 ','
 '...'
 '~'
-'('
-')'
+null
+null
 '['
 ']'
 '{'
@@ -51,7 +51,7 @@ null
 '='
 '|'
 '>'
-'?('
+null
 'test'
 'assert'
 'core-system/'
@@ -71,7 +71,7 @@ null
 null
 null
 null
-null
+'\''
 null
 null
 null
