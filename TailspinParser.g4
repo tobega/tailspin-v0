@@ -13,6 +13,7 @@ statement: Def key valueProduction SemiColon                  # definition
   | StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier # composerDefinition
   | StartTestDefinition stringLiteral useModule* testBody EndDefinition stringLiteral # testDefinition
   | StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen templatesBody EndDefinition localIdentifier # operatorDefinition
+  | StereotypeDefinition localIdentifier matcher # stereotypeDefinition
 ;
 
 key: localIdentifier Colon;
@@ -118,6 +119,7 @@ typeMatch: rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
   | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
+  | (localIdentifier|externalIdentifier) # stereotypeMatch
 ;
 
 structureContentMatcher: matcher | Void;
@@ -240,6 +242,7 @@ keyword: Include
   | StartProcessorDefinition
   | StartOperatorDefinition
   | EndDefinition
+  | StereotypeDefinition
   | Mod
   | Rule
   | When

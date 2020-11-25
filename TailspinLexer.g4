@@ -23,6 +23,8 @@ Do: 'do';
 
 Otherwise: 'otherwise';
 
+StereotypeDefinition: 'stereotype';
+
 To: '->';
 
 ResultMarker: '!';

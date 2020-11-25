@@ -65,6 +65,7 @@ import tailspin.matchers.MultipliedCollectionCriterionFactory;
 import tailspin.matchers.OnceOnlyCollectionCriterionFactory;
 import tailspin.matchers.RangeMatch;
 import tailspin.matchers.RegexpMatch;
+import tailspin.matchers.StereotypeMatch;
 import tailspin.matchers.StructureMatch;
 import tailspin.matchers.ValueMatcher;
 import tailspin.matchers.composer.CompositionSpec;
@@ -84,6 +85,8 @@ import tailspin.parser.TailspinParser.ModuleShadowingContext;
 import tailspin.parser.TailspinParser.OperandContext;
 import tailspin.parser.TailspinParser.OperatorExpressionContext;
 import tailspin.parser.TailspinParser.StateSinkContext;
+import tailspin.parser.TailspinParser.StereotypeDefinitionContext;
+import tailspin.parser.TailspinParser.StereotypeMatchContext;
 import tailspin.parser.TailspinParser.TermArithmeticOperationContext;
 import tailspin.parser.TailspinParser.TermContext;
 import tailspin.parser.TailspinParser.UseModuleContext;
@@ -453,6 +456,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
+  public Criterion visitStereotypeMatch(StereotypeMatchContext ctx) {
+    String identifier = ctx.localIdentifier() != null
+        ? ctx.localIdentifier().getText() : ctx.externalIdentifier().getText();
+    dependencyCounters.peek().reference(identifier);
+    return new StereotypeMatch(identifier);
+  }
+
+  @Override
   public Criterion visitArrayMatch(TailspinParser.ArrayMatchContext ctx) {
     List<CollectionCriterionFactory> criterionFactories = ctx.arrayContentMatcher().stream()
         .map(this::visitArrayContentMatcher)
@@ -668,6 +679,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Expression visitLiteralTemplates(TailspinParser.LiteralTemplatesContext ctx) {
     return visitSource(ctx.source());
+  }
+
+  @Override
+  public Object visitStereotypeDefinition(StereotypeDefinitionContext ctx) {
+    String identifier = ctx.localIdentifier().getText();
+    AnyOf matcher = visitMatcher(ctx.matcher());
+    dependencyCounters.peek().define(identifier);
+    return new Definition(identifier, (it,scope) -> matcher);
   }
 
   @Override

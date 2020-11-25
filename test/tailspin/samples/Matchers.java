@@ -1205,4 +1205,18 @@ class Matchers {
 
     assertEquals("no", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void stereotypeMatch() throws Exception {
+    String program = "stereotype dice <1..6>\n"
+        + "0..7 -> \\(when <dice> do $! otherwise '-' !\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("-123456-", output.toString(StandardCharsets.UTF_8));
+  }
 }

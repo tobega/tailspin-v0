@@ -72,6 +72,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitOperatorDefinition(TailspinParser.OperatorDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code stereotypeDefinition}
+	 * labeled alternative in {@link TailspinParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStereotypeDefinition(TailspinParser.StereotypeDefinitionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#key}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -343,6 +350,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArrayMatch(TailspinParser.ArrayMatchContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code stereotypeMatch}
+	 * labeled alternative in {@link TailspinParser#typeMatch}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStereotypeMatch(TailspinParser.StereotypeMatchContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#structureContentMatcher}.
 	 * @param ctx the parse tree

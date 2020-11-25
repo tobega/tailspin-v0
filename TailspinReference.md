@@ -457,6 +457,10 @@ against the produced or transformed value.
  
 Note that a condition will change the perspective of the _current value_ so that `$` will represent the value being matched by the closest enclosing matcher.
 
+### Defined stereotypes
+It is possible to define a named criterion (a stereotype), by the statement `stereotype _identifier_ <_condition_>`.
+The named criterion can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`
+
 ## Templates state
 A [templates](#templates) object has modifiable local temporary state, valid for the processing of one input value,
 which can be modified by the special identifier `@`, set as `@: _value chain_;` and dereferenced as `$@`. Optionally, or to access
