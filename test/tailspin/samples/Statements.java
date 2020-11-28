@@ -262,6 +262,19 @@ class Statements {
   }
 
   @Test
+  void commandLineArgsGetValue() throws Exception {
+    String program = "$ARGS(1) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of("Hello", "world"));
+
+    assertEquals("Hello", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void systemNanoCount() throws Exception {
     String program = "def start: $SYS::nanoCount;\n"
         + "[1..100 -> $SYS::nanoCount - $start] -> $(last) -> \\(<0~..> 1 !\\) -> !OUT::write";

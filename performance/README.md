@@ -11,6 +11,32 @@ a better-designed version of Richards with immutable packets.
 |[2020-11-11 HotSpot jdk14 JVMCI](#2020-11-11)|Interpreted|732|118|256|564|688|   | |152|586|
 |[2020-11-14 HotSpot jdk14 JVMCI](#2020-11-14)|Interpreted|746|120|252|561|755|911| |163|585|
 |[2020-11-16 HotSpot jdk14 JVMCI](#2020-11-16)|Interpreted|686|129|268|555|747|798|642|150|602|
+|[2020-11-28 HotSpot jdk14 JVMCI](#2020-11-28)|Interpreted|750|121|231|527|848|806|628|164|659|
+
+## 2020-11-28
+machine 3, wrapped Lists in TailspinArray
+HotSpot jdk14 JVMCI
+
+|Benchmark|Mean runtime us|
+|---|--:|
+Bounce Java|12
+Bounce Tailspin|8994
+Json Java|63
+Json Tailspin|7654
+List Java|24
+List Tailspin|5555
+Permute Java|21
+Permute Tailspin|11073
+Queens Java|14
+Queens Tailspin|11873
+Richards Java|13
+Richards Tailspin|10476
+Richards2 Java|15
+Richards2 Tailspin|9419
+Sieve Java|17
+Sieve Tailspin|2782
+Towers Java|18
+Towers Tailspin|11861
 
 ## 2020-11-16
 machine 3, added Richards2, a better-designed version

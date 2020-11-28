@@ -52,18 +52,18 @@ public class Tailspin {
   /**
    * Only to be used by tests
    */
-  public void run(InputStream input, OutputStream output, List<String> args) {
+  public void run(InputStream input, OutputStream output, List<Object> args) {
     run(Path.of("."), input, output, args);
   }
 
   /**
    * Only to be used by tests
    */
-  public void runTests(InputStream input, OutputStream output, List<String> args) throws IOException {
+  public void runTests(InputStream input, OutputStream output, List<Object> args) throws IOException {
     runTests(Path.of("."), input, output, args);
   }
 
-  public void runTests(Path basePath, InputStream input, OutputStream output, List<String> args)
+  public void runTests(Path basePath, InputStream input, OutputStream output, List<Object> args)
       throws IOException {
     Program program = new RunMain().visitProgram(programDefinition);
     SymbolLibrary coreSystemProvider = CoreSystemProvider.of(args, input, output);
@@ -74,7 +74,7 @@ public class Tailspin {
     output.write(result.getBytes(StandardCharsets.UTF_8));
   }
 
-  public void run(Path basePath, InputStream input, OutputStream output, List<String> args) {
+  public void run(Path basePath, InputStream input, OutputStream output, List<Object> args) {
     Program program = new RunMain().visitProgram(programDefinition);
     SymbolLibrary coreSystemProvider = CoreSystemProvider.of(args, input, output);
     program.run(basePath, coreSystemProvider);
