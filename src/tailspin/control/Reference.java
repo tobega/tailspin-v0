@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import tailspin.interpreter.Scope;
 import tailspin.types.Processor;
+import tailspin.types.TailspinArray;
 
 public abstract class Reference implements Value {
   public abstract Object getValue(Object it, Scope scope);
@@ -119,14 +120,14 @@ public abstract class Reference implements Value {
       }
       return result;
     }
-    if (value instanceof List) {
-      @SuppressWarnings("unchecked")
-      List<Object> arrayValue = (List<Object>) value;
+    if (value instanceof TailspinArray) {
+      TailspinArray arrayValue = (TailspinArray) value;
       List<Object> result = new ArrayList<>();
-      for (Object member : arrayValue) {
+      ResultIterator.Flat members = ResultIterator.wrap(arrayValue.deconstruct());
+      for (Object member = members.getNextResult(); member != null; member = members.getNextResult()) {
         result.add(copy(member));
       }
-      return result;
+      return TailspinArray.value(result);
     }
     if (value instanceof String || value instanceof Number || value instanceof Processor || value instanceof byte[]) {
       return value;
@@ -150,10 +151,9 @@ public abstract class Reference implements Value {
               collectorMap.put(itEntry.getKey(), copy(itEntry.getValue()));
             }
           });
-    } else if (collector instanceof List) {
-      @SuppressWarnings("unchecked")
-      List<Object> collectorList = (List<Object>) collector;
-      ResultIterator.forEach(it, value -> collectorList.add(copy(value)));
+    } else if (collector instanceof TailspinArray) {
+      TailspinArray collectorList = (TailspinArray) collector;
+      ResultIterator.forEach(it, value -> collectorList.append(copy(value)));
     } else {
       throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
     }

@@ -2,8 +2,10 @@ package tailspin.matchers;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
+import tailspin.types.TailspinArray;
 
 public class ArrayMatch implements Criterion {
   // @Nullable
@@ -20,9 +22,9 @@ public class ArrayMatch implements Criterion {
 
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
-    if (!(toMatch instanceof List)) return false;
-    List<?> listToMatch = (List<?>) toMatch;
-    if (lengthCriterion != null && !lengthCriterion.isMet((long) listToMatch.size(), it, scope)) {
+    if (!(toMatch instanceof TailspinArray)) return false;
+    TailspinArray listToMatch = (TailspinArray) toMatch;
+    if (lengthCriterion != null && !lengthCriterion.isMet((long) listToMatch.length(), it, scope)) {
       return false;
     }
     if (contentMatcherFactories.isEmpty()) {
@@ -31,8 +33,9 @@ public class ArrayMatch implements Criterion {
     List<CollectionCriterion> criteria = contentMatcherFactories.stream()
         .map(CollectionCriterionFactory::newCriterion).collect(
             Collectors.toList());
+    ResultIterator elements = ResultIterator.wrap(listToMatch.deconstruct());
     nextElement:
-    for(Object e: listToMatch) {
+    for(Object e = elements.getNextResult(); e != null; e = elements.getNextResult()) {
       for (Criterion c : criteria) {
         if (c.isMet(e, it, scope)) {
           continue nextElement;

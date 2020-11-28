@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
+import tailspin.types.TailspinArray;
 
 class ArrayReference extends Reference {
 
@@ -29,12 +30,11 @@ class ArrayReference extends Reference {
     if (parentValue instanceof byte[]) {
       return createByteSlice((byte[]) parentValue, it, scope);
     }
-    @SuppressWarnings("unchecked")
-    List<Object> array = (List<Object>) parentValue;
+    TailspinArray array = (TailspinArray) parentValue;
     if (array == null) {
       throw new IllegalStateException("Unknown array " + parent);
     }
-    return resolveDimensionDereference(0, array, List::get, it, scope);
+    return resolveDimensionDereference(0, array, TailspinArray::get, it, scope);
   }
 
   private byte[] createByteSlice(byte[] parentValue, Object it, Scope scope) {
@@ -59,8 +59,8 @@ class ArrayReference extends Reference {
   }
 
   private byte getExtended(byte[] a, int i) {
-    if (i >= 0) {
-      return a[i];
+    if (i > 0) {
+      return a[i-1];
     }
     if ((a[0] & 0x80) == 0) {
       return 0;
@@ -73,18 +73,17 @@ class ArrayReference extends Reference {
     if (!isMutable()) {
       throw new UnsupportedOperationException("Not deletable");
     }
-    @SuppressWarnings("unchecked")
-    List<Object> array = (List<Object>) parent.getValue(it, scope);
+    TailspinArray array = (TailspinArray) parent.getValue(it, scope);
     if (array == null) {
       throw new IllegalStateException("Unknown array " + parent);
     }
     class ElementRemover implements ArrayOperation {
       TreeSet<Integer> removed = new TreeSet<>();
-      List<List<Object>> arrays = new ArrayList<>();
-      List<Object> currentArray = null;
+      List<TailspinArray> arrays = new ArrayList<>();
+      TailspinArray currentArray = null;
 
       @Override
-      public Object invoke(List<Object> array, int index) {
+      public Object invoke(TailspinArray array, int index) {
         removed.add(index);
         if (array != currentArray) {
           currentArray = array;
@@ -94,7 +93,7 @@ class ArrayReference extends Reference {
       }
 
       public void doRemovals() {
-        for (List<Object> array : arrays) {
+        for (TailspinArray array : arrays) {
           for (int i : removed.descendingSet()) {
             array.remove(i);
           }
@@ -118,8 +117,7 @@ class ArrayReference extends Reference {
       throw new UnsupportedOperationException("Not mutable");
     }
     ResultIterator ri = ResultIterator.wrap(value);
-    @SuppressWarnings("unchecked")
-    List<Object> array = (List<Object>) parent.getValue(it, scope);
+    TailspinArray array = (TailspinArray) parent.getValue(it, scope);
     if (array == null) {
       throw new IllegalStateException("Unknown array " + parent);
     }
@@ -127,11 +125,11 @@ class ArrayReference extends Reference {
       class Merger implements ArrayOperation {
 
         int invocations = 0;
-        List<Object> lastArray;
+        TailspinArray lastArray;
         int lastIndex;
 
         @Override
-        public Object invoke(List<Object> array, int index) {
+        public Object invoke(TailspinArray array, int index) {
           invocations++;
           lastArray = array;
           lastIndex = index;
@@ -161,17 +159,16 @@ class ArrayReference extends Reference {
   }
 
   private interface ArrayOperation {
-
-    Object invoke(List<Object> array, int index);
+    Object invoke(TailspinArray array, int index);
   }
 
-  private Object resolveDimensionDereference(int currentDereference, List<Object> array,
+  private Object resolveDimensionDereference(int currentDereference, TailspinArray array,
       ArrayOperation bottomOperation, Object it, Scope scope) {
     ArrayOperation operation =
-        currentDereference == dimensions.size() - 1 ? bottomOperation : List::get;
+        currentDereference == dimensions.size() - 1 ? bottomOperation : TailspinArray::get;
     DimensionReference dimensionReference = dimensions.get(currentDereference);
     Object dimensionResult;
-    try (DimensionContextKeywordResolver.Context ctx = resolver.with(array.size(), false)) {
+    try (DimensionContextKeywordResolver.Context ctx = resolver.with(array.length(), false)) {
       Object idx = dimensionReference.getIndices(ctx, it, scope);
       if (idx instanceof Number) {
         dimensionResult = operation.invoke(array, ((Number) idx).intValue());
@@ -185,7 +182,7 @@ class ArrayReference extends Reference {
       }
       if (currentDereference == dimensions.size() - 1) {
         if (dimensionResult instanceof Stream) {
-          return ((Stream<?>) dimensionResult).collect(Collectors.toList());
+          return TailspinArray.value(((Stream<?>) dimensionResult).collect(Collectors.toList()));
         } else {
           return dimensionResult;
         }
@@ -193,14 +190,13 @@ class ArrayReference extends Reference {
     }
     if (dimensionResult instanceof Stream) {
       @SuppressWarnings("unchecked")
-      Stream<List<Object>> results = (Stream<List<Object>>) dimensionResult;
+      Stream<TailspinArray> results = (Stream<TailspinArray>) dimensionResult;
       return results
           .map(a -> resolveDimensionDereference(currentDereference + 1, a, bottomOperation, it,
               scope))
           .collect(Collectors.toList());
     } else {
-      @SuppressWarnings("unchecked")
-      List<Object> previousDimension = (List<Object>) dimensionResult;
+      TailspinArray previousDimension = (TailspinArray) dimensionResult;
       return resolveDimensionDereference(currentDereference + 1, previousDimension, bottomOperation,
           it, scope);
     }

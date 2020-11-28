@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import tailspin.types.TailspinArray;
 
 public class JavaTypeConverter {
 
@@ -37,8 +38,8 @@ public class JavaTypeConverter {
     if (List.class.isAssignableFrom(result.getClass())) {
       @SuppressWarnings("unchecked")
       List<Object> list = (List<Object>) result;
-      return list.stream().map(JavaTypeConverter::tailspinTypeOf).collect(
-          Collectors.toList());
+      return TailspinArray.value(list.stream().map(JavaTypeConverter::tailspinTypeOf).collect(
+          Collectors.toList()));
     }
     return new JavaObject(result);
   }

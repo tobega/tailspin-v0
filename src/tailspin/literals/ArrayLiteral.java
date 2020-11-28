@@ -6,6 +6,7 @@ import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.types.TailspinArray;
 
 public class ArrayLiteral implements Value {
   private final List<Expression> valueProductions;
@@ -21,6 +22,6 @@ public class ArrayLiteral implements Value {
       Object result = vp.getResults(it, scope);
       ResultIterator.forEach(result, array::add);
     }
-    return array;
+    return TailspinArray.value(array);
   }
 }

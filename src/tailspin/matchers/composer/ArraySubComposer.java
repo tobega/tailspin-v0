@@ -2,6 +2,7 @@ package tailspin.matchers.composer;
 
 import java.util.ArrayList;
 import tailspin.control.ResultIterator;
+import tailspin.types.TailspinArray;
 
 public class ArraySubComposer implements SubComposer {
   private final SequenceSubComposer items;
@@ -21,9 +22,9 @@ public class ArraySubComposer implements SubComposer {
   }
 
   @Override
-  public ArrayList<Object> getValues() {
-    ArrayList<Object> result = new ArrayList<>();
-    ResultIterator.forEach(items.getValues(), result::add);
+  public TailspinArray getValues() {
+    TailspinArray result = TailspinArray.value(new ArrayList<>());
+    ResultIterator.forEach(items.getValues(), result::append);
     return result;
   }
 

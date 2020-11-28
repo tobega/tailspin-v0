@@ -2,16 +2,14 @@ package tailspin.control;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
 import tailspin.types.KeyValue;
 import tailspin.types.Processor;
 import tailspin.types.Transform;
-
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ProcessorMessage extends Reference {
   private final Reference reference;
@@ -42,12 +40,6 @@ public class ProcessorMessage extends Reference {
     } else if (message.equals("hashCode")) {
       if (receiver instanceof byte[]) return (it, parameters) -> Arrays.hashCode((byte[]) receiver);
       return (it, params) -> ((Number) receiver.hashCode()).longValue();
-    } else if (receiver instanceof List) {
-      if (message.equals("length")) {
-        return (it, params) -> ((Number)((List<?>) receiver).size()).longValue();
-      } else {
-        throw new UnsupportedOperationException("Unknown array message " + message);
-      }
     } else if (receiver instanceof Long) {
       if (message.equals("asBytes")) {
         return (it, params) -> BigInteger.valueOf((Long) receiver).toByteArray();

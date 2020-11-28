@@ -2,12 +2,12 @@ package tailspin.control;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
 import tailspin.java.JavaTypeConverter;
 import tailspin.types.KeyValue;
-import tailspin.interpreter.Scope;
+import tailspin.types.TailspinArray;
 
 public class Deconstructor implements Expression {
   public static final Deconstructor INSTANCE = new Deconstructor();
@@ -17,21 +17,14 @@ public class Deconstructor implements Expression {
   private Deconstructor() {}
 
   @Override
-  public ResultIterator getResults(Object it, Scope blockScope) {
+  public Object getResults(Object it, Scope blockScope) {
     return getDeconstructedStream(it);
   }
 
   @SuppressWarnings("unchecked")
-  ResultIterator getDeconstructedStream(Object it) {
-    if (it instanceof List) {
-      if (((List<?>) it).isEmpty()) {
-        return null;
-      }
-      Iterator<Object> iterator = ((List<Object>) it).iterator();
-      return () -> {
-        if (!iterator.hasNext()) return null;
-        return iterator.next();
-      };
+  Object getDeconstructedStream(Object it) {
+    if (it instanceof TailspinArray) {
+      return ((TailspinArray) it).deconstruct();
     } else if (it instanceof String) {
       if (((String) it).isEmpty()) {
         return null;
@@ -58,7 +51,7 @@ public class Deconstructor implements Expression {
           deconstructed.add(String.valueOf(c));
         }
       }
-      return deconstructed::poll;
+      return ((ResultIterator.Flat) deconstructed::poll);
     } else if (it instanceof Map) {
       @SuppressWarnings("unchecked")
       Map<String, Object> map = (Map<String, Object>) it;
@@ -66,7 +59,7 @@ public class Deconstructor implements Expression {
         return null;
       }
       Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
-      return () -> {
+      return (ResultIterator.Flat) () -> {
         if (!iterator.hasNext()) {
           return null;
         }
@@ -77,7 +70,7 @@ public class Deconstructor implements Expression {
       Object realObject = ((JavaObject) it).getRealObject();
       if (realObject instanceof Iterable) {
         Iterator<Object> iterator = ((Iterable<Object>) realObject).iterator();
-        return () -> {
+        return (ResultIterator.Flat) () -> {
           if (!iterator.hasNext()) return null;
           return JavaTypeConverter.tailspinTypeOf(iterator.next());
         };

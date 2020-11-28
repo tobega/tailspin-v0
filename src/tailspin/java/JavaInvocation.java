@@ -11,7 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import tailspin.control.ResultIterator;
 import tailspin.types.Processor;
+import tailspin.types.TailspinArray;
 import tailspin.types.Transform;
 
 class JavaInvocation implements Transform {
@@ -61,9 +63,8 @@ class JavaInvocation implements Transform {
 
   @Override
   public Object getResults(Object it, Map<String, Object> unused) {
-    if (it == null) it = List.of();
-    @SuppressWarnings("unchecked")
-    List<Object> params = (it instanceof List) ? (List<Object>) it : List.of(it);
+    List<Object> params = it == null ? List.of() :
+        ((it instanceof TailspinArray) ? toList((TailspinArray) it) : List.of(it));
     Executable[] methods = c.getMethods();
     Executable bestM = getBestExecutable(params, methods, message);
     if (bestM == null)
@@ -132,12 +133,11 @@ class JavaInvocation implements Transform {
     List<Object> invokeParams = new ArrayList<>();
     for (Parameter p : bestM.getParameters()) {
       Object param = params.get(invokeParams.size());
-      if (p.isVarArgs() && (param instanceof List)) {
-        @SuppressWarnings("unchecked")
-        List<Object> list = (List<Object>) param;
-        param = Array.newInstance(p.getType().getComponentType(), list.size());
-        for (int i = 0; i < list.size(); i++) {
-          setArrayValue(param, i, toJavaType(p.getType().getComponentType(), list.get(i)));
+      if (p.isVarArgs() && (param instanceof TailspinArray)) {
+        TailspinArray list = (TailspinArray) param;
+        param = Array.newInstance(p.getType().getComponentType(), list.length());
+        for (int i = 0; i < list.length(); i++) {
+          setArrayValue(param, i, toJavaType(p.getType().getComponentType(), list.get(i+1)));
         }
       } else {
         param = toJavaType(p.getType(), param);
@@ -171,12 +171,20 @@ class JavaInvocation implements Transform {
   private static Object toJavaType(Class<?> type, Object param) {
     if (param instanceof JavaObject) {
       param = ((JavaObject) param).getRealObject();
+    } else if (param instanceof TailspinArray) {
+      param = toList((TailspinArray) param);
     } else if (param instanceof Processor) {
       param = JavaProxy.of(type, (Processor) param);
     } else if (tsToJavaTypeConversions.containsKey(type)) {
       param = tsToJavaTypeConversions.get(type).apply(param);
     }
     return param;
+  }
+
+  public static List<Object> toList(TailspinArray param) {
+    List<Object> result = new ArrayList<>();
+    ResultIterator.forEach(ResultIterator.wrap(param.deconstruct()), result::add);
+    return result;
   }
 
   private static int calculatePenalty(JavaObject obj, Class<?> type) {

@@ -1,7 +1,7 @@
 package tailspin.control;
 
-import java.util.List;
 import tailspin.interpreter.Scope;
+import tailspin.types.TailspinArray;
 
 public class SimpleDimensionReference implements DimensionReference {
   private final Value simpleValue;
@@ -13,8 +13,8 @@ public class SimpleDimensionReference implements DimensionReference {
   @Override
   public Object getIndices(DimensionContextKeywordResolver.Context context, Object it, Scope scope) {
     Object value = simpleValue.getResults(it, scope);
-    if (value instanceof List) {
-      return ((List<?>) value)
+    if (value instanceof TailspinArray) {
+      return ((TailspinArray) value)
           .stream()
               .mapToInt(
                   i ->
