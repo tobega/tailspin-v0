@@ -1,0 +1,48 @@
+include 'harness'
+include 'som'
+
+templates radixsort&{base:}
+  sink bucketize
+    def value: $;
+    $ ~/ $@radixsort.magnitude -> #
+    when <=0 ?($value <0..>)> do
+      ..|@radixsort.positives: $value;
+    when <=0> do
+      ..|@radixsort.negatives(last): $value;
+    otherwise
+      def bucket: $ mod $base -> \(<?($value<0..>)> $ + 1 ! <=0> $base ! <> $ !\);
+      ..|@radixsort.buckets($bucket): $value;
+      @radixsort.done: 0;
+  end bucketize
+  // Negatives get completed in wrong length-order, we need to collect by length and correct at the end
+  @: { done: 1, magnitude: 1, positives: [], negatives: [[]], buckets: [1..$base -> []]};
+  $... -> !bucketize
+  $@.done -> #
+  when <=1> do
+    [$@.negatives(last..first:-1)... ..., $@.positives...] !
+  otherwise
+    def previous: $@.buckets;
+    ..|@: {done: 1, magnitude: $@.magnitude * $base, buckets:[1..$base -> []]};
+    ..|@.negatives: [];
+    $previous... ... -> !bucketize
+    $@.done -> #
+end radixsort
+
+templates fingerprint
+$ -> !OUT::write
+'
+' -> !OUT::write
+  @:0;
+  // Note: array is one-based
+  $ -> \[i](@fingerprint: $@fingerprint + $i * $;\) -> !VOID
+  $@!
+end fingerprint
+
+templates runAndVerify
+  def random: $som/Random;
+  [1..1000 -> $random::next - 32768] -> radixsort&{base: 16} -> fingerprint -> #
+  <=6023830600> 1 !
+  <> 0 ! $ -> !OUT::write
+end runAndVerify
+
+1 -> harness/run&{name: 'Storage', benchmark:runAndVerify} -> !VOID

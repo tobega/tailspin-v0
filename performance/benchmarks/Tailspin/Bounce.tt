@@ -1,12 +1,5 @@
 include 'harness'
-
-processor Random
-  @: 74755;
-  source next
-    @Random: ($@Random * 1309 + 13849) mod 65536;
-    $@Random !
-  end next
-end Random
+include 'som'
 
 processor Ball&{random:}
   @: {
@@ -44,7 +37,7 @@ processor Ball&{random:}
 end Ball
 
 templates runAndVerify
-  def random: $Random;
+  def random: $som/Random;
   def ballCount: 100;
   @: 0;
   def balls: [1..$ballCount -> $Ball&{random: $random}];

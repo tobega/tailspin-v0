@@ -3,15 +3,45 @@ Performance benchmarks based on (copied from) https://github.com/smarr/are-we-fa
 Progress measured in how many times slower than Java, from the latest runs. The Richards2 benchmark is
 a better-designed version of Richards with immutable packets.
 
-|Date|Implementation|Bounce|Json|List|Permute|Queens|Richards|Richards2|Sieve|Towers|
-|---|---|---|---|---|---|---|---|---|---|---|
-|[2020-07-30 HotSpot jdk14 JVMCI](#2020-07-30)|Interpreted|839|136|291|526|833|   | |140|541|
-|[2020-07-31 HotSpot jdk14 JVMCI](#2020-07-31)|Interpreted|741|131|273|605|672|   | |148|524|
-|[2020-08-05 HotSpot jdk14 JVMCI](#2020-08-05)|Interpreted|686|162|259|530|784|   | |160|556|
-|[2020-11-11 HotSpot jdk14 JVMCI](#2020-11-11)|Interpreted|732|118|256|564|688|   | |152|586|
-|[2020-11-14 HotSpot jdk14 JVMCI](#2020-11-14)|Interpreted|746|120|252|561|755|911| |163|585|
-|[2020-11-16 HotSpot jdk14 JVMCI](#2020-11-16)|Interpreted|686|129|268|555|747|798|642|150|602|
-|[2020-11-28 HotSpot jdk14 JVMCI](#2020-11-28)|Interpreted|750|121|231|527|848|806|628|164|659|
+|Date|Implementation|Bounce|Json|List|Permute|Queens|RadixSort|Richards|Richards2|Sieve|Storage|Towers|
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+|[2020-07-30 HotSpot jdk14 JVMCI](#2020-07-30)|Interpreted|839|136|291|526|833| |   | |140| |541|
+|[2020-07-31 HotSpot jdk14 JVMCI](#2020-07-31)|Interpreted|741|131|273|605|672| |   | |148| |524|
+|[2020-08-05 HotSpot jdk14 JVMCI](#2020-08-05)|Interpreted|686|162|259|530|784| |   | |160| |556|
+|[2020-11-11 HotSpot jdk14 JVMCI](#2020-11-11)|Interpreted|732|118|256|564|688| |   | |152| |586|
+|[2020-11-14 HotSpot jdk14 JVMCI](#2020-11-14)|Interpreted|746|120|252|561|755| |911| |163| |585|
+|[2020-11-16 HotSpot jdk14 JVMCI](#2020-11-16)|Interpreted|686|129|268|555|747| |798|642|150| |602|
+|[2020-11-28 HotSpot jdk14 JVMCI](#2020-11-28)|Interpreted|750|121|231|527|848| |806|628|164| |659|
+|[2020-11-29 HotSpot jdk14 JVMCI](#2020-11-29)|Interpreted|734|123|259|489|794|67|819|585|160|173|642|
+
+## 2020-11-29
+machine 3, add benchmarks Storage and RadixSort for list performance
+HotSpot jdk14 JVMCI
+
+|Benchmark|Mean runtime us|
+|---|--:|
+Bounce Java|12
+Bounce Tailspin|8804
+Json Java|62
+Json Tailspin|7597
+List Java|21
+List Tailspin|5442
+Permute Java|23
+Permute Tailspin|11242
+Queens Java|14
+Queens Tailspin|11115
+RadixSort Java|83
+RadixSort Tailspin|5589
+Richards Java|12
+Richards Tailspin|9832
+Richards2 Java|16
+Richards2 Tailspin|9359
+Sieve Java|17
+Sieve Tailspin|2715
+Storage Java|50
+Storage Tailspin|8630
+Towers Java|18
+Towers Tailspin|11560
 
 ## 2020-11-28
 machine 3, wrapped Lists in TailspinArray

@@ -1,0 +1,23 @@
+include 'harness'
+include 'som'
+
+source storage&{random:}
+  @: 0;
+  def foo: 7 -> #;
+  $@!
+  when <=1> do
+    @: $@ + 1;
+    [1..$random::next mod 10 + 1 -> 0] !
+  otherwise
+    def depth: $;
+    @: $@ + 1;
+    [1..4 -> $depth -1 -> #] !
+end storage
+
+templates runAndVerify
+  $storage&{random: $som/Random} -> #
+  <=5461> 1 !
+  <> 0 !
+end runAndVerify
+
+1 -> harness/run&{name: 'Storage', benchmark:runAndVerify} -> !VOID
