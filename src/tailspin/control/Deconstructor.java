@@ -7,6 +7,7 @@ import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
 import tailspin.java.JavaTypeConverter;
 import tailspin.types.KeyValue;
+import tailspin.types.Structure;
 import tailspin.types.TailspinArray;
 
 public class Deconstructor implements Expression {
@@ -52,20 +53,8 @@ public class Deconstructor implements Expression {
         }
       }
       return ((ResultIterator.Flat) deconstructed::poll);
-    } else if (it instanceof Map) {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> map = (Map<String, Object>) it;
-      if (map.isEmpty()) {
-        return null;
-      }
-      Iterator<Map.Entry<String, Object>> iterator = map.entrySet().iterator();
-      return (ResultIterator.Flat) () -> {
-        if (!iterator.hasNext()) {
-          return null;
-        }
-        Map.Entry<String, Object> e = iterator.next();
-        return new KeyValue(e.getKey(), e.getValue());
-      };
+    } else if (it instanceof Structure) {
+      return ((Structure) it).deconstruct();
     } else if (it instanceof JavaObject) {
       Object realObject = ((JavaObject) it).getRealObject();
       if (realObject instanceof Iterable) {

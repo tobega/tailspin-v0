@@ -6,8 +6,9 @@ import java.util.TreeMap;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
-import tailspin.types.KeyValue;
 import tailspin.interpreter.Scope;
+import tailspin.types.KeyValue;
+import tailspin.types.Structure;
 
 public class StructureLiteral implements Value {
   private final List<Expression> keyValues;
@@ -24,6 +25,6 @@ public class StructureLiteral implements Value {
       ResultIterator.forEach(result,
           kv -> structure.put(((KeyValue) kv).getKey(), ((KeyValue) kv).getValue()));
     }
-    return structure;
+    return Structure.value(structure);
   }
 }

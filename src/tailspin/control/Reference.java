@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import tailspin.interpreter.Scope;
+import tailspin.types.KeyValue;
 import tailspin.types.Processor;
+import tailspin.types.Structure;
 import tailspin.types.TailspinArray;
 
 public abstract class Reference implements Value {
@@ -111,14 +113,15 @@ public abstract class Reference implements Value {
     if (value == null) {
       return null;
     }
-    if (value instanceof Map) {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> mapValue = (Map<String, Object>) value;
+    if (value instanceof Structure) {
+      Structure structureValue = (Structure) value;
       Map<String, Object> result = new TreeMap<>();
-      for (Map.Entry<String, Object> entry : mapValue.entrySet()) {
+      ResultIterator.Flat members = ResultIterator.wrap(structureValue.deconstruct());
+      for (Object member = members.getNextResult(); member != null; member = members.getNextResult()) {
+        KeyValue entry = (KeyValue) member;
         result.put(entry.getKey(), copy(entry.getValue()));
       }
-      return result;
+      return Structure.value(result);
     }
     if (value instanceof TailspinArray) {
       TailspinArray arrayValue = (TailspinArray) value;
@@ -136,15 +139,17 @@ public abstract class Reference implements Value {
   }
 
   void collect(Object it, Object collector) {
-    if (collector instanceof Map) {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> collectorMap = (Map<String, Object>) collector;
+    if (collector instanceof Structure) {
+      Structure collectorMap = (Structure) collector;
       ResultIterator.forEach(it,
           m -> {
-            if (m instanceof Map) {
-              @SuppressWarnings("unchecked")
-              Map<String, Object> itMap = (Map<String, Object>) m;
-              itMap.forEach((key, value) -> collectorMap.put(key, copy(value)));
+            if (m instanceof Structure) {
+              Structure itMap = (Structure) m;
+              ResultIterator.Flat members = ResultIterator.wrap(itMap.deconstruct());
+              for (Object member = members.getNextResult(); member != null; member = members.getNextResult()) {
+                KeyValue entry = (KeyValue) member;
+                collectorMap.put(entry.getKey(), copy(entry.getValue()));
+              }
             } else {
               @SuppressWarnings("unchecked")
               Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) m;

@@ -3,6 +3,7 @@ package tailspin.matchers;
 import java.util.Map;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
+import tailspin.types.Structure;
 
 public class StructureMatch implements Criterion {
   private final Map<String, Criterion> keyConditions;
@@ -15,21 +16,20 @@ public class StructureMatch implements Criterion {
 
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
-    if (!(toMatch instanceof Map)) return false;
-    @SuppressWarnings("unchecked")
-    Map<String, Object> mapToMatch = (Map<String, Object>) toMatch;
+    if (!(toMatch instanceof Structure)) return false;
+    Structure structureToMatch = (Structure) toMatch;
     for (Map.Entry<String, Criterion> keyMatch : keyConditions.entrySet()) {
-      if (!mapToMatch.containsKey(keyMatch.getKey())) {
+      if (!structureToMatch.containsKey(keyMatch.getKey())) {
         if  (keyMatch.getValue() == AlwaysFalse.INSTANCE) {
           continue;
         }
         return false;
       }
-      Object valueToMatch = mapToMatch.get(keyMatch.getKey());
+      Object valueToMatch = structureToMatch.get(keyMatch.getKey());
       if (!keyMatch.getValue().isMet(valueToMatch, it, scope)) {
         return false;
       }
     }
-    return allowExcessKeys || mapToMatch.keySet().stream().allMatch(keyConditions::containsKey);
+    return allowExcessKeys || structureToMatch.keySet().stream().allMatch(keyConditions::containsKey);
   }
 }

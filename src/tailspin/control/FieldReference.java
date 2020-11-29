@@ -1,7 +1,7 @@
 package tailspin.control;
 
-import java.util.Map;
 import tailspin.interpreter.Scope;
+import tailspin.types.Structure;
 
 class FieldReference extends Reference {
 
@@ -16,8 +16,7 @@ class FieldReference extends Reference {
   @Override
   public Object getValue(Object it, Scope scope) {
     try {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
+      Structure structure = (Structure) parent.getValue(it, scope);
       if (structure == null) {
         throw new IllegalStateException("Unknown structure " + parent);
       }
@@ -35,8 +34,7 @@ class FieldReference extends Reference {
     if (!isMutable()) {
       throw new UnsupportedOperationException("Not deletable");
     }
-    @SuppressWarnings("unchecked")
-    Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
+    Structure structure = (Structure) parent.getValue(it, scope);
     if (structure == null) {
       throw new IllegalStateException("Unknown structure " + parent);
     }
@@ -56,8 +54,7 @@ class FieldReference extends Reference {
     if (merge) {
       collect(value, getValue(it, scope));
     } else {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> structure = (Map<String, Object>) parent.getValue(it, scope);
+      Structure structure = (Structure) parent.getValue(it, scope);
       if (structure == null) {
         throw new IllegalStateException("Unknown structure " + parent);
       }

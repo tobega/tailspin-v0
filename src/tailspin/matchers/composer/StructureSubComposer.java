@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import tailspin.control.ResultIterator;
 import tailspin.types.KeyValue;
+import tailspin.types.Structure;
 
 class StructureSubComposer implements SubComposer {
   private final SequenceSubComposer keyValues;
@@ -23,13 +24,13 @@ class StructureSubComposer implements SubComposer {
   }
 
   @Override
-  public Map<String, Object> getValues() {
+  public Structure getValues() {
     Map<String, Object> value = new TreeMap<>();
     ResultIterator.forEach(keyValues.getValues(), kv -> {
       KeyValue keyValue = (KeyValue) kv;
       value.put(keyValue.getKey(), keyValue.getValue());
     });
-    return value;
+    return Structure.value(value);
   }
 
   @Override
