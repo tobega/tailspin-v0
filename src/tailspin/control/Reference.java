@@ -1,10 +1,8 @@
 package tailspin.control;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 import tailspin.interpreter.Scope;
+import tailspin.types.Freezable;
 import tailspin.types.KeyValue;
 import tailspin.types.Processor;
 import tailspin.types.Structure;
@@ -109,28 +107,13 @@ public abstract class Reference implements Value {
     }
   }
 
-  public static Object copy(Object value) {
+  public static Object freeze(Object value) {
     if (value == null) {
       return null;
     }
-    if (value instanceof Structure) {
-      Structure structureValue = (Structure) value;
-      Map<String, Object> result = new TreeMap<>();
-      ResultIterator.Flat members = ResultIterator.wrap(structureValue.deconstruct());
-      for (Object member = members.getNextResult(); member != null; member = members.getNextResult()) {
-        KeyValue entry = (KeyValue) member;
-        result.put(entry.getKey(), copy(entry.getValue()));
-      }
-      return Structure.value(result);
-    }
-    if (value instanceof TailspinArray) {
-      TailspinArray arrayValue = (TailspinArray) value;
-      List<Object> result = new ArrayList<>();
-      ResultIterator.Flat members = ResultIterator.wrap(arrayValue.deconstruct());
-      for (Object member = members.getNextResult(); member != null; member = members.getNextResult()) {
-        result.add(copy(member));
-      }
-      return TailspinArray.value(result);
+    if (value instanceof Freezable) {
+      ((Freezable<?>) value).freeze();
+      return value;
     }
     if (value instanceof String || value instanceof Number || value instanceof Processor || value instanceof byte[]) {
       return value;
@@ -145,20 +128,18 @@ public abstract class Reference implements Value {
           m -> {
             if (m instanceof Structure) {
               Structure itMap = (Structure) m;
-              ResultIterator.Flat members = ResultIterator.wrap(itMap.deconstruct());
-              for (Object member = members.getNextResult(); member != null; member = members.getNextResult()) {
+              ResultIterator.forEach(itMap.deconstruct(), member -> {
                 KeyValue entry = (KeyValue) member;
-                collectorMap.put(entry.getKey(), copy(entry.getValue()));
-              }
+                collectorMap.put(entry.getKey(), entry.getValue());
+              });
             } else {
-              @SuppressWarnings("unchecked")
-              Map.Entry<String, Object> itEntry = (Map.Entry<String, Object>) m;
-              collectorMap.put(itEntry.getKey(), copy(itEntry.getValue()));
+              KeyValue itEntry = (KeyValue) m;
+              collectorMap.put(itEntry.getKey(), itEntry.getValue());
             }
           });
     } else if (collector instanceof TailspinArray) {
       TailspinArray collectorList = (TailspinArray) collector;
-      ResultIterator.forEach(it, value -> collectorList.append(copy(value)));
+      ResultIterator.forEach(it, collectorList::append);
     } else {
       throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
     }

@@ -183,7 +183,7 @@ class JavaInvocation implements Transform {
 
   public static List<Object> toList(TailspinArray param) {
     List<Object> result = new ArrayList<>();
-    ResultIterator.forEach(ResultIterator.wrap(param.deconstruct()), result::add);
+    ResultIterator.forEach(param.deconstruct(), result::add);
     return result;
   }
 

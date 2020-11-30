@@ -1,6 +1,7 @@
 package tailspin.control;
 
 import tailspin.interpreter.Scope;
+import tailspin.types.Freezable;
 
 class StateReference extends Reference {
 
@@ -30,9 +31,14 @@ class StateReference extends Reference {
   @Override
   public void setValue(boolean merge, Object value, Object it, Scope scope) {
     if (merge) {
-      collect(value, scope.getState(stateContext));
+      Freezable<?> state = (Freezable<?>) scope.getState(stateContext);
+      if (!state.isThawed()) {
+        state = state.thawedCopy();
+        scope.setState(stateContext, state);
+      }
+      collect(value, state);
     } else {
-      scope.setState(stateContext, copy(value));
+      scope.setState(stateContext, value);
     }
   }
 

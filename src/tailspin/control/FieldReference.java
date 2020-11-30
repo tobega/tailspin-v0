@@ -1,6 +1,7 @@
 package tailspin.control;
 
 import tailspin.interpreter.Scope;
+import tailspin.types.Freezable;
 import tailspin.types.Structure;
 
 class FieldReference extends Reference {
@@ -38,6 +39,10 @@ class FieldReference extends Reference {
     if (structure == null) {
       throw new IllegalStateException("Unknown structure " + parent);
     }
+    if (!structure.isThawed()) {
+      structure = structure.thawedCopy();
+      parent.setValue(false, structure, it, scope);
+    }
     return structure.remove(fieldIdentifier);
   }
 
@@ -52,13 +57,22 @@ class FieldReference extends Reference {
       throw new UnsupportedOperationException("Not mutable");
     }
     if (merge) {
-      collect(value, getValue(it, scope));
+      Freezable<?> collector = (Freezable<?>) getValue(it, scope);
+      if (!collector.isThawed()) {
+        collector = collector.thawedCopy();
+        setValue(false, collector, it, scope);
+      }
+      collect(value, collector);
     } else {
       Structure structure = (Structure) parent.getValue(it, scope);
       if (structure == null) {
         throw new IllegalStateException("Unknown structure " + parent);
       }
-      structure.put(fieldIdentifier, Reference.copy(value));
+      if (!structure.isThawed()) {
+        structure = structure.thawedCopy();
+        parent.setValue(false, structure, it, scope);
+      }
+      structure.put(fieldIdentifier, value);
     }
   }
 

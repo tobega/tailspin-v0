@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
+import tailspin.types.Freezable;
 import tailspin.types.TailspinArray;
 
 class ArrayReference extends Reference {
@@ -34,7 +35,7 @@ class ArrayReference extends Reference {
     if (array == null) {
       throw new IllegalStateException("Unknown array " + parent);
     }
-    return resolveDimensionDereference(0, array, TailspinArray::get, it, scope);
+    return resolveDimensionDereference(false, 0, array, TailspinArray::get, it, scope);
   }
 
   private byte[] createByteSlice(byte[] parentValue, Object it, Scope scope) {
@@ -77,6 +78,10 @@ class ArrayReference extends Reference {
     if (array == null) {
       throw new IllegalStateException("Unknown array " + parent);
     }
+    if (!array.isThawed()) {
+      array = array.thawedCopy();
+      parent.setValue(false, array, it, scope);
+    }
     class ElementRemover implements ArrayOperation {
       TreeSet<Integer> removed = new TreeSet<>();
       List<TailspinArray> arrays = new ArrayList<>();
@@ -101,7 +106,7 @@ class ArrayReference extends Reference {
       }
     }
     ElementRemover remover = new ElementRemover();
-    Object result = resolveDimensionDereference(0, array, remover, it, scope);
+    Object result = resolveDimensionDereference(true, 0, array, remover, it, scope);
     remover.doRemovals();
     return result;
   }
@@ -121,6 +126,10 @@ class ArrayReference extends Reference {
     if (array == null) {
       throw new IllegalStateException("Unknown array " + parent);
     }
+    if (!array.isThawed()) {
+      array = array.thawedCopy();
+      parent.setValue(false, array, it, scope);
+    }
     if (merge) {
       class Merger implements ArrayOperation {
 
@@ -133,22 +142,32 @@ class ArrayReference extends Reference {
           invocations++;
           lastArray = array;
           lastIndex = index;
-          collect(Objects.requireNonNull(ri.getNextResult()), array.get(index));
+          Freezable<?> collector = (Freezable<?>) array.get(index);
+          if (!collector.isThawed()) {
+            collector = collector.thawedCopy();
+            array.set(index, collector);
+          }
+          collect(Objects.requireNonNull(ri.getNextResult()), collector);
           return null;
         }
 
         void resolveSingleElementMergeMany() {
           if (invocations == 1) {
-            collect(ri, lastArray.get(lastIndex));
+            Freezable<?> collector = (Freezable<?>) lastArray.get(lastIndex);
+            if (!collector.isThawed()) {
+              collector = collector.thawedCopy();
+              lastArray.set(lastIndex, collector);
+            }
+            collect(ri, collector);
           }
         }
       }
       Merger merger = new Merger();
-      resolveDimensionDereference(0, array, merger, it, scope);
+      resolveDimensionDereference(true, 0, array, merger, it, scope);
       merger.resolveSingleElementMergeMany();
     } else {
-      resolveDimensionDereference(0, array,
-          (a, i) -> a.set(i, copy(Objects.requireNonNull(ri.getNextResult()))), it, scope);
+      resolveDimensionDereference(true, 0, array,
+          (a, i) -> a.set(i, Objects.requireNonNull(ri.getNextResult())), it, scope);
     }
   }
 
@@ -162,10 +181,20 @@ class ArrayReference extends Reference {
     Object invoke(TailspinArray array, int index);
   }
 
-  private Object resolveDimensionDereference(int currentDereference, TailspinArray array,
+  private static TailspinArray getThawed(TailspinArray array, int index) {
+    TailspinArray next = (TailspinArray) array.get(index);
+    if (!next.isThawed()) {
+      next = next.thawedCopy();
+      array.set(index, next);
+    }
+    return next;
+  }
+
+  private Object resolveDimensionDereference(boolean forMutation, int currentDereference, TailspinArray array,
       ArrayOperation bottomOperation, Object it, Scope scope) {
     ArrayOperation operation =
-        currentDereference == dimensions.size() - 1 ? bottomOperation : TailspinArray::get;
+        currentDereference == dimensions.size() - 1 ? bottomOperation
+            : (forMutation ? ArrayReference::getThawed : TailspinArray::get);
     DimensionReference dimensionReference = dimensions.get(currentDereference);
     Object dimensionResult;
     try (DimensionContextKeywordResolver.Context ctx = resolver.with(array.length(), false)) {
@@ -192,12 +221,12 @@ class ArrayReference extends Reference {
       @SuppressWarnings("unchecked")
       Stream<TailspinArray> results = (Stream<TailspinArray>) dimensionResult;
       return results
-          .map(a -> resolveDimensionDereference(currentDereference + 1, a, bottomOperation, it,
+          .map(a -> resolveDimensionDereference(forMutation, currentDereference + 1, a, bottomOperation, it,
               scope))
           .collect(Collectors.toList());
     } else {
       TailspinArray previousDimension = (TailspinArray) dimensionResult;
-      return resolveDimensionDereference(currentDereference + 1, previousDimension, bottomOperation,
+      return resolveDimensionDereference(forMutation, currentDereference + 1, previousDimension, bottomOperation,
           it, scope);
     }
   }

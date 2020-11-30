@@ -1,12 +1,13 @@
 package tailspin.types;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import tailspin.control.ResultIterator;
 
-public class TailspinArray implements Processor {
+public class TailspinArray implements Processor, Freezable<TailspinArray> {
 
   private final List<Object> array;
   private final boolean isMutable;
@@ -57,11 +58,13 @@ public class TailspinArray implements Processor {
   }
 
   public Object set(int i, Object obj) {
+    if (!isMutable) throw new IllegalStateException();
     array.set(i-1, obj);
     return null;
   }
 
   public Object remove(int i) {
+    if (!isMutable) throw new IllegalStateException();
     return array.remove(i-1);
   }
 
@@ -82,5 +85,20 @@ public class TailspinArray implements Processor {
 
   public void append(Object result) {
     array.add(result);
+  }
+
+  @Override
+  public void freeze() {
+    array.stream().filter(Freezable.class::isInstance).forEach(o -> ((Freezable<?>) o).freeze());
+  }
+
+  @Override
+  public TailspinArray thawedCopy() {
+    return new TailspinArray(new ArrayList<>(array), true);
+  }
+
+  @Override
+  public boolean isThawed() {
+    return isMutable;
   }
 }

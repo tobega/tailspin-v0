@@ -34,7 +34,7 @@ public class StateAssignmentSubComposer implements SubComposer {
   }
 
   private void assign() {
-    oldValue = Reference.copy(scope.getState(stateContext));
+    oldValue = Reference.freeze(scope.getState(stateContext));
     if (value == null) {
       stateAssignment.getResults(null, scope);
     } else {

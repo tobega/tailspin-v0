@@ -13,6 +13,36 @@ a better-designed version of Richards with immutable packets.
 |[2020-11-16 HotSpot jdk14 JVMCI](#2020-11-16)|Interpreted|686|129|268|555|747| |798|642|150| |602|
 |[2020-11-28 HotSpot jdk14 JVMCI](#2020-11-28)|Interpreted|750|121|231|527|848| |806|628|164| |659|
 |[2020-11-29 HotSpot jdk14 JVMCI](#2020-11-29)|Interpreted|734|123|259|489|794|67|819|585|160|173|642|
+|[2020-11-30 HotSpot jdk14 JVMCI](#2020-11-30)|Interpreted|626|108|275|449|898|61|785|785|177|133|525|
+
+## 2020-11-30
+machine 3, freezable tailspin data structures, not an obvious win
+HotSpot jdk14 JVMCI
+
+|Benchmark|Mean runtime us|
+|---|--:|
+Bounce Java|14
+Bounce Tailspin|8765
+Json Java|74
+Json Tailspin|8010
+List Java|24
+List Tailspin|6607
+Permute Java|25
+Permute Tailspin|11229
+Queens Java|14
+Queens Tailspin|12574
+RadixSort Java|81
+RadixSort Tailspin|4966
+Richards Java|13
+Richards Tailspin|10202
+Richards2 Java|18
+Richards2 Tailspin|10446
+Sieve Java|16
+Sieve Tailspin|2825
+Storage Java|67
+Storage Tailspin|8904
+Towers Java|21
+Towers Tailspin|11029
 
 ## 2020-11-29
 machine 3, add benchmarks Storage and RadixSort for list performance

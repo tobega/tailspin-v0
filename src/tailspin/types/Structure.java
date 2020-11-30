@@ -4,9 +4,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
 import tailspin.control.ResultIterator;
 
-public class Structure {
+public class Structure implements Freezable<Structure> {
 
   private final Map<String, Object> map;
   private final boolean isMutable;
@@ -64,10 +65,27 @@ public class Structure {
   }
 
   public Object remove(String fieldIdentifier) {
+    if (!isMutable) throw new IllegalStateException();
     return map.remove(fieldIdentifier);
   }
 
   public void put(String key, Object value) {
+    if (!isMutable) throw new IllegalStateException();
     map.put(key, value);
+  }
+
+  @Override
+  public void freeze() {
+    map.values().stream().filter(Freezable.class::isInstance).forEach(o -> ((Freezable<?>) o).freeze());
+  }
+
+  @Override
+  public Structure thawedCopy() {
+    return new Structure(new TreeMap<>(map), true);
+  }
+
+  @Override
+  public boolean isThawed() {
+    return isMutable;
   }
 }

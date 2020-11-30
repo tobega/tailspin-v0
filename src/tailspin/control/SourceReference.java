@@ -18,7 +18,7 @@ public class SourceReference implements Expression {
       throw new NullPointerException("No value defined for " + reference);
     }
     if (reference.isMutable()) {
-      value = Reference.copy(value);
+      value = Reference.freeze(value);
     }
     if (value instanceof Transform) {
       return ((Transform) value).getResults(null, Map.of());
