@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
 import tailspin.types.KeyValue;
 import tailspin.types.Processor;
+import tailspin.types.TailspinArray;
 import tailspin.types.Transform;
 
 public class ProcessorMessage extends Reference {
@@ -48,7 +49,8 @@ public class ProcessorMessage extends Reference {
       }
     } else if (receiver instanceof String) {
       if (message.equals("asCodePoints")) {
-        return (it, params) -> ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList());
+        return (it, params) -> TailspinArray.value(
+            ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList()));
       } if (message.equals("asUtf8Bytes")) {
         return (it, params) -> ((String) receiver).getBytes(StandardCharsets.UTF_8);
       } else {
@@ -76,60 +78,7 @@ public class ProcessorMessage extends Reference {
         case "length": return (it, parameters) -> ((byte[]) receiver).length;
         case "asUtf8String": return (it, parameters) -> new String((byte[]) receiver, StandardCharsets.UTF_8);
         case "asInteger": return (it, parameters) -> new BigInteger((byte[]) receiver).longValue();
-        case "shift": return new Transform() {
-          final byte[] original = (byte[]) receiver;
-          @Override
-          public Object getResults(Object it, Map<String, Object> parameters) {
-            long amount = (long) resolvedParams.get("left");
-            if (amount == 0) return original;
-            byte[] fill = (byte[]) resolvedParams.get("fill");
-            if (amount < 0) return shiftRight(-amount, fill);
-            return shiftLeft(amount, fill);
-          }
-
-          private byte[] shiftLeft(long amount, byte[] fill) {
-            byte[] result = new byte[original.length];
-            for (int i = 0; i < result.length; i ++) {
-              int byteShift = (int) (i + amount / 8);
-              long bitShift = amount % 8;
-              result[i] = (byte) ((getLeftShiftedByte(byteShift, fill) << bitShift)
-                  | getLeftFill(byteShift+1, bitShift, fill));
-            }
-            return result;
-          }
-
-          private byte getLeftShiftedByte(int byteShift, byte[] fill) {
-            if (byteShift < original.length) return original[byteShift];
-            byteShift -= original.length;
-            return fill[byteShift % fill.length];
-          }
-
-          private int getLeftFill(int i, long amount, byte[] fill) {
-            return (getLeftShiftedByte(i, fill) & 0xff) >>> (8 - amount);
-          }
-
-          private byte[] shiftRight(long amount, byte[] fill) {
-            byte[] result = new byte[original.length];
-            for (int i = 0; i < result.length; i ++) {
-              int byteShift = (int) (i - amount / 8);
-              long bitShift = amount % 8;
-              result[i] = (byte) (((getRightShiftedByte(byteShift, fill) & 0xff) >>> bitShift)
-                  | getRightFill(byteShift-1, bitShift, fill));
-            }
-            return result;
-          }
-
-          private byte getRightShiftedByte(int byteShift, byte[] fill) {
-            if (byteShift >= 0) return original[byteShift];
-            byteShift = (fill.length + byteShift) % fill.length;
-            if (byteShift < 0) byteShift += fill.length;
-            return fill[byteShift];
-          }
-
-          private int getRightFill(int i, long amount, byte[] fill) {
-            return (getRightShiftedByte(i, fill) & 0xff) << (8 - amount);
-          }
-        };
+        case "shift": return new ByteShift(receiver, resolvedParams);
         default: throw new UnsupportedOperationException("Unknown bytes message " + message);
       }
     } else {
@@ -150,5 +99,68 @@ public class ProcessorMessage extends Reference {
   @Override
   public void setValue(boolean merge, Object value, Object it, Scope scope) {
     throw new IllegalStateException();
+  }
+
+  private static class ByteShift implements Transform {
+
+    final byte[] original;
+    private final Map<String, Object> resolvedParams;
+
+    public ByteShift(Object receiver, Map<String, Object> resolvedParams) {
+      this.resolvedParams = resolvedParams;
+      original = (byte[]) receiver;
+    }
+
+    @Override
+    public Object getResults(Object it, Map<String, Object> parameters) {
+      long amount = (long) resolvedParams.get("left");
+      if (amount == 0) return original;
+      byte[] fill = (byte[]) resolvedParams.get("fill");
+      if (amount < 0) return shiftRight(-amount, fill);
+      return shiftLeft(amount, fill);
+    }
+
+    private byte[] shiftLeft(long amount, byte[] fill) {
+      byte[] result = new byte[original.length];
+      for (int i = 0; i < result.length; i ++) {
+        int byteShift = (int) (i + amount / 8);
+        long bitShift = amount % 8;
+        result[i] = (byte) ((getLeftShiftedByte(byteShift, fill) << bitShift)
+            | getLeftFill(byteShift+1, bitShift, fill));
+      }
+      return result;
+    }
+
+    private byte getLeftShiftedByte(int byteShift, byte[] fill) {
+      if (byteShift < original.length) return original[byteShift];
+      byteShift -= original.length;
+      return fill[byteShift % fill.length];
+    }
+
+    private int getLeftFill(int i, long amount, byte[] fill) {
+      return (getLeftShiftedByte(i, fill) & 0xff) >>> (8 - amount);
+    }
+
+    private byte[] shiftRight(long amount, byte[] fill) {
+      byte[] result = new byte[original.length];
+      for (int i = 0; i < result.length; i ++) {
+        int byteShift = (int) (i - amount / 8);
+        long bitShift = amount % 8;
+        result[i] = (byte) (((getRightShiftedByte(byteShift, fill) & 0xff) >>> bitShift)
+            | getRightFill(byteShift-1, bitShift, fill));
+      }
+      return result;
+    }
+
+    private byte getRightShiftedByte(int byteShift, byte[] fill) {
+      if (byteShift >= 0) return original[byteShift];
+      byteShift = (fill.length + byteShift) % fill.length;
+      if (byteShift < 0) byteShift += fill.length;
+      return fill[byteShift];
+    }
+
+    private int getRightFill(int i, long amount, byte[] fill) {
+      return (getRightShiftedByte(i, fill) & 0xff) << (8 - amount);
+    }
   }
 }
