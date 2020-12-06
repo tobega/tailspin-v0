@@ -1027,7 +1027,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public List<CompositionSpec> visitCompositionComponent(TailspinParser.CompositionComponentContext ctx) {
     List<CompositionSpec> result = new ArrayList<>();
     if (ctx.compositionMatcher() != null) {
-      result.add(visitCompositionMatcher(ctx.compositionMatcher()));
+      CompositionSpec matcher = visitCompositionMatcher(ctx.compositionMatcher());
+      if (ctx.transform() != null) {
+        matcher = new SubComposerFactory.TransformComposition(matcher, visitTransform(ctx.transform()));
+      }
+      result.add(matcher);
     }
     ctx.compositionSkipRule().forEach(s -> result.add(visitCompositionSkipRule(s)));
     return result;
@@ -1042,6 +1046,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public CompositionSpec visitCompositionCapture(TailspinParser.CompositionCaptureContext ctx) {
     CompositionSpec value = visitCompositionMatcher(ctx.compositionMatcher());
+    if (ctx.transform() != null) {
+      value = new SubComposerFactory.TransformComposition(value, visitTransform(ctx.transform()));
+    }
     if (ctx.key() != null) {
       String identifier = ctx.key().localIdentifier().getText();
       dependencyCounters.peek().define(identifier);
@@ -1090,11 +1097,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else {
       throw new UnsupportedOperationException("Unknown type of composition matcher");
     }
-    if (ctx.transform() != null) {
-      return new SubComposerFactory.TransformComposition(spec, visitTransform(ctx.transform()));
-    } else {
-      return spec;
-    }
+    return spec;
   }
 
   @Override

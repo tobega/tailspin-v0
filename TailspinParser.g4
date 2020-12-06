@@ -190,13 +190,13 @@ compositionSequence: compositionComponents
 
 compositionComponents: compositionSkipRule* compositionComponent (Comma? compositionComponents)?;
 
-compositionComponent: compositionMatcher compositionSkipRule*;
+compositionComponent: compositionMatcher transform? compositionSkipRule*;
 
-compositionMatcher: (tokenMatcher
+compositionMatcher: tokenMatcher
   | LeftBracket (compositionSequence|compositionSkipRule)? RightBracket
   | LeftBrace (structureMemberMatchers|compositionSkipRule)? RightBrace
   | sourceReference
-  | compositionKeyValue) transform?
+  | compositionKeyValue
 ;
 
 structureMemberMatchers: compositionSkipRule* structureMemberMatcher (Comma? structureMemberMatchers)?;
@@ -215,7 +215,7 @@ multiplier: Plus | Star | Question
 
 compositionSkipRule: LeftParen compositionCapture+ RightParen;
 
-compositionCapture: (Def key compositionMatcher SemiColon)|(compositionMatcher (To stateSink)?)|stateAssignment;
+compositionCapture: (Def key compositionMatcher transform? SemiColon)|(compositionMatcher (transform? To stateSink)?)|stateAssignment;
 
 compositionKeyValue: (key|compositionKey) compositionSkipRule* compositionComponent;
 

@@ -1464,4 +1464,21 @@ class Composer {
 
     assertEquals("tar", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void arithmeticOperationIsHeldTogetherAsTransform() throws IOException {
+    String program = "composer foo\n"
+        + "  (<'[a-z]'> -> $::asCodePoints -> $(1) - 96 -> @: $;) $@\n"
+        + "end foo\n"
+        + "\n"
+        + "'a' -> foo -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
 }
