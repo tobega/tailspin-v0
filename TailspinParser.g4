@@ -21,7 +21,6 @@ key: localIdentifier Colon;
 parameterDefinitions: And LeftBrace (key Comma?)+ RightBrace;
 
 source: sourceReference
-  | deleteState
   | stringLiteral
   | rangeLiteral
   | arrayLiteral
@@ -32,9 +31,8 @@ source: sourceReference
   | operatorExpression
 ;
 
-sourceReference: SourceMarker anyIdentifier? reference Message? parameterValues?;
-
-deleteState: DeleteMarker stateIdentifier reference;
+sourceReference: SourceMarker anyIdentifier? reference Message? parameterValues?
+  | DeleteMarker stateIdentifier reference;
 
 reference: (LeftParen arrayReference RightParen)? structureReference*;
 
@@ -155,7 +153,7 @@ interpolateEvaluate: StartStringInterpolate (anyIdentifier? reference Message? p
 
 arithmeticExpression: integerLiteral
   | LeftParen arithmeticExpression RightParen
-  | additiveOperator? (sourceReference|deleteState)
+  | additiveOperator? sourceReference
   | arithmeticExpression multiplicativeOperator arithmeticExpression
   | arithmeticExpression additiveOperator arithmeticExpression
   | arithmeticContextKeyword
@@ -207,7 +205,7 @@ tokenMatcher: StartMatcher Invert? compositionToken (Else compositionToken)* End
 
 compositionToken: (literalComposition|localIdentifier|stringLiteral);
 
-literalComposition: Equal (sourceReference|deleteState|stringLiteral);
+literalComposition: Equal (sourceReference|stringLiteral);
 
 multiplier: Plus | Star | Question
   | Equal (PositiveInteger|sourceReference)

@@ -103,12 +103,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitSourceReference(TailspinParser.SourceReferenceContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#deleteState}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDeleteState(TailspinParser.DeleteStateContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link TailspinParser#reference}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

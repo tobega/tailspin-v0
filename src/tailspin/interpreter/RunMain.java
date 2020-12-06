@@ -165,9 +165,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.sourceReference() != null) {
       return visitSourceReference(ctx.sourceReference());
     }
-    if (ctx.deleteState() != null) {
-      return visitDeleteState(ctx.deleteState());
-    }
     if (ctx.arithmeticExpression() != null) {
       return visitArithmeticExpression(ctx.arithmeticExpression());
     }
@@ -205,6 +202,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitSourceReference(TailspinParser.SourceReferenceContext ctx) {
+    if (ctx.DeleteMarker() != null) {
+      String stateIdentifier = ctx.stateIdentifier().getText();
+      Reference reference = getReference(ctx.reference(), stateIdentifier);
+      return new DeleteState(reference);
+    }
     String identifier = ctx.anyIdentifier() == null ? "" : visitAnyIdentifier(ctx.anyIdentifier());
     return createSourceReference(identifier, ctx.reference(), ctx.Message(), ctx.parameterValues());
   }
@@ -300,13 +302,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       values.add(visitSimpleDimension(sctx));
     }
     return new MultiValueDimension(values);
-  }
-
-  @Override
-  public Value visitDeleteState(TailspinParser.DeleteStateContext ctx) {
-    String stateIdentifier = ctx.stateIdentifier().getText();
-    Reference reference = getReference(ctx.reference(), stateIdentifier);
-    return new DeleteState(reference);
   }
 
   @Override
@@ -763,10 +758,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.sourceReference() != null) {
       boolean isNegative = ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-");
       return new IntegerExpression(isNegative, Value.of(visitSourceReference(ctx.sourceReference())));
-    }
-    if (ctx.deleteState() != null) {
-      boolean isNegative = ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-");
-      return new IntegerExpression(isNegative, Value.of(visitDeleteState(ctx.deleteState())));
     }
     if (ctx.LeftParen() != null) {
       return visitArithmeticExpression(ctx.arithmeticExpression(0));
