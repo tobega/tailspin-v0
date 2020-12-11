@@ -220,10 +220,10 @@ class ArrayReference extends Reference {
     if (dimensionResult instanceof Stream) {
       @SuppressWarnings("unchecked")
       Stream<TailspinArray> results = (Stream<TailspinArray>) dimensionResult;
-      return results
+      return TailspinArray.value(results
           .map(a -> resolveDimensionDereference(forMutation, currentDereference + 1, a, bottomOperation, it,
               scope))
-          .collect(Collectors.toList());
+          .collect(Collectors.toList()));
     } else {
       TailspinArray previousDimension = (TailspinArray) dimensionResult;
       return resolveDimensionDereference(forMutation, currentDereference + 1, previousDimension, bottomOperation,

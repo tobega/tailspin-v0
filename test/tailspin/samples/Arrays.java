@@ -185,6 +185,19 @@ class Arrays {
   }
 
   @Test
+  void rangeDereferenceIsTailspinArray() throws IOException {
+    String program = "[1,3,4,7,11] -> $(2..4) -> $(1) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void rangeDereferenceBackward() throws IOException {
     String program = "[1,3,4,7,11] -> $(last-3..last-1)  -> !OUT::write";
     Tailspin runner =
@@ -458,6 +471,19 @@ class Arrays {
   }
 
   @Test
+  void twoDimensionalRangeOnBothIsTailspinArray() throws IOException {
+    String program = "[[1,2,3],[4,5,6],[7,8,9]] -> $(2..3;1..2) -> $(1) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[4, 5]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void twoDimensionalRangeOnBothFirstEmptyRange() throws IOException {
     String program = "[[1,2,3],[4,5,6],[7,8,9]] -> $(3..2;1..2) -> !OUT::write";
     Tailspin runner =
@@ -550,20 +576,7 @@ class Arrays {
 
   @Test
   void rangeDereferenceBeyondLength() throws IOException {
-    String program = "[1,2,3] -> $($::length+1..-1)  -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("[]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void rangeDereferenceEmptyBeyondLength() throws IOException {
-    String program = "[1,2,3] -> $($::length+1..-1)  -> !OUT::write";
+    String program = "[1,2,3] -> $($::length+1..last)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -589,7 +602,7 @@ class Arrays {
 
   @Test
   void rangeDereferenceStartBeyondLast() throws IOException {
-    String program = "def a: [1,2,3];\n -1 -> $a($+1..-1)  -> !OUT::write";
+    String program = "def a: [1,2,3];\n 1 -> $a($+last..last)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -602,7 +615,7 @@ class Arrays {
 
   @Test
   void rangeDereferenceEndBeyondLast() throws IOException {
-    String program = "def a: [1,2,3];\n -1 -> $a(1..$+1)  -> !OUT::write";
+    String program = "def a: [1,2,3];\n 1 -> $a(1..$+last)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -628,7 +641,7 @@ class Arrays {
 
   @Test
   void rangeDereferenceStartBeforeFirst() throws IOException {
-    String program = "def a: [1,2,3];\n 1 -> $a($-1..-1)  -> !OUT::write";
+    String program = "def a: [1,2,3];\n 1 -> $a($-1..last)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
