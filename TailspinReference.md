@@ -354,7 +354,8 @@ will print "73"
 A composer can have [state](#templates-state) that can be set initially as the first statement before the main pattern. It can be updated in skip compositions,
 optionally with a value stream from a matcher. It can be accessed in the usual way.
 
-A composer must match the whole string. It will backtrack and try other options, but performance-wise it is
+A composer must match the whole string, otherwise it will return a structure with a `composerFailed` element
+containing the input string. It will backtrack and try other options, but performance-wise it is
 better if matchers are made so that backtracking never needs happen (by a prefix-free grammar).
 
 ### Operator

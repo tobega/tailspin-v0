@@ -34,6 +34,9 @@ Illogical?
 Bugs
 - If you index a range in an array which is partially inside, you still get empty set. Should get the available values.
 - Shifting bytes truncates on the left. Should increase as needed for sign bit.
+- bitwise invert should be inverse
+- exception in matcher just becomes false?
+- Can't use a term ($ -> foo) as a range endpoint (in matcher)
 
 Too much syntax?
 - quick filter by \<match> to mean \(<match> $!\).

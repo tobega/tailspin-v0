@@ -470,7 +470,7 @@ class Composer {
   }
 
   @Test
-  void atLeastOneThrowsOnNone() throws IOException {
+  void atLeastOneFailsOnNone() throws IOException {
     String program = "composer words\n"
         + "<word>+\n"
         + "word: <~WS> (<WS>?)\n"
@@ -481,7 +481,9 @@ class Composer {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    runner.run(input, output, List.of());
+
+    assertEquals(":{composerFailed=}:", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

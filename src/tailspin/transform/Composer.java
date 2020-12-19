@@ -10,6 +10,7 @@ import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.Memo;
 import tailspin.matchers.composer.SequenceSubComposer;
 import tailspin.matchers.composer.SubComposerFactory;
+import tailspin.types.Structure;
 import tailspin.types.Transform;
 
 public class Composer implements Transform {
@@ -44,7 +45,7 @@ public class Composer implements Transform {
       memo = subComposer.backtrack(s, memo);
     }
     if (!subComposer.isSatisfied()) {
-      throw new IllegalStateException("Unable to compose value from string:'" + s + "'");
+      return Structure.value(Map.of("composerFailed", s));
     }
     return subComposer.getValues();
   }
