@@ -6,7 +6,6 @@ Things to add/improve
   - files. File systems? module loading of API vs implementation? Handled by duck-typing?
 - Contracts and type specifications: Based on matchers. Maybe "templates connect requires <[<point>*]> produces <line>*"
   How about matchers for processor protocols? Specify minimum requirements, extra stuff allowed.
-- More matchers. Additive types?
 - Concurrency: The basic idea is that state variable changes will be transactional/atomic for each processor template or template chain stage.
   Mechanism will likely be "CAS or retry". How about processors holding processors, giving a "distributed" transaction?
 - Rational numbers, exact math?
@@ -18,6 +17,7 @@ Things to add/improve
 - Maybe some kind of reflective access? E.g. field access like myStruct."$fieldName;"? Probably needed for things like table joins.
   Or just a way to pass a field accessor as a parameter? Combine with cartesian idexes to form lenses?
 - Unlimited size arrays
+- Use composers as rules in other composers (and INT and WS should be top-level composers)
 
 Errors easy to make
 - Mixed up ..$bound and $bound.., hard to see error
@@ -30,6 +30,7 @@ Illogical?
 - Should we be able to use inline templates as sources and sinks?
 - What about array generators (array template source)?
 - Should we be able to specify defined templates to be array templates?
+- Needed too many parens: (($cards(1) list/naturalOrder $cards(2))) mod 3
 
 Bugs
 - If you index a range in an array which is partially inside, you still get empty set. Should get the available values.
@@ -47,6 +48,9 @@ Too much syntax?
 - Array templates where you select a slice (or maybe all) of a dimension
 - Cartesian indexes, i.e. select multi-dimensional points, e.g. $a([:(1;1), :(2;2), :(3;3)]) for diagonal. Extend to
   field referenses as lenses?
+- an "ignore" rule for composers (tried before, between rules and after, useful for e.g. whitespace)
+- Multidimensional array-length-match
+- Dynamic composition of composers
 
 Other thoughts
 - Use more words instead of symbols? YES, easier to scan and search. Even redundant words (to some limit).
