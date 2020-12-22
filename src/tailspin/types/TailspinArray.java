@@ -10,7 +10,7 @@ import tailspin.control.ResultIterator;
 public class TailspinArray implements Processor, Freezable<TailspinArray> {
 
   private final List<Object> array;
-  private final boolean isMutable;
+  private boolean isMutable;
 
   private TailspinArray(List<Object> array, boolean isMutable) {
     this.array = array;
@@ -90,6 +90,7 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
   @Override
   public void freeze() {
     array.stream().filter(Freezable.class::isInstance).forEach(o -> ((Freezable<?>) o).freeze());
+    isMutable = false;
   }
 
   @Override

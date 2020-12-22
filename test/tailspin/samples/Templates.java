@@ -965,6 +965,48 @@ class Templates {
   }
 
   @Test
+  void sharedMutatedStateArrayBecomesImmutable() throws Exception {
+    String program =
+        "templates state\n"
+            + "@: $;\n"
+            + "..|@: 4;\n"
+            + "def var: $@;\n"
+            + "^@(1) -> !VOID\n"
+            + "$var !\n"
+            + "end state\n"
+            + "[1..3] -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[1, 2, 3, 4]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void sharedMutatedStateStructureBecomesImmutable() throws Exception {
+    String program =
+        "templates state\n"
+            + "@: $;\n"
+            + "@.b: 4;\n"
+            + "def var: $@;\n"
+            + "@.a: 2;\n"
+            + "$var !\n"
+            + "end state\n"
+            + "{a: 1, b: 2} -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a=1, b=4}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void deeplyImmutableDefStructureFromMutableState() throws Exception {
     String program =
         "templates state\n@: $;\ndef var: $@;\n@.a(1).b: 0;\n$var !\nend state\n" + "{a:[{b:1}]} -> state -> !OUT::write";

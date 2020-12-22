@@ -10,7 +10,7 @@ import tailspin.control.ResultIterator;
 public class Structure implements Freezable<Structure> {
 
   private final Map<String, Object> map;
-  private final boolean isMutable;
+  private boolean isMutable;
 
   public Structure(Map<String, Object> map, boolean isMutable) {
     this.map = map;
@@ -77,6 +77,7 @@ public class Structure implements Freezable<Structure> {
   @Override
   public void freeze() {
     map.values().stream().filter(Freezable.class::isInstance).forEach(o -> ((Freezable<?>) o).freeze());
+    isMutable = false;
   }
 
   @Override
