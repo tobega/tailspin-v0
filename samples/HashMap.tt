@@ -1,0 +1,171 @@
+// Tailspin isn't really the right language for this stuff,
+// this is just to sketch out the ideas of robin-hood hashing and fibonacci-hashing
+def TWO31_OVER_PHI: 1327217885;
+def INITIAL_CAPACITY: 256;
+def TWO31: [x 00 80 00 00 00 x] -> $::asInteger;
+
+// Empty slots (tombstones) have the 31-bit set in distance table
+processor HashMap
+  templates fibonacciHash
+    $::hashCode -> $ + $ ~/ $@HashMap.capacity -> $ * $TWO31_OVER_PHI -> $ mod $@HashMap.capacity!
+  end fibonacciHash
+
+  templates put
+    // TODO: check if capacity needed is greater or equal to TWO31
+    $@HashMap.elements + $@HashMap.probeLength -> \(
+      <$@HashMap.capacity..>
+      '$#10;resize $@HashMap.elements; $@HashMap.probeLength;$#10;' -> !OUT::write
+        def old: $@HashMap;
+        def capacity: $old.capacity * 2;
+        @HashMap: {entries: [1..$capacity -> 0],
+          distance: [1..$capacity -> $TWO31],
+          probeLength: 0,
+          capacity: $capacity,
+          elements: 0};
+        1..$old.capacity -> \(<?($old.distance($) <..~$TWO31>)> $old.entries($)!\) -> put -> !VOID
+        '$#10;done$#10;' -> !OUT::write
+    \) -> !VOID
+    // In a lower-level language all the division and modulo will work out by word-size and shift
+    @: { distance: 0, entry: $};
+    ($.key -> fibonacciHash) + 1 -> # // the current desired index
+
+    when <$@HashMap.capacity~..>
+      $ - $@HashMap.capacity -> #
+
+    when <?($@.distance <$@HashMap.distance($)~..>)> do
+    // robin hood if distance is less than mine
+      def distance: $@HashMap.distance($);
+      def entry: $@HashMap.entries($);
+      @HashMap.distance($): $@.distance;
+      @HashMap.entries($): $@.entry;
+      @: {distance: $distance+1, entry: $entry};
+      $ + 1 -> #
+
+    when <?($@HashMap.distance($) <$TWO31..>) ?($@.distance <$@HashMap.distance($)-$TWO31..>)> do
+    // Take slot if tombstone with less or equal distance
+      @HashMap.distance($): $@.distance;
+      @HashMap.entries($): $@.entry;
+      @HashMap.elements: $@HashMap.elements + 1;
+
+    when <?($@HashMap.distance($) <..~$TWO31>)?($@.entry.key <=$@HashMap.entries($).key>)> do
+    // Same key, replace and emit old
+      $@HashMap.entries($) !
+      @HashMap.entries($): $@.entry;
+
+    when <?($@.distance <$@HashMap.probeLength..>)> do
+      @HashMap.probeLength: $@HashMap.probeLength + 1;
+      @.distance: $@.distance + 1;
+      $+1 -> #
+    otherwise
+      @.distance: $@.distance + 1;
+      $+1 -> #
+  end put
+
+  templates findIndex
+    @: 0; // distance
+    def key: $;
+    ($ -> fibonacciHash) + 1 -> # // the current desired index
+
+    when <$@HashMap.capacity~..> $ - $@HashMap.capacity -> #
+
+    when <?($@ <$@HashMap.distance($)~..>)> do
+      !VOID // break if distance is less than mine
+    when <?($@HashMap.distance($) <$TWO31..>) ?($@ <$@HashMap.distance($)-$TWO31~..>)> do
+      !VOID // tombstone with less distance
+
+    when <?($@HashMap.distance($) <..~$TWO31>)?($key <=$@HashMap.entries($).key>)> do
+      $ ! // found
+
+    otherwise
+      @: $@ + 1;
+      $+1 -> #
+  end findIndex
+
+  templates get
+    $ -> findIndex -> $@HashMap.entries($).value !
+  end get
+
+  templates remove
+    $ -> findIndex -> \(
+      $@HashMap.entries($).value !
+      @HashMap.distance($): $@HashMap.distance($) + $TWO31;
+      @HashMap.elements: $@HashMap.elements - 1;
+    \) !
+  end remove
+
+  source size
+    $@HashMap.elements!
+  end size
+
+  source entries
+    1..$@HashMap.capacity -> \(<?($@HashMap.distance($) <..~$TWO31>)> $!\) -> $@HashMap.entries($) !
+  end entries
+
+  @:{entries: [1..$INITIAL_CAPACITY -> 0],
+    distance: [1..$INITIAL_CAPACITY -> $TWO31],
+    probeLength: 0,
+    capacity: $INITIAL_CAPACITY,
+    elements: 0};
+  $... -> put -> !VOID
+end HashMap
+
+test 'map'
+  def map: [{key: 'a', value: 1}, {key: 'b', value: 2}] -> HashMap;
+
+  assert $map::size <=2> 'loaded size'
+
+  assert [ $map::entries ] <[<={key: 'a', value: 1}>, <={key: 'b', value: 2}>](2)> 'loaded'
+
+  assert 'a' -> map::get <=1> 'a should be mapped to 1'
+
+  assert $map::size <=2> 'still loaded size after gets'
+
+  assert [{key: 'a', value: 33} -> map::put] <[<={key: 'a', value: 1}>](1)> 'should evict mapping a to 1'
+
+  assert $map::size <=2> 'still loaded size after replace'
+
+  assert 'a' -> map::get <=33> 'a should now be mapped to 33'
+
+  assert ['c' -> map::get] <[](0)> 'c should not be mapped'
+
+  assert ['b' -> map::remove] <[<=2>](1)> 'should remove 2 for b'
+
+  assert $map::size <=1> 'size adjusted on remove'
+
+  assert ['b' -> map::get] <[](0)> 'b should not be mapped'
+
+  assert [{key: 'c', value: 9} -> map::put] <=[]> 'put new swallows input'
+
+  assert $map::size <=2> 'size adjusted on add'
+
+  assert [ $map::entries ] <[<={key: 'a', value: 33}>, <={key: 'c', value: 9}>](2)> 'loaded'
+end 'map'
+
+test 'stress map'
+  def map: [1..257 -> {key: $, value: -$}] -> HashMap;
+  assert $map::size <=257> 'load many'
+
+  def map2: [0..256 -> {key: $ * 1024, value: -$} ] -> HashMap;
+  assert $map2::size <=257> 'load many same modulus'
+end 'stress map'
+
+templates fibonacciHash&{capacity:}
+    $::hashCode -> $ + $ ~/ $capacity -> $ * $TWO31_OVER_PHI -> $ mod $capacity!
+end fibonacciHash
+
+test 'hash smear function'
+  def map: [0..255 -> {key: ($ -> fibonacciHash&{capacity: 256}) mod 256, value: -$}] -> HashMap;
+  assert $map::size <=256> 'spread over 256'
+  assert [0..511 -> {key: ($ -> fibonacciHash&{capacity: 512}) mod 512, value: -$} -> map::put -> \(!VOID\)]
+    -> $map::size <=512> 'spread over 512'
+  assert [0..1023 -> {key: ($ -> fibonacciHash&{capacity: 1024}) mod 1024, value: -$} -> map::put -> \(!VOID\)]
+    -> $map::size <=1024> 'spread over 1024'
+  assert [0..2047 -> {key: ($ -> fibonacciHash&{capacity: 2048}) mod 2048, value: -$} -> map::put -> \(!VOID\)]
+    -> $map::size <=2048> 'spread over 2048'
+  assert [0..4095 -> {key: ($ -> fibonacciHash&{capacity: 4096}) mod 4096, value: -$} -> map::put -> \(!VOID\)]
+    -> $map::size <=4096> 'spread over 4096'
+  assert [0..65535 -> {key: ($ -> fibonacciHash&{capacity: 65536}) mod 65536, value: -$} -> map::put -> \(!VOID\)]
+    -> $map::size <=65536> 'spread over 65536'
+  assert [0..1048575 -> {key: ($ -> fibonacciHash&{capacity: 1048576}) mod 1048576, value: -$} -> map::put -> \(!VOID\)]
+    -> $map::size <=1048576> 'spread over 1048576'
+end 'hash smear function'
