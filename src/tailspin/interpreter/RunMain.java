@@ -6,6 +6,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -84,6 +85,7 @@ import tailspin.parser.TailspinParser.ModuleModificationContext;
 import tailspin.parser.TailspinParser.ModuleShadowingContext;
 import tailspin.parser.TailspinParser.OperandContext;
 import tailspin.parser.TailspinParser.OperatorExpressionContext;
+import tailspin.parser.TailspinParser.ProgramModificationContext;
 import tailspin.parser.TailspinParser.StateSinkContext;
 import tailspin.parser.TailspinParser.StereotypeDefinitionContext;
 import tailspin.parser.TailspinParser.StereotypeMatchContext;
@@ -1192,10 +1194,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new AssertionError("Mismatched end " + ctx.stringLiteral(1).getText()
         + " to test " + ctx.stringLiteral(0).getText());
     }
+    ProgramModification programModification
+        = Optional.ofNullable(ctx.programModification()).map(this::visitProgramModification)
+        .orElse(new ProgramModification(List.of()));
     List<ModuleProvider> dependencies = ctx.useModule().stream().map(this::visit)
         .map(ModuleProvider.class::cast).collect(Collectors.toList());
     List<Expression> testBody = visitTestBody(ctx.testBody());
-    return new Test(visitStringLiteral(ctx.stringLiteral(0)), dependencies, testBody);
+    return new Test(visitStringLiteral(ctx.stringLiteral(0)), dependencies, testBody, programModification);
   }
 
   @Override
@@ -1213,6 +1218,20 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public Assertion visitAssertion(TailspinParser.AssertionContext ctx) {
     return new Assertion(visitValueChain(ctx.valueChain()),
         visitMatcher(ctx.matcher()), visitStringLiteral(ctx.stringLiteral()));
+  }
+
+  @Override
+  public ProgramModification visitProgramModification(ProgramModificationContext ctx) {
+    return new ProgramModification(ctx.statement().stream().map(s -> {
+      dependencyCounters.push(new DependencyCounter());
+      Expression statement = (Expression) visit(s);
+      Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
+      if (statement instanceof Definition) {
+        return new DefinitionStatement((Definition) statement, requiredDefinitions);
+      } else {
+        throw new UnsupportedOperationException("Only definitions are relevant in program modification");
+      }
+    }).collect(Collectors.toList()));
   }
 
   @Override

@@ -47,7 +47,10 @@ public class Program extends Module {
   private Object executeTest(TestStatement testStatement, Path basePath, SymbolLibrary coreSystemProvider) {
     BasicScope scope = new BasicScope(basePath);
     List<SymbolLibrary> testModules = getMocksAndModules(testStatement.test.getInjectedModules(), coreSystemProvider, scope);
-    resolveSymbols(testStatement.requiredDefinitions, scope, testModules);
+    Set<String> requiredDefinitions = Stream.concat(
+        testStatement.test.installProgramModifications(scope).stream(),
+        testStatement.requiredDefinitions.stream()).collect(Collectors.toSet());
+    resolveSymbols(requiredDefinitions, scope, testModules);
     return testStatement.test.getResults(null, scope);
   }
 

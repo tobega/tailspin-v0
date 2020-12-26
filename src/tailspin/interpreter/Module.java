@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 public class Module {
 
   protected final List<DefinitionStatement> definitions;
-  private final List<IncludedFile> includedFiles;
+  protected final List<IncludedFile> includedFiles;
 
   public Module(
       List<DefinitionStatement> definitions, List<IncludedFile> includedFiles) {

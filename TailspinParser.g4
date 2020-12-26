@@ -11,7 +11,7 @@ statement: Def key valueProduction SemiColon                  # definition
   | (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? templatesBody EndDefinition localIdentifier # templatesDefinition
   | StartProcessorDefinition localIdentifier parameterDefinitions? block EndDefinition localIdentifier # processorDefinition
   | StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier # composerDefinition
-  | StartTestDefinition stringLiteral useModule* testBody EndDefinition stringLiteral # testDefinition
+  | StartTestDefinition stringLiteral useModule* programModification? testBody EndDefinition stringLiteral # testDefinition
   | StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen templatesBody EndDefinition localIdentifier # operatorDefinition
   | StereotypeDefinition localIdentifier matcher # stereotypeDefinition
 ;
@@ -255,6 +255,8 @@ keyword: Include
   | Shadowed
   | From
   | Use
+  | Program
+  | Modify
 ;
 
 testBody: testBlock+;
@@ -275,3 +277,5 @@ moduleConfiguration:
 moduleIdentifier: CoreSystem | localIdentifier;
 
 useModule: Use moduleConfiguration;
+
+programModification: Modify Program statement+ EndDefinition Program;

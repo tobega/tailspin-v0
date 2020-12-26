@@ -645,4 +645,24 @@ public class Testing {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.runTests(dir, input, output, List.of()));
   }
+
+  @Test
+  void modifiesOuterProgram() throws Exception {
+    String program = "def foo: 2;\n"
+        + "def bar: $foo * 3;\n"
+        + "test 'A modifying test'\n"
+        + "modify program\n"
+        + "def foo: 1;\n"
+        + "end program\n"
+        + "assert $bar <=3> 'foo is modified to 1'\n"
+        + "end 'A modifying test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
 }

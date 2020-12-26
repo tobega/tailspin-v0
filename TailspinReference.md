@@ -819,11 +819,18 @@ To run the tests in a file, put the command-line flag `--test` before the name o
 
 ### Mocking, stubbing, faking
 Tests normally run with all the same [modules](#using-modules) as the main program of the file it is in, but they can also
-have their own `use` statements at the beginning of the test which get used instead of the same ones in the program, e.g.
+have their own `use` statements at the beginning of the test which get used instead of the same ones in the program.
+
+Tests will only execute the program definitions needed for the test. A test can also modify the program,
+overriding definitions, by a section after the module overrides that starts `modify program` and ends `end program`.
+
+Here is a contrived example that both mocks the standard output and overrides the definition of `greeting`:
 ```
-sink hello
-  'Hello $;' -> !OUT::write
-end hello
+def greeting: 'Bonjour';
+
+sink greet
+  '$greeting; $;' -> !OUT::write
+end greet
 
 test 'hello'
   use shadowed core-system/
@@ -839,8 +846,12 @@ test 'hello'
     
     def OUT: $FakeOut;
   end core-system/
+  
+  modify program
+    def greeting: 'Hello';
+  end program
 
-  'John' -> !hello
+  'John' -> !greet
   assert $OUT::next <='Hello John'> 'Wrote greeting'
 end 'hello'
 ```

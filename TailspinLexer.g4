@@ -137,6 +137,10 @@ StandAlone: 'stand-alone';
 
 Use: 'use';
 
+Program: 'program';
+
+Modify: 'modify';
+
 Zero: '0';
 
 PositiveInteger: [1-9] Digits?;
