@@ -827,7 +827,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitTerm(TermContext ctx) {
-    return visitValueProduction(ctx.valueProduction());
+    if (ctx.valueProduction() != null) {
+      return visitValueProduction(ctx.valueProduction());
+    }
+    if (ctx.operatorExpression() != null) {
+      return visitOperatorExpression(ctx.operatorExpression());
+    }
+    throw new IllegalArgumentException("Unknown term type");
   }
 
   @Override

@@ -170,7 +170,7 @@ additiveOperator: Plus | Minus;
 
 multiplicativeOperator: Star | TruncateDivide | Mod;
 
-term: LeftParen valueProduction RightParen;
+term: LeftParen valueProduction RightParen|operatorExpression;
 
 operatorExpression: LeftParen operand templatesReference operand RightParen;
 
