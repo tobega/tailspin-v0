@@ -33,7 +33,6 @@ Illogical?
 - Needed too many parens: (($cards(1) list/naturalOrder $cards(2))) mod 3
 
 Bugs
-- exception in matcher just becomes false?
 - Can't use a term ($ -> foo) as a range endpoint (in matcher)
 
 Too much syntax?
