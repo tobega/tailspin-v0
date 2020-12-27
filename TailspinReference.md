@@ -555,8 +555,10 @@ All these rules can be applied to multiple dimensions by separating the dimensio
 although the elements could be arrays). Selecting only a few dimensions will select everything from the remaining dimensions
 as a new array, but you cannot dereference it immediately in the same step.
 
-It is an error to select elements outside the range of a dimension. However, impossible ranges are legal but result in an empty array.
-So, for example, `$(0)` will result in an error, but `$(0..0)` will result in an empty array, which can be handy.
+It is generally an error to select elements outside the range of a dimension. However, ranges are legal
+and will select the elements that exist within the range, if any, else an empty array is returned.
+So, for example, `$(0)` will result in an error, but `$(0..0)` will result in an empty array, which can be handy,
+and `$(0..2)` will return the first two elements just like `$(1..2)`.
 
 An array is a built-in processor that responds to the following messages:
 * `::length` returns the length of the first dimension.

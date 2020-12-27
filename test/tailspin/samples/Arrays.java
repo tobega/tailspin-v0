@@ -575,7 +575,7 @@ class Arrays {
   }
 
   @Test
-  void rangeDereferenceBeyondLength() throws IOException {
+  void rangeDereferenceStartBeyondLength() throws IOException {
     String program = "[1,2,3] -> $($::length+1..last)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -623,7 +623,7 @@ class Arrays {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[1, 2, 3]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -649,7 +649,7 @@ class Arrays {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[1, 2, 3]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

@@ -18,18 +18,19 @@ public class RangeGenerator implements Expression {
 
   @Override
   public Object getResults(Object it, Scope blockScope) {
-    return resultIterator(Function.identity(), it, blockScope);
+    return resultIterator(Function.identity(), Function.identity(), it, blockScope);
   }
 
-  RangeIterator resultIterator(Function<Long, Long> boundTransform, Object it, Scope scope) {
+  RangeIterator resultIterator(Function<Long, Long> lowerBoundTransform,
+      Function<Long, Long> upperBoundTransform, Object it, Scope scope) {
     long increment = step == null ? 1 : ((Number) step.getResults(it, scope)).longValue();
     if (increment == 0) {
       throw new IllegalArgumentException("Cannot produce range with zero increment");
     }
     long startBound = ((Number) lowerBound.value.getResults(it, scope)).longValue();
-    Long start = boundTransform.apply(lowerBound.inclusive ? startBound : startBound + increment);
+    Long start = lowerBoundTransform.apply(lowerBound.inclusive ? startBound : startBound + increment);
     long endBound = ((Number) upperBound.value.getResults(it, scope)).longValue();
-    Long end = boundTransform.apply(upperBound.inclusive ? endBound
+    Long end = upperBoundTransform.apply(upperBound.inclusive ? endBound
         : Math.floorDiv((endBound - 1 - startBound), increment) * increment + startBound);
     if (start == null || end == null || (increment > 0 && start > end) || (increment < 0 && start < end)) {
       return null;

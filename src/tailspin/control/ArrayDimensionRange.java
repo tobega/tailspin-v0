@@ -15,7 +15,9 @@ public class ArrayDimensionRange implements DimensionReference {
   public IntStream getIndices(DimensionContextKeywordResolver.Context context, Object it, Scope scope) {
     RangeGenerator.RangeIterator rangeIterator =
         rangeGenerator.resultIterator(
-            i -> context.resolveIndex(i.intValue()), it, scope);
+            i -> context.resolveLowerRangeLimit(i.intValue()),
+            i -> context.resolveUpperRangeLimit(i.intValue()),
+            it, scope);
     return rangeIterator == null
         ? IntStream.empty()
         : rangeIterator.stream().mapToInt(l -> (int) l);

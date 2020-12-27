@@ -16,6 +16,9 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
     }
   }
 
+  /* Functioning here is a little magical. The keyword resolver gets primed by creating this context,
+   * but the resolver itself is somewhere else.
+   */
   public Context with(Integer size, boolean allowNegative) {
     dimensionSize = size;
     return new Context(allowNegative);
@@ -36,6 +39,18 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
 
     public Long resolveIndex(int index) {
       if ((!allowNegative && index <= 0) || index > dimensionSize) return null;
+      return (long) (index);
+    }
+
+    public Long resolveLowerRangeLimit(int index) {
+      if (!allowNegative && index <= 0) return 1L;
+      if (index > dimensionSize) return null;
+      return (long) (index);
+    }
+
+    public Long resolveUpperRangeLimit(int index) {
+      if (!allowNegative && index <= 0) return null;
+      if (index > dimensionSize) return Long.valueOf(dimensionSize);
       return (long) (index);
     }
   }
