@@ -130,9 +130,9 @@ rangeBounds: lowerBound? Range upperBound?;
 
 condition: BeginCondition valueChain matcher RightParen;
 
-lowerBound: (sourceReference|arithmeticExpression|stringLiteral) Invert?;
+lowerBound: (sourceReference|arithmeticExpression|stringLiteral|term) Invert?;
 
-upperBound: Invert? (sourceReference|arithmeticExpression|stringLiteral);
+upperBound: Invert? (sourceReference|arithmeticExpression|stringLiteral|term);
 
 rangeLiteral: lowerBound? Range upperBound? (Colon arithmeticExpression)?;
 

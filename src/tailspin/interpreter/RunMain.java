@@ -867,6 +867,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
+    } else if (ctx.term() != null) {
+      bound = Value.of(visitTerm(ctx.term()));
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
@@ -883,6 +885,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       bound = visitArithmeticExpression(ctx.arithmeticExpression());
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
+    } else if (ctx.term() != null) {
+      bound = Value.of(visitTerm(ctx.term()));
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());

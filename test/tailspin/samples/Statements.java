@@ -356,4 +356,40 @@ class Statements {
     assertThrows(Throwable.class, () ->
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
   }
+
+  @Test
+  void termCanStartARange() throws Exception {
+    String program =
+        "templates foo\n"
+        + "  $+1!\n"
+        + "end foo\n"
+        + "\n"
+        + "(1 -> foo)..5 -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("2345", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void termCanEndARange() throws Exception {
+    String program =
+        "templates foo\n"
+        + "  $+1!\n"
+        + "end foo\n"
+        + "\n"
+        + "1..(3 -> foo) -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1234", output.toString(StandardCharsets.UTF_8));
+  }
 }
