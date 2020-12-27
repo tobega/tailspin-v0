@@ -158,8 +158,8 @@ public class Bytes {
   }
 
   @Test
-  void invert() throws IOException {
-    String program = "[x 0125 x] -> $::invert -> !OUT::write";
+  void inverse() throws IOException {
+    String program = "[x 0125 x] -> $::inverse -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

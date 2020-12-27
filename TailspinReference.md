@@ -598,7 +598,7 @@ two bytes values supplied have different lengths, the shorter will be extended t
 its highest (leftmost) bit, a.k.a. sign extension.
 
 Bytes values respond to the following messages:
-* `::invert` returns a bytes value with all ones turned to zeroes and all zeroes turned to ones.
+* `::inverse` returns a bytes value with all ones turned to zeroes and all zeroes turned to ones.
 * `::length` returns the number of bytes in the bytes value.
 * `::shift&{left:, fill:}` where left is an integer and fill is a bytes value. If left is positive,
   the value is shifted that many bits to the left while if it is negative, the shift is to the right.
@@ -614,7 +614,7 @@ def b: [x 81 x];
 ($a and $b) -> '$a; and $b; is $;$#10;' -> !OUT::write
 ($a or $b) -> '$a; or $b; is $;$#10;' -> !OUT::write
 ($a xor $b) -> '$a; xor $b; is $;$#10;' -> !OUT::write
-$a::invert -> 'not $a; is $;$#10;' -> !OUT::write
+$a::inverse -> 'not $a; is $;$#10;' -> !OUT::write
 $a::shift&{left: 3, fill: [x 00 x]} -> '$a; shifted left 3 bits is $;$#10;' -> !OUT::write
 $a::shift&{left: -3, fill: [x 00 x]} -> '$a; shifted right 3 bits is $;$#10;' -> !OUT::write
 $a::shift&{left: -3, fill: $a(0)} -> '$a; arithmetically shifted right 3 bits is $;$#10;' -> !OUT::write
@@ -679,7 +679,7 @@ Integer
 * `$::asBytes` returns the minimal [bytes value](#bytes) that can represent the integer in twos complement notation.
 
 Bytes
-* `$::invert` returns a bytes value with all ones turned to zeroes and all zeroes turned to ones.
+* `$::inverse` returns a bytes value with all ones turned to zeroes and all zeroes turned to ones.
 * `$::length` returns the number of bytes in the bytes value.
 * `$::shift&{left:, fill:}` where left is an integer and fill is a bytes value. If left is positive,
   the value is shifted that many bits to the left while if it is negative, the shift is to the right.

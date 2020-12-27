@@ -66,7 +66,7 @@ public class ProcessorMessage extends Reference {
       }
     } else if (receiver instanceof byte[]) {
       switch (message) {
-        case "invert":
+        case "inverse":
           return (it, params) -> {
             byte[] in = (byte[]) receiver;
             byte[] result = new byte[in.length];
