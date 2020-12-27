@@ -603,6 +603,7 @@ Bytes values respond to the following messages:
 * `::shift&{left:, fill:}` where left is an integer and fill is a bytes value. If left is positive,
   the value is shifted that many bits to the left while if it is negative, the shift is to the right.
   Vacated bit positions are filled from infinite repetitions of the fill pattern, as needed.
+  NOTE: Shifting keeps the same number of bits, truncating if needed, so pad with zeroes if you need extension.
 * `::asUtf8String` returns a string as coded by the bytes in utf8 (or an error if coding is incorrect)
 * `::asInteger` returns the integer that the bytes code by twos complement representation.
 
