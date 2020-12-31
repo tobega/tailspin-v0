@@ -16,13 +16,10 @@ class ArrayReference extends Reference {
 
   private final Reference parent;
   private final List<DimensionReference> dimensions;
-  private final DimensionContextKeywordResolver resolver;
 
-  ArrayReference(Reference parent, List<DimensionReference> dimensions,
-      DimensionContextKeywordResolver resolver) {
+  ArrayReference(Reference parent, List<DimensionReference> dimensions) {
     this.parent = parent;
     this.dimensions = dimensions;
-    this.resolver = resolver;
   }
 
   @Override
@@ -43,8 +40,11 @@ class ArrayReference extends Reference {
       throw new UnsupportedOperationException("Cannot resolve more than one dimension of bytes");
     }
     ByteArrayOutputStream result = new ByteArrayOutputStream();
-    try (DimensionContextKeywordResolver.Context ctx = resolver.with(parentValue.length, true)) {
-      Object idx = dimensions.get(0).getIndices(ctx, it, scope);
+    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(parentValue.length,
+        true);
+    scope.pushArithmeticContextKeywordResolver(resolver);
+    try {
+      Object idx = dimensions.get(0).getIndices(resolver, it, scope);
       if (idx instanceof Number) {
         result.write(getExtended(parentValue, ((Number) idx).intValue()));
       } else if (idx instanceof IntStream) {
@@ -55,6 +55,8 @@ class ArrayReference extends Reference {
             "Unable to slice bytes by "
                 + (idx == null ? "index out of bounds" : " " + idx.getClass().getName()));
       }
+    } finally{
+      scope.popArithmeticContextKeywordResolver();
     }
     return result.toByteArray();
   }
@@ -197,8 +199,11 @@ class ArrayReference extends Reference {
             : (forMutation ? ArrayReference::getThawed : TailspinArray::get);
     DimensionReference dimensionReference = dimensions.get(currentDereference);
     Object dimensionResult;
-    try (DimensionContextKeywordResolver.Context ctx = resolver.with(array.length(), false)) {
-      Object idx = dimensionReference.getIndices(ctx, it, scope);
+    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(array.length(),
+        false);
+    scope.pushArithmeticContextKeywordResolver(resolver);
+    try {
+      Object idx = dimensionReference.getIndices(resolver, it, scope);
       if (idx instanceof Number) {
         dimensionResult = operation.invoke(array, ((Number) idx).intValue());
       } else if (idx instanceof IntStream) {
@@ -209,12 +214,14 @@ class ArrayReference extends Reference {
             "Unable to dereference array by "
                 + (idx == null ? "index out of bounds" : " " + idx.getClass().getName()));
       }
-      if (currentDereference == dimensions.size() - 1) {
-        if (dimensionResult instanceof Stream) {
-          return TailspinArray.value(((Stream<?>) dimensionResult).collect(Collectors.toList()));
-        } else {
-          return dimensionResult;
-        }
+    } finally{ // This should probably come after all streams are resolved
+      scope.popArithmeticContextKeywordResolver();
+    }
+    if (currentDereference == dimensions.size() - 1) {
+      if (dimensionResult instanceof Stream) {
+        return TailspinArray.value(((Stream<?>) dimensionResult).collect(Collectors.toList()));
+      } else {
+        return dimensionResult;
       }
     }
     if (dimensionResult instanceof Stream) {

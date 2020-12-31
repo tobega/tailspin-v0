@@ -6,15 +6,14 @@ import tailspin.interpreter.Scope;
 public class ArithmeticContextValue implements Value {
 
   private final String name;
-  private final ArithmeticContextKeywordResolver resolver;
 
-  public ArithmeticContextValue(String name, ArithmeticContextKeywordResolver resolver) {
+  public ArithmeticContextValue(String name) {
     this.name = name;
-    this.resolver = resolver;
   }
 
   @Override
   public Object getResults(Object it, Scope scope) {
+    ArithmeticContextKeywordResolver resolver = scope.getArithmeticContextKeywordResolver();
     return resolver.getValue(name);
   }
 }

@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NestedScope implements Scope {
+public class NestedScope extends Scope {
   private final Scope parentScope;
 
   private final Map<String, Object> definitions = new HashMap<>();

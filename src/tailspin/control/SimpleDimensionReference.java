@@ -11,7 +11,7 @@ public class SimpleDimensionReference implements DimensionReference {
   }
 
   @Override
-  public Object getIndices(DimensionContextKeywordResolver.Context context, Object it, Scope scope) {
+  public Object getIndices(DimensionContextKeywordResolver context, Object it, Scope scope) {
     Object value = simpleValue.getResults(it, scope);
     if (value instanceof TailspinArray) {
       return ((TailspinArray) value)

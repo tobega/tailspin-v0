@@ -3,7 +3,13 @@ package tailspin.control;
 import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 
 public class DimensionContextKeywordResolver implements ArithmeticContextKeywordResolver {
-  private Integer dimensionSize;
+  private final Integer dimensionSize;
+  private final boolean allowNegative;
+
+  public DimensionContextKeywordResolver(Integer dimensionSize, boolean allowNegative) {
+    this.dimensionSize = dimensionSize;
+    this.allowNegative = allowNegative;
+  }
 
   @Override
   public long getValue(String name) {
@@ -15,43 +21,20 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
       throw new UnsupportedOperationException("Unknown dimension context keyword " + name);
     }
   }
-
-  /* Functioning here is a little magical. The keyword resolver gets primed by creating this context,
-   * but the resolver itself is somewhere else.
-   */
-  public Context with(Integer size, boolean allowNegative) {
-    dimensionSize = size;
-    return new Context(allowNegative);
+  public Long resolveIndex(int index) {
+    if ((!allowNegative && index <= 0) || index > dimensionSize) return null;
+    return (long) (index);
   }
 
-  public class Context implements AutoCloseable {
+  public Long resolveLowerRangeLimit(int index) {
+    if (!allowNegative && index <= 0) return 1L;
+    if (index > dimensionSize) return null;
+    return (long) (index);
+  }
 
-    private final boolean allowNegative;
-
-    public Context(boolean allowNegative) {
-      this.allowNegative = allowNegative;
-    }
-
-    @Override
-    public void close() {
-      dimensionSize = null;
-    }
-
-    public Long resolveIndex(int index) {
-      if ((!allowNegative && index <= 0) || index > dimensionSize) return null;
-      return (long) (index);
-    }
-
-    public Long resolveLowerRangeLimit(int index) {
-      if (!allowNegative && index <= 0) return 1L;
-      if (index > dimensionSize) return null;
-      return (long) (index);
-    }
-
-    public Long resolveUpperRangeLimit(int index) {
-      if (!allowNegative && index <= 0) return null;
-      if (index > dimensionSize) return Long.valueOf(dimensionSize);
-      return (long) (index);
-    }
+  public Long resolveUpperRangeLimit(int index) {
+    if (!allowNegative && index <= 0) return null;
+    if (index > dimensionSize) return Long.valueOf(dimensionSize);
+    return (long) (index);
   }
 }

@@ -12,7 +12,7 @@ public class ArrayDimensionRange implements DimensionReference {
   }
 
   @Override
-  public IntStream getIndices(DimensionContextKeywordResolver.Context context, Object it, Scope scope) {
+  public IntStream getIndices(DimensionContextKeywordResolver context, Object it, Scope scope) {
     RangeGenerator.RangeIterator rangeIterator =
         rangeGenerator.resultIterator(
             i -> context.resolveLowerRangeLimit(i.intValue()),

@@ -27,9 +27,8 @@ public abstract class Reference implements Value {
     return new FieldReference(this, fieldIdentifier);
   }
 
-  public Reference array(List<DimensionReference> dimensions,
-      DimensionContextKeywordResolver resolver) {
-    return new ArrayReference(this, dimensions, resolver);
+  public Reference array(List<DimensionReference> dimensions) {
+    return new ArrayReference(this, dimensions);
   }
 
   public static Reference it() {

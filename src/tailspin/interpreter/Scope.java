@@ -1,21 +1,38 @@
 package tailspin.interpreter;
 
 import java.nio.file.Path;
+import java.util.ArrayDeque;
+import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 
-public interface Scope {
-  Object resolveValue(String identifier);
+public abstract class Scope {
 
-  void defineValue(String identifier, Object value);
+  private ArrayDeque<ArithmeticContextKeywordResolver> arithmeticContextKeywordResolvers = new ArrayDeque<>();
 
-  Path basePath();
+  public abstract Object resolveValue(String identifier);
 
-  void setState(String stateContext, Object value);
+  public abstract void defineValue(String identifier, Object value);
 
-  Object getState(String stateContext);
+  public abstract Path basePath();
 
-  Scope getParentScope();
+  public abstract void setState(String stateContext, Object value);
 
-  boolean hasDefinition(String def);
+  public abstract Object getState(String stateContext);
 
-  void undefineValue(String identifier);
+  public abstract Scope getParentScope();
+
+  public abstract boolean hasDefinition(String def);
+
+  public abstract void undefineValue(String identifier);
+
+  public ArithmeticContextKeywordResolver getArithmeticContextKeywordResolver() {
+    return arithmeticContextKeywordResolvers.peek();
+  }
+
+  public void pushArithmeticContextKeywordResolver(ArithmeticContextKeywordResolver resolver) {
+    arithmeticContextKeywordResolvers.push(resolver);
+  }
+
+  public void popArithmeticContextKeywordResolver() {
+    arithmeticContextKeywordResolvers.pop();
+  }
 }

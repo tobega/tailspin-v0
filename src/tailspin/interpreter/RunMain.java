@@ -264,20 +264,15 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   private Reference resolveArrayDereference(TailspinParser.ArrayReferenceContext ctx, Reference reference) {
-    resolver.push(new DimensionContextKeywordResolver());
-    try {
-      List<DimensionReference> dimensions = new ArrayList<>();
-      for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
-        if (dimCtx.simpleDimension() != null) {
-          dimensions.add(visitSimpleDimension(dimCtx.simpleDimension()));
-        } else {
-          dimensions.add(visitMultiValueDimension(dimCtx.multiValueDimension()));
-        }
+    List<DimensionReference> dimensions = new ArrayList<>();
+    for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
+      if (dimCtx.simpleDimension() != null) {
+        dimensions.add(visitSimpleDimension(dimCtx.simpleDimension()));
+      } else {
+        dimensions.add(visitMultiValueDimension(dimCtx.multiValueDimension()));
       }
-      return reference.array(dimensions, (DimensionContextKeywordResolver) resolver.peek());
-    } finally{
-      resolver.pop();
     }
+    return reference.array(dimensions);
   }
 
   @Override
@@ -753,8 +748,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return new IntegerConstant(value);
   }
 
-  private final Deque<ArithmeticContextKeywordResolver> resolver = new ArrayDeque<>();
-
   @Override
   public Value visitArithmeticExpression(TailspinParser.ArithmeticExpressionContext ctx) {
     if (ctx.sourceReference() != null) {
@@ -781,8 +774,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.integerLiteral() != null) {
       return (Value) visit(ctx.integerLiteral());
     }
-    if (!resolver.isEmpty() && ctx.arithmeticContextKeyword() != null) {
-      return new ArithmeticContextValue(ctx.arithmeticContextKeyword().getText(), resolver.peek());
+    if (ctx.arithmeticContextKeyword() != null) {
+      return new ArithmeticContextValue(ctx.arithmeticContextKeyword().getText());
     }
     if (ctx.termArithmeticOperation() != null) {
       return visitTermArithmeticOperation(ctx.termArithmeticOperation());

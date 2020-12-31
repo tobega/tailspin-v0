@@ -12,7 +12,7 @@ public class MultiValueDimension implements DimensionReference {
   }
 
   @Override
-  public Object getIndices(DimensionContextKeywordResolver.Context dimension, Object it, Scope scope) {
+  public Object getIndices(DimensionContextKeywordResolver dimension, Object it, Scope scope) {
     IntStream result = IntStream.empty();
     for (DimensionReference dimensionReference : dimensionReferences) {
       Object index = dimensionReference.getIndices(dimension, it, scope);

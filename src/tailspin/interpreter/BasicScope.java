@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import tailspin.interpreter.lang.Lang;
 
-public class BasicScope implements Scope {
+public class BasicScope extends Scope {
   private final Path basePath;
 
   final Map<String, Object> definitions = new HashMap<>();
