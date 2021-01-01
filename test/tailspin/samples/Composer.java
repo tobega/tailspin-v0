@@ -555,7 +555,7 @@ class Composer {
   @Test
   void buildArrayWithVariedContent() throws IOException {
     String program = "composer coords\n"
-        + "[ x: <INT> (<','>), {y: [<INT>]} ]\n"
+        + "[ 0, x: <INT> (<','>), {y: [<INT>]} ]\n"
         + "end coords\n"
         + "'1,2' -> coords -> !OUT::write";
     Tailspin runner =
@@ -565,7 +565,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x=1, {y=[2]}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[0, x=1, {y=[2]}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -984,6 +984,23 @@ class Composer {
     runner.run(input, output, List.of());
 
     assertEquals("{baz=qux, foo=bar}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composedKeyWithLiteralValue() throws IOException {
+    String program = "composer struct\n"
+        + "{ <keyValue>* }\n"
+        + "rule keyValue: <~WS>: 1 (<WS>?)\n"
+        + "end struct\n"
+        + "'foo bar baz qux' -> struct -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{bar=1, baz=1, foo=1, qux=1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

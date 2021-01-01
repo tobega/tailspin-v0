@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 import tailspin.arithmetic.ArithmeticContextValue;
 import tailspin.arithmetic.ArithmeticOperation;
 import tailspin.arithmetic.IntegerConstant;
@@ -26,7 +25,6 @@ import tailspin.control.ComposerDefinition;
 import tailspin.control.Deconstructor;
 import tailspin.control.Definition;
 import tailspin.control.DeleteState;
-import tailspin.control.DimensionContextKeywordResolver;
 import tailspin.control.DimensionReference;
 import tailspin.control.Expression;
 import tailspin.control.InlineTemplates;
@@ -1085,8 +1083,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       spec = new SubComposerFactory.StructureComposition(contents);
     } else if (ctx.tokenMatcher() != null) {
       spec = visitTokenMatcher(ctx.tokenMatcher());
-    } else if (ctx.sourceReference() != null) {
-      Expression source = visitSourceReference(ctx.sourceReference());
+    } else if (ctx.source() != null) {
+      Expression source = visitSource(ctx.source());
       spec = new SubComposerFactory.DereferenceComposition(source);
     } else if (ctx.compositionKeyValue() != null) {
       spec = visitCompositionKeyValue(ctx.compositionKeyValue());

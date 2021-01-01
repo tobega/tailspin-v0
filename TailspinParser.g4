@@ -193,7 +193,7 @@ compositionComponent: compositionMatcher transform? compositionSkipRule*;
 compositionMatcher: tokenMatcher
   | LeftBracket (compositionSequence|compositionSkipRule)? RightBracket
   | LeftBrace (structureMemberMatchers|compositionSkipRule)? RightBrace
-  | sourceReference
+  | source
   | compositionKeyValue
 ;
 

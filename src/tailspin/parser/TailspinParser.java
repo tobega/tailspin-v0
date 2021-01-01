@@ -5401,21 +5401,24 @@ public class TailspinParser extends Parser {
 		enterRule(_localctx, 130, RULE_compositionComponents);
 		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(874);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while (_la==LeftParen) {
-				{
-				{
-				setState(871);
-				compositionSkipRule();
-				}
+			_alt = getInterpreter().adaptivePredict(_input,113,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(871);
+					compositionSkipRule();
+					}
+					} 
 				}
 				setState(876);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,113,_ctx);
 			}
 			setState(877);
 			compositionComponent();
@@ -5541,8 +5544,8 @@ public class TailspinParser extends Parser {
 		public StructureMemberMatchersContext structureMemberMatchers() {
 			return getRuleContext(StructureMemberMatchersContext.class,0);
 		}
-		public SourceReferenceContext sourceReference() {
-			return getRuleContext(SourceReferenceContext.class,0);
+		public SourceContext source() {
+			return getRuleContext(SourceContext.class,0);
 		}
 		public CompositionKeyValueContext compositionKeyValue() {
 			return getRuleContext(CompositionKeyValueContext.class,0);
@@ -5626,7 +5629,7 @@ public class TailspinParser extends Parser {
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(907);
-				sourceReference();
+				source();
 				}
 				break;
 			case 5:
@@ -6337,8 +6340,8 @@ public class TailspinParser extends Parser {
 	public final CompositionKeyValueContext compositionKeyValue() throws RecognitionException {
 		CompositionKeyValueContext _localctx = new CompositionKeyValueContext(_ctx, getState());
 		enterRule(_localctx, 152, RULE_compositionKeyValue);
-		int _la;
 		try {
+			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(999);
@@ -6388,17 +6391,19 @@ public class TailspinParser extends Parser {
 			}
 			setState(1004);
 			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while (_la==LeftParen) {
-				{
-				{
-				setState(1001);
-				compositionSkipRule();
-				}
+			_alt = getInterpreter().adaptivePredict(_input,139,_ctx);
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
+				if ( _alt==1 ) {
+					{
+					{
+					setState(1001);
+					compositionSkipRule();
+					}
+					} 
 				}
 				setState(1006);
 				_errHandler.sync(this);
-				_la = _input.LA(1);
+				_alt = getInterpreter().adaptivePredict(_input,139,_ctx);
 			}
 			setState(1007);
 			compositionComponent();
@@ -8094,7 +8099,7 @@ public class TailspinParser extends Parser {
 		"\u0385\3\2\2\2\u0385\u0386\3\2\2\2\u0386\u0390\7\34\2\2\u0387\u038a\7"+
 		"\35\2\2\u0388\u038b\5\u008aF\2\u0389\u038b\5\u0096L\2\u038a\u0388\3\2"+
 		"\2\2\u038a\u0389\3\2\2\2\u038a\u038b\3\2\2\2\u038b\u038c\3\2\2\2\u038c"+
-		"\u0390\7\36\2\2\u038d\u0390\5\16\b\2\u038e\u0390\5\u009aN\2\u038f\u0380"+
+		"\u0390\7\36\2\2\u038d\u0390\5\f\7\2\u038e\u0390\5\u009aN\2\u038f\u0380"+
 		"\3\2\2\2\u038f\u0381\3\2\2\2\u038f\u0387\3\2\2\2\u038f\u038d\3\2\2\2\u038f"+
 		"\u038e\3\2\2\2\u0390\u0089\3\2\2\2\u0391\u0393\5\u0096L\2\u0392\u0391"+
 		"\3\2\2\2\u0393\u0396\3\2\2\2\u0394\u0392\3\2\2\2\u0394\u0395\3\2\2\2\u0395"+
