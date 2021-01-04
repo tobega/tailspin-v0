@@ -24,6 +24,7 @@ source: sourceReference
   | stringLiteral
   | rangeLiteral
   | arrayLiteral
+  | relationLiteral
   | structureLiteral
   | bytesLiteral
   | LeftParen keyValue RightParen
@@ -52,9 +53,16 @@ valueProduction: sendToTemplates | valueChain;
 
 structureLiteral: LeftBrace (keyValues (Comma keyValues)*)? RightBrace;
 
+relationLiteral: LeftBrace LeftBracket (structures (Comma structures)*)? RightBracket RightBrace;
+
 bytesLiteral: StartBytes byteValue (byteValue)* EndBytes;
 
 byteValue: Bytes | term;
+
+structures: structureLiteral
+  | valueProduction
+  | sourceReference
+;
 
 keyValues: keyValue
   | valueProduction

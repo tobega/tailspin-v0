@@ -18,7 +18,7 @@ public class StructureLiteral implements Value {
   }
 
   @Override
-  public Object getResults(Object it, Scope scope) {
+  public Structure getResults(Object it, Scope scope) {
     Map<String, Object> structure = new TreeMap<>();
     for (Expression expression : keyValues) {
       Object result = expression.getResults(it, scope);

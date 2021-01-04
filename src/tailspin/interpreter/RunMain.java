@@ -50,6 +50,7 @@ import tailspin.literals.ByteLiteral;
 import tailspin.literals.BytesConstant;
 import tailspin.literals.CodedCharacter;
 import tailspin.literals.KeyValueExpression;
+import tailspin.literals.RelationLiteral;
 import tailspin.literals.StringConstant;
 import tailspin.literals.StringInterpolation;
 import tailspin.literals.StringLiteral;
@@ -87,6 +88,7 @@ import tailspin.parser.TailspinParser.ProgramModificationContext;
 import tailspin.parser.TailspinParser.StateSinkContext;
 import tailspin.parser.TailspinParser.StereotypeDefinitionContext;
 import tailspin.parser.TailspinParser.StereotypeMatchContext;
+import tailspin.parser.TailspinParser.StructuresContext;
 import tailspin.parser.TailspinParser.TermArithmeticOperationContext;
 import tailspin.parser.TailspinParser.TermContext;
 import tailspin.parser.TailspinParser.UseModuleContext;
@@ -185,6 +187,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     if (ctx.bytesLiteral() != null) {
       return visitBytesLiteral(ctx.bytesLiteral());
+    }
+    if (ctx.relationLiteral() != null) {
+      return visitRelationLiteral(ctx.relationLiteral());
     }
     throw new UnsupportedOperationException(ctx.getText());
   }
@@ -917,6 +922,22 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public StructureLiteral visitStructureLiteral(TailspinParser.StructureLiteralContext ctx) {
     return new StructureLiteral(ctx.keyValues().stream().map(this::visitKeyValues).collect(Collectors.toList()));
+  }
+
+  @Override
+  public RelationLiteral visitRelationLiteral(TailspinParser.RelationLiteralContext ctx) {
+    return new RelationLiteral(ctx.structures().stream().map(this::visitStructures).collect(Collectors.toList()));
+  }
+
+  @Override
+  public Expression visitStructures(StructuresContext ctx) {
+    if (ctx.structureLiteral() != null) {
+      return visitStructureLiteral(ctx.structureLiteral());
+    }
+    if (ctx.sourceReference() != null) {
+      return visitSourceReference(ctx.sourceReference());
+    }
+    return visitValueProduction(ctx.valueProduction());
   }
 
   @Override

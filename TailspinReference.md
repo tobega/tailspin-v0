@@ -30,6 +30,7 @@ should have been used instead. This is deliberate in order to free the mind of p
 1. [Streams](#streams)
 1. [Arrays](#arrays)
 1. [Structures](#structures)
+1. [Relations](#relations)
 1. [Bytes](#bytes)
 1. [Processors](#processors)
 1. [Messages on standard objects](#built-in-messages)
@@ -136,6 +137,12 @@ literal key-value pairs or expressions generating [streams](#streams) of key-val
 A literal key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
 An example of an expression generating a stream of key-value pairs is a [deconstruct](#deconstructor)
  of a [dereferenced](#dereference) structure value.
+
+### Relation literal
+A relation literal produces a [relation](#relations) value. It starts with a left brace and a left bracket, followed
+by [structure literals](#structure-literal) or expressions generating [streams](#streams) of [structures](#structures),
+separated by commas, and ens with a right bracket and a right brace. All structures must have the same set of keys to
+form a valid relation. E.g. `{[{x: 1, y: 1}, {x: 2, y: 3}]}`
 
 ### Bytes literal
 A bytes literal produces a [bytes](#bytes) value. In the simplest form it starts with the marker `[x` and ends with `x]`, with a sequence
@@ -583,6 +590,10 @@ To send the keyed value through a transform, put it in parentheses, so `(a: 1) -
 A keyed value responds to the following messages:
 * `::key` returns the key as a string.
 * `::value` returns the value.
+
+## Relations
+A relation, as in relational algebra, is like a set of [structures](#structures) with the same set of keys, similar to a table in a database except there are no
+duplicate rows.
 
 ## Bytes
 Bytes values represent a sequence of bytes and can be created through a [bytes literal](#bytes-literal)
