@@ -2,13 +2,16 @@ package tailspin.types;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Relation {
-  Set<Structure> contents;
-  Set<String> keys;
+  private final Set<Structure> contents;
+  private final Set<String> keys;
 
   public Relation(Iterable<Structure> lines) {
     contents = new HashSet<>();
+    Set<String> keys = null;
     for (Structure structure : lines) {
       if (keys == null) {
         keys = structure.keySet();
@@ -17,10 +20,21 @@ public class Relation {
       }
       contents.add(structure);
     }
+    this.keys = keys;
+  }
+
+  private Relation(Set<String> keys, Stream<Structure> contents) {
+    this.keys = keys;
+    this.contents = contents.collect(Collectors.toSet());
   }
 
   @Override
   public String toString() {
     return "{" + contents.toString() + "}";
+  }
+
+  public Relation union(Relation other) {
+    if (!keys.equals(other.keys)) throw new IllegalArgumentException("Can't union " + keys + " with " + other.keys);
+    return new Relation(keys, Stream.concat(contents.stream(), other.contents.stream()));
   }
 }

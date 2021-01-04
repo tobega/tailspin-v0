@@ -595,6 +595,9 @@ A keyed value responds to the following messages:
 A relation, as in relational algebra, is like a set of [structures](#structures) with the same set of keys, similar to a table in a database except there are no
 duplicate rows.
 
+Two relations with the same set of keys can be appended together to form the union of the two sets of structures, by the built-in
+`union` [operator](#operator).
+
 ## Bytes
 Bytes values represent a sequence of bytes and can be created through a [bytes literal](#bytes-literal)
 or a transformation from other values (e.g. by [built-in messages](#built-in-messages) on strings and integers).

@@ -9,6 +9,7 @@ public class Lang {
     builtIns.put("and", new BitwiseOperator.And());
     builtIns.put("or", new BitwiseOperator.Or());
     builtIns.put("xor", new BitwiseOperator.Xor());
+    builtIns.put("union", new UnionOperator());
   }
   private Lang() {}
 }
