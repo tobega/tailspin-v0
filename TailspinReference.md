@@ -41,7 +41,7 @@ should have been used instead. This is deliberate in order to free the mind of p
 1. [Calling java code](#calling-java-code)
 
 ## Basic structure
-A typical tailspin statement starts with a [source](#sources) for a value,
+A typical tailspin statement starts with a [source](#sources) for a value (or more correctly a [stream](#streams) of values),
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
 (a.k.a a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you can end with an
 exclamation point `!` to emit the resulting value into the outer calling context (this is similar to a "yield"
@@ -522,9 +522,10 @@ where the keys in the structure must match the defined parameters, e.g. with the
 `3 -> add&{addend: 4} -> stdout` will print `7`.
 
 ## Streams
-Streams occur when several values are created as the _current value_. Streams are processed by
+Streams occur when zero or more values are created as the _current value_. Streams are processed by
 repeating each step of the chain by setting __each__ of the stream values as the _current value_ in turn.
-See the note on [side effects](#side-effects).
+If a stream has no values, nothing gets done on the following parts of the chain.
+See also the note on [side effects](#side-effects).
 
 Streams can be captured into an [array](#arrays) by surrounding them with an [array literal](#array-literal).
 
