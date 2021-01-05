@@ -32,7 +32,16 @@ Illogical?
 - Should we be able to specify defined templates to be array templates?
 
 Bugs
-* No known bugs
+- composer rule updates state when called in not-context:
+operator (word count char)
+  composer howMany
+    @: 0;
+    (<not|is_char>+) $@
+    rule is_char: (<='$char;'>) (@: $@ + 1;)
+    rule not: (<~is_char>)
+  end howMany
+  $word -> howMany !
+end count
 
 Too much syntax?
 - quick filter by \<match> to mean \(<match> $!\).
