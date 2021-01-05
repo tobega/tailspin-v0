@@ -453,16 +453,13 @@ Sometimes it is easier or clearer to specify criteria which you don't want to do
 A matcher block can be simply the word `!VOID` to indicate this case.
   
 ### Conditions
-Sometimes you want to match relations between parts of a structure or values at certain array positions, then you can
-use a number of conditions either after or instead of the main criterion. E.g.
-* Array where first and second elements are equal: `<[]?($(1)<$(2)>)>`
-* Structure where the elements obey the relation a <= b <= c: `<?($.a<..$.b>)?($.b<..$.c>)>`
+Sometimes you want to check things that cannot be directly expressed as a match on the current value, e.g.
+a test on a parameter or templates state,or a transform of the value. Note that such transforms must yield
+a single value for matching.
 
-Conditions can also be applied to transforms of the value. Note that those transforms must yield a single value for matching.
+A condition begins with a question mark and an opening parenthesis, then a value production to be matched followed by a matcher,
+ended with a closing parenthesis, e.g. `<?($@ <=1>)>`. Several conditions can be applied sequentially within a matcher.
 
-A condition enables you to meaningfully use `$` in the match criterion as the original thing you are matching, while the criterion is tested
-against the produced or transformed value.
- 
 Note that a condition will change the perspective of the _current value_ so that `$` will represent the value being matched by the closest enclosing matcher.
 
 ### Defined stereotypes
