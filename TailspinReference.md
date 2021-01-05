@@ -599,6 +599,10 @@ duplicate rows.
 Two relations with the same set of keys can be appended together to form the union of the two sets of structures, by the built-in
 `union` [operator](#operator).
 
+Two relations can be combined with the `join` operator. The new relation will have keys that are the union of
+the keys of both. If there are no common keys, a full cross-product will be created, otherwise the entries will first
+be grouped on equality of common keys and a cross-product will be created within each equivalence group.
+
 ## Bytes
 Bytes values represent a sequence of bytes and can be created through a [bytes literal](#bytes-literal)
 or a transformation from other values (e.g. by [built-in messages](#built-in-messages) on strings and integers).

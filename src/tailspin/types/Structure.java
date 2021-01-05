@@ -21,6 +21,15 @@ public class Structure implements Freezable<Structure> {
     return new Structure(map, false);
   }
 
+  public static Structure value(ResultIterator.Flat resultIterator) {
+    Map<String, Object> fields = new TreeMap<>();
+    ResultIterator.forEach(resultIterator, o -> {
+      KeyValue kv = (KeyValue) o;
+      fields.put(kv.getKey(), kv.getValue());
+    });
+    return new Structure(fields, false);
+  }
+
   public Object get(String fieldIdentifier) {
     return map.get(fieldIdentifier);
   }
@@ -50,12 +59,12 @@ public class Structure implements Freezable<Structure> {
     return map.keySet();
   }
 
-  public Object deconstruct() {
+  public ResultIterator.Flat deconstruct() {
     if (map.isEmpty()) {
       return null;
     }
     Iterator<Entry<String, Object>> iterator = map.entrySet().iterator();
-    return (ResultIterator.Flat) () -> {
+    return () -> {
       if (!iterator.hasNext()) {
         return null;
       }

@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import tailspin.control.ResultIterator;
 
 public class Relation {
   private final Set<Structure> contents;
@@ -23,9 +24,9 @@ public class Relation {
     this.keys = keys;
   }
 
-  private Relation(Set<String> keys, Stream<Structure> contents) {
+  private Relation(Set<String> keys, Set<Structure> contents) {
     this.keys = keys;
-    this.contents = contents.collect(Collectors.toSet());
+    this.contents = contents;
   }
 
   @Override
@@ -35,6 +36,20 @@ public class Relation {
 
   public Relation union(Relation other) {
     if (!keys.equals(other.keys)) throw new IllegalArgumentException("Can't union " + keys + " with " + other.keys);
-    return new Relation(keys, Stream.concat(contents.stream(), other.contents.stream()));
+    return new Relation(keys, Stream.concat(contents.stream(), other.contents.stream()).collect(
+        Collectors.toSet()));
+  }
+
+  public Relation join(Relation other) {
+    Set<String> newKeys = new HashSet<>(keys);
+    newKeys.addAll(other.keys);
+    Set<String> commonKeys = new HashSet<>(keys);
+    commonKeys.retainAll(other.keys);
+    return new Relation(newKeys, contents.stream()
+        .flatMap(left -> other.contents.stream()
+            .filter(right -> commonKeys.stream().allMatch(key -> left.get(key).equals(right.get(key))))
+            .map(right -> Structure.value(
+                ResultIterator.wrap(ResultIterator.appendResultValue(left.deconstruct(), right.deconstruct()))))
+        ).collect(Collectors.toSet()));
   }
 }

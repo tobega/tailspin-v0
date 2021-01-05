@@ -10,6 +10,7 @@ public class Lang {
     builtIns.put("or", new BitwiseOperator.Or());
     builtIns.put("xor", new BitwiseOperator.Xor());
     builtIns.put("union", new UnionOperator());
+    builtIns.put("join", new JoinOperator());
   }
   private Lang() {}
 }
