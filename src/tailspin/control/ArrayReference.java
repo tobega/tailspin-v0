@@ -118,10 +118,6 @@ class ArrayReference extends Reference {
         .collect(Collectors.joining(";")) + ")";
   }
 
-  public interface ArrayOperation {
-    Object invoke(TailspinArray array, int index);
-  }
-
   public static TailspinArray getThawed(TailspinArray array, int index) {
     TailspinArray next = (TailspinArray) array.get(index);
     if (!next.isThawed()) {

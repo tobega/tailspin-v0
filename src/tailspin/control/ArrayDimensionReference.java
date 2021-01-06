@@ -16,11 +16,14 @@ public abstract class ArrayDimensionReference implements DimensionReference {
   /* Returns a stream of ints resolved according to resolveIndex */
   public abstract Object getIndices(DimensionContextKeywordResolver dimension, Object it, Scope scope);
 
-  @Override
-  public Object resolveDimensionDereference(boolean forMutation,
+  private interface ArrayOperation {
+    Object invoke(TailspinArray array, int index);
+  }
+
+  private Object resolveDimensionDereference(boolean forMutation,
       Iterator<DimensionReference> lowerDimensions,
-      TailspinArray array, ArrayReference.ArrayOperation bottomOperation, Object it, Scope scope) {
-    ArrayReference.ArrayOperation operation =
+      TailspinArray array, ArrayOperation bottomOperation, Object it, Scope scope) {
+    ArrayOperation operation =
         lowerDimensions.hasNext() ? (forMutation ? ArrayReference::getThawed : TailspinArray::get) : bottomOperation;
     Object dimensionResult;
     DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(array.length(),
@@ -48,7 +51,7 @@ public abstract class ArrayDimensionReference implements DimensionReference {
         return dimensionResult;
       }
     }
-    DimensionReference nextDimension = lowerDimensions.next();
+    ArrayDimensionReference nextDimension = (ArrayDimensionReference) lowerDimensions.next();
     if (dimensionResult instanceof Stream) {
       @SuppressWarnings("unchecked")
       Stream<TailspinArray> results = (Stream<TailspinArray>) dimensionResult;
@@ -64,22 +67,22 @@ public abstract class ArrayDimensionReference implements DimensionReference {
   }
 
   @Override
-  public Object get(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+  public Object get(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
       Scope scope) {
-    return resolveDimensionDereference(false, lowerDimensions, array, TailspinArray::get, it, scope);
+    return resolveDimensionDereference(false, lowerDimensions, (TailspinArray) parent, TailspinArray::get, it, scope);
   }
 
   @Override
-  public void set(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it, Scope scope,
+  public void set(Iterator<DimensionReference> lowerDimensions, Object parent, Object it, Scope scope,
       ResultIterator ri) {
-    resolveDimensionDereference(true, lowerDimensions, array,
+    resolveDimensionDereference(true, lowerDimensions, (TailspinArray) parent,
         (a, i) -> a.set(i, Objects.requireNonNull(ri.getNextResult())), it, scope);
   }
 
   @Override
-  public Object delete(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+  public Object delete(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
       Scope scope) {
-    class ElementRemover implements ArrayReference.ArrayOperation {
+    class ElementRemover implements ArrayOperation {
       final TreeSet<Integer> removed = new TreeSet<>();
       final List<TailspinArray> arrays = new ArrayList<>();
       TailspinArray currentArray = null;
@@ -103,16 +106,16 @@ public abstract class ArrayDimensionReference implements DimensionReference {
       }
     }
     ElementRemover remover = new ElementRemover();
-    Object result = resolveDimensionDereference(true, lowerDimensions, array, remover, it, scope);
+    Object result = resolveDimensionDereference(true, lowerDimensions, (TailspinArray) parent, remover, it, scope);
     remover.doRemovals();
     return result;
   }
 
   @Override
-  public void merge(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+  public void merge(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
       Scope scope,
       ResultIterator ri) {
-    class Merger implements ArrayReference.ArrayOperation {
+    class Merger implements ArrayOperation {
 
       int invocations = 0;
       TailspinArray lastArray;
@@ -144,7 +147,7 @@ public abstract class ArrayDimensionReference implements DimensionReference {
       }
     }
     Merger merger = new Merger();
-    resolveDimensionDereference(true, lowerDimensions, array, merger, it, scope);
+    resolveDimensionDereference(true, lowerDimensions, (TailspinArray) parent, merger, it, scope);
     merger.resolveSingleElementMergeMany();
   }
 }

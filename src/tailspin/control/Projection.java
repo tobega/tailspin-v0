@@ -3,7 +3,6 @@ package tailspin.control;
 import java.util.Iterator;
 import java.util.Set;
 import tailspin.interpreter.Scope;
-import tailspin.types.TailspinArray;
 
 public class Projection implements DimensionReference {
 
@@ -14,31 +13,24 @@ public class Projection implements DimensionReference {
   }
 
   @Override
-  public Object resolveDimensionDereference(boolean forMutation,
-      Iterator<DimensionReference> lowerDimensions, TailspinArray array,
-      ArrayReference.ArrayOperation bottomOperation, Object it, Scope scope) {
-    return null;
-  }
-
-  @Override
-  public Object get(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+  public Object get(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
       Scope scope) {
     return null;
   }
 
   @Override
-  public void set(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+  public void set(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
       Scope scope, ResultIterator ri) {
   }
 
   @Override
-  public Object delete(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+  public Object delete(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
       Scope scope) {
     return null;
   }
 
   @Override
-  public void merge(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+  public void merge(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
       Scope scope, ResultIterator ri) {
   }
 }
