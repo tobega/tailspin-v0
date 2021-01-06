@@ -120,7 +120,7 @@ public abstract class Reference implements Value {
     throw new IllegalArgumentException("Unknown value type " + value.getClass().getName());
   }
 
-  void collect(Object it, Object collector) {
+  public static void collect(Object it, Object collector) {
     if (collector instanceof Structure) {
       Structure collectorMap = (Structure) collector;
       ResultIterator.forEach(it,

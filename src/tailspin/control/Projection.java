@@ -19,4 +19,26 @@ public class Projection implements DimensionReference {
       ArrayReference.ArrayOperation bottomOperation, Object it, Scope scope) {
     return null;
   }
+
+  @Override
+  public Object get(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+      Scope scope) {
+    return null;
+  }
+
+  @Override
+  public void set(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+      Scope scope, ResultIterator ri) {
+  }
+
+  @Override
+  public Object delete(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+      Scope scope) {
+    return null;
+  }
+
+  @Override
+  public void merge(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+      Scope scope, ResultIterator ri) {
+  }
 }

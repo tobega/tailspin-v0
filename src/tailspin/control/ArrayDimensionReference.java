@@ -1,10 +1,15 @@
 package tailspin.control;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
+import tailspin.types.Freezable;
 import tailspin.types.TailspinArray;
 
 public abstract class ArrayDimensionReference implements DimensionReference {
@@ -56,5 +61,90 @@ public abstract class ArrayDimensionReference implements DimensionReference {
       return nextDimension.resolveDimensionDereference(forMutation, lowerDimensions, previousDimension, bottomOperation,
           it, scope);
     }
+  }
+
+  @Override
+  public Object get(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+      Scope scope) {
+    return resolveDimensionDereference(false, lowerDimensions, array, TailspinArray::get, it, scope);
+  }
+
+  @Override
+  public void set(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it, Scope scope,
+      ResultIterator ri) {
+    resolveDimensionDereference(true, lowerDimensions, array,
+        (a, i) -> a.set(i, Objects.requireNonNull(ri.getNextResult())), it, scope);
+  }
+
+  @Override
+  public Object delete(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+      Scope scope) {
+    class ElementRemover implements ArrayReference.ArrayOperation {
+      final TreeSet<Integer> removed = new TreeSet<>();
+      final List<TailspinArray> arrays = new ArrayList<>();
+      TailspinArray currentArray = null;
+
+      @Override
+      public Object invoke(TailspinArray array, int index) {
+        removed.add(index);
+        if (array != currentArray) {
+          currentArray = array;
+          arrays.add(array);
+        }
+        return array.get(index);
+      }
+
+      public void doRemovals() {
+        for (TailspinArray array : arrays) {
+          for (int i : removed.descendingSet()) {
+            array.remove(i);
+          }
+        }
+      }
+    }
+    ElementRemover remover = new ElementRemover();
+    Object result = resolveDimensionDereference(true, lowerDimensions, array, remover, it, scope);
+    remover.doRemovals();
+    return result;
+  }
+
+  @Override
+  public void merge(Iterator<DimensionReference> lowerDimensions, TailspinArray array, Object it,
+      Scope scope,
+      ResultIterator ri) {
+    class Merger implements ArrayReference.ArrayOperation {
+
+      int invocations = 0;
+      TailspinArray lastArray;
+      int lastIndex;
+
+      @Override
+      public Object invoke(TailspinArray array, int index) {
+        invocations++;
+        lastArray = array;
+        lastIndex = index;
+        Freezable<?> collector = (Freezable<?>) array.get(index);
+        if (!collector.isThawed()) {
+          collector = collector.thawedCopy();
+          array.set(index, collector);
+        }
+        Reference.collect(Objects.requireNonNull(ri.getNextResult()), collector);
+        return null;
+      }
+
+      void resolveSingleElementMergeMany() {
+        if (invocations == 1) {
+          Freezable<?> collector = (Freezable<?>) lastArray.get(lastIndex);
+          if (!collector.isThawed()) {
+            collector = collector.thawedCopy();
+            lastArray.set(lastIndex, collector);
+          }
+          Reference.collect(ri, collector);
+        }
+      }
+    }
+    Merger merger = new Merger();
+    resolveDimensionDereference(true, lowerDimensions, array, merger, it, scope);
+    merger.resolveSingleElementMergeMany();
   }
 }
