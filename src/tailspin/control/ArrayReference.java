@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import tailspin.interpreter.Scope;
+import tailspin.types.Freezable;
 import tailspin.types.TailspinArray;
 
 class ArrayReference extends Reference {
@@ -21,15 +22,14 @@ class ArrayReference extends Reference {
   @Override
   public Object getValue(Object it, Scope scope) {
     Object parentValue = parent.getValue(it, scope);
+    if (parentValue == null) {
+      throw new IllegalStateException("Unknown value " + parent);
+    }
     if (parentValue instanceof byte[]) {
       return createByteSlice((byte[]) parentValue, it, scope);
     }
-    TailspinArray array = (TailspinArray) parentValue;
-    if (array == null) {
-      throw new IllegalStateException("Unknown array " + parent);
-    }
     Iterator<DimensionReference> lowerDimensions = dimensions.iterator();
-    return lowerDimensions.next().get(lowerDimensions, array, it, scope);
+    return lowerDimensions.next().get(lowerDimensions, parentValue, it, scope);
   }
 
   private byte[] createByteSlice(byte[] parentValue, Object it, Scope scope) {
@@ -73,9 +73,9 @@ class ArrayReference extends Reference {
     if (!isMutable()) {
       throw new UnsupportedOperationException(toString() + " is not deletable");
     }
-    TailspinArray array = (TailspinArray) parent.getValue(it, scope);
+    Freezable<?> array = (Freezable<?>) parent.getValue(it, scope);
     if (array == null) {
-      throw new IllegalStateException("Unknown array " + parent);
+      throw new IllegalStateException("Unknown value " + parent);
     }
     if (!array.isThawed()) {
       array = array.thawedCopy();
@@ -96,9 +96,9 @@ class ArrayReference extends Reference {
       throw new UnsupportedOperationException(toString() + " is not mutable");
     }
     ResultIterator ri = ResultIterator.wrap(value);
-    TailspinArray array = (TailspinArray) parent.getValue(it, scope);
+    Freezable<?> array = (Freezable<?>) parent.getValue(it, scope);
     if (array == null) {
-      throw new IllegalStateException("Unknown array " + parent);
+      throw new IllegalStateException("Unknown value " + parent);
     }
     if (!array.isThawed()) {
       array = array.thawedCopy();

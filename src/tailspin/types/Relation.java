@@ -52,4 +52,16 @@ public class Relation {
                 ResultIterator.wrap(ResultIterator.appendResultValue(left.deconstruct(), right.deconstruct()))))
         ).collect(Collectors.toSet()));
   }
+
+  public Relation project(Set<String> ontoKeys) {
+    if (!keys.containsAll(ontoKeys)) throw new IllegalArgumentException("Cannot project onto unknown keys " + ontoKeys);
+    return new Relation(ontoKeys, contents.stream().map(s -> {
+      Structure projected = s.thawedCopy();
+      for (String key : s.keySet()) {
+        if (!ontoKeys.contains(key)) projected.remove(key);
+      }
+      projected.freeze();
+      return projected;
+    }).collect(Collectors.toSet()));
+  }
 }
