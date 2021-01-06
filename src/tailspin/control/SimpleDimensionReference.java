@@ -3,7 +3,7 @@ package tailspin.control;
 import tailspin.interpreter.Scope;
 import tailspin.types.TailspinArray;
 
-public class SimpleDimensionReference implements DimensionReference {
+public class SimpleDimensionReference extends ArrayDimensionReference {
   private final Value simpleValue;
 
   public SimpleDimensionReference(Value simpleValue) {

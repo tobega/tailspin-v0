@@ -2,12 +2,12 @@ package tailspin.control;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
 import tailspin.types.Freezable;
 import tailspin.types.TailspinArray;
@@ -32,7 +32,8 @@ class ArrayReference extends Reference {
     if (array == null) {
       throw new IllegalStateException("Unknown array " + parent);
     }
-    return resolveDimensionDereference(false, 0, array, TailspinArray::get, it, scope);
+    Iterator<DimensionReference> lowerDimensions = dimensions.iterator();
+    return lowerDimensions.next().resolveDimensionDereference(false, lowerDimensions, array, TailspinArray::get, it, scope);
   }
 
   private byte[] createByteSlice(byte[] parentValue, Object it, Scope scope) {
@@ -44,7 +45,7 @@ class ArrayReference extends Reference {
         true);
     scope.pushArithmeticContextKeywordResolver(resolver);
     try {
-      Object idx = dimensions.get(0).getIndices(resolver, it, scope);
+      Object idx = ((ArrayDimensionReference) dimensions.get(0)).getIndices(resolver, it, scope);
       if (idx instanceof Number) {
         result.write(getExtended(parentValue, ((Number) idx).intValue()));
       } else if (idx instanceof IntStream) {
@@ -108,7 +109,8 @@ class ArrayReference extends Reference {
       }
     }
     ElementRemover remover = new ElementRemover();
-    Object result = resolveDimensionDereference(true, 0, array, remover, it, scope);
+    Iterator<DimensionReference> lowerDimensions = dimensions.iterator();
+    Object result = lowerDimensions.next().resolveDimensionDereference(true, lowerDimensions, array, remover, it, scope);
     remover.doRemovals();
     return result;
   }
@@ -132,6 +134,7 @@ class ArrayReference extends Reference {
       array = array.thawedCopy();
       parent.setValue(false, array, it, scope);
     }
+    Iterator<DimensionReference> lowerDimensions = dimensions.iterator();
     if (merge) {
       class Merger implements ArrayOperation {
 
@@ -165,10 +168,10 @@ class ArrayReference extends Reference {
         }
       }
       Merger merger = new Merger();
-      resolveDimensionDereference(true, 0, array, merger, it, scope);
+      lowerDimensions.next().resolveDimensionDereference(true, lowerDimensions, array, merger, it, scope);
       merger.resolveSingleElementMergeMany();
     } else {
-      resolveDimensionDereference(true, 0, array,
+      lowerDimensions.next().resolveDimensionDereference(true, lowerDimensions, array,
           (a, i) -> a.set(i, Objects.requireNonNull(ri.getNextResult())), it, scope);
     }
   }
@@ -179,62 +182,16 @@ class ArrayReference extends Reference {
         .collect(Collectors.joining(";")) + ")";
   }
 
-  private interface ArrayOperation {
+  public interface ArrayOperation {
     Object invoke(TailspinArray array, int index);
   }
 
-  private static TailspinArray getThawed(TailspinArray array, int index) {
+  public static TailspinArray getThawed(TailspinArray array, int index) {
     TailspinArray next = (TailspinArray) array.get(index);
     if (!next.isThawed()) {
       next = next.thawedCopy();
       array.set(index, next);
     }
     return next;
-  }
-
-  private Object resolveDimensionDereference(boolean forMutation, int currentDereference, TailspinArray array,
-      ArrayOperation bottomOperation, Object it, Scope scope) {
-    ArrayOperation operation =
-        currentDereference == dimensions.size() - 1 ? bottomOperation
-            : (forMutation ? ArrayReference::getThawed : TailspinArray::get);
-    DimensionReference dimensionReference = dimensions.get(currentDereference);
-    Object dimensionResult;
-    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(array.length(),
-        false);
-    scope.pushArithmeticContextKeywordResolver(resolver);
-    try {
-      Object idx = dimensionReference.getIndices(resolver, it, scope);
-      if (idx instanceof Number) {
-        dimensionResult = operation.invoke(array, ((Number) idx).intValue());
-      } else if (idx instanceof IntStream) {
-        dimensionResult =
-            ((IntStream) idx).mapToObj(i -> operation.invoke(array, ((Number) i).intValue()));
-      } else {
-        throw new UnsupportedOperationException(
-            "Unable to dereference array by "
-                + (idx == null ? "index out of bounds" : " " + idx.getClass().getName()));
-      }
-    } finally{ // This should probably come after all streams are resolved
-      scope.popArithmeticContextKeywordResolver();
-    }
-    if (currentDereference == dimensions.size() - 1) {
-      if (dimensionResult instanceof Stream) {
-        return TailspinArray.value(((Stream<?>) dimensionResult).collect(Collectors.toList()));
-      } else {
-        return dimensionResult;
-      }
-    }
-    if (dimensionResult instanceof Stream) {
-      @SuppressWarnings("unchecked")
-      Stream<TailspinArray> results = (Stream<TailspinArray>) dimensionResult;
-      return TailspinArray.value(results
-          .map(a -> resolveDimensionDereference(forMutation, currentDereference + 1, a, bottomOperation, it,
-              scope))
-          .collect(Collectors.toList()));
-    } else {
-      TailspinArray previousDimension = (TailspinArray) dimensionResult;
-      return resolveDimensionDereference(forMutation, currentDereference + 1, previousDimension, bottomOperation,
-          it, scope);
-    }
   }
 }

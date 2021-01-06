@@ -1,8 +1,12 @@
 package tailspin.control;
 
+import java.util.Iterator;
 import tailspin.interpreter.Scope;
+import tailspin.types.TailspinArray;
 
 public interface DimensionReference {
-  /* Returns a stream of ints resolved according to resolveIndex */
-  Object getIndices(DimensionContextKeywordResolver dimension, Object it, Scope scope);
+
+  Object resolveDimensionDereference(boolean forMutation,
+      Iterator<DimensionReference> lowerDimensions,
+      TailspinArray array, ArrayReference.ArrayOperation bottomOperation, Object it, Scope scope);
 }

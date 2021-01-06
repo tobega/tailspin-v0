@@ -139,6 +139,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMultiValueDimension(TailspinParser.MultiValueDimensionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#projection}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProjection(TailspinParser.ProjectionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#arrayLiteral}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

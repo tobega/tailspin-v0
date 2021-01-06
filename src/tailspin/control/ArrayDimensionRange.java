@@ -3,7 +3,7 @@ package tailspin.control;
 import java.util.stream.IntStream;
 import tailspin.interpreter.Scope;
 
-public class ArrayDimensionRange implements DimensionReference {
+public class ArrayDimensionRange extends ArrayDimensionReference {
 
   private final RangeGenerator rangeGenerator;
 

@@ -556,7 +556,7 @@ ranges and the dimension keywords in the array, e.g. `$([last, 1..last-1])` to r
 elements in an literal array selector are the same ones that are allowed as direct selectors.
 
 All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semi-colon `;`, e.g.
-`$(1..3; 2)` to select the second element of each of the first three dimensions (returns a one-dimensional array of size 3,
+`$(1..3; 2)` to select the second element of each of the first three elements of the first dimension (returns a one-dimensional array of size 3,
 although the elements could be arrays). Selecting only a few dimensions will select everything from the remaining dimensions
 as a new array, but you cannot dereference it immediately in the same step.
 
@@ -599,6 +599,10 @@ Two relations with the same set of keys can be appended together to form the uni
 Two relations can be combined with the `join` operator. The new relation will have keys that are the union of
 the keys of both. If there are no common keys, a full cross-product will be created, otherwise the entries will first
 be grouped on equality of common keys and a cross-product will be created within each equivalence group.
+
+A relation can be projected onto a subset of the keys by referencing the relation, appending an opening parenthesis,
+a list of keys for the projection within curly braces and a closing parenthesis, e.g. `$myRelation({x:})` will select all
+the x-values, and only the x-values, in the relation. Note that it is a set, so duplicates will be eliminated.
 
 ## Bytes
 Bytes values represent a sequence of bytes and can be created through a [bytes literal](#bytes-literal)

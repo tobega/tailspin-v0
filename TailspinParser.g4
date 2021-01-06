@@ -41,11 +41,13 @@ structureReference: FieldReference (LeftParen arrayReference RightParen)?;
 
 arrayReference: dimensionReference (SemiColon dimensionReference)*;
 
-dimensionReference: simpleDimension|multiValueDimension;
+dimensionReference: simpleDimension|multiValueDimension|projection;
 
 simpleDimension: sourceReference|arithmeticExpression|rangeLiteral;
 
 multiValueDimension: LeftBracket simpleDimension (Comma simpleDimension)* RightBracket;
+
+projection: LeftBrace (key Comma?)+ RightBrace;
 
 arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valueProduction)* RightBracket;
 

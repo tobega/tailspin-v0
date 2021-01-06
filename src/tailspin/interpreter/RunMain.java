@@ -17,6 +17,7 @@ import tailspin.arithmetic.ArithmeticOperation;
 import tailspin.arithmetic.IntegerConstant;
 import tailspin.arithmetic.IntegerExpression;
 import tailspin.control.ArrayDimensionRange;
+import tailspin.control.ArrayDimensionReference;
 import tailspin.control.ArrayTemplates;
 import tailspin.control.Block;
 import tailspin.control.Bound;
@@ -32,6 +33,7 @@ import tailspin.control.MultiValueDimension;
 import tailspin.control.OperatorApplication;
 import tailspin.control.ProcessorDefinition;
 import tailspin.control.ProcessorMessage;
+import tailspin.control.Projection;
 import tailspin.control.RangeGenerator;
 import tailspin.control.Reference;
 import tailspin.control.SendToTemplates;
@@ -271,15 +273,19 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
       if (dimCtx.simpleDimension() != null) {
         dimensions.add(visitSimpleDimension(dimCtx.simpleDimension()));
-      } else {
+      } else if (dimCtx.multiValueDimension() != null){
         dimensions.add(visitMultiValueDimension(dimCtx.multiValueDimension()));
+      } else if (dimCtx.projection() != null) {
+        dimensions.add(visitProjection(dimCtx.projection()));
+      } else {
+        throw new UnsupportedOperationException("Unknown dimension reference " + ctx.getText());
       }
     }
     return reference.array(dimensions);
   }
 
   @Override
-  public DimensionReference visitSimpleDimension(TailspinParser.SimpleDimensionContext ctx) {
+  public ArrayDimensionReference visitSimpleDimension(TailspinParser.SimpleDimensionContext ctx) {
       if (ctx.arithmeticExpression() != null) {
         return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()));
       } else if (ctx.rangeLiteral() != null) {
@@ -297,11 +303,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public DimensionReference visitMultiValueDimension(TailspinParser.MultiValueDimensionContext ctx) {
-    List<DimensionReference> values = new ArrayList<>();
+    List<ArrayDimensionReference> values = new ArrayList<>();
     for (TailspinParser.SimpleDimensionContext sctx : ctx.simpleDimension()) {
       values.add(visitSimpleDimension(sctx));
     }
     return new MultiValueDimension(values);
+  }
+
+  @Override
+  public DimensionReference visitProjection(TailspinParser.ProjectionContext ctx) {
+    return new Projection(ctx.key().stream().map(kc -> kc.localIdentifier().getText())
+        .collect(Collectors.toSet()));
   }
 
   @Override

@@ -4,17 +4,17 @@ import java.util.List;
 import java.util.stream.IntStream;
 import tailspin.interpreter.Scope;
 
-public class MultiValueDimension implements DimensionReference {
-  private final List<DimensionReference> dimensionReferences;
+public class MultiValueDimension extends ArrayDimensionReference {
+  private final List<ArrayDimensionReference> dimensionReferences;
 
-  public MultiValueDimension(List<DimensionReference> dimensionReferences) {
+  public MultiValueDimension(List<ArrayDimensionReference> dimensionReferences) {
     this.dimensionReferences = dimensionReferences;
   }
 
   @Override
   public Object getIndices(DimensionContextKeywordResolver dimension, Object it, Scope scope) {
     IntStream result = IntStream.empty();
-    for (DimensionReference dimensionReference : dimensionReferences) {
+    for (ArrayDimensionReference dimensionReference : dimensionReferences) {
       Object index = dimensionReference.getIndices(dimension, it, scope);
       if (!(index instanceof IntStream)) {
         index = IntStream.of(((Number) index).intValue());
