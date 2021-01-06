@@ -2,6 +2,7 @@ package tailspin.types;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
@@ -11,7 +12,7 @@ import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.literals.KeyValueExpression;
 
-public class Relation {
+public class Relation implements Processor {
   private final Set<Structure> contents;
   private final Set<String> keys;
 
@@ -69,4 +70,10 @@ public class Relation {
       projected.freeze();
       return projected;
     }).collect(Collectors.toSet()));  }
+
+  @Override
+  public Transform resolveMessage(String message, Map<String, Object> parameters) {
+    if (message.equals("count")) return (it, params) -> contents.size();
+    throw new UnsupportedOperationException("Unknown relation message " + message);
+  }
 }
