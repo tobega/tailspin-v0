@@ -215,6 +215,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return new DeleteState(reference);
     }
     String identifier = ctx.anyIdentifier() == null ? "" : visitAnyIdentifier(ctx.anyIdentifier());
+    if (ctx.Reflexive() != null) identifier = "§";
     return createSourceReference(identifier, ctx.reference(), ctx.Message(), ctx.parameterValues());
   }
 
@@ -237,6 +238,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Reference reference;
     if (identifier.equals("")) {
       reference = Reference.it();
+    } else if (identifier.equals("§")) {
+      reference = Reference.reflexive();
     } else if (identifier.startsWith("@")) {
       reference = Reference.state(identifier.substring(1));
     } else {
@@ -312,8 +315,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public DimensionReference visitProjection(TailspinParser.ProjectionContext ctx) {
-    return new Projection(ctx.key().stream().map(kc -> kc.localIdentifier().getText())
-        .collect(Collectors.toSet()));
+    return new Projection(Stream.concat(ctx.keyValue().stream().map(this::visitKeyValue),
+        ctx.key().stream().map(kc -> {
+          String field = kc.localIdentifier().getText();
+          return new KeyValueExpression(field, Reference.reflexive().field(field));
+        })).collect(Collectors.toList()));
   }
 
   @Override

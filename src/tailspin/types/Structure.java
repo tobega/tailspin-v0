@@ -13,6 +13,7 @@ public class Structure implements Freezable<Structure> {
   private boolean isMutable;
 
   public Structure(Map<String, Object> map, boolean isMutable) {
+    if (isMutable && !(map instanceof TreeMap)) throw new AssertionError();
     this.map = map;
     this.isMutable = isMutable;
   }

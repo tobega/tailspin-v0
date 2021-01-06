@@ -33,6 +33,8 @@ SourceMarker: '$';
 
 DeleteMarker: '^';
 
+Reflexive: '§';
+
 And: '&';
 
 Slash: '/';

@@ -17,4 +17,8 @@ public class KeyValueExpression implements Value {
   public KeyValue getResults(Object it, Scope scope) {
     return new KeyValue(key, value.getResults(it, scope));
   }
+
+  public String getKey() {
+    return key;
+  }
 }

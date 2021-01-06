@@ -31,6 +31,20 @@ public abstract class Reference implements Value {
     return new ArrayReference(this, dimensions);
   }
 
+  private static class ReflexiveIt {
+    final Object it;
+    final Object reflexive;
+
+    private ReflexiveIt(Object it, Object reflexive) {
+      this.it = it;
+      this.reflexive = reflexive;
+    }
+  }
+
+  public static ReflexiveIt pairedReflexive(Object it, Object reflexive) {
+    return new ReflexiveIt(it, reflexive);
+  }
+
   public static Reference it() {
     return itReference;
   }
@@ -38,6 +52,7 @@ public abstract class Reference implements Value {
   private static Reference itReference = new Reference() {
     @Override
     public Object getValue(Object it, Scope scope) {
+      if (it instanceof ReflexiveIt) it = ((ReflexiveIt) it).it;
       if (it == null) {
         throw new IllegalStateException("Cannot reference $, doesn't exist");
       }
@@ -62,6 +77,40 @@ public abstract class Reference implements Value {
     @Override
     public String toString() {
       return "$";
+    }
+  };
+
+  public static Reference reflexive() {
+    return reflexiveReference;
+  }
+
+  private static Reference reflexiveReference = new Reference() {
+    @Override
+    public Object getValue(Object it, Scope scope) {
+      if (!(it instanceof ReflexiveIt)) {
+        throw new IllegalStateException("Cannot reference §, doesn't exist");
+      }
+      return ((ReflexiveIt) it).reflexive;
+    }
+
+    @Override
+    public Object deleteValue(Object it, Scope scope) {
+      throw new UnsupportedOperationException("§ is not deletable");
+    }
+
+    @Override
+    public boolean isMutable() {
+      return false;
+    }
+
+    @Override
+    public void setValue(boolean merge, Object value, Object it, Scope scope) {
+      throw new UnsupportedOperationException("§ is not mutable");
+    }
+
+    @Override
+    public String toString() {
+      return "§";
     }
   };
 

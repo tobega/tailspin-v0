@@ -1,10 +1,15 @@
 package tailspin.types;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import tailspin.control.Reference;
 import tailspin.control.ResultIterator;
+import tailspin.interpreter.Scope;
+import tailspin.literals.KeyValueExpression;
 
 public class Relation {
   private final Set<Structure> contents;
@@ -53,15 +58,15 @@ public class Relation {
         ).collect(Collectors.toSet()));
   }
 
-  public Relation project(Set<String> ontoKeys) {
-    if (!keys.containsAll(ontoKeys)) throw new IllegalArgumentException("Cannot project onto unknown keys " + ontoKeys);
-    return new Relation(ontoKeys, contents.stream().map(s -> {
-      Structure projected = s.thawedCopy();
-      for (String key : s.keySet()) {
-        if (!ontoKeys.contains(key)) projected.remove(key);
+  public Object project(List<KeyValueExpression> projections, Object it, Scope scope) {
+    Set<String> newKeys = projections.stream().map(KeyValueExpression::getKey).collect(Collectors.toSet());
+    return new Relation(newKeys, contents.stream().map(s -> {
+      Structure projected = new Structure(new TreeMap<>(), true);
+      for (KeyValueExpression kve : projections) {
+        KeyValue kv = kve.getResults(Reference.pairedReflexive(it, s), scope);
+        projected.put(kv.getKey(), kv.getValue());
       }
       projected.freeze();
       return projected;
-    }).collect(Collectors.toSet()));
-  }
+    }).collect(Collectors.toSet()));  }
 }

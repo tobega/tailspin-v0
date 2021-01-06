@@ -32,7 +32,7 @@ source: sourceReference
   | operatorExpression
 ;
 
-sourceReference: SourceMarker anyIdentifier? reference Message? parameterValues?
+sourceReference: (SourceMarker anyIdentifier? | Reflexive) reference Message? parameterValues?
   | DeleteMarker stateIdentifier reference;
 
 reference: (LeftParen arrayReference RightParen)? structureReference*;
@@ -47,7 +47,7 @@ simpleDimension: sourceReference|arithmeticExpression|rangeLiteral;
 
 multiValueDimension: LeftBracket simpleDimension (Comma simpleDimension)* RightBracket;
 
-projection: LeftBrace (key Comma?)+ RightBrace;
+projection: LeftBrace ((key|keyValue) Comma?)+ RightBrace;
 
 arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valueProduction)* RightBracket;
 
