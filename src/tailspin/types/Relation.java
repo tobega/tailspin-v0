@@ -1,5 +1,6 @@
 package tailspin.types;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +75,7 @@ public class Relation implements Processor {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("count")) return (it, params) -> contents.size();
+    if (message.equals("list")) return (it, params) -> TailspinArray.value(new ArrayList<>(contents));
     throw new UnsupportedOperationException("Unknown relation message " + message);
   }
 }

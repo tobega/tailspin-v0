@@ -169,4 +169,23 @@ public class Relations {
 
     assertEquals("2", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void list() throws IOException {
+    String program = "{[{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 3}]} -> $::list -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("["));
+    assertTrue(result.endsWith("]"));
+    assertTrue(result.contains("{x=1, y=2}"));
+    assertTrue(result.contains("{x=2, y=3}"));
+    assertTrue(result.contains("{x=1, y=3}"));
+    assertEquals(36, result.length());
+  }
 }
