@@ -74,7 +74,7 @@ public class Relation implements Processor {
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
-    if (message.equals("count")) return (it, params) -> contents.size();
+    if (message.equals("count")) return (it, params) -> (long) contents.size();
     if (message.equals("list")) return (it, params) -> TailspinArray.value(new ArrayList<>(contents));
     throw new UnsupportedOperationException("Unknown relation message " + message);
   }
