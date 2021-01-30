@@ -21,10 +21,11 @@ public class KeyLens implements LensDimension {
   @Override
   public Object get(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
+    Object value = ((Structure) parent).get(key);
     if (lowerDimensions.hasNext()) {
-      throw new UnsupportedOperationException("Not yet implemented digging into key reference");
+      return lowerDimensions.next().get(lowerDimensions, value, it, scope);
     } else {
-      return ((Structure) parent).get(key);
+      return value;
     }
   }
 

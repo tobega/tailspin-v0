@@ -57,7 +57,7 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
     return array.get(i-1);
   }
 
-  public Object set(int i, Object obj) {
+  public Void set(int i, Object obj) {
     if (!isMutable) throw new IllegalStateException();
     array.set(i-1, obj);
     return null;
