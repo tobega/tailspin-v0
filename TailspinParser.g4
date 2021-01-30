@@ -35,13 +35,13 @@ source: sourceReference
 sourceReference: (SourceMarker anyIdentifier? | Reflexive) reference Message? parameterValues?
   | DeleteMarker stateIdentifier reference;
 
-reference: (LeftParen arrayReference RightParen)? structureReference*;
+reference: lens? structureReference*;
 
-structureReference: FieldReference (LeftParen arrayReference RightParen)?;
+structureReference: FieldReference lens?;
 
-arrayReference: dimensionReference (SemiColon dimensionReference)*;
+lens: LeftParen dimensionReference (SemiColon dimensionReference)*  RightParen;
 
-dimensionReference: simpleDimension|multiValueDimension|projection;
+dimensionReference: simpleDimension|multiValueDimension|projection|key;
 
 simpleDimension: sourceReference|arithmeticExpression|rangeLiteral;
 

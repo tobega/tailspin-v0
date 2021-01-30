@@ -565,17 +565,24 @@ and will select the elements that exist within the range, if any, else an empty 
 So, for example, `$(0)` will result in an error, but `$(0..0)` will result in an empty array, which can be handy,
 and `$(0..2)` will return the first two elements just like `$(1..2)`.
 
+The indexing selectors are special [lenses](#projections-and-lenses) that apply only to arrays.
+
 An array is a built-in processor that responds to the following messages:
 * `::length` returns the length of the first dimension.
 
 ## Structures
-A structure is a collection of named values without any inherent order. The field values of a structure
-can be accessed by appending a dot and the field key identifier to the [dereference](#dereference) of the structure.
-E.g. if the structure `{ a: 1 }` is the _current value_, the value `1` can be accessed by `$.a`.
+A structure is a collection of [keyed values](#keyed-values) where the keys are unique, without any inherent order,
+that is, the keys form a set.
 
-A structure is composed of [keyed values](#keyed-values) where the keys are unique. If a key exists, it has a value,
-there is no "null value" as in many other languages. To optionally set a key, use the fact that value chains may
-"dry up" if there are no more values, e.g. `{$maybeValue -> (myKey: $)}`
+If a key exists in a structure, it must have a value. There is no "null value" as in many other languages.
+To optionally set a key, use the fact that value chains may "dry up" if there are no more values,
+e.g. `{$ -> maybeValue -> (myKey: $)}`
+
+The field values of a structure can be accessed by appending a dot and the field key identifier to
+the [dereference](#dereference) of the structure.
+E.g. if the structure `{ a: 1 }` is the _current value_, the value `1` can be accessed by `$.a`.
+A field of a structure can also be accessed by applying a [lens](#projections-and-lenses), e.g. `$(a:)`.
+The point of that is that a lens can be predefined or passed as a parameter, e.g. `def field: (a:); ... $($field)`
 
 ### Keyed values
 A structure can be [deconstructed](#deconstructor) into a stream of keyed values (or key-value pairs).
@@ -590,8 +597,9 @@ A keyed value responds to the following messages:
 * `::value` returns the value.
 
 ## Relations
-A relation, as in relational algebra, is like a set of [structures](#structures) with the same set of keys, similar to a table in a database except there are no
-duplicate rows.
+A relation, as in relational algebra, is like a set of [structures](#structures) (often referred to as tuples in relational algebra)
+with the same set of keys (normally referred to as attributes, because keys have a slightly different meaning in databases).
+A relation is similar to a table in a SQL database except there are no duplicate rows.
 
 Two relations with the same set of keys can be appended together to form the union of the two sets of structures, by the built-in
 `union` [operator](#operator).
@@ -600,9 +608,22 @@ Two relations can be combined with the `join` operator. The new relation will ha
 the keys of both. If there are no common keys, a full cross-product will be created, otherwise the entries will first
 be grouped on equality of common keys and a cross-product will be created within each equivalence group.
 
-A relation can be projected onto a subset of the keys by referencing the relation, appending an opening parenthesis,
+A relation can be [projected](#projections-and-lenses) onto a subset of the keys by referencing the relation, appending an opening parenthesis,
 a list of keys for the projection within curly braces and a closing parenthesis, e.g. `$myRelation({x:})` will select all
 the x-values, and only the x-values, in the relation. Note that it is a set, so duplicates will be eliminated.
+
+A projection can also contain renamings and extensions, where the current structure can be referred to as `§`, e.g. `$myRelation({x:, sum: §.x + §.y, z: §.y})`
+
+Relation values respond to the following messages:
+* `::count` returns the count of distinct structures/tuples in the relation
+* `::list` returns a list of the structures contained in the relation
+
+## Projections and lenses
+An example of a projection is when a three-dimensional scene is displayed on a two-dimensional screen. In Tailspin
+we can project values as partial or transformed representations, for example by selecting some elements of an [array](#arrays).
+
+To do projections we use a lens that looks like `()` except the details of the projection have to be specified between
+the parentheses. A lens is applied directly after a [dereference](#dereference)
 
 ## Bytes
 Bytes values represent a sequence of bytes and can be created through a [bytes literal](#bytes-literal)

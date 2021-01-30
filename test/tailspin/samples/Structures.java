@@ -39,6 +39,19 @@ class Structures {
   }
 
   @Test
+  void fieldProjection() throws IOException {
+    String program = "{ a: 0, b: 1 } -> \\($(a:) ! $(b:) !\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("01", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void literalTransform() throws IOException {
     String program = "1 -> { a: $ - 1, b: $ } -> !OUT::write";
     Tailspin runner =

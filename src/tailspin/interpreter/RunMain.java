@@ -29,6 +29,7 @@ import tailspin.control.DeleteState;
 import tailspin.control.DimensionReference;
 import tailspin.control.Expression;
 import tailspin.control.InlineTemplates;
+import tailspin.control.KeyReference;
 import tailspin.control.MultiValueDimension;
 import tailspin.control.OperatorApplication;
 import tailspin.control.ProcessorDefinition;
@@ -251,17 +252,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   private Reference resolveReference(TailspinParser.ReferenceContext ctx, Reference reference) {
-    if (ctx.arrayReference() != null) {
+    if (ctx.lens() != null) {
       try {
-        reference = resolveArrayDereference(ctx.arrayReference(), reference);
+        reference = resolveLens(ctx.lens(), reference);
       } catch (RuntimeException e) {
         throw new IllegalArgumentException("Failed array dereference: " + ctx.getText(), e);
       }
     }
     for (TailspinParser.StructureReferenceContext sdc : ctx.structureReference()) {
       reference = resolveFieldDereference(reference, sdc.FieldReference().getText().substring(1));
-      if (sdc.arrayReference() != null) {
-        reference = resolveArrayDereference(sdc.arrayReference(), reference);
+      if (sdc.lens() != null) {
+        reference = resolveLens(sdc.lens(), reference);
       }
     }
     return reference;
@@ -271,7 +272,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return reference.field(fieldIdentifier);
   }
 
-  private Reference resolveArrayDereference(TailspinParser.ArrayReferenceContext ctx, Reference reference) {
+  private Reference resolveLens(TailspinParser.LensContext ctx, Reference reference) {
     List<DimensionReference> dimensions = new ArrayList<>();
     for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
       if (dimCtx.simpleDimension() != null) {
@@ -280,6 +281,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         dimensions.add(visitMultiValueDimension(dimCtx.multiValueDimension()));
       } else if (dimCtx.projection() != null) {
         dimensions.add(visitProjection(dimCtx.projection()));
+      } else if (dimCtx.key() != null) {
+        dimensions.add(new KeyReference(dimCtx.key().localIdentifier().getText()));
       } else {
         throw new UnsupportedOperationException("Unknown dimension reference " + ctx.getText());
       }
