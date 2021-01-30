@@ -3,11 +3,11 @@ package tailspin.control;
 import java.util.stream.IntStream;
 import tailspin.interpreter.Scope;
 
-public class ArrayDimensionRange extends ArrayDimensionReference {
+public class RangeArrayLens extends ArrayLens {
 
   private final RangeGenerator rangeGenerator;
 
-  public ArrayDimensionRange(RangeGenerator rangeGenerator) {
+  public RangeArrayLens(RangeGenerator rangeGenerator) {
     this.rangeGenerator = rangeGenerator;
   }
 

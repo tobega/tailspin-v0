@@ -12,7 +12,7 @@ import tailspin.interpreter.Scope;
 import tailspin.types.Freezable;
 import tailspin.types.TailspinArray;
 
-public abstract class ArrayDimensionReference implements DimensionReference {
+public abstract class ArrayLens implements LensDimension {
   /* Returns a stream of ints resolved according to resolveIndex */
   public abstract Object getIndices(DimensionContextKeywordResolver dimension, Object it, Scope scope);
 
@@ -21,10 +21,10 @@ public abstract class ArrayDimensionReference implements DimensionReference {
   }
 
   private Object resolveDimensionDereference(boolean forMutation,
-      Iterator<DimensionReference> lowerDimensions,
+      Iterator<LensDimension> lowerDimensions,
       TailspinArray array, ArrayOperation bottomOperation, Object it, Scope scope) {
     ArrayOperation operation =
-        lowerDimensions.hasNext() ? (forMutation ? ArrayReference::getThawed : TailspinArray::get) : bottomOperation;
+        lowerDimensions.hasNext() ? (forMutation ? LensReference::getThawed : TailspinArray::get) : bottomOperation;
     Object dimensionResult;
     DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(array.length(),
         false);
@@ -51,7 +51,7 @@ public abstract class ArrayDimensionReference implements DimensionReference {
         return dimensionResult;
       }
     }
-    ArrayDimensionReference nextDimension = (ArrayDimensionReference) lowerDimensions.next();
+    ArrayLens nextDimension = (ArrayLens) lowerDimensions.next();
     if (dimensionResult instanceof Stream) {
       @SuppressWarnings("unchecked")
       Stream<TailspinArray> results = (Stream<TailspinArray>) dimensionResult;
@@ -67,20 +67,20 @@ public abstract class ArrayDimensionReference implements DimensionReference {
   }
 
   @Override
-  public Object get(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
+  public Object get(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
     return resolveDimensionDereference(false, lowerDimensions, (TailspinArray) parent, TailspinArray::get, it, scope);
   }
 
   @Override
-  public void set(Iterator<DimensionReference> lowerDimensions, Object parent, Object it, Scope scope,
+  public void set(Iterator<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
       ResultIterator ri) {
     resolveDimensionDereference(true, lowerDimensions, (TailspinArray) parent,
         (a, i) -> a.set(i, Objects.requireNonNull(ri.getNextResult())), it, scope);
   }
 
   @Override
-  public Object delete(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
+  public Object delete(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
     class ElementRemover implements ArrayOperation {
       final TreeSet<Integer> removed = new TreeSet<>();
@@ -112,7 +112,7 @@ public abstract class ArrayDimensionReference implements DimensionReference {
   }
 
   @Override
-  public void merge(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
+  public void merge(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope,
       ResultIterator ri) {
     class Merger implements ArrayOperation {

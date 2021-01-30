@@ -27,8 +27,8 @@ public abstract class Reference implements Value {
     return new FieldReference(this, fieldIdentifier);
   }
 
-  public Reference array(List<DimensionReference> dimensions) {
-    return new ArrayReference(this, dimensions);
+  public Reference lens(List<LensDimension> dimensions) {
+    return new LensReference(this, dimensions);
   }
 
   private static class ReflexiveIt {

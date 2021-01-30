@@ -16,8 +16,8 @@ import tailspin.arithmetic.ArithmeticContextValue;
 import tailspin.arithmetic.ArithmeticOperation;
 import tailspin.arithmetic.IntegerConstant;
 import tailspin.arithmetic.IntegerExpression;
-import tailspin.control.ArrayDimensionRange;
-import tailspin.control.ArrayDimensionReference;
+import tailspin.control.RangeArrayLens;
+import tailspin.control.ArrayLens;
 import tailspin.control.ArrayTemplates;
 import tailspin.control.Block;
 import tailspin.control.Bound;
@@ -26,11 +26,11 @@ import tailspin.control.ComposerDefinition;
 import tailspin.control.Deconstructor;
 import tailspin.control.Definition;
 import tailspin.control.DeleteState;
-import tailspin.control.DimensionReference;
+import tailspin.control.LensDimension;
 import tailspin.control.Expression;
 import tailspin.control.InlineTemplates;
-import tailspin.control.KeyReference;
-import tailspin.control.MultiValueDimension;
+import tailspin.control.KeyLens;
+import tailspin.control.MultiValueArrayLens;
 import tailspin.control.OperatorApplication;
 import tailspin.control.ProcessorDefinition;
 import tailspin.control.ProcessorMessage;
@@ -38,7 +38,7 @@ import tailspin.control.Projection;
 import tailspin.control.RangeGenerator;
 import tailspin.control.Reference;
 import tailspin.control.SendToTemplates;
-import tailspin.control.SimpleDimensionReference;
+import tailspin.control.SingleValueArrayLens;
 import tailspin.control.SinkReference;
 import tailspin.control.SinkValueChain;
 import tailspin.control.SourceReference;
@@ -273,7 +273,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   private Reference resolveLens(TailspinParser.LensContext ctx, Reference reference) {
-    List<DimensionReference> dimensions = new ArrayList<>();
+    List<LensDimension> dimensions = new ArrayList<>();
     for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
       if (dimCtx.simpleDimension() != null) {
         dimensions.add(visitSimpleDimension(dimCtx.simpleDimension()));
@@ -282,22 +282,22 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       } else if (dimCtx.projection() != null) {
         dimensions.add(visitProjection(dimCtx.projection()));
       } else if (dimCtx.key() != null) {
-        dimensions.add(new KeyReference(dimCtx.key().localIdentifier().getText()));
+        dimensions.add(new KeyLens(dimCtx.key().localIdentifier().getText()));
       } else {
         throw new UnsupportedOperationException("Unknown dimension reference " + ctx.getText());
       }
     }
-    return reference.array(dimensions);
+    return reference.lens(dimensions);
   }
 
   @Override
-  public ArrayDimensionReference visitSimpleDimension(TailspinParser.SimpleDimensionContext ctx) {
+  public ArrayLens visitSimpleDimension(TailspinParser.SimpleDimensionContext ctx) {
       if (ctx.arithmeticExpression() != null) {
-        return new SimpleDimensionReference(visitArithmeticExpression(ctx.arithmeticExpression()));
+        return new SingleValueArrayLens(visitArithmeticExpression(ctx.arithmeticExpression()));
       } else if (ctx.rangeLiteral() != null) {
-        return new ArrayDimensionRange(visitRangeLiteral(ctx.rangeLiteral()));
+        return new RangeArrayLens(visitRangeLiteral(ctx.rangeLiteral()));
       } else if (ctx.sourceReference() != null) {
-        return new SimpleDimensionReference(Value.of(visitSourceReference(ctx.sourceReference())));
+        return new SingleValueArrayLens(Value.of(visitSourceReference(ctx.sourceReference())));
       } else {
         throw new UnsupportedOperationException(
             "Unknown way to dereference array at "
@@ -308,16 +308,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public DimensionReference visitMultiValueDimension(TailspinParser.MultiValueDimensionContext ctx) {
-    List<ArrayDimensionReference> values = new ArrayList<>();
+  public LensDimension visitMultiValueDimension(TailspinParser.MultiValueDimensionContext ctx) {
+    List<ArrayLens> values = new ArrayList<>();
     for (TailspinParser.SimpleDimensionContext sctx : ctx.simpleDimension()) {
       values.add(visitSimpleDimension(sctx));
     }
-    return new MultiValueDimension(values);
+    return new MultiValueArrayLens(values);
   }
 
   @Override
-  public DimensionReference visitProjection(TailspinParser.ProjectionContext ctx) {
+  public LensDimension visitProjection(TailspinParser.ProjectionContext ctx) {
     return new Projection(Stream.concat(ctx.keyValue().stream().map(this::visitKeyValue),
         ctx.key().stream().map(kc -> {
           String field = kc.localIdentifier().getText();

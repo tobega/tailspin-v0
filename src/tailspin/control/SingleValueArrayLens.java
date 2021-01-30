@@ -3,10 +3,10 @@ package tailspin.control;
 import tailspin.interpreter.Scope;
 import tailspin.types.TailspinArray;
 
-public class SimpleDimensionReference extends ArrayDimensionReference {
+public class SingleValueArrayLens extends ArrayLens {
   private final Value simpleValue;
 
-  public SimpleDimensionReference(Value simpleValue) {
+  public SingleValueArrayLens(Value simpleValue) {
     this.simpleValue = simpleValue;
   }
 

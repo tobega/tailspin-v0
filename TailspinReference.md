@@ -623,7 +623,18 @@ An example of a projection is when a three-dimensional scene is displayed on a t
 we can project values as partial or transformed representations, for example by selecting some elements of an [array](#arrays).
 
 To do projections we use a lens that looks like `()` except the details of the projection have to be specified between
-the parentheses. A lens is applied directly after a [dereference](#dereference)
+the parentheses. A lens is applied directly after a [dereference](#dereference), e.g. `$(..lens spec..)`
+
+The most common lenses are the ones used to access [array](#arrays) elements, where integer values project onto
+elements of the array. Single integers, `$(3)`, the values `first` and `last`, or integer expressions will access
+a single element of the array. Ranges and lists/arrays of integer values will project onto a new array consisting of
+the selected elements, e.g. `$(3..5)` or `$([3,1,2])`
+
+A key can be used to project onto a field of a [structure](#structures), e.g. `$(x:)`
+
+Array and key lenses allow going further down into multiple dimensions by appending another lens specification after a semi-colon,
+e.g. `$(3; values: ; 5)` to get the 5th element of the values field of the third element of the current value.
+This can more conventionally be written as `$(3).values(5)`, which should be preferred when possible.
 
 ## Bytes
 Bytes values represent a sequence of bytes and can be created through a [bytes literal](#bytes-literal)

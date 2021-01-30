@@ -6,7 +6,7 @@ import tailspin.interpreter.Scope;
 import tailspin.literals.KeyValueExpression;
 import tailspin.types.Relation;
 
-public class Projection implements DimensionReference {
+public class Projection implements LensDimension {
 
   private final List<KeyValueExpression> projections;
 
@@ -15,7 +15,7 @@ public class Projection implements DimensionReference {
   }
 
   @Override
-  public Object get(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
+  public Object get(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
     if (lowerDimensions.hasNext())
       throw new UnsupportedOperationException("Projection cannot extend to lower dimensions");
@@ -24,19 +24,19 @@ public class Projection implements DimensionReference {
   }
 
   @Override
-  public void set(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
+  public void set(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope, ResultIterator ri) {
     throw new UnsupportedOperationException("Cannot set values on a projection");
   }
 
   @Override
-  public Object delete(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
+  public Object delete(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
     throw new UnsupportedOperationException("Cannot delete values on a projection");
   }
 
   @Override
-  public void merge(Iterator<DimensionReference> lowerDimensions, Object parent, Object it,
+  public void merge(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope, ResultIterator ri) {
     throw new UnsupportedOperationException("Cannot merge values on a projection");
   }

@@ -9,12 +9,12 @@ import tailspin.interpreter.Scope;
 import tailspin.types.Freezable;
 import tailspin.types.TailspinArray;
 
-class ArrayReference extends Reference {
+class LensReference extends Reference {
 
   private final Reference parent;
-  private final List<DimensionReference> dimensions;
+  private final List<LensDimension> dimensions;
 
-  ArrayReference(Reference parent, List<DimensionReference> dimensions) {
+  LensReference(Reference parent, List<LensDimension> dimensions) {
     this.parent = parent;
     this.dimensions = dimensions;
   }
@@ -28,7 +28,7 @@ class ArrayReference extends Reference {
     if (parentValue instanceof byte[]) {
       return createByteSlice((byte[]) parentValue, it, scope);
     }
-    Iterator<DimensionReference> lowerDimensions = dimensions.iterator();
+    Iterator<LensDimension> lowerDimensions = dimensions.iterator();
     return lowerDimensions.next().get(lowerDimensions, parentValue, it, scope);
   }
 
@@ -41,7 +41,7 @@ class ArrayReference extends Reference {
         true);
     scope.pushArithmeticContextKeywordResolver(resolver);
     try {
-      Object idx = ((ArrayDimensionReference) dimensions.get(0)).getIndices(resolver, it, scope);
+      Object idx = ((ArrayLens) dimensions.get(0)).getIndices(resolver, it, scope);
       if (idx instanceof Number) {
         result.write(getExtended(parentValue, ((Number) idx).intValue()));
       } else if (idx instanceof IntStream) {
@@ -81,7 +81,7 @@ class ArrayReference extends Reference {
       array = array.thawedCopy();
       parent.setValue(false, array, it, scope);
     }
-    Iterator<DimensionReference> lowerDimensions = dimensions.iterator();
+    Iterator<LensDimension> lowerDimensions = dimensions.iterator();
     return lowerDimensions.next().delete(lowerDimensions, array, it, scope);
   }
 
@@ -104,7 +104,7 @@ class ArrayReference extends Reference {
       array = array.thawedCopy();
       parent.setValue(false, array, it, scope);
     }
-    Iterator<DimensionReference> lowerDimensions = dimensions.iterator();
+    Iterator<LensDimension> lowerDimensions = dimensions.iterator();
     if (merge) {
       lowerDimensions.next().merge(lowerDimensions, array, it, scope, ri);
     } else {
