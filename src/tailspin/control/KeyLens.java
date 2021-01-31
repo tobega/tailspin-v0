@@ -60,6 +60,17 @@ public class KeyLens implements LensDimension {
   @Override
   public void merge(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope, ResultIterator ri) {
-    throw new UnsupportedOperationException("Not yet implemented merge on KeyReference");
+    Structure structure = (Structure) parent;
+    Freezable<?> collector = (Freezable<?>) structure.get(key);
+    if (!collector.isThawed()) {
+      collector = collector.thawedCopy();
+      structure.put(key, collector);
+    }
+    if (lowerDimensions.isEmpty()) {
+      Reference.collect(ri, collector);
+    } else {
+      LensDimension next = lowerDimensions.get(0);
+      next.merge(lowerDimensions.subList(1, lowerDimensions.size()), collector, it, scope, ri);
+    }
   }
 }

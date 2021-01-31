@@ -610,7 +610,8 @@ be grouped on equality of common keys and a cross-product will be created within
 
 A relation can be [projected](#projections-and-lenses) onto a subset of the keys by referencing the relation, appending an opening parenthesis,
 a list of keys for the projection within curly braces and a closing parenthesis, e.g. `$myRelation({x:})` will select all
-the x-values, and only the x-values, in the relation. Note that it is a set, so duplicates will be eliminated.
+the x-values, and only the x-values, in the relation and return a new relation with the new tuples/structures.
+Note that a relation is a set, so duplicate structures will be eliminated.
 
 A projection can also contain renamings and extensions, where the current structure can be referred to as `§`, e.g. `$myRelation({x:, sum: §.x + §.y, z: §.y})`
 
@@ -635,6 +636,16 @@ A key can be used to project onto a field of a [structure](#structures), e.g. `$
 Array and key lenses allow going further down into multiple dimensions by appending another lens specification after a semi-colon,
 e.g. `$(3; values: ; 5)` to get the 5th element of the values field of the third element of the current value.
 This can more conventionally be written as `$(3).values(5)`, which should be preferred when possible.
+
+While the above can be thought of as projections, we normally think of it as indexing into, or finding a position, in an
+array or a structure. As such, the above lenses may also be used to point out positions to change in [mutable state](#templates-state).
+
+Other projections can only be used to get a, possibly transformed, view of an object. These are especially important for working
+with [relations](#relations) and relational algebra, where a "projection" is a transformation of the relation to only view
+a subset of the attributes of each tuple/structure. This projection can also comprise renamings of attributes and extensions with
+calculated attributes, e.g. `$({item:, distance: §.x + §.y})` will remove all attributes except "item" from each tuple and append
+a new attribute "distance" equal to the sum of the previous x and y attributes. Note the use of the reflexive identifier `§` to refer
+to the current tuple being projected, while `$` would still refer to the current value being processed in the chain.
 
 ## Bytes
 Bytes values represent a sequence of bytes and can be created through a [bytes literal](#bytes-literal)
