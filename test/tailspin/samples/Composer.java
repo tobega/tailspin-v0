@@ -1389,7 +1389,7 @@ class Composer {
   @Test
   void regressionDecodeRoman() throws IOException {
     String program =
-        "def digits: [M:1000, CM:900, D:500, CD:400, C:100, XC:90, L:50, XL:40, X:10, IX:9, V:5, IV:4, I:1];\n"
+        "def digits: [(M:1000), (CM:900), (D:500), (CD:400), (C:100), (XC:90), (L:50), (XL:40), (X:10), (IX:9), (V:5), (IV:4), (I:1)];\n"
             + "composer decodeRoman\n"
             + "  @: 1;\n"
             + "  [ <digit>* ] -> \\(@: 0; $... -> @: $@ + $; $@ !\\)\n"

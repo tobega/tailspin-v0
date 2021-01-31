@@ -261,7 +261,7 @@ class Structures {
 
   @Test
   void freeKeyedValueFromChain() throws IOException {
-    String program = "a: 1 -> \\(<=1> 'yes'!\\) -> !OUT::write";
+    String program = "(a: 1 -> \\(<=1> 'yes'!\\)) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

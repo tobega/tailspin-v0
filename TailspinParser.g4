@@ -112,7 +112,6 @@ stateSink: (Range Else)? stateIdentifier reference Colon valueProduction SemiCol
 
 valueChain: source
   | source transform
-  | keyValue
 ;
 
 transform: To templates transform?

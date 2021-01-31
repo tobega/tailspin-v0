@@ -155,9 +155,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitValueChain(TailspinParser.ValueChainContext ctx) {
-    if (ctx.keyValue() != null) {
-      return visitKeyValue(ctx.keyValue());
-    }
     Expression source = visitSource(ctx.source());
     return new ChainStage(source, ctx.transform() == null ? null : visitTransform(ctx.transform()));
   }
