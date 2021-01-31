@@ -483,6 +483,20 @@ public class MutableState {
   }
 
   @Test
+  void deleteStateFieldKeyLens() throws Exception {
+    String program =
+        "templates state\n@: { a: 0, b: $};\n^@(b:) !\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1{a=0}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void deleteStateArrayElement() throws Exception {
     String program =
         "templates state\n@: $;\n^@(2) !\n$@ !\nend state\n" + "[4,5,6] -> state -> !OUT::write";

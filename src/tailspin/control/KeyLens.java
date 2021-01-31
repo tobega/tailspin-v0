@@ -37,7 +37,11 @@ public class KeyLens implements LensDimension {
   @Override
   public Object delete(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
-    throw new UnsupportedOperationException("Not yet implemented delete on KeyReference");
+    if (lowerDimensions.isEmpty()) {
+      Structure structure = (Structure) parent;
+      return structure.remove(key);
+    }
+    throw new UnsupportedOperationException("Not yet implemented deep delete on KeyReference");
   }
 
   @Override
