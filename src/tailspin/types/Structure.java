@@ -80,6 +80,7 @@ public class Structure implements Freezable<Structure> {
   }
 
   public void put(String key, Object value) {
+    if (value == null) throw new NullPointerException("Try to set null");
     if (!isMutable) throw new IllegalStateException();
     map.put(key, value);
   }

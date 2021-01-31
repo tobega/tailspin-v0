@@ -455,6 +455,20 @@ public class MutableState {
   }
 
   @Test
+  void deeplyImmutableDefStructureFromMutableStateKeyLens() throws Exception {
+    String program =
+        "templates state\n@: $;\ndef var: $@;\n@.a(1; b:): 0;\n$var !\nend state\n" + "{a:[{b:1}]} -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a=[{b=1}]}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void deleteStateField() throws Exception {
     String program =
         "templates state\n@: { a: 0, b: $};\n^@.b !\n$@ !\nend state\n" + "1 -> state -> !OUT::write";

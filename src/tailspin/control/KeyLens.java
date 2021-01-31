@@ -15,19 +15,23 @@ public class KeyLens implements LensDimension {
   @Override
   public void set(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope, ResultIterator ri) {
-    throw new UnsupportedOperationException("Not yet implemented set on KeyReference");
+    if (lowerDimensions.isEmpty()) {
+      Structure structure = (Structure) parent;
+      structure.put(key, ri.getNextResult());
+    } else {
+      throw new UnsupportedOperationException("Not yet implemented deep set on KeyLens");
+    }
   }
 
   @Override
   public Object get(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
     Object value = ((Structure) parent).get(key);
-    if (!lowerDimensions.isEmpty()) {
-      LensDimension next = lowerDimensions.get(0);
-      return next.get(lowerDimensions.subList(1, lowerDimensions.size()), value, it, scope);
-    } else {
+    if (lowerDimensions.isEmpty()) {
       return value;
     }
+    LensDimension next = lowerDimensions.get(0);
+    return next.get(lowerDimensions.subList(1, lowerDimensions.size()), value, it, scope);
   }
 
   @Override

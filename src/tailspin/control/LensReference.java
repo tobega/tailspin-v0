@@ -114,8 +114,8 @@ class LensReference extends Reference {
         .collect(Collectors.joining(";")) + ")";
   }
 
-  public static TailspinArray getThawed(TailspinArray array, int index) {
-    TailspinArray next = (TailspinArray) array.get(index);
+  public static Freezable<?> getThawed(TailspinArray array, int index) {
+    Freezable<?> next = (Freezable<?>) array.get(index);
     if (!next.isThawed()) {
       next = next.thawedCopy();
       array.set(index, next);
