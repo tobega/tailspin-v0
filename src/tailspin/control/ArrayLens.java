@@ -1,7 +1,6 @@
 package tailspin.control;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeSet;
@@ -82,41 +81,45 @@ public abstract class ArrayLens implements LensDimension {
   }
 
   @Override
-  public Object get(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
+  public Object get(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
     Object dimensionResult = projectArray((TailspinArray) parent, it, scope, TailspinArray::get);
-    if (!lowerDimensions.hasNext()) {
+    if (lowerDimensions.isEmpty()) {
       return resolveResult(dimensionResult);
     }
-    LensDimension next = lowerDimensions.next();
-    return retrieve(a -> next.get(lowerDimensions, a, it, scope), dimensionResult);
+    LensDimension next = lowerDimensions.get(0);
+    return retrieve(
+        a -> next.get(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope),
+        dimensionResult);
   }
 
   @Override
-  public void set(Iterator<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
+  public void set(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
       ResultIterator ri) {
-    if (!lowerDimensions.hasNext()) {
+    if (lowerDimensions.isEmpty()) {
       Object dimensionResult = projectArray((TailspinArray) parent, it, scope, (a, i) -> a.set(i, Objects.requireNonNull(ri.getNextResult())));
       if (dimensionResult != null) ((Stream<?>) dimensionResult).forEach(foo -> {});
     } else {
       Object dimensionResult = projectArray((TailspinArray) parent, it, scope, LensReference::getThawed);
-      LensDimension next = lowerDimensions.next();
-      mutate(a -> next.set(lowerDimensions, a, it, scope, ri), dimensionResult);
+      LensDimension next = lowerDimensions.get(0);
+      mutate(a -> next.set(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope, ri), dimensionResult);
     }
   }
 
   @Override
-  public Object delete(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
+  public Object delete(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
-    if (!lowerDimensions.hasNext()) {
+    if (lowerDimensions.isEmpty()) {
       ElementRemover remover = new ElementRemover();
       Object result = resolveResult(projectArray((TailspinArray) parent, it, scope, remover));
       remover.doRemovals();
       return result;
     }
     Object dimensionResult = projectArray((TailspinArray) parent, it, scope, LensReference::getThawed);
-    LensDimension next = lowerDimensions.next();
-    return retrieve(a -> next.delete(lowerDimensions, a, it, scope), dimensionResult);
+    LensDimension next = lowerDimensions.get(0);
+    return retrieve(
+        a -> next.delete(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope),
+        dimensionResult);
   }
 
   private static class ElementRemover implements ArrayOperation {
@@ -145,18 +148,20 @@ public abstract class ArrayLens implements LensDimension {
 
 
   @Override
-  public void merge(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
+  public void merge(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope,
       ResultIterator ri) {
-    if (!lowerDimensions.hasNext()) {
+    if (lowerDimensions.isEmpty()) {
       Merger merger = new Merger(ri);
       Object dimensionResult = projectArray((TailspinArray) parent, it, scope, merger);
       if (dimensionResult != null) ((Stream<?>) dimensionResult).forEach(foo -> {});
       merger.resolveSingleElementMergeMany();
     } else {
       Object dimensionResult = projectArray((TailspinArray) parent, it, scope, LensReference::getThawed);
-      LensDimension next = lowerDimensions.next();
-      mutate(a -> next.merge(lowerDimensions, a, it, scope, ri), dimensionResult);
+      LensDimension next = lowerDimensions.get(0);
+      mutate(
+          a -> next.merge(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope, ri),
+          dimensionResult);
     }
   }
 

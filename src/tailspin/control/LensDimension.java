@@ -1,20 +1,20 @@
 package tailspin.control;
 
-import java.util.Iterator;
+import java.util.List;
 import tailspin.interpreter.Scope;
 
 public interface LensDimension {
 
-  void set(Iterator<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
+  void set(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
       ResultIterator ri);
 
-  Object get(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
+  Object get(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope);
 
-  Object delete(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
+  Object delete(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope);
 
-  void merge(Iterator<LensDimension> lowerDimensions, Object parent, Object it,
+  void merge(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope,
       ResultIterator ri);
 }

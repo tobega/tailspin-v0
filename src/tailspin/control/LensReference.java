@@ -1,7 +1,6 @@
 package tailspin.control;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -28,8 +27,7 @@ class LensReference extends Reference {
     if (parentValue instanceof byte[]) {
       return createByteSlice((byte[]) parentValue, it, scope);
     }
-    Iterator<LensDimension> lowerDimensions = dimensions.iterator();
-    return lowerDimensions.next().get(lowerDimensions, parentValue, it, scope);
+    return dimensions.get(0).get(dimensions.subList(1, dimensions.size()), parentValue, it, scope);
   }
 
   private byte[] createByteSlice(byte[] parentValue, Object it, Scope scope) {
@@ -81,8 +79,7 @@ class LensReference extends Reference {
       array = array.thawedCopy();
       parent.setValue(false, array, it, scope);
     }
-    Iterator<LensDimension> lowerDimensions = dimensions.iterator();
-    return lowerDimensions.next().delete(lowerDimensions, array, it, scope);
+    return dimensions.get(0).delete(dimensions.subList(1, dimensions.size()), array, it, scope);
   }
 
   @Override
@@ -104,11 +101,10 @@ class LensReference extends Reference {
       array = array.thawedCopy();
       parent.setValue(false, array, it, scope);
     }
-    Iterator<LensDimension> lowerDimensions = dimensions.iterator();
     if (merge) {
-      lowerDimensions.next().merge(lowerDimensions, array, it, scope, ri);
+      dimensions.get(0).merge(dimensions.subList(1, dimensions.size()), array, it, scope, ri);
     } else {
-      lowerDimensions.next().set(lowerDimensions, array, it, scope, ri);
+      dimensions.get(0).set(dimensions.subList(1, dimensions.size()), array, it, scope, ri);
     }
   }
 
