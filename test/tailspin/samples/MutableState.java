@@ -553,6 +553,21 @@ public class MutableState {
   }
 
   @Test
+  void deleteStateKeyLensArrayElements() throws Exception {
+    String program =
+        "templates state\n@: $;\n^@(foo:;[3,1]) !\n$@ !\nend state\n"
+            + "{foo:[6,7,8]} -> state -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[8, 6]{foo=[7]}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void streamMergeStateArray() throws Exception {
     String program =
         "templates bar\n@: [5..7];\n1..3 -> ..|@: $;\n$@!\nend bar\n"

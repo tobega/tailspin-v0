@@ -2,6 +2,7 @@ package tailspin.control;
 
 import java.util.List;
 import tailspin.interpreter.Scope;
+import tailspin.types.Freezable;
 import tailspin.types.Structure;
 
 public class KeyLens implements LensDimension {
@@ -37,11 +38,17 @@ public class KeyLens implements LensDimension {
   @Override
   public Object delete(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
+    Structure structure = (Structure) parent;
     if (lowerDimensions.isEmpty()) {
-      Structure structure = (Structure) parent;
       return structure.remove(key);
     }
-    throw new UnsupportedOperationException("Not yet implemented deep delete on KeyReference");
+    Freezable<?> child = (Freezable<?>) structure.get(key);
+    if (!child.isThawed()) {
+      child = child.thawedCopy();
+      structure.put(key, child);
+    }
+    LensDimension next = lowerDimensions.get(0);
+    return next.delete(lowerDimensions.subList(1, lowerDimensions.size()), child, it, scope);
   }
 
   @Override
