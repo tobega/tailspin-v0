@@ -16,11 +16,17 @@ public class KeyLens implements LensDimension {
   @Override
   public void set(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope, ResultIterator ri) {
+    Structure structure = (Structure) parent;
     if (lowerDimensions.isEmpty()) {
-      Structure structure = (Structure) parent;
       structure.put(key, ri.getNextResult());
     } else {
-      throw new UnsupportedOperationException("Not yet implemented deep set on KeyLens");
+      Freezable<?> child = (Freezable<?>) structure.get(key);
+      if (!child.isThawed()) {
+        child = child.thawedCopy();
+        structure.put(key, child);
+      }
+      LensDimension next = lowerDimensions.get(0);
+      next.set(lowerDimensions.subList(1, lowerDimensions.size()), child, it, scope, ri);
     }
   }
 
