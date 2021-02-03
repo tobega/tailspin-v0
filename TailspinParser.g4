@@ -41,7 +41,7 @@ structureReference: FieldReference lens?;
 
 lens: LeftParen dimensionReference (SemiColon dimensionReference)*  RightParen;
 
-dimensionReference: simpleDimension|multiValueDimension|projection|key;
+dimensionReference: simpleDimension|multiValueDimension|projection|key|localIdentifier;
 
 simpleDimension: sourceReference|arithmeticExpression|rangeLiteral;
 
@@ -87,7 +87,7 @@ templatesReference:  anyIdentifier reference Message? parameterValues?;
 
 parameterValues: And LeftBrace (parameterValue Comma?)+ RightBrace;
 
-parameterValue: key (valueChain|templatesReference);
+parameterValue: key (valueChain|templatesReference|lens);
 
 templatesBody: block matchTemplate*
   | matchTemplate+

@@ -837,4 +837,77 @@ class Templates {
 
     assertEquals("2", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void templatesParameterResolvesInDefinitionScope() throws Exception {
+    String program =
+        "templates foo $+1 ! end foo\n"
+            + "templates bar&{baz:}\n"
+            + "  templates foo $+5 ! end foo\n"
+            + "  $ -> baz !\n"
+            + "end bar\n"
+            + "1 -> bar&{baz: foo} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void lensAsParameter() throws Exception {
+    String program =
+        "def a: [{foo:5}, {foo:7}, {foo:9}];"
+            + "templates bar&{baz:}\n"
+            + "  $ + $a(baz) !\n"
+            + "end bar\n"
+            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("8", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void lensAsParameterComposes() throws Exception {
+    String program =
+        "def a: [{foo:[5, 2]}, {foo:[7, 3]}, {foo:[9, 4]}];"
+            + "source bar&{baz:}\n"
+            + "  $a(baz; 1) !\n"
+            + "end bar\n"
+            + "$bar&{baz: (2; foo:)} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("7", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void lensParameterResolvesInDefiningScope() throws Exception {
+    String program =
+        "def a: [{foo:5}, {foo:7}, {foo:9}];"
+            + "source bar&{baz:}\n"
+            + "  2 -> $a(baz) !\n"
+            + "end bar\n"
+            + "1 -> $bar&{baz: ($; foo:)} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
 }

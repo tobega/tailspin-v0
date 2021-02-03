@@ -16,7 +16,6 @@ import tailspin.arithmetic.ArithmeticContextValue;
 import tailspin.arithmetic.ArithmeticOperation;
 import tailspin.arithmetic.IntegerConstant;
 import tailspin.arithmetic.IntegerExpression;
-import tailspin.control.RangeArrayLens;
 import tailspin.control.ArrayLens;
 import tailspin.control.ArrayTemplates;
 import tailspin.control.Block;
@@ -24,17 +23,19 @@ import tailspin.control.Bound;
 import tailspin.control.ChainStage;
 import tailspin.control.ComposerDefinition;
 import tailspin.control.Deconstructor;
+import tailspin.control.DefinedLens;
 import tailspin.control.Definition;
 import tailspin.control.DeleteState;
-import tailspin.control.LensDimension;
 import tailspin.control.Expression;
 import tailspin.control.InlineTemplates;
 import tailspin.control.KeyLens;
+import tailspin.control.LensDimension;
 import tailspin.control.MultiValueArrayLens;
 import tailspin.control.OperatorApplication;
 import tailspin.control.ProcessorDefinition;
 import tailspin.control.ProcessorMessage;
 import tailspin.control.Projection;
+import tailspin.control.RangeArrayLens;
 import tailspin.control.RangeGenerator;
 import tailspin.control.Reference;
 import tailspin.control.SendToTemplates;
@@ -100,6 +101,7 @@ import tailspin.parser.TailspinParserBaseVisitor;
 import tailspin.testing.Assertion;
 import tailspin.transform.Composer;
 import tailspin.transform.ExpectedParameter;
+import tailspin.transform.Lens;
 import tailspin.transform.MatchTemplate;
 import tailspin.transform.Operator;
 import tailspin.transform.ProcessorConstructor;
@@ -270,6 +272,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   private Reference resolveLens(TailspinParser.LensContext ctx, Reference reference) {
+    return reference.lens(visitLens(ctx));
+  }
+
+  @Override
+  public Lens visitLens(TailspinParser.LensContext ctx) {
     List<LensDimension> dimensions = new ArrayList<>();
     for (DimensionReferenceContext dimCtx : ctx.dimensionReference()) {
       if (dimCtx.simpleDimension() != null) {
@@ -280,11 +287,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         dimensions.add(visitProjection(dimCtx.projection()));
       } else if (dimCtx.key() != null) {
         dimensions.add(new KeyLens(dimCtx.key().localIdentifier().getText()));
+      } else if (dimCtx.localIdentifier() != null) {
+        dimensions.add(new DefinedLens(dimCtx.localIdentifier().getText()));
       } else {
         throw new UnsupportedOperationException("Unknown dimension reference " + ctx.getText());
       }
     }
-    return reference.lens(dimensions);
+    return new Lens(dimensions);
   }
 
   @Override
@@ -672,6 +681,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.templatesReference() != null) {
       Reference reference = visitTemplatesReference(ctx.templatesReference());
       return new KeyValue(key, reference);
+    }
+    if (ctx.lens() != null) {
+      return new KeyValue(key, visitLens(ctx.lens()));
     }
     throw new IllegalArgumentException("Unknown parameter value " + ctx.getText());
   }

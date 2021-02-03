@@ -1,7 +1,7 @@
 package tailspin.control;
 
-import java.util.List;
 import tailspin.interpreter.Scope;
+import tailspin.transform.Lens;
 import tailspin.types.Freezable;
 import tailspin.types.KeyValue;
 import tailspin.types.Processor;
@@ -27,8 +27,8 @@ public abstract class Reference implements Value {
     return new FieldReference(this, fieldIdentifier);
   }
 
-  public Reference lens(List<LensDimension> dimensions) {
-    return new LensReference(this, dimensions);
+  public Reference lens(Lens lens) {
+    return new LensReference(this, lens);
   }
 
   private static class ReflexiveIt {

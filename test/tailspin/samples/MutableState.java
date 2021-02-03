@@ -697,4 +697,112 @@ public class MutableState {
 
     assertEquals("{foo=[[6], [7, 3], [8, 4]]}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void setLensAsParameter() throws Exception {
+    String program =
+        "templates bar&{baz:}\n"
+            + "@: [{foo:5}, {foo:7}];\n"
+            + "  @(baz): $; $@ !\n"
+            + "end bar\n"
+            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{foo=5}, {foo=1}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void setLensAsParameterComposes() throws Exception {
+    String program =
+        "templates bar&{baz:}\n"
+            + "@: [{foo:[5]}, {foo:[7]}];\n"
+            + "  @(baz; 1): $; $@ !\n"
+            + "end bar\n"
+            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{foo=[5]}, {foo=[1]}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deleteLensAsParameter() throws Exception {
+    String program =
+        "templates bar&{baz:}\n"
+            + "@: [{foo:5}, {foo:7}];\n"
+            + "  ^@(baz)! $@ !\n"
+            + "end bar\n"
+            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("7[{foo=5}, {}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deleteLensAsParameterComposes() throws Exception {
+    String program =
+        "templates bar&{baz:}\n"
+            + "@: [{foo:[5]}, {foo:[7]}];\n"
+            + "  ^@(baz; 1) ! $@ !\n"
+            + "end bar\n"
+            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("7[{foo=[5]}, {foo=[]}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mergeLensAsParameter() throws Exception {
+    String program =
+        "templates bar&{baz:}\n"
+            + "@: [{foo:[5]}, {foo:[7]}];\n"
+            + "  (fum:$) -> ..|@(baz): $; $@ !\n"
+            + "end bar\n"
+            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{foo=[5]}, {foo=[7, fum=1]}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mergeLensAsParameterComposes() throws Exception {
+    String program =
+        "templates bar&{baz:}\n"
+            + "@: [{foo:[[5]]}, {foo:[[7]]}];\n"
+            + "  (fum:$) -> ..|@(baz; 1): $; $@ !\n"
+            + "end bar\n"
+            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{foo=[[5]]}, {foo=[[7, fum=1]]}]", output.toString(StandardCharsets.UTF_8));
+  }
 }

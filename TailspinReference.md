@@ -626,6 +626,9 @@ we can project values as partial or transformed representations, for example by 
 To do projections we use a lens that looks like `()` except the details of the projection have to be specified between
 the parentheses. A lens is applied directly after a [dereference](#dereference), e.g. `$(..lens spec..)`
 
+A lens can be passed as a parameter to templates, e.g. `mylist -> sum&{of: (amount:)}` to sum the amount fields
+of the structures in the list.
+
 The most common lenses are the ones used to access [array](#arrays) elements, where integer values project onto
 elements of the array. Single integers, `$(3)`, the values `first` and `last`, or integer expressions will access
 a single element of the array. Ranges and lists/arrays of integer values will project onto a new array consisting of
