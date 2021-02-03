@@ -24,6 +24,7 @@ should have been used instead. This is deliberate in order to free the mind of p
     1. [Templates](#templates)
     1. [Composer](#composer)
     1. [Operator](#operator)
+    1. [Projections and Lenses](#projections-and-lenses)
 1. [Matchers](#matchers)
 1. [Mutable state](#templates-state) (see also [Processors](#processors))
 1. [Parameters](#parameters)
@@ -384,6 +385,38 @@ An operand value can be any [source](#sources), or a value chain enclosed in par
 
 You can specify [parameters](#parameters) to modify/control certain aspects of the execution.
 
+### Projections and lenses
+A projection is a type of transform that extracts parts of a more complex structure.
+An example of a projection is when a three-dimensional scene is displayed on a two-dimensional screen. In Tailspin
+we can project values as partial or transformed representations, for example by selecting some elements of an [array](#arrays).
+
+To do projections we use a lens that looks like `()` except the details of the projection have to be specified between
+the parentheses. A lens is applied directly after a [dereference](#dereference), e.g. `$(..lens spec..)`
+
+A lens can be passed as a parameter to templates, e.g. `mylist -> sum&{of: (amount:)}` to sum the amount fields
+of the structures in the list.
+
+The most common lenses are the ones used to access [array](#arrays) elements, where integer values project onto
+elements of the array. Single integers, `$(3)`, the values `first` and `last`, or integer expressions will access
+a single element of the array. Ranges and lists/arrays of integer values will project onto a new array consisting of
+the selected elements, e.g. `$(3..5)` or `$([3,1,2])`
+
+A key can be used to project onto a field of a [structure](#structures), e.g. `$(x:)`
+
+Array and key lenses allow going further down into multiple dimensions by appending another lens specification after a semi-colon,
+e.g. `$(3; values: ; 5)` to get the 5th element of the values field of the third element of the current value.
+This can more conventionally be written as `$(3).values(5)`, which should be preferred when possible.
+
+While the above can be thought of as projections, we normally think of it as indexing into, or finding a position, in an
+array or a structure. As such, the above lenses may also be used to point out positions to change in [mutable state](#templates-state).
+
+Other projections can only be used to get a, possibly transformed, view of an object. These are especially important for working
+with [relations](#relations) and relational algebra, where a "projection" is a transformation of the relation to only view
+a subset of the attributes of each tuple/structure. This projection can also comprise renamings of attributes and extensions with
+calculated attributes, e.g. `$({item:, distance: §.x + §.y})` will remove all attributes except "item" from each tuple and append
+a new attribute "distance" equal to the sum of the previous x and y attributes. Note the use of the reflexive identifier `§` to refer
+to the current tuple being projected, while `$` would still refer to the current value being processed in the chain.
+
 ## Matchers
 A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the
 start to the end, where the first matcher that matches the _current value_ will have its block
@@ -618,37 +651,6 @@ A projection can also contain renamings and extensions, where the current struct
 Relation values respond to the following messages:
 * `::count` returns the count of distinct structures/tuples in the relation
 * `::list` returns a list of the structures contained in the relation
-
-## Projections and lenses
-An example of a projection is when a three-dimensional scene is displayed on a two-dimensional screen. In Tailspin
-we can project values as partial or transformed representations, for example by selecting some elements of an [array](#arrays).
-
-To do projections we use a lens that looks like `()` except the details of the projection have to be specified between
-the parentheses. A lens is applied directly after a [dereference](#dereference), e.g. `$(..lens spec..)`
-
-A lens can be passed as a parameter to templates, e.g. `mylist -> sum&{of: (amount:)}` to sum the amount fields
-of the structures in the list.
-
-The most common lenses are the ones used to access [array](#arrays) elements, where integer values project onto
-elements of the array. Single integers, `$(3)`, the values `first` and `last`, or integer expressions will access
-a single element of the array. Ranges and lists/arrays of integer values will project onto a new array consisting of
-the selected elements, e.g. `$(3..5)` or `$([3,1,2])`
-
-A key can be used to project onto a field of a [structure](#structures), e.g. `$(x:)`
-
-Array and key lenses allow going further down into multiple dimensions by appending another lens specification after a semi-colon,
-e.g. `$(3; values: ; 5)` to get the 5th element of the values field of the third element of the current value.
-This can more conventionally be written as `$(3).values(5)`, which should be preferred when possible.
-
-While the above can be thought of as projections, we normally think of it as indexing into, or finding a position, in an
-array or a structure. As such, the above lenses may also be used to point out positions to change in [mutable state](#templates-state).
-
-Other projections can only be used to get a, possibly transformed, view of an object. These are especially important for working
-with [relations](#relations) and relational algebra, where a "projection" is a transformation of the relation to only view
-a subset of the attributes of each tuple/structure. This projection can also comprise renamings of attributes and extensions with
-calculated attributes, e.g. `$({item:, distance: §.x + §.y})` will remove all attributes except "item" from each tuple and append
-a new attribute "distance" equal to the sum of the previous x and y attributes. Note the use of the reflexive identifier `§` to refer
-to the current tuple being projected, while `$` would still refer to the current value being processed in the chain.
 
 ## Bytes
 Bytes values represent a sequence of bytes and can be created through a [bytes literal](#bytes-literal)
