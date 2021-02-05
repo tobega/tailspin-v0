@@ -416,6 +416,7 @@ a subset of the attributes of each tuple/structure. This projection can also com
 calculated attributes, e.g. `$({item:, distance: §.x + §.y})` will remove all attributes except "item" from each tuple and append
 a new attribute "distance" equal to the sum of the previous x and y attributes. Note the use of the reflexive identifier `§` to refer
 to the current tuple being projected, while `$` would still refer to the current value being processed in the chain.
+These projections can also be used to transform individual structure values or arrays of structures.
 
 ## Matchers
 A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the

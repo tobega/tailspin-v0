@@ -1,10 +1,12 @@
 package tailspin.control;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
 import tailspin.literals.KeyValueExpression;
 import tailspin.types.Relation;
 import tailspin.types.Structure;
+import tailspin.types.TailspinArray;
 
 public class Projection implements LensDimension {
 
@@ -22,6 +24,10 @@ public class Projection implements LensDimension {
     if (parent instanceof Relation) {
       Relation relation = (Relation) parent;
       return relation.project(projections, it, scope);
+    } else if (parent instanceof TailspinArray) {
+      TailspinArray array = (TailspinArray) parent;
+      return TailspinArray.value(array.stream().map(s -> get(lowerDimensions, s, it, scope)).collect(
+          Collectors.toList()));
     } else {
       Structure structure = (Structure) parent;
       return structure.project(projections, it, scope);
