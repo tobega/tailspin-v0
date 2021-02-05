@@ -143,6 +143,10 @@ Program: 'program';
 
 Modify: 'modify';
 
+By: 'by';
+
+Collect: 'collect';
+
 Zero: '0';
 
 PositiveInteger: [1-9] Digits?;

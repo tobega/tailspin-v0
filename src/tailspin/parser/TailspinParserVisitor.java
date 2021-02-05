@@ -145,6 +145,18 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitProjection(TailspinParser.ProjectionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#grouping}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitGrouping(TailspinParser.GroupingContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#collectedValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCollectedValue(TailspinParser.CollectedValueContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#arrayLiteral}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

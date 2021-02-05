@@ -2,11 +2,10 @@ package tailspin.control;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.Map;
 import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
 import tailspin.java.JavaTypeConverter;
-import tailspin.types.KeyValue;
+import tailspin.types.Relation;
 import tailspin.types.Structure;
 import tailspin.types.TailspinArray;
 
@@ -26,6 +25,8 @@ public class Deconstructor implements Expression {
   Object getDeconstructedStream(Object it) {
     if (it instanceof TailspinArray) {
       return ((TailspinArray) it).deconstruct();
+    } else if (it instanceof Relation) {
+      return ((Relation) it).deconstruct();
     } else if (it instanceof String) {
       if (((String) it).isEmpty()) {
         return null;

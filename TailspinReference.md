@@ -228,7 +228,7 @@ The preferred tailspin way to create new things is by a declarative literal expr
 listed as [sources](#sources) qualify as transforms if they reference the _current value_ `$`.
 
 ### Deconstructor
-A deconstructor is a transform that works on [arrays](#arrays) by flowing the elements out of an array
+A deconstructor is a transform that works on [arrays](#arrays) and [relations](#relations) by flowing the elements out
 into a [stream](#streams), e.g. `[4,7,9]...` will create a stream of the values 4, 7 and 9.
 
 It also works on a [structure](#structures) by creating a stream of [keyed values](#keyed-values).
@@ -633,6 +633,8 @@ A keyed value responds to the following messages:
 A relation, as in relational algebra, is like a set of [structures](#structures) (often referred to as tuples in relational algebra)
 with the same set of keys (normally referred to as attributes, because keys have a slightly different meaning in databases).
 A relation is similar to a table in a SQL database except there are no duplicate rows.
+
+A relation can be [deconstructed](#deconstructor) into a stream of structures.
 
 Two relations with the same set of keys can be appended together to form the union of the two sets of structures, by the built-in
 `union` [operator](#operator).

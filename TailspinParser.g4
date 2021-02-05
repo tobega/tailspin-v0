@@ -41,13 +41,17 @@ structureReference: FieldReference lens?;
 
 lens: LeftParen dimensionReference (SemiColon dimensionReference)*  RightParen;
 
-dimensionReference: simpleDimension|multiValueDimension|projection|key|localIdentifier;
+dimensionReference: simpleDimension|multiValueDimension|projection|key|localIdentifier|grouping;
 
 simpleDimension: sourceReference|arithmeticExpression|rangeLiteral;
 
 multiValueDimension: LeftBracket simpleDimension (Comma simpleDimension)* RightBracket;
 
 projection: LeftBrace ((key|keyValue) Comma?)+ RightBrace;
+
+grouping: By source Collect LeftBrace collectedValue+ RightBrace;
+
+collectedValue: key templatesReference;
 
 arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valueProduction)* RightBracket;
 
@@ -266,6 +270,8 @@ keyword: Include
   | Use
   | Program
   | Modify
+  | By
+  | Collect
 ;
 
 testBody: testBlock+;

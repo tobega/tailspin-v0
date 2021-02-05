@@ -106,6 +106,8 @@ import tailspin.transform.MatchTemplate;
 import tailspin.transform.Operator;
 import tailspin.transform.ProcessorConstructor;
 import tailspin.transform.Templates;
+import tailspin.transform.lens.CollectedValue;
+import tailspin.transform.lens.Grouping;
 import tailspin.types.Criterion;
 import tailspin.types.KeyValue;
 
@@ -289,6 +291,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         dimensions.add(new KeyLens(dimCtx.key().localIdentifier().getText()));
       } else if (dimCtx.localIdentifier() != null) {
         dimensions.add(new DefinedLens(dimCtx.localIdentifier().getText()));
+      } else if (dimCtx.grouping() != null) {
+        dimensions.add(visitGrouping(dimCtx.grouping()));
       } else {
         throw new UnsupportedOperationException("Unknown dimension reference " + ctx.getText());
       }
@@ -329,6 +333,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
           String field = kc.localIdentifier().getText();
           return new KeyValueExpression(field, Reference.reflexive().field(field));
         })).collect(Collectors.toList()));
+  }
+
+  @Override
+  public LensDimension visitGrouping(TailspinParser.GroupingContext ctx) {
+    return new Grouping(visitSource(ctx.source()), ctx.collectedValue().stream().map(this::visitCollectedValue).collect(
+        Collectors.toList()));
+  }
+
+  @Override
+  public CollectedValue visitCollectedValue(TailspinParser.CollectedValueContext ctx) {
+    return new CollectedValue(ctx.key().localIdentifier().getText(), visitTemplatesReference(ctx.templatesReference()));
   }
 
   @Override

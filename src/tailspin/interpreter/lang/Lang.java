@@ -11,6 +11,7 @@ public class Lang {
     builtIns.put("xor", new BitwiseOperator.Xor());
     builtIns.put("union", new UnionOperator());
     builtIns.put("join", new JoinOperator());
+    builtIns.put(GroupCollector.NAME, new GroupCollector());
   }
   private Lang() {}
 }

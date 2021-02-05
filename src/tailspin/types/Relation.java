@@ -2,13 +2,12 @@ package tailspin.types;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import tailspin.control.Reference;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.literals.KeyValueExpression;
@@ -62,15 +61,20 @@ public class Relation implements Processor {
 
   public Object project(List<KeyValueExpression> projections, Object it, Scope scope) {
     Set<String> newKeys = projections.stream().map(KeyValueExpression::getKey).collect(Collectors.toSet());
-    return new Relation(newKeys, contents.stream().map(s -> {
-      Structure projected = new Structure(new TreeMap<>(), true);
-      for (KeyValueExpression kve : projections) {
-        KeyValue kv = kve.getResults(Reference.pairedReflexive(it, s), scope);
-        projected.put(kv.getKey(), kv.getValue());
-      }
-      projected.freeze();
-      return projected;
-    }).collect(Collectors.toSet()));  }
+    return new Relation(newKeys, contents.stream()
+        .map(s -> s.project(projections, it, scope)).collect(Collectors.toSet()));
+  }
+
+  public Object deconstruct() {
+    if (contents.isEmpty()) {
+      return null;
+    }
+    Iterator<Structure> iterator = contents.iterator();
+    return (ResultIterator.Flat) () -> {
+      if (!iterator.hasNext()) return null;
+      return iterator.next();
+    };
+  }
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {

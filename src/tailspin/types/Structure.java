@@ -1,11 +1,16 @@
 package tailspin.types;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
+import tailspin.control.Reference;
 import tailspin.control.ResultIterator;
+import tailspin.interpreter.Scope;
+import tailspin.literals.KeyValueExpression;
 
 public class Structure implements Freezable<Structure> {
 
@@ -31,6 +36,16 @@ public class Structure implements Freezable<Structure> {
     return new Structure(fields, false);
   }
 
+  public Structure project(List<KeyValueExpression> projections, Object it, Scope scope) {
+    Structure projected = new Structure(new TreeMap<>(), true);
+    for (KeyValueExpression kve : projections) {
+      KeyValue kv = kve.getResults(Reference.pairedReflexive(it, this), scope);
+      projected.put(kv.getKey(), kv.getValue());
+    }
+    projected.freeze();
+    return projected;
+  }
+
   public Object get(String fieldIdentifier) {
     return map.get(fieldIdentifier);
   }
@@ -54,6 +69,13 @@ public class Structure implements Freezable<Structure> {
 
   public boolean containsKey(String key) {
     return map.containsKey(key);
+  }
+
+  public boolean contains(Structure s) {
+    for (Map.Entry<String, Object> entry : s.map.entrySet()) {
+      if (!Objects.deepEquals(entry.getValue(), map.get(entry.getKey()))) return false;
+    }
+    return true;
   }
 
   public Set<String> keySet() {
