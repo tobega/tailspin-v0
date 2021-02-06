@@ -237,6 +237,9 @@ replace one member `{$myStruct..., val: 5}`, or to set a value unless it is alre
 
 A string can also be deconstructed into a stream of strings where each string is what is normally considered
 a character, but may be a composition of several unicode codepoints.
+
+### Collector
+The opposite of a deconstructor is a collector that turns a stream of values into one value.
  
 ### Templates
 A templates object consists of an optional _initial block_ and an optional sequence of match statements.
@@ -416,7 +419,15 @@ a subset of the attributes of each tuple/structure. This projection can also com
 calculated attributes, e.g. `$({item:, distance: §.x + §.y})` will remove all attributes except "item" from each tuple and append
 a new attribute "distance" equal to the sum of the previous x and y attributes. Note the use of the reflexive identifier `§` to refer
 to the current tuple being projected, while `$` would still refer to the current value being processed in the chain.
-These projections can also be used to transform individual structure values or arrays of structures.
+These projections can also be used to transform individual [structure](#structures) values or [arrays](#arrays) of structures.
+
+Another powerful transformational projection that can be applied to relations and arrays of structures is a grouping collection.
+You first specify the word `by` followed by a collection of structures that form the grouping categories, for instance the projection `$({x:})` would group
+by unique values for the x attribute of each structure, or the literal category specification `[{x: 1}, {x: 2}]` would group
+values for which x is 1 or 2 respectively, ignoring others. If a structure can match two categories, it will be included in both.
+After the categories you specify the word `collect` followed by a structure where keys are paired with a reference to a
+constructor for a [collector](#collector) object. The full syntax could be for example `$myArray(by $myArray({x:}) collect {ysum: Sum&{of: (y:)})`
+to obtain an array of unique x values paired with the sum of y values that were previously associated with that x value.
 
 ## Matchers
 A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the

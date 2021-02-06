@@ -768,4 +768,17 @@ class Arrays {
 
     assertEquals("[{a=1, b=5, d=6}, {a=2, b=2, d=4}]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void grouping() throws IOException {
+    String program = "[{x: 1, y: 2}, {x:1, y: 3}] -> $(by $({x:}) collect {ys: Sum&{of: (y:)}}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{x=1, ys=5}]", output.toString(StandardCharsets.UTF_8));
+  }
 }

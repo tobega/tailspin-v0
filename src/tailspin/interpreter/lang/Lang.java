@@ -12,6 +12,7 @@ public class Lang {
     builtIns.put("union", new UnionOperator());
     builtIns.put("join", new JoinOperator());
     builtIns.put(GroupCollector.NAME, new GroupCollector());
+    builtIns.put(SumCollector.NAME, new SumCollector());
   }
   private Lang() {}
 }
