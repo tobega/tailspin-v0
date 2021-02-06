@@ -2,7 +2,6 @@ package tailspin.transform.lens;
 
 import java.util.Map;
 import tailspin.control.Reference;
-import tailspin.control.TemplatesReference;
 import tailspin.interpreter.Scope;
 import tailspin.types.Processor;
 import tailspin.types.Transform;
@@ -10,15 +9,15 @@ import tailspin.types.Transform;
 public class CollectedValue {
 
   private final String key;
-  private final TemplatesReference templatesReference;
+  private final Reference constructor;
 
-  public CollectedValue(String key, Reference templatesReference) {
+  public CollectedValue(String key, Reference constructor) {
     this.key = key;
-    this.templatesReference = (TemplatesReference) templatesReference;
+    this.constructor = constructor;
   }
 
   public Accumulator newAccumulator(Object it, Scope scope) {
-    Transform constructor = templatesReference.getValue(it, scope);
+    Transform constructor = (Transform) this.constructor.getValue(it, scope);
     Processor collector = (Processor) constructor.getResults(null, Map.of());
     return new Accumulator(collector);
   }

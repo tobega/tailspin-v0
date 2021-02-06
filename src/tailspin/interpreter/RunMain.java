@@ -21,6 +21,7 @@ import tailspin.control.ArrayTemplates;
 import tailspin.control.Block;
 import tailspin.control.Bound;
 import tailspin.control.ChainStage;
+import tailspin.control.CollectorChain;
 import tailspin.control.ComposerDefinition;
 import tailspin.control.Deconstructor;
 import tailspin.control.DefinedLens;
@@ -159,8 +160,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Expression visitValueChain(TailspinParser.ValueChainContext ctx) {
-    Expression source = visitSource(ctx.source());
-    return new ChainStage(source, ctx.transform() == null ? null : visitTransform(ctx.transform()));
+    Expression valueChain = visitSource(ctx.source());
+    if (ctx.transform() != null) {
+      valueChain = new ChainStage(valueChain, visitTransform(ctx.transform()));
+    }
+    if (ctx.collectorChain() != null) {
+      valueChain = new CollectorChain(valueChain, visitTemplatesReference(ctx.collectorChain().templatesReference()));
+      if (ctx.collectorChain().transform() != null) {
+        valueChain = new ChainStage(valueChain, visitTransform(ctx.collectorChain().transform()));
+      }
+    }
+    return valueChain;
   }
 
   @Override

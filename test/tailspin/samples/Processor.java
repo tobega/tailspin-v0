@@ -212,4 +212,54 @@ class Processor {
 
     assertEquals("555", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void bespokeCollector() throws Exception {
+    String program =
+        "processor TimesPlus\n"
+            + "@: 0;\n"
+            + "sink accumulate\n"
+            + "  @TimesPlus: $@TimesPlus * $ + $;\n"
+            + "end accumulate\n"
+            + "source result\n"
+            + "  $@TimesPlus !\n"
+            + "end result\n"
+            + "end TimesPlus\n"
+            + "1..3 -> ..=TimesPlus -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("15", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void bespokeCollectorSubtotalling() throws Exception {
+    String program =
+        "processor TimesPlus\n"
+            + "@: 0;\n"
+            + "sink accumulate\n"
+            + "  @TimesPlus: $@TimesPlus * $ + $;\n"
+            + "end accumulate\n"
+            + "source result\n"
+            + "  $@TimesPlus !\n"
+            + "end result\n"
+            + "end TimesPlus\n"
+            + "def tp: $TimesPlus;\n"
+            + "source acc $tp! end acc\n"
+            + "1 -> ..=acc -> !OUT::write\n"
+            + "2 -> ..=acc -> !OUT::write\n"
+            + "3 -> ..=acc -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1415", output.toString(StandardCharsets.UTF_8));
+  }
 }

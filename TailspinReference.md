@@ -249,7 +249,24 @@ The opposite of a deconstructor is a collector that turns a [stream](#streams) o
 
 The simplest collectors are perhaps the literal expressions that create [strings](#string-literal), [arrays](#array-literal),
 [structures](#structure-literal) and [relations](#relation-literal).
- 
+
+A [processor](#processors) with `sink accumulate` and `source result` can be used as a collector. To use it,
+you must provide a constructor for the processor that takes no input, the syntax is `-> ..=Collector`
+Here is a longer example that counts occurrences of 'apple' in the stream and writes the result '2':
+```
+processor Apples
+  @: 0;
+  sink accumulate
+    <='apple'> @Apples: $@Apples + 1;
+  end accumulate
+  source result
+    $@Apples!
+  end result
+end Apples
+
+['apple', 'orange', 'apple'] ... -> ..=Apples -> !OUT::write
+```
+
 ### Templates
 A templates object consists of an optional _initial block_ and an optional sequence of match statements.
 A match statement starts with the word `when` followed by a [matcher](#matchers), then the word `do`

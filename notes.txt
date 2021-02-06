@@ -14,8 +14,7 @@ Things to add/improve
 - Error handling. Error path/exception path? VOID path? Need examples to play with.
 - Want prepend to array/structure. Syntax? ..< and ..> instead of ..| maybe or >> and << ? Does a stream get prepended
   in reverse or as a chunk? 1..3 -> |..@: $; is probably the best prepend syntax
-- Maybe some kind of reflective access? E.g. field access like myStruct."$fieldName;"? Probably needed for things like table joins.
-  Or just a way to pass a field accessor as a parameter? Combine with cartesian idexes to form lenses?
+- Are lenses currently enough or do we need some kind of reflective access? E.g. field access like myStruct."$fieldName;"? Or just ($::key)?
 - Unlimited size arrays
 - Use composers as rules in other composers (and INT and WS should be top-level composers)
 

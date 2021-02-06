@@ -329,6 +329,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitValueChain(TailspinParser.ValueChainContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#collectorChain}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCollectorChain(TailspinParser.CollectorChainContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#transform}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

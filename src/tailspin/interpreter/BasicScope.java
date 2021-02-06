@@ -53,7 +53,7 @@ public class BasicScope extends Scope {
 
   @Override
   public void setState(String stateContext, Object value) {
-    throw new IllegalStateException("Cannot set state on base scope");
+    throw new IllegalStateException("Cannot set state "  + stateContext + " on base scope");
   }
 
   @Override
