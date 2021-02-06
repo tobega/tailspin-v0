@@ -82,6 +82,12 @@ A source is the simplest _value chain_, simply producing a value.
 A series of characters within single quotes, e.g. `'Hello World!'`. To write
 a single quote in a string, just double it up, e.g. `'What''s up?'`.
 
+A string value can be [deconstructed](#deconstructor) into a stream of strings where each string is what is normally considered
+a character, but may be a composition of several unicode codepoints.
+
+To work with contents of strings, you probably want to look at [composers](#composer), but if you only want to test for
+content, a [matcher](#matchers) may be good enough. Both composers and matchers work with individual unicode codepoints.
+
 To enter a character by its numeric unicode value, prefix the decimal value
 (or [arithmetic expression](#arithmetic-expression)) with "$#" and end with ";", e.g. `'$#9;'` gives a tab character.
 
@@ -235,11 +241,14 @@ It also works on a [structure](#structures) by creating a stream of [keyed value
 This is particularly useful for creating augmented copies of a structure, e.g. to copy everything but
 replace one member `{$myStruct..., val: 5}`, or to set a value unless it is already set `{val: 5, $myStruct...}`.
 
-A string can also be deconstructed into a stream of strings where each string is what is normally considered
+A [string](#string-literal) can also be deconstructed into a stream of strings where each string is what is normally considered
 a character, but may be a composition of several unicode codepoints.
 
 ### Collector
-The opposite of a deconstructor is a collector that turns a stream of values into one value.
+The opposite of a deconstructor is a collector that turns a [stream](#streams) of values into one value.
+
+The simplest collectors are perhaps the literal expressions that create [strings](#string-literal), [arrays](#array-literal),
+[structures](#structure-literal) and [relations](#relation-literal).
  
 ### Templates
 A templates object consists of an optional _initial block_ and an optional sequence of match statements.
@@ -574,6 +583,10 @@ Streams can be captured into an [array](#arrays) by surrounding them with an [ar
 Streams can be captured into a string by surrounding them in a [string literal](#string-literal) interpolation expression.
 
 Streams of [key-value pairs](#keyed-values) can be captured in a [structure literal](#structure-literal).
+
+[Relations](#relation-literal) can be formed from streams of structures of the same kind.
+
+You can also create [Collectors](#collector) processors or use built-in collectors.
 
 A stream can dry up when there are no values output at all from a processing stage and then no further processing is
 done in the current _value chain_.
