@@ -92,7 +92,7 @@ templatesReference:  anyIdentifier reference Message? parameterValues?;
 
 parameterValues: And LeftBrace (parameterValue Comma?)+ RightBrace;
 
-parameterValue: key (valueChain|templatesReference|lens);
+parameterValue: key (valueChain|templatesReference|(Colon lens | Colon LeftParen RightParen));
 
 templatesBody: block matchTemplate*
   | matchTemplate+

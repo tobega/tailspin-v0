@@ -771,7 +771,7 @@ class Arrays {
 
   @Test
   void grouping() throws IOException {
-    String program = "[{x: 1, y: 2}, {x:1, y: 3}] -> $(by $({x:}) collect {ys: Sum&{of: (y:)}}) -> !OUT::write";
+    String program = "[{x: 1, y: 2}, {x:1, y: 3}] -> $(by $({x:}) collect {ys: Sum&{of: :(y:)}}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -780,5 +780,19 @@ class Arrays {
     runner.run(input, output, List.of());
 
     assertEquals("[{x=1, ys=5}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void numericLensParameter() throws Exception {
+    String program =
+        "[[1..3], [5..7]]... -> ..=Sum&{of: :(2)} -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("8", output.toString(StandardCharsets.UTF_8));
   }
 }

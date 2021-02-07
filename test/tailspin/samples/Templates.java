@@ -864,7 +864,7 @@ class Templates {
             + "templates bar&{baz:}\n"
             + "  $ + $a(baz) !\n"
             + "end bar\n"
-            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+            + "1 -> bar&{baz: :(2; foo:)} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -882,7 +882,7 @@ class Templates {
             + "source bar&{baz:}\n"
             + "  $a(baz; 1) !\n"
             + "end bar\n"
-            + "$bar&{baz: (2; foo:)} -> !OUT::write";
+            + "$bar&{baz: :(2; foo:)} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -900,7 +900,7 @@ class Templates {
             + "source bar&{baz:}\n"
             + "  2 -> $a(baz) !\n"
             + "end bar\n"
-            + "1 -> $bar&{baz: ($; foo:)} -> !OUT::write";
+            + "1 -> $bar&{baz: :($; foo:)} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

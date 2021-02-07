@@ -422,8 +422,10 @@ we can project values as partial or transformed representations, for example by 
 To do projections we use a lens that looks like `()` except the details of the projection have to be specified between
 the parentheses. A lens is applied directly after a [dereference](#dereference), e.g. `$(..lens spec..)`
 
-A lens can be passed as a parameter to templates, e.g. `mylist -> sum&{of: (amount:)}` to sum the amount fields
-of the structures in the list.
+A lens can be passed as a parameter to templates, but it must then have a colon before the first parenthesis,
+e.g. `mylist -> sum&{of: :(amount:)}` to sum the amount fields of the structures in the list. When passed as a parameter,
+the lens can be empty to access the referenced element itself, e.g. `mynumberlist -> sum&{of: :()}` to sum the
+numbers in the list.
 
 The most common lenses are the ones used to access [array](#arrays) elements, where integer values project onto
 elements of the array. Single integers, `$(3)`, the values `first` and `last`, or integer expressions will access
@@ -452,7 +454,7 @@ You first specify the word `by` followed by a collection of structures that form
 by unique values for the x attribute of each structure, or the literal category specification `[{x: 1}, {x: 2}]` would group
 values for which x is 1 or 2 respectively, ignoring others. If a structure can match two categories, it will be included in both.
 After the categories you specify the word `collect` followed by a structure where keys are paired with a reference to a
-constructor for a [collector](#collector) object. The full syntax could be for example `$myArray(by $myArray({x:}) collect {ysum: Sum&{of: (y:)})`
+constructor for a [collector](#collector) object. The full syntax could be for example `$myArray(by $myArray({x:}) collect {ysum: Sum&{of: :(y:)})`
 to obtain an array of unique x values paired with the sum of y values that were previously associated with that x value.
 
 ## Matchers

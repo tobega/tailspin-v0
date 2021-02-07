@@ -710,6 +710,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.lens() != null) {
       return new KeyValue(key, visitLens(ctx.lens()));
     }
+    if (ctx.Colon() != null) {
+      return new KeyValue(key, new Lens(List.of()));
+    }
     throw new IllegalArgumentException("Unknown parameter value " + ctx.getText());
   }
 

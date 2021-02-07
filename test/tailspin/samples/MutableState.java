@@ -705,7 +705,7 @@ public class MutableState {
             + "@: [{foo:5}, {foo:7}];\n"
             + "  @(baz): $; $@ !\n"
             + "end bar\n"
-            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+            + "1 -> bar&{baz: :(2; foo:)} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -723,7 +723,7 @@ public class MutableState {
             + "@: [{foo:[5]}, {foo:[7]}];\n"
             + "  @(baz; 1): $; $@ !\n"
             + "end bar\n"
-            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+            + "1 -> bar&{baz: :(2; foo:)} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -741,7 +741,7 @@ public class MutableState {
             + "@: [{foo:5}, {foo:7}];\n"
             + "  ^@(baz)! $@ !\n"
             + "end bar\n"
-            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+            + "1 -> bar&{baz: :(2; foo:)} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -759,7 +759,7 @@ public class MutableState {
             + "@: [{foo:[5]}, {foo:[7]}];\n"
             + "  ^@(baz; 1) ! $@ !\n"
             + "end bar\n"
-            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+            + "1 -> bar&{baz: :(2; foo:)} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -777,7 +777,7 @@ public class MutableState {
             + "@: [{foo:[5]}, {foo:[7]}];\n"
             + "  (fum:$) -> ..|@(baz): $; $@ !\n"
             + "end bar\n"
-            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+            + "1 -> bar&{baz: :(2; foo:)} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -795,7 +795,7 @@ public class MutableState {
             + "@: [{foo:[[5]]}, {foo:[[7]]}];\n"
             + "  (fum:$) -> ..|@(baz; 1): $; $@ !\n"
             + "end bar\n"
-            + "1 -> bar&{baz: (2; foo:)} -> !OUT::write";
+            + "1 -> bar&{baz: :(2; foo:)} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

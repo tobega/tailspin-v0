@@ -106,6 +106,7 @@ public class Lens implements Value {
     public Object get(List<LensDimension> lowerDimensions, Object parent) {
       List<LensDimension> dimensions = new ArrayList<>(this.dimensions);
       dimensions.addAll(lowerDimensions);
+      if (dimensions.isEmpty()) return parent; // identity lens
       return dimensions.get(0).get(dimensions.subList(1, dimensions.size()), parent, it, scope);
     }
 
