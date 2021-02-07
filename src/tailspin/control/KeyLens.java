@@ -17,17 +17,21 @@ public class KeyLens implements LensDimension {
   public void set(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope, ResultIterator ri) {
     Structure structure = (Structure) parent;
-    if (lowerDimensions.isEmpty()) {
-      structure.put(key, ri.getNextResult());
-    } else {
+    if (!lowerDimensions.isEmpty()) {
       Freezable<?> child = (Freezable<?>) structure.get(key);
       if (!child.isThawed()) {
         child = child.thawedCopy();
         structure.put(key, child);
       }
       LensDimension next = lowerDimensions.get(0);
-      next.set(lowerDimensions.subList(1, lowerDimensions.size()), child, it, scope, ri);
+      try {
+        next.set(lowerDimensions.subList(1, lowerDimensions.size()), child, it, scope, ri);
+        return;
+      } catch (EmptyLensAtBottomException e) {
+        // fall through
+      }
     }
+    structure.put(key, ri.getNextResult());
   }
 
   @Override
@@ -45,16 +49,20 @@ public class KeyLens implements LensDimension {
   public Object delete(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
     Structure structure = (Structure) parent;
-    if (lowerDimensions.isEmpty()) {
-      return structure.remove(key);
+    if (!lowerDimensions.isEmpty()) {
+      Freezable<?> child = (Freezable<?>) structure.get(key);
+      if (!child.isThawed()) {
+        child = child.thawedCopy();
+        structure.put(key, child);
+      }
+      LensDimension next = lowerDimensions.get(0);
+      try {
+        return next.delete(lowerDimensions.subList(1, lowerDimensions.size()), child, it, scope);
+      } catch (EmptyLensAtBottomException e) {
+        // fall through
+      }
     }
-    Freezable<?> child = (Freezable<?>) structure.get(key);
-    if (!child.isThawed()) {
-      child = child.thawedCopy();
-      structure.put(key, child);
-    }
-    LensDimension next = lowerDimensions.get(0);
-    return next.delete(lowerDimensions.subList(1, lowerDimensions.size()), child, it, scope);
+    return structure.remove(key);
   }
 
   @Override
@@ -66,11 +74,15 @@ public class KeyLens implements LensDimension {
       collector = collector.thawedCopy();
       structure.put(key, collector);
     }
-    if (lowerDimensions.isEmpty()) {
-      Reference.collect(ri, collector);
-    } else {
+    if (!lowerDimensions.isEmpty()) {
       LensDimension next = lowerDimensions.get(0);
-      next.merge(lowerDimensions.subList(1, lowerDimensions.size()), collector, it, scope, ri);
+      try {
+        next.merge(lowerDimensions.subList(1, lowerDimensions.size()), collector, it, scope, ri);
+        return;
+      } catch (EmptyLensAtBottomException e) {
+        // fall through
+      }
     }
+    Reference.collect(ri, collector);
   }
 }

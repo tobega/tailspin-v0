@@ -40,7 +40,11 @@ class LensReference extends Reference {
       array = array.thawedCopy();
       parent.setValue(false, array, it, scope);
     }
-    return lens.delete(array, it, scope);
+    try {
+      return lens.delete(array, it, scope);
+    } catch (LensDimension.EmptyLensAtBottomException e) {
+      return parent.deleteValue(it, scope);
+    }
   }
 
   @Override
@@ -62,10 +66,14 @@ class LensReference extends Reference {
       array = array.thawedCopy();
       parent.setValue(false, array, it, scope);
     }
-    if (merge) {
-      lens.merge(array, it, scope, ri);
-    } else {
-      lens.set(array, it, scope, ri);
+    try {
+      if (merge) {
+        lens.merge(array, it, scope, ri);
+      } else {
+        lens.set(array, it, scope, ri);
+      }
+    } catch (LensDimension.EmptyLensAtBottomException e) {
+      parent.setValue(merge, value, it, scope);
     }
   }
 

@@ -61,15 +61,17 @@ public class Lens implements Value {
     return (byte) 0xff;
   }
 
-  public Object delete(Freezable<?> array, Object it, Scope scope) {
+  public Object delete(Freezable<?> array, Object it, Scope scope) throws LensDimension.EmptyLensAtBottomException {
     return dimensions.get(0).delete(dimensions.subList(1, dimensions.size()), array, it, scope);
   }
 
-  public void merge(Freezable<?> array, Object it, Scope scope, ResultIterator ri) {
+  public void merge(Freezable<?> array, Object it, Scope scope, ResultIterator ri)
+      throws LensDimension.EmptyLensAtBottomException {
     dimensions.get(0).merge(dimensions.subList(1, dimensions.size()), array, it, scope, ri);
   }
 
-  public void set(Freezable<?> array, Object it, Scope scope, ResultIterator ri) {
+  public void set(Freezable<?> array, Object it, Scope scope, ResultIterator ri)
+      throws LensDimension.EmptyLensAtBottomException {
     dimensions.get(0).set(dimensions.subList(1, dimensions.size()), array, it, scope, ri);
   }
 
@@ -97,9 +99,10 @@ public class Lens implements Value {
       this.dimensions = dimensions;
     }
 
-    public void set(List<LensDimension> lowerDimensions, Freezable<?> parent, ResultIterator ri) {
+    public void set(List<LensDimension> lowerDimensions, Freezable<?> parent, ResultIterator ri) throws LensDimension.EmptyLensAtBottomException {
       List<LensDimension> dimensions = new ArrayList<>(this.dimensions);
       dimensions.addAll(lowerDimensions);
+      if (dimensions.isEmpty()) throw new LensDimension.EmptyLensAtBottomException();
       dimensions.get(0).set(dimensions.subList(1, dimensions.size()), parent, it, scope, ri);
     }
 
@@ -110,15 +113,17 @@ public class Lens implements Value {
       return dimensions.get(0).get(dimensions.subList(1, dimensions.size()), parent, it, scope);
     }
 
-    public Object delete(List<LensDimension> lowerDimensions, Freezable<?> parent) {
+    public Object delete(List<LensDimension> lowerDimensions, Freezable<?> parent) throws LensDimension.EmptyLensAtBottomException {
       List<LensDimension> dimensions = new ArrayList<>(this.dimensions);
       dimensions.addAll(lowerDimensions);
+      if (dimensions.isEmpty()) throw new LensDimension.EmptyLensAtBottomException();
       return dimensions.get(0).delete(dimensions.subList(1, dimensions.size()), parent, it, scope);
     }
 
-    public void merge(List<LensDimension> lowerDimensions, Freezable<?> parent, ResultIterator ri) {
+    public void merge(List<LensDimension> lowerDimensions, Freezable<?> parent, ResultIterator ri) throws LensDimension.EmptyLensAtBottomException {
       List<LensDimension> dimensions = new ArrayList<>(this.dimensions);
       dimensions.addAll(lowerDimensions);
+      if (dimensions.isEmpty()) throw new LensDimension.EmptyLensAtBottomException();
       dimensions.get(0).merge(dimensions.subList(1, dimensions.size()), parent, it, scope, ri);
     }
   }

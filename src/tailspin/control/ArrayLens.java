@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -96,30 +97,47 @@ public abstract class ArrayLens implements LensDimension {
   @Override
   public void set(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
       ResultIterator ri) {
-    if (lowerDimensions.isEmpty()) {
-      Object dimensionResult = projectArray((TailspinArray) parent, it, scope, (a, i) -> a.set(i, Objects.requireNonNull(ri.getNextResult())));
-      if (dimensionResult != null) ((Stream<?>) dimensionResult).forEach(foo -> {});
-    } else {
+    if (!lowerDimensions.isEmpty()) {
       Object dimensionResult = projectArray((TailspinArray) parent, it, scope, LensReference::getThawed);
       LensDimension next = lowerDimensions.get(0);
-      mutate(a -> next.set(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope, ri), dimensionResult);
+      AtomicBoolean succeeded = new AtomicBoolean(true);
+      mutate(a -> {
+        try {
+          next.set(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope, ri);
+        } catch (EmptyLensAtBottomException e) {
+          succeeded.set(false);
+        }
+      }, dimensionResult);
+      if (succeeded.get()) return; // else fall through and update this
     }
+    Object dimensionResult = projectArray((TailspinArray) parent, it, scope, (a, i) -> a.set(i, Objects.requireNonNull(ri.getNextResult())));
+    if (dimensionResult != null) ((Stream<?>) dimensionResult).forEach(foo -> {});
   }
 
   @Override
   public Object delete(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
-    if (lowerDimensions.isEmpty()) {
-      ElementRemover remover = new ElementRemover();
-      Object result = resolveResult(projectArray((TailspinArray) parent, it, scope, remover));
-      remover.doRemovals();
-      return result;
+    if (!lowerDimensions.isEmpty()) {
+      Object dimensionResult =
+          projectArray((TailspinArray) parent, it, scope, LensReference::getThawed);
+      LensDimension next = lowerDimensions.get(0);
+      AtomicBoolean succeeded = new AtomicBoolean(true);
+      Object result = retrieve(
+          a -> {
+            try {
+              return next.delete(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope);
+            } catch (EmptyLensAtBottomException e) {
+              succeeded.set(false);
+              return null;
+            }
+          },
+          dimensionResult);
+      if (succeeded.get()) return result;
     }
-    Object dimensionResult = projectArray((TailspinArray) parent, it, scope, LensReference::getThawed);
-    LensDimension next = lowerDimensions.get(0);
-    return retrieve(
-        a -> next.delete(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope),
-        dimensionResult);
+    ElementRemover remover = new ElementRemover();
+    Object result = resolveResult(projectArray((TailspinArray) parent, it, scope, remover));
+    remover.doRemovals();
+    return result;
   }
 
   private static class ElementRemover implements ArrayOperation {
@@ -151,18 +169,25 @@ public abstract class ArrayLens implements LensDimension {
   public void merge(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope,
       ResultIterator ri) {
-    if (lowerDimensions.isEmpty()) {
-      Merger merger = new Merger(ri);
-      Object dimensionResult = projectArray((TailspinArray) parent, it, scope, merger);
-      if (dimensionResult != null) ((Stream<?>) dimensionResult).forEach(foo -> {});
-      merger.resolveSingleElementMergeMany();
-    } else {
+    if (!lowerDimensions.isEmpty()) {
       Object dimensionResult = projectArray((TailspinArray) parent, it, scope, LensReference::getThawed);
       LensDimension next = lowerDimensions.get(0);
+      AtomicBoolean succeeded = new AtomicBoolean(true);
       mutate(
-          a -> next.merge(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope, ri),
+          a -> {
+            try {
+              next.merge(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope, ri);
+            } catch (EmptyLensAtBottomException e) {
+              succeeded.set(false);
+            }
+          },
           dimensionResult);
+      if (succeeded.get()) return;
     }
+    Merger merger = new Merger(ri);
+    Object dimensionResult = projectArray((TailspinArray) parent, it, scope, merger);
+    if (dimensionResult != null) ((Stream<?>) dimensionResult).forEach(foo -> {});
+    merger.resolveSingleElementMergeMany();
   }
 
   private static class Merger implements ArrayOperation {

@@ -14,7 +14,7 @@ public class DefinedLens implements LensDimension {
 
   @Override
   public void set(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
-      ResultIterator ri) {
+      ResultIterator ri) throws EmptyLensAtBottomException {
     Lens.ScopedLens lens = (Lens.ScopedLens) scope.resolveValue(identifier);
     lens.set(lowerDimensions, (Freezable<?>) parent, ri);
   }
@@ -26,14 +26,15 @@ public class DefinedLens implements LensDimension {
   }
 
   @Override
-  public Object delete(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope) {
+  public Object delete(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope)
+      throws EmptyLensAtBottomException {
     Lens.ScopedLens lens = (Lens.ScopedLens) scope.resolveValue(identifier);
     return lens.delete(lowerDimensions, (Freezable<?>) parent);
   }
 
   @Override
   public void merge(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
-      ResultIterator ri) {
+      ResultIterator ri) throws EmptyLensAtBottomException {
     Lens.ScopedLens lens = (Lens.ScopedLens) scope.resolveValue(identifier);
     lens.merge(lowerDimensions, (Freezable<?>) parent, ri);
   }
