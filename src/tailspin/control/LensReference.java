@@ -2,8 +2,8 @@ package tailspin.control;
 
 import tailspin.interpreter.Scope;
 import tailspin.transform.Lens;
+import tailspin.transform.lens.LensDimension;
 import tailspin.types.Freezable;
-import tailspin.types.TailspinArray;
 
 class LensReference extends Reference {
 
@@ -80,14 +80,5 @@ class LensReference extends Reference {
   @Override
   public String toString() {
     return parent.toString() + lens.toString();
-  }
-
-  public static Freezable<?> getThawed(TailspinArray array, int index) {
-    Freezable<?> next = (Freezable<?>) array.get(index);
-    if (!next.isThawed()) {
-      next = next.thawedCopy();
-      array.set(index, next);
-    }
-    return next;
   }
 }

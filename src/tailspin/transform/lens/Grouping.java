@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import tailspin.control.Deconstructor;
 import tailspin.control.Expression;
-import tailspin.control.LensDimension;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.types.Relation;

@@ -21,7 +21,7 @@ public class RangeGenerator implements Expression {
     return resultIterator(Function.identity(), Function.identity(), it, blockScope);
   }
 
-  RangeIterator resultIterator(Function<Long, Long> lowerBoundTransform,
+  public RangeIterator resultIterator(Function<Long, Long> lowerBoundTransform,
       Function<Long, Long> upperBoundTransform, Object it, Scope scope) {
     long increment = step == null ? 1 : ((Number) step.getResults(it, scope)).longValue();
     if (increment == 0) {

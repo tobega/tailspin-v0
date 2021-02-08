@@ -1,5 +1,7 @@
-package tailspin.control;
+package tailspin.transform.lens;
 
+import tailspin.control.DimensionContextKeywordResolver;
+import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.TailspinArray;
 

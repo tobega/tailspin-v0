@@ -1,7 +1,8 @@
-package tailspin.control;
+package tailspin.transform.lens;
 
 import java.util.List;
 import java.util.stream.IntStream;
+import tailspin.control.DimensionContextKeywordResolver;
 import tailspin.interpreter.Scope;
 
 public class MultiValueArrayLens extends ArrayLens {

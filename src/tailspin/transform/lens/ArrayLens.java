@@ -1,4 +1,4 @@
-package tailspin.control;
+package tailspin.transform.lens;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +8,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import tailspin.control.DimensionContextKeywordResolver;
+import tailspin.control.Reference;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.types.Freezable;
 import tailspin.types.TailspinArray;
 
 public abstract class ArrayLens implements LensDimension {
+
+  public static Freezable<?> getThawed(TailspinArray array, int index) {
+    Freezable<?> next = (Freezable<?>) array.get(index);
+    if (!next.isThawed()) {
+      next = next.thawedCopy();
+      array.set(index, next);
+    }
+    return next;
+  }
+
   /* Returns a stream of ints resolved according to resolveIndex */
   public abstract Object getIndices(DimensionContextKeywordResolver dimension, Object it, Scope scope);
 
@@ -98,7 +111,7 @@ public abstract class ArrayLens implements LensDimension {
   public void set(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
       ResultIterator ri) {
     if (!lowerDimensions.isEmpty()) {
-      Object dimensionResult = projectArray((TailspinArray) parent, it, scope, LensReference::getThawed);
+      Object dimensionResult = projectArray((TailspinArray) parent, it, scope, ArrayLens::getThawed);
       LensDimension next = lowerDimensions.get(0);
       AtomicBoolean succeeded = new AtomicBoolean(true);
       mutate(a -> {
@@ -119,7 +132,7 @@ public abstract class ArrayLens implements LensDimension {
       Scope scope) {
     if (!lowerDimensions.isEmpty()) {
       Object dimensionResult =
-          projectArray((TailspinArray) parent, it, scope, LensReference::getThawed);
+          projectArray((TailspinArray) parent, it, scope, ArrayLens::getThawed);
       LensDimension next = lowerDimensions.get(0);
       AtomicBoolean succeeded = new AtomicBoolean(true);
       Object result = retrieve(
@@ -170,7 +183,7 @@ public abstract class ArrayLens implements LensDimension {
       Scope scope,
       ResultIterator ri) {
     if (!lowerDimensions.isEmpty()) {
-      Object dimensionResult = projectArray((TailspinArray) parent, it, scope, LensReference::getThawed);
+      Object dimensionResult = projectArray((TailspinArray) parent, it, scope, ArrayLens::getThawed);
       LensDimension next = lowerDimensions.get(0);
       AtomicBoolean succeeded = new AtomicBoolean(true);
       mutate(

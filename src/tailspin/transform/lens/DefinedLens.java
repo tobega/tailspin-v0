@@ -1,6 +1,7 @@
-package tailspin.control;
+package tailspin.transform.lens;
 
 import java.util.List;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.transform.Lens;
 import tailspin.types.Freezable;

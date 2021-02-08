@@ -1,7 +1,8 @@
-package tailspin.control;
+package tailspin.transform.lens;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.literals.KeyValueExpression;
 import tailspin.types.Relation;
