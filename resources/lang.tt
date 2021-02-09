@@ -1,0 +1,61 @@
+processor Sum&{of:}
+  @:0;
+  sink accumulate
+    @Sum: $@Sum + $(of);
+  end accumulate
+  source result
+    $@Sum !
+  end result
+end Sum
+
+processor Group&{of:}
+  @:[];
+  sink accumulate
+    ..|@Group: $(of);
+  end accumulate
+  source result
+    {[$@Group...]} !
+  end result
+end Group
+
+processor List&{of:}
+  @:[];
+  sink accumulate
+    ..|@List: $(of);
+  end accumulate
+  source result
+    $@List !
+  end result
+end List
+
+processor Count
+  @:0;
+  sink accumulate
+    @Count: $@Count + 1;
+  end accumulate
+  source result
+    $@Count !
+  end result
+end Count
+
+processor Max&{by:, select:}
+  @:[];
+  sink accumulate
+    <?($@Max <=[]>)
+      | ?($(by) <$@Max.max..>)>  @Max: {max: $(by), result: $(select)};
+  end accumulate
+  source result
+    $@Max.result !
+  end result
+end Max
+
+processor Min&{by:, select:}
+  @:[];
+  sink accumulate
+    <?($@Min <=[]>)
+      | ?($(by) <..$@Min.min>)>  @Min: {min: $(by), result: $(select)};
+  end accumulate
+  source result
+    $@Min.result !
+  end result
+end Min

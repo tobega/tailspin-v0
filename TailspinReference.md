@@ -21,6 +21,7 @@ should have been used instead. This is deliberate in order to free the mind of p
 1. [Transforms](#transforms)
     1. [Literal transforms](#literal-transform)
     1. [Deconstructor](#deconstructor)
+    1. [Collector](#collector)
     1. [Templates](#templates)
     1. [Composer](#composer)
     1. [Operator](#operator)
@@ -266,6 +267,15 @@ end Apples
 
 ['apple', 'orange', 'apple'] ... -> ..=Apples -> !OUT::write
 ```
+
+There are a few built-in collectors:
+* `Group&{of:}` will create a [relation](#relations), with the [lens](#projections-and-lenses) provided for `of:` returning a [structure](#structures)
+* `List&{of:}` will create an [array/list](#arrays) of the values returned by the [lens](#projections-and-lenses) provided for `of:`
+* `Sum&{of:}` will return the sum of the values returned by the [lens](#projections-and-lenses) provided for `of:`
+* `Count` will return the count of values in the stream
+* `Min&{by:, select:}` and `Max&{by:, select:}` will return the value provided by the `select:` lens for the min/max of
+  the value provided by the `by:` lens, e.g. `[{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]... -> ..=Min&{by: :(n:), select: :(fruit:)}`
+  will result in the string `orange`
 
 ### Templates
 A templates object consists of an optional _initial block_ and an optional sequence of match statements.
@@ -691,8 +701,10 @@ A relation can be [projected](#projections-and-lenses) onto a subset of the keys
 a list of keys for the projection within curly braces and a closing parenthesis, e.g. `$myRelation({x:})` will select all
 the x-values, and only the x-values, in the relation and return a new relation with the new tuples/structures.
 Note that a relation is a set, so duplicate structures will be eliminated.
-
 A projection can also contain renamings and extensions, where the current structure can be referred to as `§`, e.g. `$myRelation({x:, sum: §.x + §.y, z: §.y})`
+
+A relation can be grouped into categories, with attributes [collected](#collector) per group,
+e.g. `$myOrders(by $myOrders({part:}) collect {totalSold: Sum&{of: :(part:)}})`
 
 Relation values respond to the following messages:
 * `::count` returns the count of distinct structures/tuples in the relation

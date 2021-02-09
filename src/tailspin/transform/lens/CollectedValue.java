@@ -2,6 +2,8 @@ package tailspin.transform.lens;
 
 import java.util.Map;
 import tailspin.control.Reference;
+import tailspin.control.ResultIterator;
+import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Processor;
 import tailspin.types.Transform;
@@ -31,7 +33,7 @@ public class CollectedValue {
     }
 
     public void accumulate(Object s) {
-      collector.resolveMessage("accumulate", Map.of()).getResults(s, Map.of());
+      ResultIterator.resolveSideEffects(collector.resolveMessage("accumulate", Map.of()).getResults(s, Map.of()));
     }
 
     public String key() {
@@ -39,7 +41,7 @@ public class CollectedValue {
     }
 
     public Object result() {
-      return collector.resolveMessage("result", Map.of()).getResults(null, Map.of());
+      return Value.oneValue(collector.resolveMessage("result", Map.of()).getResults(null, Map.of()));
     }
   }
 }

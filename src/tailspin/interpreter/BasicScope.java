@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import tailspin.interpreter.lang.Lang;
 
 public class BasicScope extends Scope {
   private final Path basePath;
@@ -13,7 +12,6 @@ public class BasicScope extends Scope {
 
   public BasicScope(Path basePath) {
     this.basePath = basePath;
-    definitions.putAll(Lang.builtIns);
   }
 
   @Override
@@ -64,5 +62,9 @@ public class BasicScope extends Scope {
   @Override
   public Scope getParentScope() {
     throw new UnsupportedOperationException("No parent scope");
+  }
+
+  public void copyDefinitions(Map<String, Object> to) {
+    to.putAll(definitions);
   }
 }

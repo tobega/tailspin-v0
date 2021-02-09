@@ -1,9 +1,12 @@
 package tailspin.interpreter;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import tailspin.interpreter.lang.Lang;
 
 public class SymbolLibrary {
 
@@ -52,13 +55,25 @@ public class SymbolLibrary {
             Set<String> remaining = lib.installSymbols(
                 inheritedSymbols.stream().map(s -> inheritedModulePrefix + s).collect(Collectors.toSet()),
                 inheritedScope);
-            if (!remaining.isEmpty() && remaining.size() != inheritedSymbols.size()) {
-                throw new IllegalStateException(
-                    "Some symbols not provided: " + remaining);
-            }
+            installBuiltins(remaining, inheritedScope);
             inheritedSymbols.forEach(s -> scope.defineValue(prefix + s, inheritedScope.resolveValue(inheritedModulePrefix + s)));
-        }, () -> {if (!inheritedSymbols.isEmpty()) throw new IllegalStateException(
-            "Some symbols not provided:\n" + inheritedSymbols);});
+        }, () -> installBuiltins(inheritedSymbols, scope));
+    }
+
+    private void installBuiltins(Set<String> remaining, BasicScope scope) {
+        if (prefix.equals("")) {
+            Set<String> unresolved = new HashSet<>();
+            Map<String, Object> builtIns = Lang.getBuiltIns();
+            for (String symbol : remaining) {
+                if (builtIns.containsKey(symbol)) {
+                    scope.defineValue(symbol, builtIns.get(symbol));
+                } else {
+                    unresolved.add(symbol);
+                }
+            }
+            remaining = unresolved;
+        }
+        if (!remaining.isEmpty()) throw new IllegalStateException("Some symbols not provided: " + remaining);
     }
 
     private Set<String> getProvidedSymbols(Set<String> requiredSymbols) {

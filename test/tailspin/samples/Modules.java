@@ -76,6 +76,61 @@ public class Modules {
 
   @ExtendWith(TempDirectory.class)
   @Test
+  void moduleProvidedWithPartiallyUnprovidedCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String core = "processor Input\n"
+        + "@:$;\n"
+        + "source lines $@... ! end lines\n"
+        + "end Input\n"
+        + "def IN: ['a', 'b'] -> Input;";
+    Path coreFile = moduleDir.resolve("core.tt");
+    Files.writeString(coreFile, core, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = "use 'module:dep' with\n"
+        + "core-system/ from 'module:core' with super inherited from core-system/ provided\n"
+        + "provided\n 1 -> !dep/quote";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(baseDir, input, output, List.of()));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void moduleProvidedWithPartiallyProvidedCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String core = "processor Output\n"
+        + "sink write 'foo' -> !super/OUT::write end write\n"
+        + "end Output\n"
+        + "def OUT: $Output;";
+    Path coreFile = moduleDir.resolve("core.tt");
+    Files.writeString(coreFile, core, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = "use 'module:dep' with\n"
+        + "core-system/ from 'module:core' with super inherited from core-system/ provided\n"
+        + "provided\n 1 -> !dep/quote";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("foo", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
   void moduleProvidedWithInheritedCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
     String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));

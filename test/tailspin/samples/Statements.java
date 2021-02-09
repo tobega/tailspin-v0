@@ -406,4 +406,87 @@ class Statements {
 
     assertEquals("20", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void countCollector() throws Exception {
+    String program =
+        "2..6 -> ..=Count -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void maxCollector() throws Exception {
+    String program = "[{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...\n"
+        + "-> ..=Max&{by: :(n:), select: :(fruit:)} -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("apple", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void maxCollectorString() throws Exception {
+    String program = "[{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...\n"
+        + "-> ..=Max&{by: :(fruit:), select: :()} -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{fruit=orange, n=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void minCollector() throws Exception {
+    String program = "[{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...\n"
+        + "-> ..=Min&{by: :(n:), select: :(fruit:)} -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("orange", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void minCollectorString() throws Exception {
+    String program = "[{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...\n"
+        + "-> ..=Min&{by: :(fruit:), select: :()} -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{fruit=apple, n=5}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void listCollector() throws Exception {
+    String program = "1..5 -> ..=List&{of: :()} -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[1, 2, 3, 4, 5]", output.toString(StandardCharsets.UTF_8));
+  }
 }

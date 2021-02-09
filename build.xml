@@ -1,5 +1,6 @@
 <project name="Tailspin" basedir="." default="compile">
     <property name="src.dir"   value="src" />
+    <property name="lang.dir"   value="resources" />
     <property name="build.dir" value="out/production/tailspin-v0" />
     
     <target name="clean">
@@ -21,6 +22,7 @@
                 <attribute name="Main-Class" value="tailspin.Tailspin"/>
                 <attribute name="Class-Path" value="lib/antlr-runtime-4.8.jar"/>
             </manifest>
+            <fileset dir="${lang.dir}" />
         </jar>
     </target>
 </project>

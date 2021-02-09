@@ -53,7 +53,7 @@ public class Module {
         .forEach(d -> d.statement.getResults(null, scope));
   }
 
-  void resolveAll(BasicScope scope, List<SymbolLibrary> providedDependencies) {
+  public void resolveAll(BasicScope scope, List<SymbolLibrary> providedDependencies) {
     resolveSymbols(
         definitions.stream().map(d -> d.statement.getIdentifier()).collect(Collectors.toSet()),
         scope, providedDependencies);
