@@ -3,8 +3,10 @@ package tailspin.interpreter.lang;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import tailspin.Tailspin;
 import tailspin.interpreter.BasicScope;
 import tailspin.interpreter.Program;
@@ -36,5 +38,19 @@ public class Lang {
       throw new RuntimeException(e);
     }
     return builtIns;
+  }
+
+  public static void installBuiltins(Set<String> remaining, BasicScope scope) {
+    Set<String> unresolved = new HashSet<>();
+    Map<String, Object> builtIns = getBuiltIns();
+    for (String symbol : remaining) {
+      if (builtIns.containsKey(symbol)) {
+        scope.defineValue(symbol, builtIns.get(symbol));
+      } else {
+        unresolved.add(symbol);
+      }
+    }
+    remaining = unresolved;
+    if (!remaining.isEmpty()) throw new IllegalStateException("Some symbols not provided: " + remaining);
   }
 }

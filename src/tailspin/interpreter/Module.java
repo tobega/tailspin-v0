@@ -9,6 +9,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import tailspin.interpreter.lang.Lang;
 
 public class Module {
 
@@ -48,6 +49,8 @@ public class Module {
     for (SymbolLibrary lib : providedDependencies) {
       externalDefinitions = lib.installSymbols(externalDefinitions, scope);
     }
+    if (!externalDefinitions.isEmpty())
+      Lang.installBuiltins(externalDefinitions, scope);
     definitions.stream()
         .filter(d -> transientDefinitions.contains(d.statement.getIdentifier()))
         .forEach(d -> d.statement.getResults(null, scope));
