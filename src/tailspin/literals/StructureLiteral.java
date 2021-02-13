@@ -5,26 +5,26 @@ import java.util.Map;
 import java.util.TreeMap;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
-import tailspin.control.Value;
 import tailspin.interpreter.Scope;
-import tailspin.types.KeyValue;
 import tailspin.types.Structure;
 
-public class StructureLiteral implements Value {
-  private final List<Expression> keyValues;
+public class StructureLiteral implements Expression {
+  private final List<StructureExpansion> expansions;
 
-  public StructureLiteral(List<Expression> keyValues) {
-    this.keyValues = keyValues;
+  public StructureLiteral(List<StructureExpansion> expansions) {
+    this.expansions = expansions;
   }
 
   @Override
-  public Structure getResults(Object it, Scope scope) {
-    Map<String, Object> structure = new TreeMap<>();
-    for (Expression expression : keyValues) {
-      Object result = expression.getResults(it, scope);
-      ResultIterator.forEach(result,
-          kv -> structure.put(((KeyValue) kv).getKey(), ((KeyValue) kv).getValue()));
+  public Object getResults(Object it, Scope scope) {
+    List<Map<String, Object>> seeds = List.of(new TreeMap<>());
+    for (StructureExpansion expansion : expansions) {
+      seeds = expansion.expand(seeds, it, scope);
     }
-    return Structure.value(structure);
+    Object result = null;
+    for (Map<String, Object> seed : seeds) {
+      result = ResultIterator.appendResultValue(result, Structure.value(seed));
+    }
+    return result;
   }
 }

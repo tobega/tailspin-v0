@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import tailspin.control.Reference;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
-import tailspin.literals.KeyValueExpression;
+import tailspin.literals.StructureExpansion;
 
 public class Structure implements Freezable<Structure> {
 
@@ -36,14 +36,16 @@ public class Structure implements Freezable<Structure> {
     return new Structure(fields, false);
   }
 
-  public Structure project(List<KeyValueExpression> projections, Object it, Scope scope) {
-    Structure projected = new Structure(new TreeMap<>(), true);
-    for (KeyValueExpression kve : projections) {
-      KeyValue kv = kve.getResults(Reference.pairedReflexive(it, this), scope);
-      projected.put(kv.getKey(), kv.getValue());
+  public Object project(List<StructureExpansion> expansions, Object it, Scope scope) {
+    List<Map<String, Object>> seeds = List.of(new TreeMap<>());
+    for (StructureExpansion expansion : expansions) {
+      seeds = expansion.expand(seeds, Reference.pairedReflexive(it, this), scope);
     }
-    projected.freeze();
-    return projected;
+    Object result = null;
+    for (Map<String, Object> seed : seeds) {
+      result = ResultIterator.appendResultValue(result, Structure.value(seed));
+    }
+    return result;
   }
 
   public Object get(String fieldIdentifier) {

@@ -199,11 +199,11 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStructures(TailspinParser.StructuresContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#keyValues}.
+	 * Visit a parse tree produced by {@link TailspinParser#structureExpansion}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitKeyValues(TailspinParser.KeyValuesContext ctx);
+	T visitStructureExpansion(TailspinParser.StructureExpansionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#keyValue}.
 	 * @param ctx the parse tree

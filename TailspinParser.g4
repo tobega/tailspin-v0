@@ -48,7 +48,7 @@ simpleDimension: sourceReference|arithmeticExpression|rangeLiteral;
 
 multiValueDimension: LeftBracket simpleDimension (Comma simpleDimension)* RightBracket;
 
-projection: LeftBrace ((key|keyValue) Comma?)+ RightBrace;
+projection: LeftBrace ((key|structureExpansion) (Comma (key|structureExpansion))*)? RightBrace;
 
 grouping: By source Collect LeftBrace collectedValue+ RightBrace;
 
@@ -58,7 +58,7 @@ arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valu
 
 valueProduction: sendToTemplates | valueChain;
 
-structureLiteral: LeftBrace (keyValues (Comma keyValues)*)? RightBrace;
+structureLiteral: LeftBrace (structureExpansion (Comma structureExpansion)*)? RightBrace;
 
 relationLiteral: LeftBrace LeftBracket (structures (Comma structures)*)? RightBracket RightBrace;
 
@@ -71,9 +71,9 @@ structures: structureLiteral
   | sourceReference
 ;
 
-keyValues: keyValue
-  | valueProduction
-  | sourceReference
+structureExpansion: keyValue
+  | By? (valueProduction
+    | sourceReference)
 ;
 
 keyValue: key valueProduction;

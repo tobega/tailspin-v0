@@ -336,4 +336,56 @@ class Structures {
 
     assertEquals("{a=1, b=5, d=6}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void expansion() throws IOException {
+    String program = "{a: 1, by 3..5 -> (b: $), c:2} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a=1, b=3, c=2}{a=1, b=4, c=2}{a=1, b=5, c=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void doubleExpansion() throws IOException {
+    String program = "{a: 1, by 4..5 -> (b: $), by 1..2 -> (c:$)} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a=1, b=4, c=1}{a=1, b=5, c=1}{a=1, b=4, c=2}{a=1, b=5, c=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void expansionByStructure() throws IOException {
+    String program = "{a: 1, by 4..5 -> {b: $, c:$-3}} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a=1, b=4, c=1}{a=1, b=5, c=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void nestedExpansion() throws IOException {
+    String program = "{a: 1, by {by 4..5 -> (b: $), by 1..2 -> (c:$)}} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a=1, b=4, c=1}{a=1, b=5, c=1}{a=1, b=4, c=2}{a=1, b=5, c=2}", output.toString(StandardCharsets.UTF_8));
+  }
 }

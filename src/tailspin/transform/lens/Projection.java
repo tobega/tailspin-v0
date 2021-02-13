@@ -4,22 +4,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
-import tailspin.literals.KeyValueExpression;
+import tailspin.literals.StructureExpansion;
 import tailspin.types.Relation;
 import tailspin.types.Structure;
 import tailspin.types.TailspinArray;
 
 public class Projection implements LensDimension {
 
-  private final List<KeyValueExpression> projections;
+  private final List<StructureExpansion> projections;
 
-  public Projection(List<KeyValueExpression> projections) {
+  public Projection(List<StructureExpansion> projections) {
     this.projections = projections;
   }
 
   @Override
-  public Object get(List<LensDimension> lowerDimensions, Object parent, Object it,
-      Scope scope) {
+  public Object get(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope) {
     if (!lowerDimensions.isEmpty())
       throw new UnsupportedOperationException("Projection cannot extend to lower dimensions");
     if (parent instanceof Relation) {

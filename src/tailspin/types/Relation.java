@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
-import tailspin.literals.KeyValueExpression;
+import tailspin.literals.StructureExpansion;
 
 public class Relation implements Processor {
   private final Set<Structure> contents;
@@ -59,10 +59,17 @@ public class Relation implements Processor {
         ).collect(Collectors.toSet()));
   }
 
-  public Object project(List<KeyValueExpression> projections, Object it, Scope scope) {
-    Set<String> newKeys = projections.stream().map(KeyValueExpression::getKey).collect(Collectors.toSet());
-    return new Relation(newKeys, contents.stream()
-        .map(s -> s.project(projections, it, scope)).collect(Collectors.toSet()));
+  public Relation project(List<StructureExpansion> projections, Object it, Scope scope) {
+    Set<Structure> tuples = new HashSet<>();
+    for (Structure tuple : contents) {
+      ResultIterator.forEach(ResultIterator.wrap(tuple.project(projections, it, scope)),
+          o -> tuples.add((Structure) o));
+    }
+    if (tuples.isEmpty()) return new Relation(Set.of(), Set.of());
+    List<Set<String>> newKeys = tuples.stream().map(Structure::keySet).distinct().collect(Collectors.toList());
+    if (newKeys.size() > 1)
+      throw new IllegalStateException("Incompatible keys on " + tuples);
+    return new Relation(newKeys.get(0), tuples);
   }
 
   public Object deconstruct() {

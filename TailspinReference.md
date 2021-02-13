@@ -146,6 +146,15 @@ A literal key-value pair is an identifier followed by a colon and a _value chain
 An example of an expression generating a stream of key-value pairs is a [deconstruct](#deconstructor)
  of a [dereferenced](#dereference) structure value.
 
+#### Structure expansion
+Sometimes you want to generate several structures with combinations of similar values, so instead of a key-value pair
+you can specify the word `by` followed by an expression that generates a stream of key-value pairs (or structures,
+for sets of co-occurring key-values). That will "expand" the structure literal into a stream of structures, one for
+each key-value pair (or structure) in the "by"-stream, with the same value for the attributes otherwise specified.
+
+For example: `{token: ' ', by 1..3 -> (x:$), by 1..3 -> (y:$)}` will generate a stream of nine structures
+with all combinations of x and y, all with space for token. 
+
 ### Relation literal
 A relation literal produces a [relation](#relations) value. It starts with a left brace and a left bracket, followed
 by [structure literals](#structure-literal) or expressions generating [streams](#streams) of [structures](#structures),
@@ -435,7 +444,7 @@ the parentheses. A lens is applied directly after a [dereference](#dereference),
 A lens can be passed as a parameter to templates, but it must then have a colon before the first parenthesis,
 e.g. `mylist -> sum&{of: :(amount:)}` to sum the amount fields of the structures in the list. When passed as a parameter,
 the lens can be empty to access the referenced element itself, e.g. `mynumberlist -> sum&{of: :()}` to sum the
-numbers in the list.
+numbers in the list. (`sum` could be defined as `templates sum&{of:} $... -> ..=Sum&{of: :(of)} ! end sum`)
 
 The most common lenses are the ones used to access [array](#arrays) elements, where integer values project onto
 elements of the array. Single integers, `$(3)`, the values `first` and `last`, or integer expressions will access
@@ -466,6 +475,9 @@ values for which x is 1 or 2 respectively, ignoring others. If a structure can m
 After the categories you specify the word `collect` followed by a structure where keys are paired with a reference to a
 constructor for a [collector](#collector) object. The full syntax could be for example `$myArray(by $myArray({x:}) collect {ysum: Sum&{of: :(y:)})`
 to obtain an array of unique x values paired with the sum of y values that were previously associated with that x value.
+
+A projection can utilize [structure expansion](#structure-expansion) to produce a stream of structures for each structure.
+This can for example be used to ungroup values previously collected into a group. 
 
 ## Matchers
 A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the

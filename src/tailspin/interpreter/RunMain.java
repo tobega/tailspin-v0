@@ -16,7 +16,6 @@ import tailspin.arithmetic.ArithmeticContextValue;
 import tailspin.arithmetic.ArithmeticOperation;
 import tailspin.arithmetic.IntegerConstant;
 import tailspin.arithmetic.IntegerExpression;
-import tailspin.transform.lens.ArrayLens;
 import tailspin.control.ArrayTemplates;
 import tailspin.control.Block;
 import tailspin.control.Bound;
@@ -24,23 +23,16 @@ import tailspin.control.ChainStage;
 import tailspin.control.CollectorChain;
 import tailspin.control.ComposerDefinition;
 import tailspin.control.Deconstructor;
-import tailspin.transform.lens.DefinedLens;
 import tailspin.control.Definition;
 import tailspin.control.DeleteState;
 import tailspin.control.Expression;
 import tailspin.control.InlineTemplates;
-import tailspin.transform.lens.KeyLens;
-import tailspin.transform.lens.LensDimension;
-import tailspin.transform.lens.MultiValueArrayLens;
 import tailspin.control.OperatorApplication;
 import tailspin.control.ProcessorDefinition;
 import tailspin.control.ProcessorMessage;
-import tailspin.transform.lens.Projection;
-import tailspin.transform.lens.RangeArrayLens;
 import tailspin.control.RangeGenerator;
 import tailspin.control.Reference;
 import tailspin.control.SendToTemplates;
-import tailspin.transform.lens.SingleValueArrayLens;
 import tailspin.control.SinkReference;
 import tailspin.control.SinkValueChain;
 import tailspin.control.SourceReference;
@@ -59,6 +51,7 @@ import tailspin.literals.RelationLiteral;
 import tailspin.literals.StringConstant;
 import tailspin.literals.StringInterpolation;
 import tailspin.literals.StringLiteral;
+import tailspin.literals.StructureExpansion;
 import tailspin.literals.StructureLiteral;
 import tailspin.matchers.AlwaysFalse;
 import tailspin.matchers.AnyOf;
@@ -82,7 +75,6 @@ import tailspin.parser.TailspinParser.CompositionSequenceContext;
 import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
 import tailspin.parser.TailspinParser.DimensionReferenceContext;
 import tailspin.parser.TailspinParser.InheritModuleContext;
-import tailspin.parser.TailspinParser.KeyValuesContext;
 import tailspin.parser.TailspinParser.ModuleIdentifierContext;
 import tailspin.parser.TailspinParser.ModuleImportContext;
 import tailspin.parser.TailspinParser.ModuleModificationContext;
@@ -107,8 +99,16 @@ import tailspin.transform.MatchTemplate;
 import tailspin.transform.Operator;
 import tailspin.transform.ProcessorConstructor;
 import tailspin.transform.Templates;
+import tailspin.transform.lens.ArrayLens;
 import tailspin.transform.lens.CollectedValue;
+import tailspin.transform.lens.DefinedLens;
 import tailspin.transform.lens.Grouping;
+import tailspin.transform.lens.KeyLens;
+import tailspin.transform.lens.LensDimension;
+import tailspin.transform.lens.MultiValueArrayLens;
+import tailspin.transform.lens.Projection;
+import tailspin.transform.lens.RangeArrayLens;
+import tailspin.transform.lens.SingleValueArrayLens;
 import tailspin.types.Criterion;
 import tailspin.types.KeyValue;
 
@@ -338,10 +338,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public LensDimension visitProjection(TailspinParser.ProjectionContext ctx) {
-    return new Projection(Stream.concat(ctx.keyValue().stream().map(this::visitKeyValue),
+    return new Projection(Stream.concat(ctx.structureExpansion().stream().map(this::visitStructureExpansion),
         ctx.key().stream().map(kc -> {
           String field = kc.localIdentifier().getText();
-          return new KeyValueExpression(field, Reference.reflexive().field(field));
+          return new StructureExpansion(false, new KeyValueExpression(field, Reference.reflexive().field(field)));
         })).collect(Collectors.toList()));
   }
 
@@ -979,7 +979,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public StructureLiteral visitStructureLiteral(TailspinParser.StructureLiteralContext ctx) {
-    return new StructureLiteral(ctx.keyValues().stream().map(this::visitKeyValues).collect(Collectors.toList()));
+    return new StructureLiteral(ctx.structureExpansion().stream().map(this::visitStructureExpansion).collect(Collectors.toList()));
   }
 
   @Override
@@ -999,14 +999,18 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Expression visitKeyValues(KeyValuesContext ctx) {
+  public StructureExpansion visitStructureExpansion(TailspinParser.StructureExpansionContext ctx) {
+    Expression expression;
     if (ctx.keyValue() != null) {
-      return visitKeyValue(ctx.keyValue());
+      expression = visitKeyValue(ctx.keyValue());
+    } else if (ctx.sourceReference() != null) {
+      expression = visitSourceReference(ctx.sourceReference());
+    } else if (ctx.valueProduction() != null) {
+      expression = visitValueProduction(ctx.valueProduction());
+    } else {
+      throw new UnsupportedOperationException("Unknown structure expansion " + ctx);
     }
-    if (ctx.sourceReference() != null) {
-      return visitSourceReference(ctx.sourceReference());
-    }
-    return visitValueProduction(ctx.valueProduction());
+    return new StructureExpansion(ctx.By() != null, expression);
   }
 
   @Override
