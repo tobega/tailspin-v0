@@ -27,7 +27,7 @@ public class Relation implements Processor {
       }
       contents.add(structure);
     }
-    this.keys = keys;
+    this.keys = keys == null ? Set.of() : keys;
   }
 
   private Relation(Set<String> keys, Set<Structure> contents) {
@@ -41,6 +41,9 @@ public class Relation implements Processor {
   }
 
   public Relation union(Relation other) {
+    // Under some conditions we cannot calculate header for empty relations
+    if (other.keys.isEmpty() && other.contents.isEmpty()) return this;
+    if (keys.isEmpty() && contents.isEmpty()) return other;
     if (!keys.equals(other.keys)) throw new IllegalArgumentException("Can't union " + keys + " with " + other.keys);
     return new Relation(keys, Stream.concat(contents.stream(), other.contents.stream()).collect(
         Collectors.toSet()));

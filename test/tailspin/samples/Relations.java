@@ -254,4 +254,81 @@ public class Relations {
     assertTrue(result.contains("{x=2, y=4}"));
     assertEquals(50, result.length());
   }
+
+  @Test
+  void emptyRelationCanBeJoined() throws IOException {
+    String program = "({[{x: 1}]} join {[]}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals("{[]}", result);
+  }
+
+  @Test
+  void emptyTupleRelationCanBeJoined() throws IOException {
+    String program = "({[{x: 1}]} join {[{}]}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals("{[{x=1}]}", result);
+  }
+
+  /**
+   * This is because we can't specify the keys for an empty relation literal.
+   */
+  @Test
+  void allowUnionEmptyHeaderOnEmptyRelation() throws IOException {
+    String program = "({[{x: 1}]} union {[]}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals("{[{x=1}]}", result);
+  }
+
+  @Test
+  void joinEmptyCanUnion() throws IOException {
+    String program = "({[{x: 2}]} union (({[{x: 2}]} join {[]})))  -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals("{[{x=2}]}", result);
+  }
+
+  /**
+   * This is because we can't evaluate keys on a structure expansion without an input tuple.
+   */
+  @Test
+  void allowUnionEmptyHeaderOnEmptyRelationFromExpansion() throws IOException {
+    String program = "def b: ({[{x: 2}]} join {[]}) -> $({x:});\n"
+        + "({[{x: 2}]} union $b)  -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals("{[{x=2}]}", result);
+  }
 }
