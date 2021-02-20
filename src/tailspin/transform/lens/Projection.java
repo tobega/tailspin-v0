@@ -4,16 +4,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
-import tailspin.literals.StructureExpansion;
+import tailspin.literals.KeyValueExpression;
 import tailspin.types.Relation;
 import tailspin.types.Structure;
 import tailspin.types.TailspinArray;
 
 public class Projection implements LensDimension {
 
-  private final List<StructureExpansion> projections;
+  private final List<KeyValueExpression> projections;
 
-  public Projection(List<StructureExpansion> projections) {
+  public Projection(List<KeyValueExpression> projections) {
     this.projections = projections;
   }
 

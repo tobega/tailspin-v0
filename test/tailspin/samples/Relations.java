@@ -237,7 +237,7 @@ public class Relations {
   void ungroup() throws IOException {
     String program =
         "{[{x: 1, ys: {[{y: 2}, {y: 3}]}}, {x:2, ys: {[{y: 1}, {y: 4}]}}]}\n"
-            + " -> $({x:, by §.ys...}) -> !OUT::write";
+            + " -> {[$... -> ({[$({x:})]} join $.ys)...]} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

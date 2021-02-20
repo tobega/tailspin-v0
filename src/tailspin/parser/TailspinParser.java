@@ -1537,11 +1537,11 @@ public class TailspinParser extends Parser {
 		public KeyContext key(int i) {
 			return getRuleContext(KeyContext.class,i);
 		}
-		public List<StructureExpansionContext> structureExpansion() {
-			return getRuleContexts(StructureExpansionContext.class);
+		public List<KeyValueContext> keyValue() {
+			return getRuleContexts(KeyValueContext.class);
 		}
-		public StructureExpansionContext structureExpansion(int i) {
-			return getRuleContext(StructureExpansionContext.class,i);
+		public KeyValueContext keyValue(int i) {
+			return getRuleContext(KeyValueContext.class,i);
 		}
 		public List<TerminalNode> Comma() { return getTokens(TailspinParser.Comma); }
 		public TerminalNode Comma(int i) {
@@ -1570,7 +1570,7 @@ public class TailspinParser extends Parser {
 			setState(409);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StereotypeDefinition) | (1L << To) | (1L << SourceMarker) | (1L << DeleteMarker) | (1L << Reflexive) | (1L << LeftParen) | (1L << LeftBracket) | (1L << LeftBrace) | (1L << StartBytes) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << StartOperatorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Range) | (1L << Plus) | (1L << Minus) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (Use - 65)) | (1L << (Program - 65)) | (1L << (Modify - 65)) | (1L << (By - 65)) | (1L << (Collect - 65)) | (1L << (Zero - 65)) | (1L << (PositiveInteger - 65)) | (1L << (START_STRING - 65)) | (1L << (IDENTIFIER - 65)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << Include) | (1L << Def) | (1L << When) | (1L << Do) | (1L << Otherwise) | (1L << StereotypeDefinition) | (1L << StartTemplatesDefinition) | (1L << StartSourceDefinition) | (1L << StartSinkDefinition) | (1L << StartComposerDefinition) | (1L << StartProcessorDefinition) | (1L << StartOperatorDefinition) | (1L << EndDefinition) | (1L << Rule) | (1L << First) | (1L << Last) | (1L << Mod) | (1L << StartTestDefinition) | (1L << Assert) | (1L << With) | (1L << Provided) | (1L << Modified) | (1L << Shadowed) | (1L << From))) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & ((1L << (Use - 65)) | (1L << (Program - 65)) | (1L << (Modify - 65)) | (1L << (By - 65)) | (1L << (Collect - 65)) | (1L << (IDENTIFIER - 65)))) != 0)) {
 				{
 				setState(397);
 				_errHandler.sync(this);
@@ -1584,7 +1584,7 @@ public class TailspinParser extends Parser {
 				case 2:
 					{
 					setState(396);
-					structureExpansion();
+					keyValue();
 					}
 					break;
 				}
@@ -1608,7 +1608,7 @@ public class TailspinParser extends Parser {
 					case 2:
 						{
 						setState(401);
-						structureExpansion();
+						keyValue();
 						}
 						break;
 					}
@@ -8491,9 +8491,9 @@ public class TailspinParser extends Parser {
 		"\u0184\7\27\2\2\u0184\u0186\5\30\r\2\u0185\u0183\3\2\2\2\u0186\u0189\3"+
 		"\2\2\2\u0187\u0185\3\2\2\2\u0187\u0188\3\2\2\2\u0188\u018a\3\2\2\2\u0189"+
 		"\u0187\3\2\2\2\u018a\u018b\7\35\2\2\u018b\33\3\2\2\2\u018c\u019b\7\36"+
-		"\2\2\u018d\u0190\5\b\5\2\u018e\u0190\5\60\31\2\u018f\u018d\3\2\2\2\u018f"+
+		"\2\2\u018d\u0190\5\b\5\2\u018e\u0190\5\62\32\2\u018f\u018d\3\2\2\2\u018f"+
 		"\u018e\3\2\2\2\u0190\u0198\3\2\2\2\u0191\u0194\7\27\2\2\u0192\u0195\5"+
-		"\b\5\2\u0193\u0195\5\60\31\2\u0194\u0192\3\2\2\2\u0194\u0193\3\2\2\2\u0195"+
+		"\b\5\2\u0193\u0195\5\62\32\2\u0194\u0192\3\2\2\2\u0194\u0193\3\2\2\2\u0195"+
 		"\u0197\3\2\2\2\u0196\u0191\3\2\2\2\u0197\u019a\3\2\2\2\u0198\u0196\3\2"+
 		"\2\2\u0198\u0199\3\2\2\2\u0199\u019c\3\2\2\2\u019a\u0198\3\2\2\2\u019b"+
 		"\u018f\3\2\2\2\u019b\u019c\3\2\2\2\u019c\u019d\3\2\2\2\u019d\u019e\7\37"+

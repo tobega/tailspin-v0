@@ -476,8 +476,8 @@ After the categories you specify the word `collect` followed by a structure wher
 constructor for a [collector](#collector) object. The full syntax could be for example `$myArray(by $myArray({x:}) collect {ysum: Sum&{of: :(y:)})`
 to obtain an array of unique x values paired with the sum of y values that were previously associated with that x value.
 
-A projection can utilize [structure expansion](#structure-expansion) to produce a stream of structures for each structure.
-This can for example be used to ungroup values previously collected into a group. 
+A projection cannot utilize [structure expansion](#structure-expansion) because that would produce a stream of structures,
+while a projection is required to provide a value.
 
 ## Matchers
 A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the
@@ -700,6 +700,14 @@ A relation, as in relational algebra, is like a set of [structures](#structures)
 with the same set of keys (normally referred to as attributes, because keys have a slightly different meaning in databases).
 A relation is similar to a table in a SQL database except there are no duplicate rows.
 
+To use relations effectively, note the correspondence with logic, that the attributes of a tuple should relate to each other
+in a statement that is called the predicate, e.g. "The tuple is a point with the given x and y coordinates" or
+"The employee with the provided names works in the department identified by the departmentId". If the predicate is
+not crisp and clear, it is a code smell that indicates your logic may be flawed.
+Beware of using "or" instead of "and" to relate attributes.
+Beware of predicates with an indefinite "a/an" instead of a definite "the".
+Especially beware of indications that the tuple may not be unique and take action to ensure uniqueness.
+
 A relation can be [deconstructed](#deconstructor) into a stream of structures.
 
 Two relations with the same set of keys can be appended together to form the union of the two sets of structures, by the built-in
@@ -717,6 +725,13 @@ A projection can also contain renamings and extensions, where the current struct
 
 A relation can be grouped into categories, with attributes [collected](#collector) per group,
 e.g. `$myOrders(by $myOrders({part:}) collect {totalSold: Sum&{of: :(part:)}})`
+
+An attribute can also be collected as a relation by the `Group` [collector](#collector).
+If you need to ungroup values that have been grouped, you should stream and join, e.g.:
+```
+{[{x: 1, ys: {[{y: 2}, {y: 3}]}}, {x:2, ys: {[{y: 1}, {y: 4}]}}]}
+  -> {[$... -> ({[$({x:})]} join $.ys)...]} -> !OUT::write
+```
 
 Relation values respond to the following messages:
 * `::count` returns the count of distinct structures/tuples in the relation

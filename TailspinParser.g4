@@ -48,7 +48,7 @@ simpleDimension: sourceReference|arithmeticExpression|rangeLiteral;
 
 multiValueDimension: LeftBracket simpleDimension (Comma simpleDimension)* RightBracket;
 
-projection: LeftBrace ((key|structureExpansion) (Comma (key|structureExpansion))*)? RightBrace;
+projection: LeftBrace ((key|keyValue) (Comma (key|keyValue))*)? RightBrace;
 
 grouping: By source Collect LeftBrace collectedValue+ RightBrace;
 

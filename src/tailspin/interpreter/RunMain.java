@@ -338,10 +338,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public LensDimension visitProjection(TailspinParser.ProjectionContext ctx) {
-    return new Projection(Stream.concat(ctx.structureExpansion().stream().map(this::visitStructureExpansion),
+    return new Projection(Stream.concat(ctx.keyValue().stream().map(this::visitKeyValue),
         ctx.key().stream().map(kc -> {
           String field = kc.localIdentifier().getText();
-          return new StructureExpansion(false, new KeyValueExpression(field, Reference.reflexive().field(field)));
+          return new KeyValueExpression(field, Reference.reflexive().field(field));
         })).collect(Collectors.toList()));
   }
 
