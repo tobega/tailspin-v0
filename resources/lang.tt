@@ -14,7 +14,7 @@ processor Group&{of:}
     ..|@Group: $(of);
   end accumulate
   source result
-    {[$@Group...]} !
+    {|$@Group...|} !
   end result
 end Group
 

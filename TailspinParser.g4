@@ -60,7 +60,7 @@ valueProduction: sendToTemplates | valueChain;
 
 structureLiteral: LeftBrace (structureExpansion (Comma structureExpansion)*)? RightBrace;
 
-relationLiteral: LeftBrace LeftBracket (structures (Comma structures)*)? RightBracket RightBrace;
+relationLiteral: LeftBrace Else (structures (Comma structures)*)? Else RightBrace;
 
 bytesLiteral: StartBytes byteValue (byteValue)* EndBytes;
 

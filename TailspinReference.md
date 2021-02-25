@@ -12,6 +12,7 @@ should have been used instead. This is deliberate in order to free the mind of p
     1. [Range](#range-literal)
     1. [Array](#array-literal)
     1. [Structure](#structure-literal)
+    1. [Relation](#relation-literal)
     1. [Bytes literal](#bytes-literal)
     1. [Terminal input](#input)
     1. [Defined value (Dereference)](#dereference)
@@ -159,7 +160,7 @@ with all combinations of x and y, all with space for token.
 A relation literal produces a [relation](#relations) value. It starts with a left brace and a left bracket, followed
 by [structure literals](#structure-literal) or expressions generating [streams](#streams) of [structures](#structures),
 separated by commas, and ens with a right bracket and a right brace. All structures must have the same set of keys to
-form a valid relation. E.g. `{[{x: 1, y: 1}, {x: 2, y: 3}]}`
+form a valid relation. E.g. `{|{x: 1, y: 1}, {x: 2, y: 3}|}`
 
 ### Bytes literal
 A bytes literal produces a [bytes](#bytes) value. In the simplest form it starts with the marker `[x` and ends with `x]`, with a sequence
@@ -729,8 +730,8 @@ e.g. `$myOrders(by $myOrders({part:}) collect {totalSold: Sum&{of: :(part:)}})`
 An attribute can also be collected as a relation by the `Group` [collector](#collector).
 If you need to ungroup values that have been grouped, you should stream and join, e.g.:
 ```
-{[{x: 1, ys: {[{y: 2}, {y: 3}]}}, {x:2, ys: {[{y: 1}, {y: 4}]}}]}
-  -> {[$... -> ({[$({x:})]} join $.ys)...]} -> !OUT::write
+{|{x: 1, ys: {|{y: 2}, {y: 3}|}}, {x:2, ys: {|{y: 1}, {y: 4}|}}|}
+  -> {|$... -> ({|$({x:})|} join $.ys)...|} -> !OUT::write
 ```
 
 Relation values respond to the following messages:

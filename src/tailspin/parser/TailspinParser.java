@@ -1955,8 +1955,10 @@ public class TailspinParser extends Parser {
 
 	public static class RelationLiteralContext extends ParserRuleContext {
 		public TerminalNode LeftBrace() { return getToken(TailspinParser.LeftBrace, 0); }
-		public TerminalNode LeftBracket() { return getToken(TailspinParser.LeftBracket, 0); }
-		public TerminalNode RightBracket() { return getToken(TailspinParser.RightBracket, 0); }
+		public List<TerminalNode> Else() { return getTokens(TailspinParser.Else); }
+		public TerminalNode Else(int i) {
+			return getToken(TailspinParser.Else, i);
+		}
 		public TerminalNode RightBrace() { return getToken(TailspinParser.RightBrace, 0); }
 		public List<StructuresContext> structures() {
 			return getRuleContexts(StructuresContext.class);
@@ -1989,7 +1991,7 @@ public class TailspinParser extends Parser {
 			setState(459);
 			match(LeftBrace);
 			setState(460);
-			match(LeftBracket);
+			match(Else);
 			setState(469);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -2017,7 +2019,7 @@ public class TailspinParser extends Parser {
 			}
 
 			setState(471);
-			match(RightBracket);
+			match(Else);
 			setState(472);
 			match(RightBrace);
 			}
@@ -8512,10 +8514,10 @@ public class TailspinParser extends Parser {
 		"\u01c8\3\2\2\2\u01c6\u01c4\3\2\2\2\u01c6\u01c7\3\2\2\2\u01c7\u01ca\3\2"+
 		"\2\2\u01c8\u01c6\3\2\2\2\u01c9\u01c1\3\2\2\2\u01c9\u01ca\3\2\2\2\u01ca"+
 		"\u01cb\3\2\2\2\u01cb\u01cc\7\37\2\2\u01cc\'\3\2\2\2\u01cd\u01ce\7\36\2"+
-		"\2\u01ce\u01d7\7\34\2\2\u01cf\u01d4\5.\30\2\u01d0\u01d1\7\27\2\2\u01d1"+
+		"\2\u01ce\u01d7\7\66\2\2\u01cf\u01d4\5.\30\2\u01d0\u01d1\7\27\2\2\u01d1"+
 		"\u01d3\5.\30\2\u01d2\u01d0\3\2\2\2\u01d3\u01d6\3\2\2\2\u01d4\u01d2\3\2"+
 		"\2\2\u01d4\u01d5\3\2\2\2\u01d5\u01d8\3\2\2\2\u01d6\u01d4\3\2\2\2\u01d7"+
-		"\u01cf\3\2\2\2\u01d7\u01d8\3\2\2\2\u01d8\u01d9\3\2\2\2\u01d9\u01da\7\35"+
+		"\u01cf\3\2\2\2\u01d7\u01d8\3\2\2\2\u01d8\u01d9\3\2\2\2\u01d9\u01da\7\66"+
 		"\2\2\u01da\u01db\7\37\2\2\u01db)\3\2\2\2\u01dc\u01dd\7 \2\2\u01dd\u01e1"+
 		"\5,\27\2\u01de\u01e0\5,\27\2\u01df\u01de\3\2\2\2\u01e0\u01e3\3\2\2\2\u01e1"+
 		"\u01df\3\2\2\2\u01e1\u01e2\3\2\2\2\u01e2\u01e4\3\2\2\2\u01e3\u01e1\3\2"+

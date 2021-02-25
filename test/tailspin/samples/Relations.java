@@ -14,7 +14,7 @@ import tailspin.Tailspin;
 public class Relations {
   @Test
   void relationLiteral() throws IOException {
-    String program = "{[{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 2}]} -> !OUT::write";
+    String program = "{|{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 2}|} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -23,8 +23,8 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("{["));
-    assertTrue(result.endsWith("]}"));
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
     assertTrue(result.contains("{x=1, y=2}"));
     assertTrue(result.contains("{x=2, y=3}"));
     assertEquals(26, result.length());
@@ -32,7 +32,7 @@ public class Relations {
 
   @Test
   void union() throws IOException {
-    String program = "({[{x: 1, y: 2}]} union {[{x:2, y: 3}]}) -> !OUT::write";
+    String program = "({|{x: 1, y: 2}|} union {|{x:2, y: 3}|}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -41,8 +41,8 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("{["));
-    assertTrue(result.endsWith("]}"));
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
     assertTrue(result.contains("{x=1, y=2}"));
     assertTrue(result.contains("{x=2, y=3}"));
     assertEquals(26, result.length());
@@ -50,7 +50,7 @@ public class Relations {
 
   @Test
   void join() throws IOException {
-    String program = "({[{x: 1, y: 2}]} join {[{x:1, z: 3}, {x:1, z: 4}]}) -> !OUT::write";
+    String program = "({|{x: 1, y: 2}|} join {|{x:1, z: 3}, {x:1, z: 4}|}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -59,8 +59,8 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("{["));
-    assertTrue(result.endsWith("]}"));
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
     assertTrue(result.contains("{x=1, y=2, z=3}"));
     assertTrue(result.contains("{x=1, y=2, z=4}"));
     assertEquals(36, result.length());
@@ -68,7 +68,7 @@ public class Relations {
 
   @Test
   void intersect() throws IOException {
-    String program = "({[{x: 1, y: 2}, {x: 2, y: 3}]} join {[{x:2, y: 3}, {x:1, y: 4}]}) -> !OUT::write";
+    String program = "({|{x: 1, y: 2}, {x: 2, y: 3}|} join {|{x:2, y: 3}, {x:1, y: 4}|}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -77,15 +77,15 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("{["));
-    assertTrue(result.endsWith("]}"));
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
     assertTrue(result.contains("{x=2, y=3}"));
     assertEquals(14, result.length());
   }
 
   @Test
   void crossProduct() throws IOException {
-    String program = "({[{x: 1}, {x: 2}]} join {[{z: 3}, {z: 4}]}) -> !OUT::write";
+    String program = "({|{x: 1}, {x: 2}|} join {|{z: 3}, {z: 4}|}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -94,8 +94,8 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("{["));
-    assertTrue(result.endsWith("]}"));
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
     assertTrue(result.contains("{x=1, z=3}"));
     assertTrue(result.contains("{x=1, z=4}"));
     assertTrue(result.contains("{x=2, z=3}"));
@@ -105,7 +105,7 @@ public class Relations {
 
   @Test
   void projection() throws IOException {
-    String program = "{[{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 4}]} -> $({x:}) -> !OUT::write";
+    String program = "{|{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 4}|} -> $({x:}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -114,8 +114,8 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("{["));
-    assertTrue(result.endsWith("]}"));
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
     assertTrue(result.contains("{x=1}"));
     assertTrue(result.contains("{x=2}"));
     assertEquals(16, result.length());
@@ -123,7 +123,7 @@ public class Relations {
 
   @Test
   void rename() throws IOException {
-    String program = "{[{x: 1, y: 2}, {x:2, y: 3}]} -> $({x:, z: §.y}) -> !OUT::write";
+    String program = "{|{x: 1, y: 2}, {x:2, y: 3}|} -> $({x:, z: §.y}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -132,8 +132,8 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("{["));
-    assertTrue(result.endsWith("]}"));
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
     assertTrue(result.contains("{x=1, z=2}"));
     assertTrue(result.contains("{x=2, z=3}"));
     assertEquals(26, result.length());
@@ -141,7 +141,7 @@ public class Relations {
 
   @Test
   void extend() throws IOException {
-    String program = "{[{x: 1, y: 2}, {x:2, y: 3}]} -> $({x:, y:, z: 1 + §.y}) -> !OUT::write";
+    String program = "{|{x: 1, y: 2}, {x:2, y: 3}|} -> $({x:, y:, z: 1 + §.y}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -150,8 +150,8 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("{["));
-    assertTrue(result.endsWith("]}"));
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
     assertTrue(result.contains("{x=1, y=2, z=3}"));
     assertTrue(result.contains("{x=2, y=3, z=4}"));
     assertEquals(36, result.length());
@@ -159,7 +159,7 @@ public class Relations {
 
   @Test
   void count() throws IOException {
-    String program = "{[{x: 1, y: 2}, {x:2, y: 3}]} -> $::count -> !OUT::write";
+    String program = "{|{x: 1, y: 2}, {x:2, y: 3}|} -> $::count -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -172,7 +172,7 @@ public class Relations {
 
   @Test
   void countIsTailspinInteger() throws IOException {
-    String program = "{[{x: 1, y: 2}, {x:2, y: 3}]} -> $::count -> \\(<=2> 'yes'!\\) -> !OUT::write";
+    String program = "{|{x: 1, y: 2}, {x:2, y: 3}|} -> $::count -> \\(<=2> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -185,7 +185,7 @@ public class Relations {
 
   @Test
   void list() throws IOException {
-    String program = "{[{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 3}]} -> $::list -> !OUT::write";
+    String program = "{|{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 3}|} -> $::list -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -204,7 +204,7 @@ public class Relations {
 
   @Test
   void deconstruct() throws IOException {
-    String program = "{[{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 3}]} ... -> !OUT::write";
+    String program = "{|{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 3}|} ... -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -221,7 +221,7 @@ public class Relations {
 
   @Test
   void group() throws IOException {
-    String program = "{[{x: 1, y: 2}, {x:1, y: 3}]} -> $(by $({x:}) collect {ys: Group&{of: :({y:})}}) -> !OUT::write";
+    String program = "{|{x: 1, y: 2}, {x:1, y: 3}|} -> $(by $({x:}) collect {ys: Group&{of: :({y:})}}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -230,14 +230,14 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.matches("\\{\\[\\{x=1, ys=\\{\\[(\\{y=2}, \\{y=3}|\\{y=3}, \\{y=2})]}}]}"));
+    assertTrue(result.matches("\\{\\|\\{x=1, ys=\\{\\|(\\{y=2}, \\{y=3}|\\{y=3}, \\{y=2})\\|}}\\|}"));
   }
 
   @Test
   void ungroup() throws IOException {
     String program =
-        "{[{x: 1, ys: {[{y: 2}, {y: 3}]}}, {x:2, ys: {[{y: 1}, {y: 4}]}}]}\n"
-            + " -> {[$... -> ({[$({x:})]} join $.ys)...]} -> !OUT::write";
+        "{|{x: 1, ys: {|{y: 2}, {y: 3}|}}, {x:2, ys: {|{y: 1}, {y: 4}|}}|}\n"
+            + " -> {|$... -> ({|$({x:})|} join $.ys)...|} -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -246,8 +246,8 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("{["));
-    assertTrue(result.endsWith("]}"));
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
     assertTrue(result.contains("{x=1, y=2}"));
     assertTrue(result.contains("{x=1, y=3}"));
     assertTrue(result.contains("{x=2, y=1}"));
@@ -257,7 +257,7 @@ public class Relations {
 
   @Test
   void emptyRelationCanBeJoined() throws IOException {
-    String program = "({[{x: 1}]} join {[]}) -> !OUT::write";
+    String program = "({|{x: 1}|} join {||}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -266,12 +266,12 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{[]}", result);
+    assertEquals("{||}", result);
   }
 
   @Test
   void emptyTupleRelationCanBeJoined() throws IOException {
-    String program = "({[{x: 1}]} join {[{}]}) -> !OUT::write";
+    String program = "({|{x: 1}|} join {|{}|}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -280,7 +280,7 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{[{x=1}]}", result);
+    assertEquals("{|{x=1}|}", result);
   }
 
   /**
@@ -288,7 +288,7 @@ public class Relations {
    */
   @Test
   void allowUnionEmptyHeaderOnEmptyRelation() throws IOException {
-    String program = "({[{x: 1}]} union {[]}) -> !OUT::write";
+    String program = "({|{x: 1}|} union {||}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -297,12 +297,12 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{[{x=1}]}", result);
+    assertEquals("{|{x=1}|}", result);
   }
 
   @Test
   void joinEmptyCanUnion() throws IOException {
-    String program = "({[{x: 2}]} union (({[{x: 2}]} join {[]})))  -> !OUT::write";
+    String program = "({|{x: 2}|} union (({|{x: 2}|} join {||})))  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -311,7 +311,7 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{[{x=2}]}", result);
+    assertEquals("{|{x=2}|}", result);
   }
 
   /**
@@ -319,8 +319,8 @@ public class Relations {
    */
   @Test
   void allowUnionEmptyHeaderOnEmptyRelationFromExpansion() throws IOException {
-    String program = "def b: ({[{x: 2}]} join {[]}) -> $({x:});\n"
-        + "({[{x: 2}]} union $b)  -> !OUT::write";
+    String program = "def b: ({|{x: 2}|} join {||}) -> $({x:});\n"
+        + "({|{x: 2}|} union $b)  -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -329,6 +329,6 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{[{x=2}]}", result);
+    assertEquals("{|{x=2}|}", result);
   }
 }
