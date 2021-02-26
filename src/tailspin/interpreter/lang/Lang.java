@@ -27,6 +27,7 @@ public class Lang {
     builtIns.put("xor", new BitwiseOperator.Xor());
     builtIns.put("union", new UnionOperator());
     builtIns.put("join", new JoinOperator());
+    builtIns.put("minus", new MinusOperator());
 
     try {
       Tailspin dep = Tailspin.parse(Lang.class.getResourceAsStream("/lang.tt"));

@@ -714,6 +714,8 @@ A relation can be [deconstructed](#deconstructor) into a stream of structures.
 Two relations with the same set of keys can be appended together to form the union of the two sets of structures, by the built-in
 `union` [operator](#operator).
 
+A relation with the same set of keys can be subtracted from the relation, by the built-in `minus` [operator](#operator).
+
 Two relations can be combined with the `join` operator. The new relation will have keys that are the union of
 the keys of both. If there are no common keys, a full cross-product will be created, otherwise the entries will first
 be grouped on equality of common keys and a cross-product will be created within each equivalence group.
@@ -734,9 +736,7 @@ If you need to ungroup values that have been grouped, you should stream and join
   -> {|$... -> ({|$({x:})|} join $.ys)...|} -> !OUT::write
 ```
 
-Relation values respond to the following messages:
-* `::count` returns the count of distinct structures/tuples in the relation
-* `::list` returns a list of the structures contained in the relation
+Relation values respond to the `::count` message which returns the count of distinct structures/tuples in the relation.
 
 ## Bytes
 Bytes values represent a sequence of bytes and can be created through a [bytes literal](#bytes-literal)
@@ -841,6 +841,9 @@ Bytes
   Vacated bit positions are filled from infinite repetitions of the fill pattern, as needed.
 * `$::asUtf8String` returns a string as coded by the bytes in utf8 (or an error if coding is incorrect)
 * `$::asInteger` returns the integer that the bytes code by twos complement representation.
+
+Relations
+* `$::count` returns the number of tuples in the relation.
 
 ## The Core System module
 The Core System module is provided by default to a main program and has no prefix. The module contains the following symbols:

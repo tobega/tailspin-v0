@@ -1,6 +1,5 @@
 package tailspin.types;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -84,7 +83,12 @@ public class Relation implements Processor {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("count")) return (it, params) -> (long) contents.size();
-    if (message.equals("list")) return (it, params) -> TailspinArray.value(new ArrayList<>(contents));
     throw new UnsupportedOperationException("Unknown relation message " + message);
+  }
+
+  public Relation minus(Relation right) {
+    Set<Structure> result = new HashSet<>(contents);
+    result.removeAll(right.contents);
+    return new Relation(keys, result);
   }
 }
