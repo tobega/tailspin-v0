@@ -59,3 +59,7 @@ processor Min&{by:, select:}
     $@Min.result !
   end result
 end Min
+
+operator (left divide&{over:} right)
+  ($over notMatching (($over join $right) minus ($left join $right))) !
+end divide

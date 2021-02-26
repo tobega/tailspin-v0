@@ -702,7 +702,7 @@ with the same set of keys (normally referred to as attributes, because keys have
 A relation is similar to a table in a SQL database except there are no duplicate rows.
 
 The set of keys/attributes of the relation is called the heading of the relation. It is currently not possible to
-specify the intended heading for an empty relation, but it gets accepted as a wildcard heading. If you want to give
+specify the intended heading for an empty relation, but it gets accepted as a wildcard heading. If you need to give
 the empty relation a heading, do a [projection](#projections-and-lenses).
 
 To use relations effectively, note the correspondence with logic, that the attributes of a tuple should relate to each other
@@ -711,24 +711,28 @@ in a statement that is called the predicate, e.g. "The tuple is a point with the
 not crisp and clear, it is a code smell that indicates your logic may be flawed.
 Beware of using "or" instead of "and" to relate attributes.
 Beware of predicates with an indefinite "a/an" instead of a definite "the".
-Especially beware of indications that the tuple may not be unique and take action to ensure uniqueness.
+Especially beware of indications that the tuple may not be unique and take action to ensure uniqueness if needed.
 
-A relation can be [deconstructed](#deconstructor) into a stream of structures.
-
-Two relations with the same heading can be appended together to form the union of the two sets of structures, by the built-in
+Operations on relations:
+* A relation can be [deconstructed](#deconstructor) into a stream of structures.
+* Two relations with the same heading can be appended together to form the union of the two sets of structures, by the built-in
 `union` [operator](#operator).
-
-A relation with the same heading can be subtracted from the relation, by the built-in `minus` [operator](#operator).
-
-Two relations can be combined with the `join` operator. The new relation will have keys that are the union of
+* A relation with the same heading can be subtracted from the relation, by the built-in `minus` [operator](#operator), giving all the tuples
+  from the left-hand relation that are not in the right-hand relation.
+* Two relations can be combined with the `join` operator. The new relation will have keys that are the union of
 the keys of both. If there are no common keys, a full cross-product will be created, otherwise the entries will first
 be grouped on equality of common keys and a cross-product will be created within each equivalence group.
-
-A relation can be [projected](#projections-and-lenses) onto a subset of the keys by referencing the relation, appending an opening parenthesis,
+* A relation can be [projected](#projections-and-lenses) onto a subset of the keys by referencing the relation, appending an opening parenthesis,
 a list of keys for the projection within curly braces and a closing parenthesis, e.g. `$myRelation({x:})` will select all
 the x-values, and only the x-values, in the relation and return a new relation with the new tuples/structures.
 Note that a relation is a set, so duplicate structures will be eliminated.
 A projection can also contain renamings and extensions, where the current structure can be referred to as `§`, e.g. `$myRelation({x:, sum: §.x + §.y, z: §.y})`
+* The `matching` operator (also known as a semijoin) selects all tuples of the left-hand relation that have all
+common attributes equal to some tuple of the right-hand relation, i.e. it would have joined in a join operation.
+* The `notMatching` operator (also known as an antijoin) returns all tuples that would not be returned by the matching operator above.
+* The relational `divide&{over:}` returns all tuples from the "over:"-parameter for which
+the left-hand relation has tuples matching all tuples of the right-hand relation. The relationship between
+  the operands is `{|A, B|} divide&{over: {|A, C|}} {|B, C|}` where A, B and C are groups of attributes. C may be empty.
 
 A relation can be grouped into categories, with attributes [collected](#collector) per group,
 e.g. `$myOrders(by $myOrders({part:}) collect {totalSold: Sum&{of: :(part:)}})`

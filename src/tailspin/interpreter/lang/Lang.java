@@ -28,6 +28,8 @@ public class Lang {
     builtIns.put("union", new UnionOperator());
     builtIns.put("join", new JoinOperator());
     builtIns.put("minus", new MinusOperator());
+    builtIns.put("matching", new MatchingOperator());
+    builtIns.put("notMatching", new NotMatchingOperator());
 
     try {
       Tailspin dep = Tailspin.parse(Lang.class.getResourceAsStream("/lang.tt"));

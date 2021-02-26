@@ -243,6 +243,21 @@ public class Relations {
   }
 
   @Test
+  void summarize() throws IOException {
+    String program =
+        "{|{x: 1, y: 2}, {x:1, y: 3}|} -> $(by {|{}|} collect {xs: Sum&{of: :(x:)}, ys: Sum&{of: :(y:)}}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals("{|{xs=2, ys=5}|}", result);
+  }
+
+  @Test
   void ungroup() throws IOException {
     String program =
         "{|{x: 1, ys: {|{y: 2}, {y: 3}|}}, {x:2, ys: {|{y: 1}, {y: 4}|}}|}\n"
@@ -402,5 +417,73 @@ public class Relations {
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
     assertEquals(4, result.length());
+  }
+
+  @Test
+  void matching() throws IOException {
+    String program = "({|{x: 1}, {x:2}, {x: 3}|} matching {|{x: 1, y: 3}, {x:2, y: 3}|}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
+    assertTrue(result.contains("{x=1}"));
+    assertTrue(result.contains("{x=2}"));
+    assertEquals(16, result.length());
+  }
+
+  @Test
+  void notMatching() throws IOException {
+    String program = "({|{x: 1}, {x:2}, {x: 3}|} notMatching {|{x: 1, y: 3}, {x:2, y: 3}|}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
+    assertTrue(result.contains("{x=3}"));
+    assertEquals(9, result.length());
+  }
+
+  @Test
+  void divide() throws IOException {
+    String program = "({|{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 3}|} divide&{over:{|{x:1},{x:2},{x:3}|}} {|{y:2}, {y: 3}|}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals("{|{x=1}|}", result);
+  }
+
+  @Test
+  void divideByEmpty() throws IOException {
+    String program = "({|{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 3}|} divide&{over:{|{x:1},{x:2},{x:3}|}} ({||} -> $({y:}))) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.contains("{x=1}"));
+    assertTrue(result.contains("{x=2}"));
+    assertTrue(result.contains("{x=3}"));
+    assertTrue(result.endsWith("|}"));
+    assertEquals(23, result.length());
   }
 }

@@ -62,6 +62,24 @@ public class Relation implements Processor {
         ).collect(Collectors.toSet()));
   }
 
+  public Relation matching(Relation other) {
+    Set<String> commonKeys = new HashSet<>(keys);
+    commonKeys.retainAll(other.keys);
+    return new Relation(keys, contents.stream()
+        .filter(left -> other.contents.stream()
+            .anyMatch(right -> commonKeys.stream().allMatch(key -> left.get(key).equals(right.get(key))))
+        ).collect(Collectors.toSet()));
+  }
+
+  public Relation notMatching(Relation other) {
+    Set<String> commonKeys = new HashSet<>(keys);
+    commonKeys.retainAll(other.keys);
+    return new Relation(keys, contents.stream()
+        .filter(left -> other.contents.stream()
+            .noneMatch(right -> commonKeys.stream().allMatch(key -> left.get(key).equals(right.get(key))))
+        ).collect(Collectors.toSet()));
+  }
+
   public Relation project(List<KeyValueExpression> projections, Object it, Scope scope) {
     Set<String> newKeys = projections.stream().map(KeyValueExpression::getKey).collect(Collectors.toSet());
     Set<Structure> tuples = contents.stream().map(tuple -> tuple.project(projections, it, scope))
@@ -90,7 +108,7 @@ public class Relation implements Processor {
     // Under some conditions we cannot calculate header for empty relations
     if (right.keys.isEmpty() && right.contents.isEmpty()) return this;
     if (keys.isEmpty() && contents.isEmpty()) return new Relation(right.keys, Set.of());
-    if (!keys.equals(right.keys)) throw new IllegalArgumentException("Can't union " + keys + " with " + right.keys);
+    if (!keys.equals(right.keys)) throw new IllegalArgumentException("Can't subtract " + right.keys + " from " + keys);
     Set<Structure> result = new HashSet<>(contents);
     result.removeAll(right.contents);
     return new Relation(keys, result);
