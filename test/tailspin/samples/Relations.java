@@ -1,6 +1,7 @@
 package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -46,6 +47,17 @@ public class Relations {
     assertTrue(result.contains("{x=1, y=2}"));
     assertTrue(result.contains("{x=2, y=3}"));
     assertEquals(26, result.length());
+  }
+
+  @Test
+  void unionRequiresSameKeys() throws IOException {
+    String program = "({|{x: 1, y: 2}|} union {|{v:2, y: 3}|}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -119,6 +131,22 @@ public class Relations {
     assertTrue(result.contains("{x=1}"));
     assertTrue(result.contains("{x=2}"));
     assertEquals(16, result.length());
+  }
+
+  @Test
+  void emptyProjection() throws IOException {
+    String program = "{||} -> $({x:, y:}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
+    assertEquals(4, result.length());
   }
 
   @Test
@@ -329,5 +357,50 @@ public class Relations {
     assertTrue(result.contains("{x=1, y=2}"));
     assertTrue(result.contains("{x=2, y=3}"));
     assertEquals(26, result.length());
+  }
+
+  @Test
+  void minusRequiresSameKeys() throws IOException {
+    String program = "({|{x: 1, y: 2}, {x:2, y: 3}, {x: 1, y: 3}|} minus {|{v: 1, y: 3}|}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void minusEmpty() throws IOException {
+    String program = "({|{x: 1, y: 2}, {x:2, y: 3}|} minus {||}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
+    assertTrue(result.contains("{x=1, y=2}"));
+    assertTrue(result.contains("{x=2, y=3}"));
+    assertEquals(26, result.length());
+  }
+
+  @Test
+  void emptyMinus() throws IOException {
+    String program = "({||} minus {|{x: 1, y: 2}, {x:2, y: 3}|}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
+    assertEquals(4, result.length());
   }
 }

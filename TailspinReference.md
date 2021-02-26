@@ -701,6 +701,10 @@ A relation, as in relational algebra, is like a set of [structures](#structures)
 with the same set of keys (normally referred to as attributes, because keys have a slightly different meaning in databases).
 A relation is similar to a table in a SQL database except there are no duplicate rows.
 
+The set of keys/attributes of the relation is called the heading of the relation. It is currently not possible to
+specify the intended heading for an empty relation, but it gets accepted as a wildcard heading. If you want to give
+the empty relation a heading, do a [projection](#projections-and-lenses).
+
 To use relations effectively, note the correspondence with logic, that the attributes of a tuple should relate to each other
 in a statement that is called the predicate, e.g. "The tuple is a point with the given x and y coordinates" or
 "The employee with the provided names works in the department identified by the departmentId". If the predicate is
@@ -711,10 +715,10 @@ Especially beware of indications that the tuple may not be unique and take actio
 
 A relation can be [deconstructed](#deconstructor) into a stream of structures.
 
-Two relations with the same set of keys can be appended together to form the union of the two sets of structures, by the built-in
+Two relations with the same heading can be appended together to form the union of the two sets of structures, by the built-in
 `union` [operator](#operator).
 
-A relation with the same set of keys can be subtracted from the relation, by the built-in `minus` [operator](#operator).
+A relation with the same heading can be subtracted from the relation, by the built-in `minus` [operator](#operator).
 
 Two relations can be combined with the `join` operator. The new relation will have keys that are the union of
 the keys of both. If there are no common keys, a full cross-product will be created, otherwise the entries will first

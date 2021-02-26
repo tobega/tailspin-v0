@@ -87,6 +87,10 @@ public class Relation implements Processor {
   }
 
   public Relation minus(Relation right) {
+    // Under some conditions we cannot calculate header for empty relations
+    if (right.keys.isEmpty() && right.contents.isEmpty()) return this;
+    if (keys.isEmpty() && contents.isEmpty()) return new Relation(right.keys, Set.of());
+    if (!keys.equals(right.keys)) throw new IllegalArgumentException("Can't union " + keys + " with " + right.keys);
     Set<Structure> result = new HashSet<>(contents);
     result.removeAll(right.contents);
     return new Relation(keys, result);

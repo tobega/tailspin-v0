@@ -29,6 +29,7 @@ Illogical?
 - Should we be able to use inline templates as sources and sinks?
 - What about array generators (array template source)?
 - Should we be able to specify defined templates to be array templates?
+- Cannot specify the header for empty relations
 
 Bugs
 - composer rule updates state when called in not-context:
