@@ -474,7 +474,7 @@ You first specify the word `by` followed by a collection of structures that form
 by unique values for the x attribute of each structure, or the literal category specification `[{x: 1}, {x: 2}]` would group
 values for which x is 1 or 2 respectively, ignoring others. If a structure can match two categories, it will be included in both.
 After the categories you specify the word `collect` followed by a structure where keys are paired with a reference to a
-constructor for a [collector](#collector) object. The full syntax could be for example `$myArray(by $myArray({x:}) collect {ysum: Sum&{of: :(y:)})`
+constructor for a [collector](#collector) object. The full syntax could be for example `$myArray collect {ysum: Sum&{of: :(y:)} by $myArray({x:}))`
 to obtain an array of unique x values paired with the sum of y values that were previously associated with that x value.
 
 A projection cannot utilize [structure expansion](#structure-expansion) because that would produce a stream of structures,
@@ -735,7 +735,7 @@ the left-hand relation has tuples matching all tuples of the right-hand relation
   the operands is `{|A, B|} divide&{over: {|A, C|}} {|B, C|}` where A, B and C are groups of attributes. C may be empty.
 
 A relation can be grouped into categories, with attributes [collected](#collector) per group,
-e.g. `$myOrders(by $myOrders({part:}) collect {totalSold: Sum&{of: :(part:)}})`
+e.g. `$myOrders(collect {totalSold: Sum&{of: :(part:)}} by $myOrders({part:}))`
 
 An attribute can also be collected as a relation by the `Group` [collector](#collector).
 If you need to ungroup values that have been grouped, you should stream and join, e.g.:

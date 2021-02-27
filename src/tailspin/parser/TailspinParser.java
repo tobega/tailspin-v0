@@ -1637,10 +1637,6 @@ public class TailspinParser extends Parser {
 	}
 
 	public static class GroupingContext extends ParserRuleContext {
-		public TerminalNode By() { return getToken(TailspinParser.By, 0); }
-		public SourceContext source() {
-			return getRuleContext(SourceContext.class,0);
-		}
 		public TerminalNode Collect() { return getToken(TailspinParser.Collect, 0); }
 		public TerminalNode LeftBrace() { return getToken(TailspinParser.LeftBrace, 0); }
 		public List<CollectedValueContext> collectedValue() {
@@ -1650,6 +1646,10 @@ public class TailspinParser extends Parser {
 			return getRuleContext(CollectedValueContext.class,i);
 		}
 		public TerminalNode RightBrace() { return getToken(TailspinParser.RightBrace, 0); }
+		public TerminalNode By() { return getToken(TailspinParser.By, 0); }
+		public SourceContext source() {
+			return getRuleContext(SourceContext.class,0);
+		}
 		public List<TerminalNode> Comma() { return getTokens(TailspinParser.Comma); }
 		public TerminalNode Comma(int i) {
 			return getToken(TailspinParser.Comma, i);
@@ -1673,33 +1673,33 @@ public class TailspinParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(413);
-			match(By);
-			setState(414);
-			source();
-			setState(415);
 			match(Collect);
-			setState(416);
+			setState(414);
 			match(LeftBrace);
-			setState(417);
+			setState(415);
 			collectedValue();
-			setState(422);
+			setState(420);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==Comma) {
 				{
 				{
-				setState(418);
+				setState(416);
 				match(Comma);
-				setState(419);
+				setState(417);
 				collectedValue();
 				}
 				}
-				setState(424);
+				setState(422);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(425);
+			setState(423);
 			match(RightBrace);
+			setState(424);
+			match(By);
+			setState(425);
+			source();
 			}
 		}
 		catch (RecognitionException re) {
@@ -8344,7 +8344,7 @@ public class TailspinParser extends Parser {
 		"\16\3\16\3\16\3\16\7\16\u0186\n\16\f\16\16\16\u0189\13\16\3\16\3\16\3"+
 		"\17\3\17\3\17\5\17\u0190\n\17\3\17\3\17\3\17\5\17\u0195\n\17\7\17\u0197"+
 		"\n\17\f\17\16\17\u019a\13\17\5\17\u019c\n\17\3\17\3\17\3\20\3\20\3\20"+
-		"\3\20\3\20\3\20\3\20\7\20\u01a7\n\20\f\20\16\20\u01aa\13\20\3\20\3\20"+
+		"\3\20\3\20\7\20\u01a5\n\20\f\20\16\20\u01a8\13\20\3\20\3\20\3\20\3\20"+
 		"\3\21\3\21\3\21\3\22\3\22\3\22\3\22\3\22\3\22\7\22\u01b7\n\22\f\22\16"+
 		"\22\u01ba\13\22\3\22\3\22\5\22\u01be\n\22\3\23\3\23\5\23\u01c2\n\23\3"+
 		"\24\3\24\3\24\3\24\7\24\u01c8\n\24\f\24\16\24\u01cb\13\24\5\24\u01cd\n"+
@@ -8507,11 +8507,11 @@ public class TailspinParser extends Parser {
 		"\u0197\3\2\2\2\u0196\u0191\3\2\2\2\u0197\u019a\3\2\2\2\u0198\u0196\3\2"+
 		"\2\2\u0198\u0199\3\2\2\2\u0199\u019c\3\2\2\2\u019a\u0198\3\2\2\2\u019b"+
 		"\u018f\3\2\2\2\u019b\u019c\3\2\2\2\u019c\u019d\3\2\2\2\u019d\u019e\7\37"+
-		"\2\2\u019e\35\3\2\2\2\u019f\u01a0\7F\2\2\u01a0\u01a1\5\f\7\2\u01a1\u01a2"+
-		"\7G\2\2\u01a2\u01a3\7\36\2\2\u01a3\u01a8\5 \21\2\u01a4\u01a5\7\27\2\2"+
-		"\u01a5\u01a7\5 \21\2\u01a6\u01a4\3\2\2\2\u01a7\u01aa\3\2\2\2\u01a8\u01a6"+
-		"\3\2\2\2\u01a8\u01a9\3\2\2\2\u01a9\u01ab\3\2\2\2\u01aa\u01a8\3\2\2\2\u01ab"+
-		"\u01ac\7\37\2\2\u01ac\37\3\2\2\2\u01ad\u01ae\5\b\5\2\u01ae\u01af\5:\36"+
+		"\2\2\u019e\35\3\2\2\2\u019f\u01a0\7G\2\2\u01a0\u01a1\7\36\2\2\u01a1\u01a6"+
+		"\5 \21\2\u01a2\u01a3\7\27\2\2\u01a3\u01a5\5 \21\2\u01a4\u01a2\3\2\2\2"+
+		"\u01a5\u01a8\3\2\2\2\u01a6\u01a4\3\2\2\2\u01a6\u01a7\3\2\2\2\u01a7\u01a9"+
+		"\3\2\2\2\u01a8\u01a6\3\2\2\2\u01a9\u01aa\7\37\2\2\u01aa\u01ab\7F\2\2\u01ab"+
+		"\u01ac\5\f\7\2\u01ac\37\3\2\2\2\u01ad\u01ae\5\b\5\2\u01ae\u01af\5:\36"+
 		"\2\u01af!\3\2\2\2\u01b0\u01b1\7\34\2\2\u01b1\u01be\7\35\2\2\u01b2\u01b3"+
 		"\7\34\2\2\u01b3\u01b8\5$\23\2\u01b4\u01b5\7\27\2\2\u01b5\u01b7\5$\23\2"+
 		"\u01b6\u01b4\3\2\2\2\u01b7\u01ba\3\2\2\2\u01b8\u01b6\3\2\2\2\u01b8\u01b9"+
@@ -8804,7 +8804,7 @@ public class TailspinParser extends Parser {
 		"\u04e7\7)\2\2\u04e7\u04e8\7D\2\2\u04e8\u00c5\3\2\2\2\u00b0\u00c9\u00cf"+
 		"\u00d6\u00df\u00ef\u00f8\u0101\u010c\u0110\u011b\u0127\u0130\u0134\u0146"+
 		"\u014a\u014d\u0151\u0154\u015a\u015d\u0162\u0167\u016f\u017a\u017f\u0187"+
-		"\u018f\u0194\u0198\u019b\u01a8\u01b8\u01bd\u01c1\u01c9\u01cc\u01d7\u01da"+
+		"\u018f\u0194\u0198\u019b\u01a6\u01b8\u01bd\u01c1\u01c9\u01cc\u01d7\u01da"+
 		"\u01e4\u01eb\u01f0\u01f4\u01f8\u01fa\u0202\u0208\u020f\u0216\u021a\u0222"+
 		"\u022b\u022e\u0231\u0236\u0239\u023f\u0243\u024f\u0251\u0257\u025d\u025f"+
 		"\u0265\u0269\u026f\u0274\u0278\u027e\u028c\u0292\u029c\u029f\u02a6\u02ab"+

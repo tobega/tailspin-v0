@@ -230,7 +230,7 @@ public class Relations {
 
   @Test
   void group() throws IOException {
-    String program = "{|{x: 1, y: 2}, {x:1, y: 3}|} -> $(by $({x:}) collect {ys: Group&{of: :({y:})}}) -> !OUT::write";
+    String program = "{|{x: 1, y: 2}, {x:1, y: 3}|} -> $(collect {ys: Group&{of: :({y:})}} by $({x:})) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -245,7 +245,7 @@ public class Relations {
   @Test
   void summarize() throws IOException {
     String program =
-        "{|{x: 1, y: 2}, {x:1, y: 3}|} -> $(by {|{}|} collect {xs: Sum&{of: :(x:)}, ys: Sum&{of: :(y:)}}) -> !OUT::write";
+        "{|{x: 1, y: 2}, {x:1, y: 3}|} -> $(collect {xs: Sum&{of: :(x:)}, ys: Sum&{of: :(y:)}} by {|{}|}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

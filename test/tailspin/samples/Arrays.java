@@ -771,7 +771,7 @@ class Arrays {
 
   @Test
   void grouping() throws IOException {
-    String program = "[{x: 1, y: 2}, {x:1, y: 3}] -> $(by $({x:}) collect {ys: Sum&{of: :(y:)}}) -> !OUT::write";
+    String program = "[{x: 1, y: 2}, {x:1, y: 3}] -> $(collect {ys: Sum&{of: :(y:)}} by $({x:})) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

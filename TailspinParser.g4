@@ -50,7 +50,7 @@ multiValueDimension: LeftBracket simpleDimension (Comma simpleDimension)* RightB
 
 projection: LeftBrace ((key|keyValue) (Comma (key|keyValue))*)? RightBrace;
 
-grouping: By source Collect LeftBrace collectedValue (Comma collectedValue)* RightBrace;
+grouping: Collect LeftBrace collectedValue (Comma collectedValue)* RightBrace By source;
 
 collectedValue: key templatesReference;
 
