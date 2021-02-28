@@ -478,11 +478,12 @@ to the current tuple being projected, while `$` would still refer to the current
 These projections can also be used to transform individual [structure](#structures) values or [arrays](#arrays) of structures.
 
 Another powerful transformational projection that can be applied to relations and arrays of structures is a grouping collection.
-You first specify the word `by` followed by a collection of structures that form the grouping categories, for instance the projection `$({x:})` would group
+You first  specify the word `collect` followed by a structure where keys are paired with a reference to a
+constructor for a [collector](#collector) object.
+Then you specify the word `by` followed by a collection of structures that form the grouping categories, for instance the projection `$({x:})` would group
 by unique values for the x attribute of each structure, or the literal category specification `[{x: 1}, {x: 2}]` would group
 values for which x is 1 or 2 respectively, ignoring others. If a structure can match two categories, it will be included in both.
-After the categories you specify the word `collect` followed by a structure where keys are paired with a reference to a
-constructor for a [collector](#collector) object. The full syntax could be for example `$myArray collect {ysum: Sum&{of: :(y:)} by $myArray({x:}))`
+The full syntax could be for example `$myArray(collect {ysum: Sum&{of: :(y:)} by $myArray({x:}))`
 to obtain an array of unique x values paired with the sum of y values that were previously associated with that x value.
 
 A projection cannot utilize [structure expansion](#structure-expansion) because that would produce a stream of structures,
