@@ -149,8 +149,10 @@ of the values `[1, 3]`, `[1, 4]`, `[2, 3]` and `[2, 4]`.
 A structure literal produces a [structure](#structures) value. It starts with a left brace, followed by
 literal key-value pairs or expressions generating [streams](#streams) of key-value pairs, separated by commas, and ends with a right brace.
 A literal key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
+
 An example of an expression generating a stream of key-value pairs is a [deconstruct](#deconstructor)
- of a [dereferenced](#dereference) structure value.
+ of a [dereferenced](#dereference) structure value. But as a convenience, you can just include the structure-valued
+dereference as-is and it will be automatically deconstructed into the new structure.
 
 #### Structure expansion
 Sometimes you want to generate several structures with combinations of similar values, so instead of a key-value pair
