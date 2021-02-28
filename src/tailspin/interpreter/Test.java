@@ -1,7 +1,6 @@
 package tailspin.interpreter;
 
 import java.util.List;
-import java.util.Set;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
@@ -37,7 +36,7 @@ public class Test implements Expression {
     return injectedModules;
   }
 
-  public Set<String> installProgramModifications(BasicScope scope) {
-    return programModification.install(scope);
+  public List<DefinitionStatement> overrideDefinitions(List<DefinitionStatement> programDefinitions) {
+    return programModification.overrideDefinitions(programDefinitions);
   }
 }

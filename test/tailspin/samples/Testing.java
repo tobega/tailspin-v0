@@ -665,4 +665,68 @@ public class Testing {
 
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void modificationOfOuterProgramDependsOnSymbols() throws Exception {
+    String program = "def foo: 2;\n"
+        + "def bar: $foo * 3;\n"
+        + "test 'A modifying test'\n"
+        + "modify program\n"
+        + "def bar: $foo * 2;\n"
+        + "end program\n"
+        + "assert $bar <=4> 'bar is modified to twice foo'\n"
+        + "end 'A modifying test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void modificationOfOuterProgramRedefinesAllSymbols() throws Exception {
+    String program = "def foo: 2;\n"
+        + "def bar: $foo * 3;\n"
+        + "test 'A modifying test'\n"
+        + "modify program\n"
+        + "def foo: 1;\n"
+        + "def bar: $foo * 2;\n"
+        + "end program\n"
+        + "assert $bar <=2> 'foo is 1 and bar is modified to twice foo'\n"
+        + "end 'A modifying test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void interleavedDefinitionsInModificationOfOuterProgram() throws Exception {
+    String program = "def one: 1;\n"
+        + "def two: $one + 1;\n"
+        + "def three: $two + 1;\n"
+        + "def four: $three + 1;\n"
+        + "test 'A modifying test'\n"
+        + "modify program\n"
+        + "def two: $one + 11;\n"
+        + "def four: $three + 31;\n"
+        + "end program\n"
+        + "assert $four <=44> 'messy stuff'\n"
+        + "end 'A modifying test'";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
 }

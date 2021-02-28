@@ -1,7 +1,8 @@
 package tailspin.interpreter;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ProgramModification {
@@ -12,9 +13,15 @@ public class ProgramModification {
     this.definitions = definitions;
   }
 
-  public Set<String> install(BasicScope scope) {
-    definitions.forEach(d -> d.statement.getResults(null, scope));
-    return definitions.stream()
-        .flatMap(d -> d.requiredDefinitions.stream()).collect(Collectors.toSet());
+  public List<DefinitionStatement> overrideDefinitions(List<DefinitionStatement> programDefinitions) {
+    Map<String, DefinitionStatement> indexedDefinitions = definitions.stream()
+        .collect(Collectors.toMap(d -> d.statement.getIdentifier(), Function.identity()));
+    return programDefinitions.stream().map(d -> {
+      if (indexedDefinitions.containsKey(d.statement.getIdentifier())) {
+        return indexedDefinitions.get(d.statement.getIdentifier());
+      } else {
+        return d;
+      }
+    }).collect(Collectors.toList());
   }
 }
