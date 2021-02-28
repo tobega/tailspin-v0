@@ -54,7 +54,7 @@ grouping: Collect LeftBrace collectedValue (Comma collectedValue)* RightBrace By
 
 collectedValue: key templatesReference;
 
-arrayLiteral: LeftBracket RightBracket | LeftBracket valueProduction (Comma valueProduction)* RightBracket;
+arrayLiteral: LeftBracket RightBracket | LeftBracket arrayExpansion (Comma arrayExpansion)* RightBracket;
 
 valueProduction: sendToTemplates | valueChain;
 
@@ -68,12 +68,12 @@ byteValue: Bytes | term;
 
 structures: structureLiteral
   | valueProduction
-  | sourceReference
 ;
 
+arrayExpansion: By? valueProduction;
+
 structureExpansion: keyValue
-  | By? (valueProduction
-    | sourceReference)
+  | By? valueProduction
 ;
 
 keyValue: key valueProduction;

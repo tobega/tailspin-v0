@@ -795,4 +795,18 @@ class Arrays {
 
     assertEquals("8", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void cartesianProduct() throws Exception {
+    String program =
+        "[by 1..3, by ['a', 'g']...] -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[1, a][2, a][3, a][1, g][2, g][3, g]", output.toString(StandardCharsets.UTF_8));
+  }
 }

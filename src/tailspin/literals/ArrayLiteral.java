@@ -2,26 +2,28 @@ package tailspin.literals;
 
 import java.util.ArrayList;
 import java.util.List;
-import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.TailspinArray;
 
 public class ArrayLiteral implements Value {
-  private final List<Expression> valueProductions;
+  private final List<CartesianExpansion> expansions;
 
-  public ArrayLiteral(List<Expression> valueProductions) {
-    this.valueProductions = valueProductions;
+  public ArrayLiteral(List<CartesianExpansion> expansions) {
+    this.expansions = expansions;
   }
 
   @Override
   public Object getResults(Object it, Scope scope) {
-    ArrayList<Object> array = new ArrayList<>();
-    for (Expression vp : valueProductions) {
-      Object result = vp.getResults(it, scope);
-      ResultIterator.forEach(result, array::add);
+    List<List<Object>> seeds = List.of(new ArrayList<>());
+    for (CartesianExpansion expansion : expansions) {
+      seeds = expansion.expand(seeds, it, scope);
     }
-    return TailspinArray.value(array);
+    Object result = null;
+    for (List<Object> seed : seeds) {
+      result = ResultIterator.appendResultValue(result, TailspinArray.value(seed));
+    }
+    return result;
   }
 }

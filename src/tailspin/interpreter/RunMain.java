@@ -51,7 +51,7 @@ import tailspin.literals.RelationLiteral;
 import tailspin.literals.StringConstant;
 import tailspin.literals.StringInterpolation;
 import tailspin.literals.StringLiteral;
-import tailspin.literals.StructureExpansion;
+import tailspin.literals.CartesianExpansion;
 import tailspin.literals.StructureLiteral;
 import tailspin.matchers.AlwaysFalse;
 import tailspin.matchers.AnyOf;
@@ -956,9 +956,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public ArrayLiteral visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx) {
-    return new ArrayLiteral(ctx.valueProduction().stream()
-        .map(this::visitValueProduction)
+    return new ArrayLiteral(ctx.arrayExpansion().stream()
+        .map(this::visitArrayExpansion)
         .collect(Collectors.toList()));
+  }
+
+  @Override
+  public CartesianExpansion visitArrayExpansion(TailspinParser.ArrayExpansionContext ctx) {
+    return new CartesianExpansion(ctx.By() != null, visitValueProduction(ctx.valueProduction()));
   }
 
   @Override
@@ -992,25 +997,20 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.structureLiteral() != null) {
       return visitStructureLiteral(ctx.structureLiteral());
     }
-    if (ctx.sourceReference() != null) {
-      return visitSourceReference(ctx.sourceReference());
-    }
     return visitValueProduction(ctx.valueProduction());
   }
 
   @Override
-  public StructureExpansion visitStructureExpansion(TailspinParser.StructureExpansionContext ctx) {
+  public CartesianExpansion visitStructureExpansion(TailspinParser.StructureExpansionContext ctx) {
     Expression expression;
     if (ctx.keyValue() != null) {
       expression = visitKeyValue(ctx.keyValue());
-    } else if (ctx.sourceReference() != null) {
-      expression = visitSourceReference(ctx.sourceReference());
     } else if (ctx.valueProduction() != null) {
       expression = visitValueProduction(ctx.valueProduction());
     } else {
       throw new UnsupportedOperationException("Unknown structure expansion " + ctx);
     }
-    return new StructureExpansion(ctx.By() != null, expression);
+    return new CartesianExpansion(ctx.By() != null, expression);
   }
 
   @Override

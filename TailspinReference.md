@@ -140,6 +140,11 @@ E.g. `[1,2,3,4,5]` and `[1..3, 4..5]` and `[1..5]` all produce an array of size 
 
 You can nest array literals inside array literals to produce multi-dimensional arrays.
 
+#### Cartesian product
+You can form a stream of arrays of the cartesian product of several streams. Each position in the array that is to
+provide several different values is prefixed with the `by` keyword. For example: `[by 1..2, by 3..4]` will produce a stream
+of the values `[1, 3]`, `[1, 4]`, `[2, 3]` and `[2, 4]`.
+
 ### Structure literal
 A structure literal produces a [structure](#structures) value. It starts with a left brace, followed by
 literal key-value pairs or expressions generating [streams](#streams) of key-value pairs, separated by commas, and ends with a right brace.
@@ -150,7 +155,8 @@ An example of an expression generating a stream of key-value pairs is a [deconst
 #### Structure expansion
 Sometimes you want to generate several structures with combinations of similar values, so instead of a key-value pair
 you can specify the word `by` followed by an expression that generates a stream of key-value pairs (or structures,
-for sets of co-occurring key-values). That will "expand" the structure literal into a stream of structures, one for
+for sets of co-occurring key-values). That will "expand" the structure literal into a stream of structures that
+form the cartesian product of the "by"-values, i.e. one additional structure for
 each key-value pair (or structure) in the "by"-stream, with the same value for the attributes otherwise specified.
 
 For example: `{token: ' ', by 1..3 -> (x:$), by 1..3 -> (y:$)}` will generate a stream of nine structures
