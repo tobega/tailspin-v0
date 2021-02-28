@@ -133,7 +133,7 @@ To exclude the bounds, add a tilde between the numeric bound and the range opera
 while `1..~5:2` will give `1 3`.
 
 ### Array literal
-An array literal produces an [array](#arrays) of values. It starts with a left bracket followed by
+An array literal produces an [array](#arrays) or list of values. It starts with a left bracket followed by
 a [stream](#streams) of _value chains_, separated by commas, and ends with a right bracket.
 Each _value chain_ may produce a stream of values, which will be flat-mapped into the array.
 E.g. `[1,2,3,4,5]` and `[1..3, 4..5]` and `[1..5]` all produce an array of size 5 containing the numbers 1 to 5.
@@ -215,7 +215,7 @@ one value may be produced, e.g. `(5 oper (2 -> SYS::randomInt))`
 ## Sinks
 A sink is a place where a value "disappears" and the _value chain_ ends.
 
-A symbol definition (or a state modification) has a semi-colon `;` at the end that could be considered to be a  that captures the value into the symbol (or state).
+A symbol definition (or a state modification) has a semi-colon `;` at the end that could be considered to be a sink that captures the value into the symbol (or state).
 
 `-> !VOID` is a special sink which is used to ignore the values from a chain (or to mark that the chain is not expected to produce values).
 
