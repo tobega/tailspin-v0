@@ -706,9 +706,10 @@ A keyed value responds to the following messages:
 * `::value` returns the value.
 
 ## Relations
-A relation, as in relational algebra, is like a set of [structures](#structures) (often referred to as tuples in relational algebra)
+A relation, as in [relational algebra](https://en.wikipedia.org/wiki/Relational_algebra), is like a set of [structures](#structures) (often referred to as tuples in relational algebra)
 with the same set of keys (normally referred to as attributes, because keys have a slightly different meaning in databases).
-A relation is similar to a table in a SQL database except there are no duplicate rows.
+A relation is similar to a table in a SQL database except there are no duplicate rows. The relational algebra used in Tailspin
+attempts to be true to [The third manifesto](http://thethirdmanifesto.com/) and a good intro is chapter 2 of [Data types and the relational model](https://www.dcs.warwick.ac.uk/~hugh/TTM/DTATRM.pdf).
 
 The set of keys/attributes of the relation is called the heading of the relation. It is currently not possible to
 specify the intended heading for an empty relation, but it gets accepted as a wildcard heading. If you need to give
