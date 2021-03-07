@@ -62,16 +62,13 @@ processor EinsteinSolver
       when <?($::count <$rows..>)> do
         def in: $;
         def selected: [$...] -> $(1);
+        ($in minus {|$selected|}) -> resolve&{rows: $rows} ! // Alternative solutions
         @: $;
         $selected... -> {$} -> @: ($@ notMatching {| $ |});
         [$@ -> resolve&{rows: $rows-1}] -> \(
           $ -> \(
-            when <=[]> do
-              ($in minus {|$selected|}) -> resolve&{rows: $rows} !
-            otherwise $... -> {| $..., $selected |} -> \(
-                $ !
-                ($in minus $) -> resolve&{rows: $rows} !
-              \) !
+            when <~=[]> do
+              $... -> {| $..., $selected |} !
           \) !
         \) !
     end resolve
