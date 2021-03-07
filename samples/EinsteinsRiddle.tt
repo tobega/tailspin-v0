@@ -116,3 +116,44 @@ $... -> '$;
 '! \)... -> !OUT::write
 'No more solutions
 ' -> !OUT::write
+
+'
+' -> !OUT::write
+
+// The same object can be used for the multiple dwelling problem:
+//
+// Baker, Cooper, Fletcher, Miller, and Smith live on different floors of an apartment house that contains only five floors.
+//
+//              Baker does not live on the top floor.
+//              Cooper does not live on the bottom floor.
+//              Fletcher does not live on either the top or the bottom floor.
+//              Miller lives on a higher floor than does Cooper.
+//              Smith does not live on a floor adjacent to Fletcher's.
+//              Fletcher does not live on a floor adjacent to Cooper's.
+//
+// Where does everyone live?
+
+// We add a zero to be able to express e.g. "not top floor"
+def floors: [0..5 -> (floor:$)];
+def names: [['Ground', 'Baker', 'Cooper', 'Fletcher', 'Miller', 'Smith']... -> (name:$)];
+
+def dwellings: [$floors, $names] -> \(
+  def solver: $ -> EinsteinSolver;
+
+  {name: 'Ground', floor: 0} -> !solver::isFact
+  ({name: 'Ground'} solver::nextTo&{byField: :(floor:), bMinusA: [1..4]} {name: 'Baker'}) -> !VOID
+  ({name: 'Ground'} solver::nextTo&{byField: :(floor:), bMinusA: [2..5]} {name: 'Cooper'}) -> !VOID
+  ({name: 'Ground'} solver::nextTo&{byField: :(floor:), bMinusA: [2..4]} {name: 'Fletcher'}) -> !VOID
+  ({name: 'Cooper'} solver::nextTo&{byField: :(floor:), bMinusA: [1..4]} {name: 'Miller'}) -> !VOID
+  ({name: 'Fletcher'} solver::nextTo&{byField: :(floor:), bMinusA: [-4..-2, 2..4]} {name: 'Smith'}) -> !VOID
+  ({name: 'Fletcher'} solver::nextTo&{byField: :(floor:), bMinusA: [-4..-2, 2..4]} {name: 'Cooper'}) -> !VOID
+
+  [$solver::solutions&{required: 6} ... -> ($ notMatching {| {name: 'Ground'} |})]!
+\);
+
+$dwellings -> \[i]('Solution $i;:
+$... -> '$;
+';
+'! \)... -> !OUT::write
+'No more solutions
+' -> !OUT::write
