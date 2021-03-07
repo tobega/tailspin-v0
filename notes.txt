@@ -17,6 +17,7 @@ Things to add/improve
 - Are lenses currently enough or do we need some kind of reflective access? E.g. field access like myStruct."$fieldName;"? Or just ($::key)?
 - Unlimited size arrays
 - Use composers as rules in other composers (and INT and WS should be top-level composers)
+- Projection just copying all fields or all fields except some
 
 Errors easy to make
 - Mixed up ..$bound and $bound.., hard to see error
@@ -30,6 +31,7 @@ Illogical?
 - What about array generators (array template source)?
 - Should we be able to specify defined templates to be array templates?
 - Cannot specify the header for empty relations
+- When a definition refers to a mutable processor instances, and if another definition is produced from the processor, statements mutating state will not execute before the second definition.
 
 Bugs
 - composer rule updates state when called in not-context:
