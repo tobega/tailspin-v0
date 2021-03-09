@@ -1,12 +1,10 @@
 package tailspin.matchers;
 
-import tailspin.types.Criterion;
-
 public class OnceOnlyCollectionCriterionFactory implements CollectionCriterionFactory {
 
-  private final Criterion criterion;
+  private final CollectionSegmentCriterion criterion;
 
-  public OnceOnlyCollectionCriterionFactory(Criterion criterion) {
+  public OnceOnlyCollectionCriterionFactory(CollectionSegmentCriterion criterion) {
     this.criterion = criterion;
   }
 

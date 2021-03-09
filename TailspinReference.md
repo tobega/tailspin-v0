@@ -536,7 +536,9 @@ lists keys of fields that need to exist for the matcher to match, with a matcher
   tests that the array contains at least one each of 3 and 5.
   Note that criteria will be matched in order for each element until the first matching criterium is found.
   * At the end of the content matcher, just before `]`, the symbol `VOID` may be written to signify that no extra content is allowed.
-  * Sequential content matching is a future feature.
+  * (Sub)sequences of elements can be matched by enclosing conditions in parentheses, with a colon connecting
+    the sequential conditions, e.g. `<[(<=3>:<=4>)]>` to match if the element 4 occurs directly after a 3 anywhere.
+    The entire subsequence may be qualified by a multiplier, e.g. `<[(<=3>:<=4>)=2]>` to match two subsequences of 3 and 4.
   * Note the possibility of using inverse matching to exclude extra content, e.g. `<~[<~=3|=5>]>`
   will test that the array only contains 3's and 5's, i.e. it is not an array that contains an element
   that is neither 3 nor 5. Be careful with conditions and alternatives, as they are affected by inverses.

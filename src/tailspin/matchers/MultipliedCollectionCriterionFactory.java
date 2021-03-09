@@ -1,12 +1,10 @@
 package tailspin.matchers;
 
-import tailspin.types.Criterion;
-
 public class MultipliedCollectionCriterionFactory implements CollectionCriterionFactory {
-  private Criterion criterion;
-  private RangeMatch multiplier;
+  private final CollectionSegmentCriterion criterion;
+  private final RangeMatch multiplier;
 
-  public MultipliedCollectionCriterionFactory(Criterion criterion, RangeMatch multiplier) {
+  public MultipliedCollectionCriterionFactory(CollectionSegmentCriterion criterion, RangeMatch multiplier) {
     this.criterion = criterion;
     this.multiplier = multiplier;
   }

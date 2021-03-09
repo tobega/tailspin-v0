@@ -136,7 +136,9 @@ typeMatch: rangeBounds                       # rangeMatch
 
 structureContentMatcher: matcher | Void;
 
-arrayContentMatcher: matcher multiplier?;
+arrayContentMatcher: (matcher|sequenceMatch) multiplier?;
+
+sequenceMatch: LeftParen matcher (Colon matcher)+ RightParen;
 
 literalMatch: Equal source;
 

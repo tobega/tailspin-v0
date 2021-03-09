@@ -2,7 +2,6 @@ package tailspin.matchers;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
 import tailspin.types.TailspinArray;
@@ -33,17 +32,20 @@ public class ArrayMatch implements Criterion {
     List<CollectionCriterion> criteria = contentMatcherFactories.stream()
         .map(CollectionCriterionFactory::newCriterion).collect(
             Collectors.toList());
-    ResultIterator elements = ResultIterator.wrap(listToMatch.deconstruct());
+    TailspinArray.Tail tail = listToMatch.tailFrom(1);
     nextElement:
-    for(Object e = elements.getNextResult(); e != null; e = elements.getNextResult()) {
-      for (Criterion c : criteria) {
-        if (c.isMet(e, it, scope)) {
+    while(!tail.isEmpty()) {
+      for (CollectionCriterion c : criteria) {
+        int chop = c.isMetAt(tail, it, scope);
+        if (chop != 0) {
+          tail = tail.tailFrom(chop+1);
           continue nextElement;
         }
       }
       if (nothingElseAllowed) {
         return false;
       }
+      tail = tail.tailFrom(2);
     }
     return criteria.stream().allMatch(c -> c.isSatisfied(it, scope));
   }

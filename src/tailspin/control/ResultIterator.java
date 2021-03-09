@@ -56,7 +56,7 @@ public interface ResultIterator {
   static ResultIterator.Flat wrap(Object value) {
     if (value instanceof ResultIterator.Flat) return (Flat) value;
     if (value instanceof ResultIterator) {
-      throw new IllegalArgumentException("Non-flat ResultIterator passed to flat");
+      throw new IllegalArgumentException("Non-flat ResultIterator passed to wrap");
     }
     return new ResultIterator.Flat() {
       Object result = value;

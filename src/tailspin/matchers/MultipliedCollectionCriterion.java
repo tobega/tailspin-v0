@@ -1,14 +1,14 @@
 package tailspin.matchers;
 
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.TailspinArray;
 
 public class MultipliedCollectionCriterion implements CollectionCriterion {
-  private final Criterion criterion;
+  private final CollectionSegmentCriterion criterion;
   private final RangeMatch multiplier;
   private long count = 0;
 
-  public MultipliedCollectionCriterion(Criterion criterion, RangeMatch multiplier) {
+  public MultipliedCollectionCriterion(CollectionSegmentCriterion criterion, RangeMatch multiplier) {
     this.criterion = criterion;
     this.multiplier = multiplier;
   }
@@ -18,12 +18,13 @@ public class MultipliedCollectionCriterion implements CollectionCriterion {
    * underlying criterion.
    */
   @Override
-  public boolean isMet(Object toMatch, Object it, Scope scope) {
-    if (!criterion.isMet(toMatch, it, scope)) {
-      return false;
+  public int isMetAt(TailspinArray.Tail tail, Object it, Scope scope) {
+    int chop = criterion.isMetAt(tail, it, scope);
+    if (chop == 0) {
+      return 0;
     }
     count++;
-    return true;
+    return chop;
   }
 
   /**

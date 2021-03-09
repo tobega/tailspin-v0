@@ -102,4 +102,32 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
   public boolean isThawed() {
     return isMutable;
   }
+
+  public Tail tailFrom(int index) {
+    return new Tail(index);
+  }
+
+  public class Tail {
+    private final int startIndex;
+
+    private Tail(int startIndex) {
+      this.startIndex = startIndex;
+    }
+
+    public Object get(int i) {
+      return TailspinArray.this.get(i+startIndex-1);
+    }
+
+    public Tail tailFrom(int index) {
+      return new Tail(index + startIndex - 1);
+    }
+
+    public boolean isEmpty() {
+      return startIndex > array.size();
+    }
+
+    public int length() {
+      return array.size() - startIndex + 1;
+    }
+  }
 }

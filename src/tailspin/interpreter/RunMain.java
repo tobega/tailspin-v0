@@ -45,24 +45,27 @@ import tailspin.control.Value;
 import tailspin.literals.ArrayLiteral;
 import tailspin.literals.ByteLiteral;
 import tailspin.literals.BytesConstant;
+import tailspin.literals.CartesianExpansion;
 import tailspin.literals.CodedCharacter;
 import tailspin.literals.KeyValueExpression;
 import tailspin.literals.RelationLiteral;
 import tailspin.literals.StringConstant;
 import tailspin.literals.StringInterpolation;
 import tailspin.literals.StringLiteral;
-import tailspin.literals.CartesianExpansion;
 import tailspin.literals.StructureLiteral;
 import tailspin.matchers.AlwaysFalse;
 import tailspin.matchers.AnyOf;
 import tailspin.matchers.ArrayMatch;
 import tailspin.matchers.CollectionCriterionFactory;
+import tailspin.matchers.CollectionSegmentCriterion;
 import tailspin.matchers.Condition;
 import tailspin.matchers.Equality;
 import tailspin.matchers.MultipliedCollectionCriterionFactory;
 import tailspin.matchers.OnceOnlyCollectionCriterionFactory;
+import tailspin.matchers.OneElementMatch;
 import tailspin.matchers.RangeMatch;
 import tailspin.matchers.RegexpMatch;
+import tailspin.matchers.SequenceMatch;
 import tailspin.matchers.StereotypeMatch;
 import tailspin.matchers.StructureMatch;
 import tailspin.matchers.ValueMatcher;
@@ -526,10 +529,21 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public CollectionCriterionFactory visitArrayContentMatcher(TailspinParser.ArrayContentMatcherContext ctx) {
-    if (ctx.multiplier() == null) {
-      return new OnceOnlyCollectionCriterionFactory(visitMatcher(ctx.matcher()));
+    CollectionSegmentCriterion criterion;
+    if (ctx.matcher() != null) {
+      criterion = new OneElementMatch(visitMatcher(ctx.matcher()));
+    } else {
+      criterion = visitSequenceMatch(ctx.sequenceMatch());
     }
-    return new MultipliedCollectionCriterionFactory(visitMatcher(ctx.matcher()), visitMultiplier(ctx.multiplier()));
+    if (ctx.multiplier() == null) {
+      return new OnceOnlyCollectionCriterionFactory(criterion);
+    }
+    return new MultipliedCollectionCriterionFactory(criterion, visitMultiplier(ctx.multiplier()));
+  }
+
+  @Override
+  public CollectionSegmentCriterion visitSequenceMatch(TailspinParser.SequenceMatchContext ctx) {
+    return new SequenceMatch(ctx.matcher().stream().map(this::visitMatcher).collect(Collectors.toList()));
   }
 
   @Override

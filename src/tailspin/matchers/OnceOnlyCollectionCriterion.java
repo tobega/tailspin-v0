@@ -1,23 +1,22 @@
 package tailspin.matchers;
 
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.TailspinArray;
 
 public class OnceOnlyCollectionCriterion implements CollectionCriterion {
-  final Criterion criterion;
+  final CollectionSegmentCriterion criterion;
   boolean wasMatched;
 
-  public OnceOnlyCollectionCriterion(Criterion criterion) {
+  public OnceOnlyCollectionCriterion(CollectionSegmentCriterion criterion) {
     this.criterion = criterion;
   }
 
   @Override
-  public boolean isMet(Object toMatch, Object it, Scope scope) {
-    if (!wasMatched && criterion.isMet(toMatch, it, scope)) {
-      wasMatched = true;
-      return true;
-    }
-    return false;
+  public int isMetAt(TailspinArray.Tail tail, Object it, Scope scope) {
+    if (wasMatched) return 0;
+    int chop = criterion.isMetAt(tail, it, scope);
+    wasMatched = chop != 0;
+    return chop;
   }
 
   @Override
