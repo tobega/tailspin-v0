@@ -422,6 +422,20 @@ class Statements {
   }
 
   @Test
+  void transformCollectorResult() throws Exception {
+    String program =
+        "2..6 -> ..=Count -> $*2 - 1 -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("9", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void maxCollector() throws Exception {
     String program = "[{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...\n"
         + "-> ..=Max&{by: :(n:), select: :(fruit:)} -> !OUT::write\n";

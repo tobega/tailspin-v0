@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import tailspin.control.ChainStage;
 import tailspin.control.Expression;
 import tailspin.control.Value;
 import tailspin.interpreter.NestedScope;
@@ -254,9 +255,9 @@ public class SubComposerFactory {
   public static class TransformComposition implements CompositionSpec {
 
     private final CompositionSpec compositionSpec;
-    private final Expression transform;
+    private final ChainStage transform;
 
-    public TransformComposition(CompositionSpec compositionSpec, Expression transform) {
+    public TransformComposition(CompositionSpec compositionSpec, ChainStage transform) {
       this.compositionSpec = compositionSpec;
       this.transform = transform;
     }

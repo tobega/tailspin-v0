@@ -1500,4 +1500,23 @@ class Composer {
 
     assertEquals("1", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void collector() throws IOException {
+    String program = "composer letters\n"
+        + "  <letter|not>+ -> ..=Count \n"
+        + "  rule letter: <'[a-z]'>\n"
+        + "  rule not: (<'.'>)\n"
+        + "end letters\n"
+        + "\n"
+        + "'a1bc2d' -> letters -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+  }
 }

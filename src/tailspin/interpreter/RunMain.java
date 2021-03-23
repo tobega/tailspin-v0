@@ -20,7 +20,7 @@ import tailspin.control.ArrayTemplates;
 import tailspin.control.Block;
 import tailspin.control.Bound;
 import tailspin.control.ChainStage;
-import tailspin.control.CollectorChain;
+import tailspin.control.CollectorStage;
 import tailspin.control.ComposerDefinition;
 import tailspin.control.Deconstructor;
 import tailspin.control.Definition;
@@ -41,7 +41,9 @@ import tailspin.control.TemplatesCall;
 import tailspin.control.TemplatesDefinition;
 import tailspin.control.TemplatesDefinition.TemplatesConstructor;
 import tailspin.control.TemplatesReference;
+import tailspin.control.TransformStage;
 import tailspin.control.Value;
+import tailspin.control.ValueChain;
 import tailspin.literals.ArrayLiteral;
 import tailspin.literals.ByteLiteral;
 import tailspin.literals.BytesConstant;
@@ -165,13 +167,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public Expression visitValueChain(TailspinParser.ValueChainContext ctx) {
     Expression valueChain = visitSource(ctx.source());
     if (ctx.transform() != null) {
-      valueChain = new ChainStage(valueChain, visitTransform(ctx.transform()));
-    }
-    if (ctx.collectorChain() != null) {
-      valueChain = new CollectorChain(valueChain, visitTemplatesReference(ctx.collectorChain().templatesReference()));
-      if (ctx.collectorChain().transform() != null) {
-        valueChain = new ChainStage(valueChain, visitTransform(ctx.collectorChain().transform()));
-      }
+      valueChain = new ValueChain(valueChain, visitTransform(ctx.transform()));
     }
     return valueChain;
   }
@@ -737,10 +733,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     ChainStage nextStage = ctx.transform() == null ? null : visitTransform(ctx.transform());
     if (ctx.Deconstructor() != null) {
-      return new ChainStage(Deconstructor.INSTANCE, nextStage);
+      return new TransformStage(Deconstructor.INSTANCE, nextStage);
+    }
+    if (ctx.collectorChain() != null) {
+      return new CollectorStage(visitTemplatesReference(ctx.collectorChain().templatesReference()), nextStage);
     }
     Expression transform = (Expression) visit(ctx.templates());
-    return new ChainStage(transform, nextStage);
+    return new TransformStage(transform, nextStage);
   }
 
   @Override
@@ -800,7 +799,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       interpolation = createSourceReference(identifier, ctx.reference(), ctx.Message(), ctx.parameterValues());
     }
     if (ctx.transform() != null) {
-      interpolation = new ChainStage(interpolation, visitTransform(ctx.transform()));
+      interpolation = new ValueChain(interpolation, visitTransform(ctx.transform()));
     }
     if (ctx.TemplateMatch() != null) {
       interpolation = new SendToTemplates(interpolation);

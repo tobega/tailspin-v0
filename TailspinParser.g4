@@ -30,7 +30,6 @@ source: sourceReference
   | LeftParen keyValue RightParen
   | arithmeticExpression
   | operatorExpression
-  | collectorChain
 ;
 
 sourceReference: (SourceMarker anyIdentifier? | Reflexive) reference Message? parameterValues?
@@ -115,12 +114,13 @@ stateAssignment: (valueChain To)? stateSink;
 
 stateSink: (Range Else)? stateIdentifier reference Colon valueProduction SemiColon;
 
-valueChain: source transform? collectorChain?;
+valueChain: source transform?;
 
-collectorChain: To Range Equal templatesReference  transform?;
+collectorChain: To Range Equal templatesReference;
 
 transform: To templates transform?
   | Deconstructor transform?
+  | collectorChain transform?
 ;
 
 matcher: StartMatcher Invert? criterion (Else criterion)* EndMatcher;

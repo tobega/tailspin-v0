@@ -1,16 +1,15 @@
 package tailspin.matchers.composer;
 
-import tailspin.control.Expression;
+import tailspin.control.ChainStage;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 
 public class TransformSubComposer implements SubComposer {
   private final SubComposer subComposer;
-  private final Expression transform;
+  private final ChainStage transform;
   private final Scope scope;
 
-  TransformSubComposer(SubComposer subComposer, Expression transform,
-      Scope scope) {
+  TransformSubComposer(SubComposer subComposer, ChainStage transform, Scope scope) {
     this.subComposer = subComposer;
     this.transform = transform;
     this.scope = scope;
@@ -21,20 +20,10 @@ public class TransformSubComposer implements SubComposer {
       return matchResult;
     }
     if (!(matchResult instanceof ResultIterator)) {
-      return ResultIterator.resolveSideEffects(transform.getResults(matchResult, scope));
+      return ResultIterator.resolveSideEffects(transform.runOne(matchResult, scope));
+    } else {
+      return ResultIterator.resolveSideEffects(transform.runAll((ResultIterator.Flat) matchResult, scope));
     }
-    ResultIterator ri = (ResultIterator) matchResult;
-    Object result = null;
-    Object it;
-    while ((it = ri.getNextResult()) != null) {
-      if (it instanceof ResultIterator) {
-        ri = (ResultIterator) it;
-        continue;
-      }
-      Object transformed = ResultIterator.resolveSideEffects(transform.getResults(it, scope));
-      result = ResultIterator.appendResultValue(result, transformed);
-    }
-    return result;
   }
 
   @Override
