@@ -1,0 +1,322 @@
+// solving https://codingdojo.org/kata/BankOCR/
+
+composer decodeLedLine
+  [ <ledArray>+ ]
+  rule ledArray: <ledValues> -> ..=Sum&{of: :()}
+  rule ledValues: <ledState> -> $ * 4 <ledState> -> $ * 2 <ledState>
+  rule ledState: <on|off>
+  rule on: <'[|_]'> -> 1
+  rule off: <' '> -> 0
+end decodeLedLine
+
+templates collectVerticalLedArrays
+  def in: $;
+  [ 1..$in(1)::length -> $in(first..last; $) -> $(1) * 32 + $(2) * 8 + $(3) ] !
+end collectVerticalLedArrays
+
+def digits: {|
+  { code: 64 + 5*8 + 7, digit: 0 },
+  { code: 8 + 1, digit: 1 },
+  { code: 64 + 3*8 + 6, digit: 2 },
+  { code: 64 + 3*8 + 3, digit: 3 },
+  { code: 7*8 + 1, digit: 4 },
+  { code: 64 + 6*8 + 3, digit: 5 },
+  { code: 64 + 6*8 + 7, digit: 6 },
+  { code: 64 + 8 + 1, digit: 7 },
+  { code: 64 + 7*8 + 7, digit: 8 },
+  { code: 64 + 7*8 + 3, digit: 9 }
+|};
+
+templates doScan
+  [$... -> decodeLedLine] -> collectVerticalLedArrays !
+end doScan
+
+templates exactScanMatch
+  [($digits matching {|{code: $}|}) ...] -> #
+  when <=[]> do '?' !
+  otherwise $(1).digit !
+end exactScanMatch
+
+templates scanOCR
+  $ -> doScan -> [$... -> exactScanMatch]!
+end scanOCR
+
+test 'use case 1'
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'| || || || || || || || || |',
+'|_||_||_||_||_||_||_||_||_|',
+'                           '
+] -> scanOCR -> '$...;' <='000000000'> 'zeroes'
+
+assert [
+'                           ',
+'  |  |  |  |  |  |  |  |  |',
+'  |  |  |  |  |  |  |  |  |',
+'                           '
+] -> scanOCR -> '$...;' <='111111111'> 'ones'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+' _| _| _| _| _| _| _| _| _|',
+'|_ |_ |_ |_ |_ |_ |_ |_ |_ ',
+'                           '
+] -> scanOCR -> '$...;' <='222222222'> 'twos'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+' _| _| _| _| _| _| _| _| _|',
+' _| _| _| _| _| _| _| _| _|',
+'                           '
+] -> scanOCR -> '$...;' <='333333333'> 'threes'
+
+assert [
+'                           ',
+'|_||_||_||_||_||_||_||_||_|',
+'  |  |  |  |  |  |  |  |  |',
+'                           '
+] -> scanOCR -> '$...;' <='444444444'> 'fours'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'|_ |_ |_ |_ |_ |_ |_ |_ |_ ',
+' _| _| _| _| _| _| _| _| _|',
+'                           '
+] -> scanOCR -> '$...;' <='555555555'> 'fives'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'|_ |_ |_ |_ |_ |_ |_ |_ |_ ',
+'|_||_||_||_||_||_||_||_||_|',
+'                           '
+] -> scanOCR -> '$...;' <='666666666'> 'sixes'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'  |  |  |  |  |  |  |  |  |',
+'  |  |  |  |  |  |  |  |  |',
+'                           '
+] -> scanOCR -> '$...;' <='777777777'> 'sevens'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'|_||_||_||_||_||_||_||_||_|',
+'|_||_||_||_||_||_||_||_||_|',
+'                           '
+] -> scanOCR -> '$...;' <='888888888'> 'eights'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'|_||_||_||_||_||_||_||_||_|',
+' _| _| _| _| _| _| _| _| _|',
+'                           '
+] -> scanOCR -> '$...;' <='999999999'> 'nines'
+
+assert [
+'    _  _     _  _  _  _  _ ',
+'  | _| _||_||_ |_   ||_||_|',
+'  ||_  _|  | _||_|  ||_| _|',
+'                           '
+] -> scanOCR -> '$...;' <='123456789'> 'one to nine'
+
+end 'use case 1'
+
+templates validAccount
+  def account: $;
+  $(last..first:-1) -> \[i]($ * $i ! \) ... -> ..=Sum&{of: :()} -> $ mod 11 -> #
+  when <=0> do $account!
+end validAccount
+
+templates scanResult
+  $ -> scanOCR -> #
+  when <[<='?'>]> do '$...; ILL' !
+  otherwise '$...;$ -> [$ -> validAccount] -> \(<=[]> ' ERR'! \);' !
+end scanResult
+
+test 'use case 3'
+assert [
+' _  _  _  _  _  _  _  _    ',
+'| || || || || || || ||_   |',
+'|_||_||_||_||_||_||_| _|  |',
+'                           '
+] -> scanResult <='000000051'> 'good'
+
+assert [
+' _  _  _  _  _  _     _    ',
+'| || || || || || |  ||_   |',
+'|_||_||_||_||_||_|  | _|  |',
+'                           '
+] -> scanResult <='000000151 ERR'> 'invalid'
+
+assert [
+'    _  _  _  _  _  _     _ ',
+'|_||_|| || ||_   |  |  | _ ',
+'  | _||_||_||_|  |  |  | _|',
+'                           '
+] -> scanResult <='49006771? ILL'> 'illegible'
+
+assert [
+'    _  _     _  _  _  _  _ ',
+'  | _| _||_| _ |_   ||_||_|',
+'  ||_  _|  | _||_|  ||_| _ ',
+'                           '
+] -> scanResult <='1234?678? ILL'> 'also illegible'
+
+end 'use case 3'
+
+templates oneBitDifferences
+  def byte: $::asBytes;
+  1 -> #
+  when <..64> do
+    ($::asBytes xor $byte) -> $::asInteger !
+    $ * 2 -> #
+end oneBitDifferences
+
+def oneErrorDigits: {|
+  $digits... -> {by $.code -> oneBitDifferences -> (code: $), digit: $.digit}
+|};
+
+templates correct&{pos:}
+  def codes: $;
+  @: [[]];
+  1..$codes::length -> #
+  $@!
+
+  when <=$pos> do @: [[$@(1)..., by $codes($pos) -> ($oneErrorDigits matching {|{code: $}|}) ... -> $.digit]];
+  otherwise
+    def digit: $codes($) -> exactScanMatch;
+    @: [$@... -> [$..., $digit]];
+end correct
+
+templates scanCorrected
+  def codes: $ -> doScan;
+  def scanned: $codes -> [$... -> exactScanMatch];
+
+  templates outputCorrected
+    [$... -> validAccount] -> #
+    when <=[]> do '$scanned...; ILL' !
+    when <[](1)> do '$(1)...;' !
+    otherwise '$scanned...; AMB [$(1)...;$(2..last)... -> ', $...;';]' !
+  end outputCorrected
+
+  $scanned -> #
+
+  when <[<='?'>=1]> do
+    def pos: $ -> \[i](<='?'> $i!\)...;
+    $codes -> correct&{pos: $pos} -> outputCorrected !
+
+  when <[<='?'>]> do '$scanned...; ILL' !
+
+  otherwise
+    [$scanned -> validAccount] -> \(
+      when <=[]> do [1..$codes::length -> \(def i: $; $codes -> correct&{pos: $i} ... !\)] -> outputCorrected !
+      otherwise '$scanned...;' !
+    \) !
+end scanCorrected
+
+test 'use case 4'
+assert [
+'                           ',
+'  |  |  |  |  |  |  |  |  |',
+'  |  |  |  |  |  |  |  |  |',
+'                           '
+] -> scanCorrected <='711111111'> 'ones'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'  |  |  |  |  |  |  |  |  |',
+'  |  |  |  |  |  |  |  |  |',
+'                           '
+] -> scanCorrected <='777777177'> 'sevens'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+' _|| || || || || || || || |',
+'|_ |_||_||_||_||_||_||_||_|',
+'                           '
+] -> scanCorrected <='200800000'> 'zero to 8'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+' _| _| _| _| _| _| _| _| _|',
+' _| _| _| _| _| _| _| _| _|',
+'                           '
+] -> scanCorrected <='333393333'> 'threes'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'|_||_||_||_||_||_||_||_||_|',
+'|_||_||_||_||_||_||_||_||_|',
+'                           '
+] -> scanCorrected <='888888888 AMB [888886888, 888888988, 888888880]'> 'eights'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'|_ |_ |_ |_ |_ |_ |_ |_ |_ ',
+' _| _| _| _| _| _| _| _| _|',
+'                           '
+] -> scanCorrected <='555555555 AMB [559555555, 555655555]'> 'fives'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'|_ |_ |_ |_ |_ |_ |_ |_ |_ ',
+'|_||_||_||_||_||_||_||_||_|',
+'                           '
+] -> scanCorrected <='666666666 AMB [686666666, 666566666]'> 'sixes'
+
+assert [
+' _  _  _  _  _  _  _  _  _ ',
+'|_||_||_||_||_||_||_||_||_|',
+' _| _| _| _| _| _| _| _| _|',
+'                           '
+] -> scanCorrected <='999999999 AMB [899999999, 993999999, 999959999]'> 'nines'
+
+assert [
+'    _  _  _  _  _  _     _ ',
+'|_||_|| || ||_   |  |  ||_ ',
+'  | _||_||_||_|  |  |  | _|',
+'                           '
+] -> scanCorrected <='490067715 AMB [490867715, 490067115, 490067719]'> 'ambiguous'
+
+assert [
+'    _  _     _  _  _  _  _ ',
+' _| _| _||_||_ |_   ||_||_|',
+'  ||_  _|  | _||_|  ||_| _|',
+'                           '
+] -> scanCorrected <='123456789'> 'extra bar'
+
+assert [
+'    _  _     _  _  _  _  _ ',
+' _||_| _||_||_ |_   ||_||_|',
+'  ||_  _|  | _||_|  ||_| _|',
+'                           '
+] -> scanCorrected <='??3456789 ILL'> 'two extra bars'
+
+assert [
+' _  _  _  _  _  _  _  _    ',
+'| || || || || || || ||_   |',
+'|_||_||_||_||_||_||_| _|  |',
+'                           '
+] -> scanCorrected <='000000051'> 'valid'
+
+assert [
+' _     _  _  _  _  _  _    ',
+'| || || || || || || ||_   |',
+'|_||_||_||_||_||_||_| _|  |',
+'                           '
+] -> scanCorrected <='000000051'> 'missing bar'
+
+assert [
+' _     _  _  _  _     _    ',
+'| || || || || || |  ||_   |',
+'|_||_||_||_||_||_|  | _|  |',
+'                           '
+] -> scanCorrected <='0?0000151 ILL'> 'invalid not correctible'
+
+assert [
+'    _  _  _  _  _  _     _ ',
+'|_||_|| ||_||_   |  |  | _ ',
+'  | _||_||_||_|  |  |  | _|',
+'                           '
+] -> scanCorrected <='490867715'> 'missing pipe'
+end 'use case 4'

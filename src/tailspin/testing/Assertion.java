@@ -1,6 +1,9 @@
 package tailspin.testing;
 
+import java.util.ArrayList;
+import java.util.List;
 import tailspin.control.Expression;
+import tailspin.control.ResultIterator;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
@@ -18,7 +21,22 @@ public class Assertion implements Expression {
 
   @Override
   public Object getResults(Object it, Scope blockScope) {
-    Object value = Value.oneValue(expression.getResults(null, blockScope));
+    Object value = expression.getResults(null, blockScope);
+    value = ResultIterator.resolveSideEffects(value);
+    if (value == null) {
+      return "assertion that " + description.getResults(null, blockScope) + " did not get any value.";
+    }
+    if (value instanceof ResultIterator) {
+      List<Object> results = new ArrayList<>();
+      ResultIterator.forEach(value, v -> {
+        if (v instanceof String) {
+          v = "'" + v + "'";
+        }
+        results.add(v);
+      });
+      return "assertion that " + description.getResults(null, blockScope) + " got too many values: "
+          + results;
+    }
     if (!criterion.isMet(value, value, blockScope)) {
       return "assertion that " + description.getResults(null, blockScope) + " failed with value " + value;
     }
