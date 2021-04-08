@@ -66,10 +66,8 @@ processor EinsteinSolver
         @: $;
         $selected... -> {$} -> @: ($@ notMatching {| $ |});
         [$@ -> resolve&{rows: $rows-1}] -> \(
-          $ -> \(
             when <~=[]> do
               $... -> {| $..., $selected |} !
-          \) !
         \) !
     end resolve
     [$@EinsteinSolver... -> resolve&{rows: $required}] !
