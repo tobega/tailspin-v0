@@ -5,27 +5,31 @@ many algorithms look exactly like the specification, for example, compare the
 [json parser](https://github.com/tobega/tailspin-v0/blob/master/samples/JSON.tt#L14)
 and the [json specification](https://www.json.org/json-en.html).
 
-Despite the grounding in business data processing, Tailspin turns out to be fun to use and has been
-used for the [adventofcode](https://adventofcode.com/) events of [2018](https://github.com/tobega/aoc2018)
-and [2019](https://github.com/tobega/aoc2019)
+For a quick introduction to Tailspin, see [snippets compared to javascript](https://tobega.blogspot.com/2021/05/learning-tailspin-by-comparing-to.html) or the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html).
 
-The inspiration comes mostly from xslt, but data structures are json-like. The main idea is to let your data flow through
+The inspiration for Tailspincomes mostly from XSLT, but data structures are json-like. The main idea is to let your data flow through
 a series of transforms so it should be easy to specify that flow. Transform steps can be specified as a set of templates with
 pattern-matching determining which template to apply. Output is generally specified as literals with interpolation of values.
-For more info see the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html)
-and the [language reference documentation](TailspinReference.md).
-A more advanced programming example is [TDD-ing a sudoku solver](https://tobega.blogspot.com/2020/05/creating-algorithm.html).
+For more info see the [language reference documentation](TailspinReference.md).
+
+Despite the grounding in business data processing, Tailspin turns out to be fun to use and has been
+used for the [adventofcode](https://adventofcode.com/) events of [2018](https://github.com/tobega/aoc2018), [2019](https://github.com/tobega/aoc2019)
+and  [2020](https://github.com/tobega/aoc2020)
+
+A more advanced programming example with explanations is [TDD-ing a sudoku solver](https://tobega.blogspot.com/2020/05/creating-algorithm.html).
 There is also an example of integrating with java to create a [rock-paper-scissors REST service](https://github.com/tobega/rps-tailspin).
 
 Some of my thinking that went into tailspin is elaborated in my [perfect programming language essay](https://cygni.se/the-perfect-programming-language/)
 and in my [multidimensional plasma essay](https://cygni.se/is-your-programming-language-made-of-multidimensional-plasma/).
 
 ## Status
-The syntax has been mainly determined to be sane and runnable. Did Adventofcode 2019 in Tailspin, found and fixed issues.
+The syntax has been mainly determined to be sane and runnable. Did Adventofcode 2019 and 2020 in Tailspin, found and fixed issues.
 
-Cancelled work on [implementing tailspin on truffle/graalvm](https://github.com/tobega/tailspin-truffle). It may or may not be continued.
+Most recent addition is relational values that can be manipulated through relational algebra. A good example is [this solution](https://github.com/tobega/aoc2020/blob/main/a21ra.tt) to the [adventofcode 2020 day 21 problem](https://adventofcode.com/2020/day/21)
 
-Next step is up in the air. Thoughts somewhere on the roadmap are in [my notes](notes.txt)
+Next step is most likely states in processors (the GoF state pattern, or typestates). Thereafter some form of type annotations and/or contracts.
+
+Thoughts somewhere on the roadmap are in [my notes](notes.txt)
 
 ## Code samples
 Small code samples can be found in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
