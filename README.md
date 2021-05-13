@@ -61,6 +61,10 @@ then compile everything, run the tests.
 Don't touch stuff in tailspin.parser, that's generated. RunMain is the
 main interpreter implementation where most new stuff is added.
 
+## Running the tests
+Java 16 has locked down internal modules so you need to add `--add-opens=java.base/java.util=ALL-UNNAMED --add-opens=java.base/java.util.stream=ALL-UNNAMED`
+jvm parameters on the command line for junit tests.
+
 ## Contributing
 When it comes to language syntax I will be the final arbiter and dictator. It is
 important to get things that look similar to somehow work similarly

@@ -1040,6 +1040,9 @@ end 'hello'
 _NOTE:_ This is a temporary measure (for a few years) to allow using Tailspin for everything and allowing
 experimentation with tailspin API:s. Ideally tailspin [modules](#using-modules) will be created that encapsulate the java usage.
 
+Note that from jdk16, internal modules in the jvm have been closed. If you need to access classes from these modules
+in Tailspin code, you need to open them with jvm options on the command line, e.g. `--add-opens=java.base/java.util=ALL-UNNAMED`
+
 Java packages (either from the JVM or supplied in the classpath) can be imported as modules by the "java:" module type,
 e.g. `use 'java:java.util' stand-alone` will let you use any public class in the java.util package. A java
 module is always provided stand-alone, but by java rules it can access anything in the classpath.

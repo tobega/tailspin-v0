@@ -120,7 +120,7 @@ class JavaInvocation implements Transform {
     if (param instanceof JavaObject) {
       return calculatePenalty((JavaObject) param, type);
     }
-    if (param instanceof Processor) return 0; // Will proxy
+    if (param instanceof Processor && Object.class.isAssignableFrom(type)) return 0; // Will proxy
     if ((param instanceof Number) && numberTypePenalties.containsKey(type)) {
       return numberTypePenalties.get(type);
     } else if (!type.isAssignableFrom(param.getClass())) {
