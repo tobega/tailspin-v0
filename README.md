@@ -23,13 +23,12 @@ Some of my thinking that went into tailspin is elaborated in my [perfect program
 and in my [multidimensional plasma essay](https://cygni.se/is-your-programming-language-made-of-multidimensional-plasma/).
 
 ## Status
-The syntax has been mainly determined to be sane and runnable. Did Adventofcode 2019 and 2020 in Tailspin, found and fixed issues.
+The syntax has been mainly determined to be sane and runnable.
+Thoughts somewhere on the roadmap are in [my notes](Notes.md)
 
 Most recent addition is relational values that can be manipulated through relational algebra. A good example is [this solution](https://github.com/tobega/aoc2020/blob/main/a21ra.tt) to the [adventofcode 2020 day 21 problem](https://adventofcode.com/2020/day/21)
 
-Next step is most likely states in processors (the GoF state pattern, or typestates). Thereafter some form of type annotations and/or contracts.
-
-Thoughts somewhere on the roadmap are in [my notes](notes.txt)
+The next step is implementing automatic types and units (on branch autotypes)
 
 ## Code samples
 Small code samples can be found in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).

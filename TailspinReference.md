@@ -1,6 +1,6 @@
 # Tailspin reference
 This is the syntax as it is working so far, with some indications of limitations and future developments.
-More thoughts in [my notes](notes.txt).
+More thoughts in [my notes](Notes.md).
 
 Note that you may think that concepts in the language already have other established names that
 should have been used instead. This is deliberate in order to free the mind of preconceived notions. 
