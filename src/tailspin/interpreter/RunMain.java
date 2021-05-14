@@ -809,17 +809,23 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Value visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx) {
-    if (ctx.Zero() != null) return new IntegerConstant(0);
-    return visitNonZeroInteger(ctx.nonZeroInteger());
+    long value = ctx.Zero() != null ? 0 : visitNonZeroInteger(ctx.nonZeroInteger());
+    return new IntegerConstant(value, visitUnit(ctx.unit()));
   }
 
   @Override
-  public Value visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx) {
+  public String visitUnit(TailspinParser.UnitContext ctx) {
+    if (ctx == null) return null;
+    return ctx.measureProduct().getText() + (ctx.measureDenominator() == null ? "" : "/" + ctx.measureDenominator().measureProduct().getText());
+  }
+
+  @Override
+  public Long visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx) {
     long value = Long.parseLong(ctx.PositiveInteger().getText());
     if (ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-")) {
       value = - value;
     }
-    return new IntegerConstant(value);
+    return value;
   }
 
   @Override
@@ -1246,13 +1252,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   private final RangeMatch AT_MOST_ONE = new RangeMatch(
-      new Bound(new IntegerConstant(0), true),
-      new Bound(new IntegerConstant(1), true));
+      new Bound(new IntegerConstant(0, null), true),
+      new Bound(new IntegerConstant(1, null), true));
   private final RangeMatch AT_LEAST_ONE = new RangeMatch(
-      new Bound(new IntegerConstant(1), true),
+      new Bound(new IntegerConstant(1, null), true),
       null);
   private final RangeMatch ANY_AMOUNT = new RangeMatch(
-      new Bound(new IntegerConstant(0), true),
+      new Bound(new IntegerConstant(0, null), true),
       null);
   @Override
   public RangeMatch visitMultiplier(TailspinParser.MultiplierContext ctx) {
@@ -1264,7 +1270,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
     Value count;
     if (ctx.PositiveInteger() != null) {
-      count = new IntegerConstant(Long.parseLong(ctx.PositiveInteger().getText()));
+      count = new IntegerConstant(Long.parseLong(ctx.PositiveInteger().getText()), null);
     } else {
       count = Value.of(visitSourceReference(ctx.sourceReference()));
     }

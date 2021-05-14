@@ -454,6 +454,24 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#unit}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnit(TailspinParser.UnitContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#measureProduct}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMeasureProduct(TailspinParser.MeasureProductContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#measureDenominator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMeasureDenominator(TailspinParser.MeasureDenominatorContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#nonZeroInteger}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

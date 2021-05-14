@@ -152,7 +152,13 @@ upperBound: Invert? (sourceReference|arithmeticExpression|stringLiteral|term);
 
 rangeLiteral: lowerBound? Range upperBound? (Colon arithmeticExpression)?;
 
-integerLiteral: Zero | nonZeroInteger;
+integerLiteral: (Zero | nonZeroInteger) unit?;
+
+unit: Quote measureProduct measureDenominator? Quote;
+
+measureProduct: localIdentifier*;
+
+measureDenominator: Slash measureProduct;
 
 nonZeroInteger: additiveOperator? PositiveInteger;
 

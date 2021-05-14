@@ -71,6 +71,8 @@ StartBytes: '[x' -> pushMode(IN_BYTES);
 
 StartMatcher: '<';
 
+Quote: '"';
+
 Lambda: '\\';
 
 StartTemplatesDefinition: 'templates';
