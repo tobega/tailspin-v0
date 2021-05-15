@@ -20,4 +20,9 @@ public class IntegerConstant implements Value {
     }
     return new Measure(value, unit);
   }
+
+  @Override
+  public String toString() {
+    return value + (unit == null ? "" : "\"" + unit + "\"");
+  }
 }

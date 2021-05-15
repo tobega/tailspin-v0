@@ -17,4 +17,9 @@ public class IntegerExpression implements Value {
     long value = ((Number) dereferenceValue.getResults(it, scope)).longValue();
     return isNegative ? -value : value;
   }
+
+  @Override
+  public String toString() {
+    return (isNegative ? "-" : "") + dereferenceValue;
+  }
 }

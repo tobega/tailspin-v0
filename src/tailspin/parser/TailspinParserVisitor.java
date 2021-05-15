@@ -508,6 +508,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInterpolateEvaluate(TailspinParser.InterpolateEvaluateContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#arithmeticValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArithmeticValue(TailspinParser.ArithmeticValueContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#arithmeticExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

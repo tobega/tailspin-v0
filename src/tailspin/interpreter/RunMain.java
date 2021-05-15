@@ -15,6 +15,7 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.arithmetic.ArithmeticContextValue;
 import tailspin.arithmetic.ArithmeticOperation;
+import tailspin.arithmetic.ArithmeticValue;
 import tailspin.arithmetic.IntegerConstant;
 import tailspin.arithmetic.IntegerExpression;
 import tailspin.control.ArrayTemplates;
@@ -182,8 +183,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.sourceReference() != null) {
       return visitSourceReference(ctx.sourceReference());
     }
-    if (ctx.arithmeticExpression() != null) {
-      return visitArithmeticExpression(ctx.arithmeticExpression());
+    if (ctx.arithmeticValue() != null) {
+      return visitArithmeticValue(ctx.arithmeticValue());
     }
     if (ctx.rangeLiteral() != null) {
       return visitRangeLiteral(ctx.rangeLiteral());
@@ -313,8 +314,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public ArrayLens visitSimpleDimension(TailspinParser.SimpleDimensionContext ctx) {
-      if (ctx.arithmeticExpression() != null) {
-        return new SingleValueArrayLens(visitArithmeticExpression(ctx.arithmeticExpression()));
+      if (ctx.arithmeticValue() != null) {
+        return new SingleValueArrayLens(visitArithmeticValue(ctx.arithmeticValue()));
       } else if (ctx.rangeLiteral() != null) {
         return new RangeArrayLens(visitRangeLiteral(ctx.rangeLiteral()));
       } else if (ctx.sourceReference() != null) {
@@ -519,8 +520,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Criterion lengthCriterion = null;
     if (ctx.rangeBounds() != null) {
       lengthCriterion = visitRangeBounds(ctx.rangeBounds());
-    } else if (ctx.arithmeticExpression() != null) {
-      lengthCriterion = new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
+    } else if (ctx.arithmeticValue() != null) {
+      lengthCriterion = new Equality(visitArithmeticValue(ctx.arithmeticValue()));
     }
     return new ArrayMatch(lengthCriterion, criterionFactories, ctx.Void() != null);
   }
@@ -786,7 +787,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return visitInterpolateEvaluate(ctx.interpolateEvaluate());
     }
     if (ctx.characterCode() != null) {
-      return new CodedCharacter(visitArithmeticExpression(ctx.characterCode().arithmeticExpression()));
+      return new CodedCharacter(visitArithmeticValue(ctx.characterCode().arithmeticValue()));
     }
     throw new UnsupportedOperationException();
   }
@@ -837,6 +838,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       value = - value;
     }
     return value;
+  }
+
+  @Override
+  public Value visitArithmeticValue(TailspinParser.ArithmeticValueContext ctx) {
+    return new ArithmeticValue(visitArithmeticExpression(ctx.arithmeticExpression()));
   }
 
   @Override
@@ -944,7 +950,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
     Value increment =
-        ctx.arithmeticExpression() == null ? null : visitArithmeticExpression(ctx.arithmeticExpression());
+        ctx.arithmeticValue() == null ? null : visitArithmeticValue(ctx.arithmeticValue());
     return new RangeGenerator(lowerBound, upperBound, increment);
   }
 
@@ -953,8 +959,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Value bound;
     if (ctx.sourceReference() != null) {
       bound = Value.of(visitSourceReference(ctx.sourceReference()));
-    } else if (ctx.arithmeticExpression() != null) {
-      bound = visitArithmeticExpression(ctx.arithmeticExpression());
+    } else if (ctx.arithmeticValue() != null) {
+      bound = visitArithmeticValue(ctx.arithmeticValue());
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else if (ctx.term() != null) {
@@ -971,8 +977,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Value bound;
     if (ctx.sourceReference() != null) {
       bound = Value.of(visitSourceReference(ctx.sourceReference()));
-    } else if (ctx.arithmeticExpression() != null) {
-      bound = visitArithmeticExpression(ctx.arithmeticExpression());
+    } else if (ctx.arithmeticValue() != null) {
+      bound = visitArithmeticValue(ctx.arithmeticValue());
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else if (ctx.term() != null) {

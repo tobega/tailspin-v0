@@ -22,11 +22,21 @@ public class ArithmeticOperation implements Value {
       public long apply(long left, long right) {
         return left + right;
       }
+
+      @Override
+      public String toString() {
+        return "+";
+      }
     },
     Subtract {
       @Override
       public long apply(long left, long right) {
         return left - right;
+      }
+
+      @Override
+      public String toString() {
+        return "-";
       }
     },
     Multiply {
@@ -34,11 +44,21 @@ public class ArithmeticOperation implements Value {
       public long apply(long left, long right) {
         return left * right;
       }
+
+      @Override
+      public String toString() {
+        return "*";
+      }
     },
     DivideTruncate {
       @Override
       public long apply(long left, long right) {
         return left / right;
+      }
+
+      @Override
+      public String toString() {
+        return "~/";
       }
     },
     Modulo {
@@ -46,6 +66,11 @@ public class ArithmeticOperation implements Value {
       public long apply(long left, long right) {
         long truncateRemainder = left % right;
         return truncateRemainder < 0 ? Math.abs(right) + truncateRemainder : truncateRemainder;
+      }
+
+      @Override
+      public String toString() {
+        return "mod";
       }
     };
 
@@ -74,5 +99,10 @@ public class ArithmeticOperation implements Value {
   @Override
   public Object getResults(Object it, Scope scope) {
     return op.apply(left.getResults(it, scope), right.getResults(it, scope));
+  }
+
+  @Override
+  public String toString() {
+    return left + " " + op + " " + right;
   }
 }

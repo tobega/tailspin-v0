@@ -16,4 +16,9 @@ public class ArithmeticContextValue implements Value {
     ArithmeticContextKeywordResolver resolver = scope.getArithmeticContextKeywordResolver();
     return resolver.getValue(name);
   }
+
+  @Override
+  public String toString() {
+    return name;
+  }
 }
