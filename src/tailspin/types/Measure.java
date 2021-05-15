@@ -1,5 +1,7 @@
 package tailspin.types;
 
+import java.util.Objects;
+
 public class Measure {
 
   private final long value;
@@ -7,7 +9,7 @@ public class Measure {
 
   public Measure(long value, String unit) {
     this.value = value;
-    this.unit = unit;
+    this.unit = Objects.requireNonNull(unit);
   }
 
   @Override

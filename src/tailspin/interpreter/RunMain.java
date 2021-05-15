@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.arithmetic.ArithmeticContextValue;
@@ -116,6 +117,7 @@ import tailspin.transform.lens.RangeArrayLens;
 import tailspin.transform.lens.SingleValueArrayLens;
 import tailspin.types.Criterion;
 import tailspin.types.KeyValue;
+import tailspin.types.Unit;
 
 public class RunMain extends TailspinParserBaseVisitor<Object> {
   private final Deque<DependencyCounter> dependencyCounters;
@@ -810,13 +812,22 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Value visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx) {
     long value = ctx.Zero() != null ? 0 : visitNonZeroInteger(ctx.nonZeroInteger());
-    return new IntegerConstant(value, visitUnit(ctx.unit()));
+    return new IntegerConstant(value, Unit.validate(visitUnit(ctx.unit())));
   }
 
   @Override
   public String visitUnit(TailspinParser.UnitContext ctx) {
     if (ctx == null) return null;
-    return ctx.measureProduct().getText() + (ctx.measureDenominator() == null ? "" : "/" + ctx.measureDenominator().measureProduct().getText());
+    return visitMeasureProduct(ctx.measureProduct())
+        + (ctx.measureDenominator() == null ? ""
+        : "/" + visitMeasureProduct(ctx.measureDenominator().measureProduct()));
+  }
+
+  @Override
+  public String visitMeasureProduct(TailspinParser.MeasureProductContext measureProduct) {
+    return measureProduct.localIdentifier().stream()
+        .map(RuleContext::getText)
+        .collect(Collectors.joining(" "));
   }
 
   @Override
