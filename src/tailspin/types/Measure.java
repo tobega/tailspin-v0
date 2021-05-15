@@ -16,4 +16,12 @@ public class Measure {
   public String toString() {
     return value + "\"" + unit + "\"";
   }
+
+  public long getValue() {
+    return value;
+  }
+
+  public String getUnit() {
+    return unit;
+  }
 }

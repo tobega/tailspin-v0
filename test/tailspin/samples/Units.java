@@ -72,4 +72,69 @@ public class Units {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
+
+  @Test
+  void addScalarWorks() throws IOException {
+    String program = "4\"m\" + 3 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("7\"m\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void subtractScalarWorks() throws IOException {
+    String program = "4\"m\" - 3 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1\"m\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void multiplyScalarWorks() throws IOException {
+    String program = "4\"m\" * 3 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("12\"m\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void integerDivideScalarWorks() throws IOException {
+    String program = "12\"m\" ~/ 3 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4\"m\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void moduloScalarWorks() throws IOException {
+    String program = "11\"m\" mod 3 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("2\"m\"", output.toString(StandardCharsets.UTF_8));
+  }
 }
