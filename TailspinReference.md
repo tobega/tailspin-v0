@@ -140,7 +140,7 @@ Comparing a measure to a scalar (with the scalar in the matcher) will work. Comp
 to have the same unit.
 
 When the resulting measure of arithmetic between measures cannot be inferred, you will need to
-parenthesize the expression and provide the new measure.
+parenthesize the expression and provide the new measure, e.g. `(4"J" + 3 "N m")"J"`
 
 ### Range literal
 A range literal produces a [stream](#streams) of numbers. They are specified by a start, an end and

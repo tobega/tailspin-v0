@@ -18,6 +18,7 @@ import tailspin.arithmetic.ArithmeticOperation;
 import tailspin.arithmetic.ArithmeticValue;
 import tailspin.arithmetic.IntegerConstant;
 import tailspin.arithmetic.IntegerExpression;
+import tailspin.arithmetic.MeasureExpression;
 import tailspin.control.ArrayTemplates;
 import tailspin.control.Block;
 import tailspin.control.Bound;
@@ -852,7 +853,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return new IntegerExpression(isNegative, Value.of(visitSourceReference(ctx.sourceReference())));
     }
     if (ctx.LeftParen() != null) {
-      return visitArithmeticExpression(ctx.arithmeticExpression(0));
+      Value value = visitArithmeticExpression(ctx.arithmeticExpression(0));
+      if (ctx.unit() != null) {
+        return new MeasureExpression(value, Unit.validate(visitUnit(ctx.unit())));
+      }
+      return value;
     }
     if (ctx.additiveOperator() != null) {
       Value left = visitArithmeticExpression(ctx.arithmeticExpression(0));
@@ -869,7 +874,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return newArithmeticOperation(left, right, operation);
     }
     if (ctx.integerLiteral() != null) {
-      return (Value) visit(ctx.integerLiteral());
+      return visitIntegerLiteral(ctx.integerLiteral());
     }
     if (ctx.arithmeticContextKeyword() != null) {
       return new ArithmeticContextValue(ctx.arithmeticContextKeyword().getText());

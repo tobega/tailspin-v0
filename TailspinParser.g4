@@ -176,7 +176,7 @@ interpolateEvaluate: StartStringInterpolate (anyIdentifier? reference Message? p
 arithmeticValue: arithmeticExpression;
 
 arithmeticExpression: integerLiteral
-  | LeftParen arithmeticExpression RightParen
+  | LeftParen arithmeticExpression RightParen unit?
   | additiveOperator? sourceReference
   | arithmeticExpression multiplicativeOperator arithmeticExpression
   | arithmeticExpression additiveOperator arithmeticExpression
