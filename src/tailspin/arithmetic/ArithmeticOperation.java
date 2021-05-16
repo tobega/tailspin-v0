@@ -17,7 +17,7 @@ public class ArithmeticOperation implements Value {
   }
 
   public enum Op {
-    Add {
+    Add(true) {
       @Override
       public long apply(long left, long right) {
         return left + right;
@@ -28,7 +28,7 @@ public class ArithmeticOperation implements Value {
         return "+";
       }
     },
-    Subtract {
+    Subtract(true) {
       @Override
       public long apply(long left, long right) {
         return left - right;
@@ -39,7 +39,7 @@ public class ArithmeticOperation implements Value {
         return "-";
       }
     },
-    Multiply {
+    Multiply(false) {
       @Override
       public long apply(long left, long right) {
         return left * right;
@@ -50,7 +50,7 @@ public class ArithmeticOperation implements Value {
         return "*";
       }
     },
-    DivideTruncate {
+    DivideTruncate(false) {
       @Override
       public long apply(long left, long right) {
         return left / right;
@@ -61,7 +61,7 @@ public class ArithmeticOperation implements Value {
         return "~/";
       }
     },
-    Modulo {
+    Modulo(false) {
       @Override
       public long apply(long left, long right) {
         long truncateRemainder = left % right;
@@ -73,6 +73,12 @@ public class ArithmeticOperation implements Value {
         return "mod";
       }
     };
+
+    private final boolean worksOnSameUnit;
+
+    Op(boolean worksOnSameUnit) {
+      this.worksOnSameUnit = worksOnSameUnit;
+    }
 
     public abstract long apply(long left, long right);
 
@@ -88,7 +94,7 @@ public class ArithmeticOperation implements Value {
       }
       if (right instanceof Measure m) {
         rvalue = m.getValue();
-        unit = unit == null ? m.getUnit() : "";
+        unit = (unit == null || (worksOnSameUnit && unit.equals(m.getUnit()))) ? m.getUnit() : "";
       } else {
         rvalue = (long) right;
       }
