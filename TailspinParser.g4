@@ -28,7 +28,7 @@ source: sourceReference
   | structureLiteral
   | bytesLiteral
   | LeftParen keyValue RightParen
-  | arithmeticExpression
+  | arithmeticValue
   | operatorExpression
 ;
 
@@ -43,7 +43,7 @@ lens: LeftParen dimensionReference (SemiColon dimensionReference)*  RightParen;
 
 dimensionReference: simpleDimension|multiValueDimension|projection|key|localIdentifier|grouping;
 
-simpleDimension: sourceReference|arithmeticExpression|rangeLiteral;
+simpleDimension: sourceReference|arithmeticValue|rangeLiteral;
 
 multiValueDimension: LeftBracket simpleDimension (Comma simpleDimension)* RightBracket;
 
@@ -130,8 +130,9 @@ criterion: (literalMatch | typeMatch)? condition*;
 typeMatch: rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
-  | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticExpression) RightParen)?         # arrayMatch
+  | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
   | (localIdentifier|externalIdentifier) # stereotypeMatch
+  | unit # unitMatch
 ;
 
 structureContentMatcher: matcher | Void;
@@ -146,13 +147,19 @@ rangeBounds: lowerBound? Range upperBound?;
 
 condition: BeginCondition valueChain matcher RightParen;
 
-lowerBound: (sourceReference|arithmeticExpression|stringLiteral|term) Invert?;
+lowerBound: (sourceReference|arithmeticValue|stringLiteral|term) Invert?;
 
-upperBound: Invert? (sourceReference|arithmeticExpression|stringLiteral|term);
+upperBound: Invert? (sourceReference|arithmeticValue|stringLiteral|term);
 
-rangeLiteral: lowerBound? Range upperBound? (Colon arithmeticExpression)?;
+rangeLiteral: lowerBound? Range upperBound? (Colon arithmeticValue)?;
 
-integerLiteral: Zero | nonZeroInteger;
+integerLiteral: (Zero | nonZeroInteger) unit?;
+
+unit: Quote measureProduct measureDenominator? Quote;
+
+measureProduct: localIdentifier*;
+
+measureDenominator: Slash measureProduct;
 
 nonZeroInteger: additiveOperator? PositiveInteger;
 
@@ -162,13 +169,15 @@ stringContent: stringInterpolate | STRING_TEXT;
 
 stringInterpolate: interpolateEvaluate|characterCode;
 
-characterCode: StartCharacterCode arithmeticExpression EndStringInterpolate;
+characterCode: StartCharacterCode arithmeticValue EndStringInterpolate;
 
 interpolateEvaluate: StartStringInterpolate (anyIdentifier? reference Message? parameterValues? | Colon source)
   transform? (To TemplateMatch)? EndStringInterpolate;
 
+arithmeticValue: arithmeticExpression;
+
 arithmeticExpression: integerLiteral
-  | LeftParen arithmeticExpression RightParen
+  | LeftParen arithmeticExpression RightParen unit?
   | additiveOperator? sourceReference
   | arithmeticExpression multiplicativeOperator arithmeticExpression
   | arithmeticExpression additiveOperator arithmeticExpression

@@ -126,6 +126,22 @@ _Current limitations_: Only integers are supported.
 _Possible future directions_: Support for exact arithmetic with rational numbers.
 Decimal numbers will probably have to be typed by number of significant digits and a unit.
 
+### Measures
+A measure is a number that has a unit. A unit is supplied within double quotes directly after a numeric literal,
+e.g. `5"m"`, or after a parenthesized expression, e.g. `(3 * 60)"s"`
+
+The unit may contain one slash ('/') separating a numerator and a denominator. The numerator and denominator may each be
+a product of alphabetic symbols, each with an optional positive integer power.
+The symbols of a product should be separated with a space, e.g. `3"N m/s2"`.
+
+Arithmetic between a measure and scalar numbers will result in a measure of the same unit.
+
+Comparing a measure to a scalar (with the scalar in the matcher) will work. Comparing measures will need
+to have the same unit.
+
+When the resulting measure of arithmetic between measures cannot be inferred, you will need to
+parenthesize the expression and provide the new measure, e.g. `(4"J" + 3 "N m")"J"`
+
 ### Range literal
 A range literal produces a [stream](#streams) of numbers. They are specified by a start, an end and
 an optional increment, e.g. `1..10` will give the numbers 1 to 10 inclusive and `10..1:-1` does the same but backwards.
@@ -496,6 +512,8 @@ executed for that _current value_.
 * Empty criterion, `<>`, matches anything.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
+* Stereotype match, matching a defined type, is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
+* Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
  the range operator on the side(s) where the bound is not included. E.g.
   * `<2..5>` for "between 2 and 5 inclusive"

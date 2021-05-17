@@ -394,6 +394,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitStereotypeMatch(TailspinParser.StereotypeMatchContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code unitMatch}
+	 * labeled alternative in {@link TailspinParser#typeMatch}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnitMatch(TailspinParser.UnitMatchContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#structureContentMatcher}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -454,6 +461,24 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#unit}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUnit(TailspinParser.UnitContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#measureProduct}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMeasureProduct(TailspinParser.MeasureProductContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#measureDenominator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMeasureDenominator(TailspinParser.MeasureDenominatorContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#nonZeroInteger}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -489,6 +514,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitInterpolateEvaluate(TailspinParser.InterpolateEvaluateContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#arithmeticValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArithmeticValue(TailspinParser.ArithmeticValueContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#arithmeticExpression}.
 	 * @param ctx the parse tree

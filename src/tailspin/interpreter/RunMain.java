@@ -10,12 +10,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import tailspin.arithmetic.ArithmeticContextValue;
 import tailspin.arithmetic.ArithmeticOperation;
+import tailspin.arithmetic.ArithmeticValue;
 import tailspin.arithmetic.IntegerConstant;
 import tailspin.arithmetic.IntegerExpression;
+import tailspin.arithmetic.MeasureExpression;
 import tailspin.control.ArrayTemplates;
 import tailspin.control.Block;
 import tailspin.control.Bound;
@@ -70,6 +73,7 @@ import tailspin.matchers.RegexpMatch;
 import tailspin.matchers.SequenceMatch;
 import tailspin.matchers.StereotypeMatch;
 import tailspin.matchers.StructureMatch;
+import tailspin.matchers.UnitMatch;
 import tailspin.matchers.ValueMatcher;
 import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.SubComposerFactory;
@@ -116,6 +120,7 @@ import tailspin.transform.lens.RangeArrayLens;
 import tailspin.transform.lens.SingleValueArrayLens;
 import tailspin.types.Criterion;
 import tailspin.types.KeyValue;
+import tailspin.types.Unit;
 
 public class RunMain extends TailspinParserBaseVisitor<Object> {
   private final Deque<DependencyCounter> dependencyCounters;
@@ -180,8 +185,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.sourceReference() != null) {
       return visitSourceReference(ctx.sourceReference());
     }
-    if (ctx.arithmeticExpression() != null) {
-      return visitArithmeticExpression(ctx.arithmeticExpression());
+    if (ctx.arithmeticValue() != null) {
+      return visitArithmeticValue(ctx.arithmeticValue());
     }
     if (ctx.rangeLiteral() != null) {
       return visitRangeLiteral(ctx.rangeLiteral());
@@ -311,8 +316,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public ArrayLens visitSimpleDimension(TailspinParser.SimpleDimensionContext ctx) {
-      if (ctx.arithmeticExpression() != null) {
-        return new SingleValueArrayLens(visitArithmeticExpression(ctx.arithmeticExpression()));
+      if (ctx.arithmeticValue() != null) {
+        return new SingleValueArrayLens(visitArithmeticValue(ctx.arithmeticValue()));
       } else if (ctx.rangeLiteral() != null) {
         return new RangeArrayLens(visitRangeLiteral(ctx.rangeLiteral()));
       } else if (ctx.sourceReference() != null) {
@@ -517,8 +522,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Criterion lengthCriterion = null;
     if (ctx.rangeBounds() != null) {
       lengthCriterion = visitRangeBounds(ctx.rangeBounds());
-    } else if (ctx.arithmeticExpression() != null) {
-      lengthCriterion = new Equality(visitArithmeticExpression(ctx.arithmeticExpression()));
+    } else if (ctx.arithmeticValue() != null) {
+      lengthCriterion = new Equality(visitArithmeticValue(ctx.arithmeticValue()));
     }
     return new ArrayMatch(lengthCriterion, criterionFactories, ctx.Void() != null);
   }
@@ -540,6 +545,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public CollectionSegmentCriterion visitSequenceMatch(TailspinParser.SequenceMatchContext ctx) {
     return new SequenceMatch(ctx.matcher().stream().map(this::visitMatcher).collect(Collectors.toList()));
+  }
+
+  @Override
+  public Criterion visitUnitMatch(TailspinParser.UnitMatchContext ctx) {
+    return new UnitMatch(visitUnit(ctx.unit()));
   }
 
   @Override
@@ -784,7 +794,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return visitInterpolateEvaluate(ctx.interpolateEvaluate());
     }
     if (ctx.characterCode() != null) {
-      return new CodedCharacter(visitArithmeticExpression(ctx.characterCode().arithmeticExpression()));
+      return new CodedCharacter(visitArithmeticValue(ctx.characterCode().arithmeticValue()));
     }
     throw new UnsupportedOperationException();
   }
@@ -809,17 +819,37 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Value visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx) {
-    if (ctx.Zero() != null) return new IntegerConstant(0);
-    return visitNonZeroInteger(ctx.nonZeroInteger());
+    long value = ctx.Zero() != null ? 0 : visitNonZeroInteger(ctx.nonZeroInteger());
+    return new IntegerConstant(value, Unit.validate(visitUnit(ctx.unit())));
   }
 
   @Override
-  public Value visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx) {
+  public String visitUnit(TailspinParser.UnitContext ctx) {
+    if (ctx == null) return null;
+    return visitMeasureProduct(ctx.measureProduct())
+        + (ctx.measureDenominator() == null ? ""
+        : "/" + visitMeasureProduct(ctx.measureDenominator().measureProduct()));
+  }
+
+  @Override
+  public String visitMeasureProduct(TailspinParser.MeasureProductContext measureProduct) {
+    return measureProduct.localIdentifier().stream()
+        .map(RuleContext::getText)
+        .collect(Collectors.joining(" "));
+  }
+
+  @Override
+  public Long visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx) {
     long value = Long.parseLong(ctx.PositiveInteger().getText());
     if (ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-")) {
       value = - value;
     }
-    return new IntegerConstant(value);
+    return value;
+  }
+
+  @Override
+  public Value visitArithmeticValue(TailspinParser.ArithmeticValueContext ctx) {
+    return new ArithmeticValue(visitArithmeticExpression(ctx.arithmeticExpression()));
   }
 
   @Override
@@ -829,7 +859,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return new IntegerExpression(isNegative, Value.of(visitSourceReference(ctx.sourceReference())));
     }
     if (ctx.LeftParen() != null) {
-      return visitArithmeticExpression(ctx.arithmeticExpression(0));
+      Value value = visitArithmeticExpression(ctx.arithmeticExpression(0));
+      if (ctx.unit() != null) {
+        return new MeasureExpression(value, Unit.validate(visitUnit(ctx.unit())));
+      }
+      return value;
     }
     if (ctx.additiveOperator() != null) {
       Value left = visitArithmeticExpression(ctx.arithmeticExpression(0));
@@ -846,7 +880,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return newArithmeticOperation(left, right, operation);
     }
     if (ctx.integerLiteral() != null) {
-      return (Value) visit(ctx.integerLiteral());
+      return visitIntegerLiteral(ctx.integerLiteral());
     }
     if (ctx.arithmeticContextKeyword() != null) {
       return new ArithmeticContextValue(ctx.arithmeticContextKeyword().getText());
@@ -927,7 +961,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
     Value increment =
-        ctx.arithmeticExpression() == null ? null : visitArithmeticExpression(ctx.arithmeticExpression());
+        ctx.arithmeticValue() == null ? null : visitArithmeticValue(ctx.arithmeticValue());
     return new RangeGenerator(lowerBound, upperBound, increment);
   }
 
@@ -936,8 +970,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Value bound;
     if (ctx.sourceReference() != null) {
       bound = Value.of(visitSourceReference(ctx.sourceReference()));
-    } else if (ctx.arithmeticExpression() != null) {
-      bound = visitArithmeticExpression(ctx.arithmeticExpression());
+    } else if (ctx.arithmeticValue() != null) {
+      bound = visitArithmeticValue(ctx.arithmeticValue());
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else if (ctx.term() != null) {
@@ -954,8 +988,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Value bound;
     if (ctx.sourceReference() != null) {
       bound = Value.of(visitSourceReference(ctx.sourceReference()));
-    } else if (ctx.arithmeticExpression() != null) {
-      bound = visitArithmeticExpression(ctx.arithmeticExpression());
+    } else if (ctx.arithmeticValue() != null) {
+      bound = visitArithmeticValue(ctx.arithmeticValue());
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else if (ctx.term() != null) {
@@ -1246,13 +1280,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   private final RangeMatch AT_MOST_ONE = new RangeMatch(
-      new Bound(new IntegerConstant(0), true),
-      new Bound(new IntegerConstant(1), true));
+      new Bound(new IntegerConstant(0, null), true),
+      new Bound(new IntegerConstant(1, null), true));
   private final RangeMatch AT_LEAST_ONE = new RangeMatch(
-      new Bound(new IntegerConstant(1), true),
+      new Bound(new IntegerConstant(1, null), true),
       null);
   private final RangeMatch ANY_AMOUNT = new RangeMatch(
-      new Bound(new IntegerConstant(0), true),
+      new Bound(new IntegerConstant(0, null), true),
       null);
   @Override
   public RangeMatch visitMultiplier(TailspinParser.MultiplierContext ctx) {
@@ -1264,7 +1298,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
     Value count;
     if (ctx.PositiveInteger() != null) {
-      count = new IntegerConstant(Long.parseLong(ctx.PositiveInteger().getText()));
+      count = new IntegerConstant(Long.parseLong(ctx.PositiveInteger().getText()), null);
     } else {
       count = Value.of(visitSourceReference(ctx.sourceReference()));
     }
