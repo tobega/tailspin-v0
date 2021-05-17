@@ -512,6 +512,8 @@ executed for that _current value_.
 * Empty criterion, `<>`, matches anything.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
+* Stereotype match, matching a defined type, is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
+* Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
  the range operator on the side(s) where the bound is not included. E.g.
   * `<2..5>` for "between 2 and 5 inclusive"

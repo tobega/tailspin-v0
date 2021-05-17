@@ -132,6 +132,7 @@ typeMatch: rangeBounds                       # rangeMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
   | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
   | (localIdentifier|externalIdentifier) # stereotypeMatch
+  | unit # unitMatch
 ;
 
 structureContentMatcher: matcher | Void;

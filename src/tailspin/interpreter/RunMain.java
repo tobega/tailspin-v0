@@ -73,6 +73,7 @@ import tailspin.matchers.RegexpMatch;
 import tailspin.matchers.SequenceMatch;
 import tailspin.matchers.StereotypeMatch;
 import tailspin.matchers.StructureMatch;
+import tailspin.matchers.UnitMatch;
 import tailspin.matchers.ValueMatcher;
 import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.SubComposerFactory;
@@ -544,6 +545,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public CollectionSegmentCriterion visitSequenceMatch(TailspinParser.SequenceMatchContext ctx) {
     return new SequenceMatch(ctx.matcher().stream().map(this::visitMatcher).collect(Collectors.toList()));
+  }
+
+  @Override
+  public Criterion visitUnitMatch(TailspinParser.UnitMatchContext ctx) {
+    return new UnitMatch(visitUnit(ctx.unit()));
   }
 
   @Override
