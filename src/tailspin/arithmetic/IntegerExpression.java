@@ -2,6 +2,7 @@ package tailspin.arithmetic;
 
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.types.Measure;
 
 public class IntegerExpression implements Value {
   private final boolean isNegative;
@@ -13,9 +14,15 @@ public class IntegerExpression implements Value {
   }
 
   @Override
-  public Long getResults(Object it, Scope scope) {
-    long value = ((Number) dereferenceValue.getResults(it, scope)).longValue();
-    return isNegative ? -value : value;
+  public Object getResults(Object it, Scope scope) {
+    Object value = dereferenceValue.getResults(it, scope);
+    if (value instanceof Number n) {
+      return isNegative ? -n.longValue() : n.longValue();
+    }
+    if (value instanceof Measure m) {
+      return isNegative ? new Measure(-m.getValue(), m.getUnit()) : m;
+    }
+    throw new ArithmeticException("Not a number " + value);
   }
 
   @Override

@@ -1,0 +1,25 @@
+templates toFahrenheit
+  <"C"> ($ * 9 ~/ 5 + 32)"F" !
+  <"F"> $ !
+end toFahrenheit
+
+templates toCelsius
+  <"C"> $!
+  <"F"> (($ - 32) * 5 ~/ 9)"C" !
+  <"K"> ($ - 273)"C" !
+end toCelsius
+
+56"F" -> toFahrenheit -> '$;
+' -> !OUT::write
+
+13"C" -> toFahrenheit -> '$;
+' -> !OUT::write
+
+13"C" -> toCelsius -> '$;
+' -> !OUT::write
+
+103"F" -> toCelsius -> '$;
+' -> !OUT::write
+
+250"K" -> toCelsius -> '$;
+' -> !OUT::write
