@@ -24,4 +24,21 @@ public class Measure {
   public String getUnit() {
     return unit;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Measure measure = (Measure) o;
+    return value == measure.value && unit.equals(measure.unit);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(value, unit);
+  }
 }

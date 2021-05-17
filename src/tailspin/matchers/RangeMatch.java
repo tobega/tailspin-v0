@@ -4,6 +4,7 @@ import tailspin.control.Bound;
 import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
 import tailspin.types.Criterion;
+import tailspin.types.Measure;
 
 public class RangeMatch implements Criterion {
 
@@ -48,6 +49,15 @@ public class RangeMatch implements Criterion {
   }
 
   private Comparison compare(Object lhs, Object rhs) {
+    if (lhs instanceof Measure m && rhs instanceof Number) lhs = m.getValue();
+    if (lhs instanceof Measure l && rhs instanceof Measure r) {
+      if (l.getUnit().equals(r.getUnit())) {
+        lhs = l.getValue();
+        rhs = r.getValue();
+      } else {
+        return Comparison.INCOMPARABLE;
+      }
+    }
     if ((lhs instanceof String) && (rhs instanceof String)) {
       return Comparison.of(((String) lhs).compareTo((String) rhs));
     } else if ((lhs instanceof Number) && (rhs instanceof Number)) {
