@@ -3,6 +3,7 @@ package tailspin.control;
 import java.util.function.Function;
 import java.util.stream.LongStream;
 import tailspin.interpreter.Scope;
+import tailspin.types.Measure;
 
 public class RangeGenerator implements Expression {
 
@@ -23,30 +24,45 @@ public class RangeGenerator implements Expression {
 
   public RangeIterator resultIterator(Function<Long, Long> lowerBoundTransform,
       Function<Long, Long> upperBoundTransform, Object it, Scope scope) {
+    String unit = null;
     long increment = step == null ? 1 : ((Number) step.getResults(it, scope)).longValue();
     if (increment == 0) {
       throw new IllegalArgumentException("Cannot produce range with zero increment");
     }
-    long startBound = ((Number) lowerBound.value.getResults(it, scope)).longValue();
+    Object lowerValue = lowerBound.value.getResults(it, scope);
+    if (lowerValue instanceof Measure m) {
+      unit = m.getUnit();
+      lowerValue = m.getValue();
+    }
+    long startBound = ((Number) lowerValue).longValue();
     Long start = lowerBoundTransform.apply(lowerBound.inclusive ? startBound : startBound + increment);
-    long endBound = ((Number) upperBound.value.getResults(it, scope)).longValue();
+    Object upperValue = upperBound.value.getResults(it, scope);
+    if (upperValue instanceof Measure m) {
+      if (unit != null && !unit.equals(m.getUnit()))
+        throw new IllegalArgumentException("Range lower bound unit " + unit + " incompatible with upper bound " + m);
+      unit = m.getUnit();
+      upperValue = m.getValue();
+    }
+    long endBound = ((Number) upperValue).longValue();
     Long end = upperBoundTransform.apply(upperBound.inclusive ? endBound
         : Math.floorDiv((endBound - 1 - startBound), increment) * increment + startBound);
     if (start == null || end == null || (increment > 0 && start > end) || (increment < 0 && start < end)) {
       return null;
     }
-    return new RangeIterator(start, increment, end);
+    return new RangeIterator(start, increment, end, unit);
   }
 
   public static class RangeIterator implements ResultIterator {
     private long i;
     private final long increment;
     private final long end;
+    private final String unit;
 
-    RangeIterator(long start, long increment, long end) {
+    RangeIterator(long start, long increment, long end, String unit) {
       this.i = start;
       this.increment = increment;
       this.end = end;
+      this.unit = unit;
     }
 
     @Override
@@ -54,7 +70,7 @@ public class RangeGenerator implements Expression {
       if (!isValid(i)) {
         return null;
       }
-      return getNextLong();
+      return unit == null ? getNextLong() : new Measure(getNextLong(), unit);
     }
 
     private long getNextLong() {

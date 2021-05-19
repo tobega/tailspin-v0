@@ -322,4 +322,70 @@ public class Units {
 
     assertEquals("1\"J\"", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void measureRange() throws IOException {
+    String program =
+        "4\"J\"..6\"J\" -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4\"J\"5\"J\"6\"J\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void measureRangeUpperBound() throws IOException {
+    String program =
+        "4..6\"J\" -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4\"J\"5\"J\"6\"J\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void measureRangeLowerBound() throws IOException {
+    String program =
+        "4\"J\"..6 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4\"J\"5\"J\"6\"J\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void measureRangeDifferentBoundsIllegal() throws IOException {
+    String program =
+        "4\"J\"..6\"m\" -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () ->runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void measureRangeMatchDifferentBoundsIllegal() throws IOException {
+    String program =
+        "5\"J\" -> \\(<4\"J\"..6\"m\"> $! \\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () ->runner.run(input, output, List.of()));
+  }
 }

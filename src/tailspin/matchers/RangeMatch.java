@@ -19,8 +19,10 @@ public class RangeMatch implements Criterion {
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
     try {
+      String unit = null;
       if (lowerBound != null) {
         Object low = lowerBound.value.getResults(it, scope);
+        if (low instanceof Measure m) unit = m.getUnit();
         Comparison comparison = compare(toMatch, low);
         if (comparison == Comparison.INCOMPARABLE) return false;
         if (comparison == Comparison.LESS) return false;
@@ -28,6 +30,8 @@ public class RangeMatch implements Criterion {
       }
       if (upperBound != null) {
         Object high = upperBound.value.getResults(it, scope);
+        if (high instanceof Measure m && unit != null && !unit.equals(m.getUnit()))
+          throw new IllegalArgumentException("Match lower bound unit " + unit + " incompatible with upper bound " + m);
         Comparison comparison = compare(toMatch, high);
         if (comparison == Comparison.INCOMPARABLE) return false;
         if (comparison == Comparison.GREATER) return false;
