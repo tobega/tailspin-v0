@@ -118,7 +118,10 @@ class Statements {
 
   @Test
   void definedSymbol() throws Exception {
-    String program = "def world: 'World!';\n" + "'Hello '->!OUT::write\n" + "$world -> !OUT::write";
+    String program = """
+        def world: 'World!';
+        'Hello '->!OUT::write
+        $world -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -131,7 +134,10 @@ class Statements {
 
   @Test
   void cannotDefineIncludedSymbol() {
-    String program = "def my/world: 'World!';\n" + "'Hello '->!OUT::write\n" + "$world -> !OUT::write";
+    String program = """
+        def my/world: 'World!';
+        'Hello '->!OUT::write
+        $world -> !OUT::write""";
     assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
   }
 
@@ -151,7 +157,11 @@ class Statements {
   @Test
   void definedTemplate() throws Exception {
     String program =
-        "templates greet\n<=2> 'Goodbye '! <> 'Hello '!\nend greet\n" + "1..3 -> greet -> !OUT::write";
+        """
+            templates greet
+            <=2> 'Goodbye '! <> 'Hello '!
+            end greet
+            1..3 -> greet -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -290,13 +300,15 @@ class Statements {
 
   @Test
   void systemRandomInt() throws Exception {
-    String program = "def vals: [ 1..100 -> 10 -> SYS::randomInt];\n"
-        + "$vals -> \\(<~[<10..>]> 1!\\) -> !OUT::write\n"
-        + "$vals -> \\(<~[<..-1>]> -1!\\) -> !OUT::write\n"
-        + "0..9 -> \\(<?($vals <[<=$>]>)> $!\\) -> !OUT::write\n"
-        // The below might fail very rarely
-        + "$vals -> \\[i]($i mod 10 - $ !\\) -> \\(@: $(1); $(2..-1)... -> @: $@ + $; $@!\\) -> \\(<-50..50> 50!\\) ->!OUT::write\n"
-        + "$vals -> \\[i]($i mod 10 - $ !\\) -> \\(<[<~=0>]> 0!\\) ->!OUT::write\n";
+    // The below might fail very rarely
+    String program = """
+        def vals: [ 1..100 -> 10 -> SYS::randomInt];
+        $vals -> \\(<~[<10..>]> 1!\\) -> !OUT::write
+        $vals -> \\(<~[<..-1>]> -1!\\) -> !OUT::write
+        0..9 -> \\(<?($vals <[<=$>]>)> $!\\) -> !OUT::write
+        $vals -> \\[i]($i mod 10 - $ !\\) -> \\(@: $(1); $(2..-1)... -> @: $@ + $; $@!\\) -> \\(<-50..50> 50!\\) ->!OUT::write
+        $vals -> \\[i]($i mod 10 - $ !\\) -> \\(<[<~=0>]> 0!\\) ->!OUT::write
+        """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -360,11 +372,13 @@ class Statements {
   @Test
   void termCanStartARange() throws Exception {
     String program =
-        "templates foo\n"
-        + "  $+1!\n"
-        + "end foo\n"
-        + "\n"
-        + "(1 -> foo)..5 -> !OUT::write\n";
+        """
+            templates foo
+              $+1!
+            end foo
+
+            (1 -> foo)..5 -> !OUT::write
+            """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -378,11 +392,13 @@ class Statements {
   @Test
   void termCanEndARange() throws Exception {
     String program =
-        "templates foo\n"
-        + "  $+1!\n"
-        + "end foo\n"
-        + "\n"
-        + "1..(3 -> foo) -> !OUT::write\n";
+        """
+            templates foo
+              $+1!
+            end foo
+
+            1..(3 -> foo) -> !OUT::write
+            """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -437,8 +453,10 @@ class Statements {
 
   @Test
   void maxCollector() throws Exception {
-    String program = "[{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...\n"
-        + "-> ..=Max&{by: :(n:), select: :(fruit:)} -> !OUT::write\n";
+    String program = """
+        [{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...
+        -> ..=Max&{by: :(n:), select: :(fruit:)} -> !OUT::write
+        """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -451,8 +469,10 @@ class Statements {
 
   @Test
   void maxCollectorString() throws Exception {
-    String program = "[{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...\n"
-        + "-> ..=Max&{by: :(fruit:), select: :()} -> !OUT::write\n";
+    String program = """
+        [{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...
+        -> ..=Max&{by: :(fruit:), select: :()} -> !OUT::write
+        """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -465,8 +485,10 @@ class Statements {
 
   @Test
   void minCollector() throws Exception {
-    String program = "[{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...\n"
-        + "-> ..=Min&{by: :(n:), select: :(fruit:)} -> !OUT::write\n";
+    String program = """
+        [{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...
+        -> ..=Min&{by: :(n:), select: :(fruit:)} -> !OUT::write
+        """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -479,8 +501,10 @@ class Statements {
 
   @Test
   void minCollectorString() throws Exception {
-    String program = "[{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...\n"
-        + "-> ..=Min&{by: :(fruit:), select: :()} -> !OUT::write\n";
+    String program = """
+        [{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...
+        -> ..=Min&{by: :(fruit:), select: :()} -> !OUT::write
+        """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -502,5 +526,18 @@ class Statements {
     runner.run(input, output, List.of());
 
     assertEquals("[1, 2, 3, 4, 5]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void useArithmeticKeywordForTemplates() throws Exception {
+    String program = "templates first 1 ! end first 2 -> first -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
   }
 }

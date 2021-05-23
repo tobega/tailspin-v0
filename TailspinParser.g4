@@ -77,9 +77,9 @@ structureExpansion: keyValue
 
 keyValue: key valueProduction;
 
-templates: source                        # literalTemplates
+templates: templatesReference                        # callDefinedTransform
+  | source                        # literalTemplates
   | Lambda localIdentifier? LeftParen templatesBody Lambda localIdentifier? RightParen # lambdaTemplates
-  | templatesReference                        # callDefinedTransform
   | Lambda localIdentifier? arrayIndexDecomposition LeftParen templatesBody Lambda localIdentifier? RightParen # lambdaArrayTemplates
 ;
 

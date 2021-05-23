@@ -1,0 +1,90 @@
+// Solution to the Monty Hall challenge
+// https://www.reddit.com/r/dailyprogrammer/comments/n94io8/20210510_challenge_389_easy_the_monty_hall_problem/
+
+templates one
+  1 !
+end one
+
+templates randomChoice
+  when <[]> do
+    def options: $;
+    $options::length -> SYS::randomInt -> $options($ + 1) !
+  when <?(2 -> SYS::randomInt <=1>)> $.switch !
+  otherwise $.keep !
+end randomChoice
+
+templates keep
+  $.keep !
+end keep
+
+templates switch
+  $.switch !
+end switch
+
+templates maybeTwo
+  when <{switch: <=2>}> do 2 !
+  otherwise $.keep !
+end maybeTwo
+
+processor Counter
+  @: 0;
+  sink add
+    @Counter: $@Counter + $;
+  end add
+  source get
+    $@Counter !
+  end get
+end Counter
+
+processor Gina
+  def counter: $Counter;
+  @: 0;
+  templates secondChoice
+    when <?($@Gina <=0>)> do $ -> keep !
+    otherwise $ -> switch !
+  end secondChoice
+  sink add
+    @Gina: ($@Gina + 1 - $) mod 2;
+    $ -> !counter::add
+  end add
+  source get
+    $counter::get !
+  end get
+end Gina
+
+source simulate&{first:, second:, counter:}
+  sink play
+    def winner: 3 -> SYS::randomInt -> $ + 1;
+    templates presentAlternative
+      when <=$winner> do [1..3 -> \(when <~=$winner> do $ !\)] -> randomChoice !
+      otherwise $winner !
+    end presentAlternative
+    [1..3] -> first -> {keep: $, switch: $ -> presentAlternative} -> second -> #
+    when <=$winner> do 1 -> !counter::add
+    otherwise 0 -> !counter::add
+  end play
+  1..1000 -> !play
+  '$:$counter::get ~/ 10;%' !
+end simulate
+
+'Alice: $simulate&{first: one, second: keep, counter: $Counter};
+' -> !OUT::write
+
+'Bob: $simulate&{first: one, second: switch, counter: $Counter};
+' -> !OUT::write
+
+'Carol: $simulate&{first: randomChoice, second: randomChoice, counter: $Counter};
+' -> !OUT::write
+
+'Dave: $simulate&{first: randomChoice, second: keep, counter: $Counter};
+' -> !OUT::write
+
+'Erin: $simulate&{first: randomChoice, second: switch, counter: $Counter};
+' -> !OUT::write
+
+'Frank: $simulate&{first: one, second: maybeTwo, counter: $Counter};
+' -> !OUT::write
+
+def gina: $Gina;
+'Gina: $simulate&{first: one, second: gina::secondChoice, counter: $gina};
+' -> !OUT::write
