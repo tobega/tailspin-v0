@@ -1,0 +1,62 @@
+include 'JSON'
+
+templates findAllTreasurePaths
+  when <='dailyprogrammer'> do [] !
+  when <[]> do $ -> \[i]($ -> findAllTreasurePaths -> [$i - 1, $...] ! \)... !
+  when <{}> do $... -> \(def key: $::key; $::value -> findAllTreasurePaths -> [$key, $...] ! \)!
+end findAllTreasurePaths
+
+templates findFirstTreasurePath
+  when <='dailyprogrammer'> do [] !
+  when <[]> do
+    def list: $;
+    [0] -> \(
+      when <[](2)> do [$(1) - 1, $(2)...] !
+      when <[<..~$list::length>](1)> do def next: $(1) + 1; [$next, $list($next) -> findFirstTreasurePath] -> #
+    \) !
+  when <{}> do
+    def attrs: [$...];
+    [0] -> \(
+      when <[](2)> do [$attrs($(1))::key, $(2)...] !
+      when <[<..~$attrs::length>](1)> do def next: $(1) + 1; [$next, $attrs($next)::value -> findFirstTreasurePath] -> #
+    \) !
+end findFirstTreasurePath
+
+templates treasureHunt
+  [$ -> findFirstTreasurePath] -> #
+  when <=[]> do 'No treasure found' !
+  otherwise $... -> '$(1);$(2..last)... -> ' -> $;';' !
+end treasureHunt
+
+'$IN::lines -> '$;$#10;';' -> JSON/jsonParser -> treasureHunt -> !OUT::write
+
+test 'input1'
+  assert '{"name": "William Shakespeare", "wife": {"birthYear": 1555, "deathYear":
+        "Fun fact, she''s a vampire", "name": "Anne Hathaway", "dead": false},
+        "favoriteWebsites": ["dailysonneter", "dailyprogrammer",
+        "vine (he''s way into 6-second cat videos)"], "dead": true, "birthYear": 1564,
+        "facebookProfile": null, "selectedWorks": [{"written": 1606, "name":
+        "The Tragedy of Macbeth", "isItAwesome": true}, {"written": 1608, "name":
+        "Coriolanus", "isItAwesome": "It''s alright, but kinda fascist-y"}], "deathYear":
+         1616}' -> JSON/jsonParser -> treasureHunt
+    <='favoriteWebsites -> 1'> ''
+end 'input1'
+
+test 'input2'
+  assert '{"dlpgcack": false, "indwqahe": null, "caki": {"vvczskh": null, "tczqyzn":
+          false, "qymizftua": "jfx", "cyd": {"qembsejm": [null, "dailyprogrammer", null],
+          "qtcgujuki": 79, "ptlwe": "lrvogzcpw", "jivdwnqi": null, "nzjlfax": "xaiuf",
+          "cqajfbn": true}, "kbttv": "dapsvkdnxm", "gcfv": 43.25503357696589}, "cfqnknrm":
+          null, "dtqx": "psuyc", "zkhreog": [null, {"txrhgu": false, "qkhe": false,
+          "oqlzgmtmx": "xndcy", "khuwjmktox": 48, "yoe": true, "xode": "hzxfgvw",
+          "cgsciipn": 20.075297532268902}, "hducqtvon", false, [null, 76.8463226047357,
+          "qctvnvo", null], [null, {"nlp": false, "xebvtnvwbb": null, "uhfikxc": null,
+          "eekejwjbe": false, "jmrkaqky": null, "oeyystp": false}, [null, 10, "nyzfhaps",
+          71, null], 40, null, 13.737832677566875], [true, 80, 20, {"weynlgnfro":
+          40.25989193717965, "ggsirrt": 17, "ztvbcpsba": 12, "mljfh": false, "lihndukg":
+          "bzebyljg", "pllpche": null}, null, [true, false, 52.532666161803895, "mkmqrhg",
+           "kgdqstfn", null, "szse"], null, {"qkhfufrgac": "vpmiicarn", "hguztz":
+           "ocbmzpzon", "wprnlua": null}], {"drnj": [null, false], "jkjzvjuiw": false,
+           "oupsmgjd": false, "kcwjy": null}]}' -> JSON/jsonParser -> treasureHunt
+    <='caki -> cyd -> qembsejm -> 1'> ''
+end 'input2'
