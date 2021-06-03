@@ -71,4 +71,4 @@ composer toInt
   <INT>
 end toInt
 
-[$IN::lines -> toInt] -> pancakeSort -> !OUT::write
+[$IN::lines -> toInt] -> pancakeQuick -> !OUT::write
