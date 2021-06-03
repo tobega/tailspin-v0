@@ -1,58 +1,21 @@
 // https://www.reddit.com/r/dailyprogrammer/comments/np3sio/20210531_challenge_392_intermediate_pancake_sort/
-// Tries to find and keep sorted sequences
+// Simplest pancake sort
 
 templates pancakeSort
   @: {stack: $, flips: 0};
   sink flip
     when <2..> do
       @pancakeSort.stack(1..$): $@pancakeSort.stack($..1:-1)...;
-//      '$@pancakeSort.stack;$#10;' -> !OUT::write
+      '$@pancakeSort.stack;$#10;' -> !OUT::write
       @pancakeSort.flips: $@pancakeSort.flips + 1;
   end flip
-  templates sorted&{cmp:}
-    def n: $;
-    1 -> #
-    when <=$n> do !VOID
-    when <?($cmp <=1>)?($@pancakeSort.stack($) <..$@pancakeSort.stack($+1)>)
-    | ?($cmp <=-1>)?($@pancakeSort.stack($) <$@pancakeSort.stack($+1)..>)> do
-      $ + 1 -> #
-    otherwise
-      $ !
-  end sorted
-  sink order&{cmp:}
-    def n: $;
-    $ -> sorted&{cmp: $cmp} -> \before(
-      def sorted: $;
-      $ -> #
-      when <1.. ?($cmp <=1>)?($@pancakeSort.stack($sorted+1) <..$@pancakeSort.stack($)>)
-      | 1.. ?($cmp <=-1>)?($@pancakeSort.stack($sorted+1) <$@pancakeSort.stack($)..>)> do
-        $ - 1 -> #
-      otherwise
-        { before: $ + 1, sorted: $sorted} !
-    \before) -> \until(
-      def tail: $;
-      $.sorted + 1 -> #
-      when <=$n
-      | ?($cmp <=1>)?($@pancakeSort.stack($+1) <$@pancakeSort.stack($tail.before)~..>)
-      | ?($cmp <=-1>)?($@pancakeSort.stack($+1) <..~$@pancakeSort.stack($tail.before)>)
-      > do
-        {$tail..., until: $} !
-      otherwise
-        $ + 1 -> #
-    \until) -> #
-    when <{before: <=1>}> do
-      $.sorted -> !flip
-      $.until -> !flip
-      $n -> !order&{cmp: $cmp}
-    otherwise
-      $.until -> !flip
-      $.until - $.sorted -> !order&{cmp:$cmp}
-      $.until - $.before + 1 -> !flip
-      $.sorted - $.before + 1 -> !flip
-      $.until -> \(<..~$n> $n -> !order&{cmp: -$cmp} \) -> !VOID
-      $n -> !flip
-  end order
-  $::length -> !order&{cmp: 1}
+  sink fixTop
+    @: 1;
+    2..$ -> #
+    $ -> \(when <~=$@fixTop> do $@fixTop -> !flip $ -> !flip \) -> !VOID
+    when <?($@pancakeSort.stack($) <$@pancakeSort.stack($@)..>)> do @: $;
+  end fixTop
+  $::length..2:-1 -> !fixTop
   $@ !
 end pancakeSort
 
@@ -60,4 +23,4 @@ composer toInt
   <INT>
 end toInt
 
-[$IN::lines -> toInt] -> pancakeSort -> !OUT::write
+[23, 72, 40, 43, 91, 38, 23, 58, 26, 59, 12, 18, 27, 39, 69, 74, 11, 41, 3, 40] -> pancakeSort -> !OUT::write
