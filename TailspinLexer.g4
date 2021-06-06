@@ -164,7 +164,8 @@ IDENTIFIER: IDENTIFIER_START IDENTIFIER_PART*;
 fragment IDENTIFIER_START: [a-zA-Z];
 
 fragment IDENTIFIER_PART: IDENTIFIER_START
-  | [_0-9];
+  | [_0-9]
+  | '-' [a-zA-Z];
 
 WS : [ \r\t\n]+ -> skip ;
 

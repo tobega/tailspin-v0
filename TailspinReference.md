@@ -6,9 +6,13 @@ Note that you may think that concepts in the language already have other establi
 should have been used instead. This is deliberate in order to free the mind of preconceived notions. 
 
 1. [Basic structure](#basic-structure)
+    1. [Identifiers](#identifiers)
+    1. [Side effects](#side-effects)
+    1. [Command-line arguments](#command-line-arguments)
 1. [Sources](#sources)
     1. [String](#string-literal)
     1. [Arithmetic expression](#arithmetic-expression)
+    1. [Numbers with units of measure](#measures)
     1. [Range](#range-literal)
     1. [Array](#array-literal)
     1. [Structure](#structure-literal)
@@ -69,6 +73,13 @@ Language constructs are designed to be as like the value they match or produce a
 Rather than using control flow keywords, you would in tailspin produce streams of values in a declarative way.
 
 Comments are started with `//` and continue to the end of the line.
+
+### Identifiers
+Identifiers, i.e. names of things, must start with a standard latin character in either upper or lower case (a-z or A-Z),
+followed by standard latin characters, underscores (_), digits (0-9) or hyphens (-). A hyphen must be followed
+by a standard latin character.
+
+_Future_: all unicode alphabets should be allowed.
 
 ### Side effects
 The current specification is that each step of a _value chain_ is executed
