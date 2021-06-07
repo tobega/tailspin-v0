@@ -902,6 +902,7 @@ A predefined symbol `SYS` can be used to access certain system-defined functions
 * `$N -> SYS::randomInt` returns a random integer value between 0 and N-1 (inclusive)
 
 `IN` accesses user data entered in the terminal (or data from the unix standard input pipe).
+* `$IN::readline` Gets the next line from the standard input, or nothing if the standard input is closed.
 * `$IN::lines` Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).
 
 `OUT` sends data to the standard output pipe (by default the terminal)

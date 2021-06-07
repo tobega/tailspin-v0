@@ -25,6 +25,12 @@ public class StdinProcessor implements Processor {
             throw new RuntimeException(e);
           }
         };
+      } if (message.equals("readline")) {
+          try {
+            return input.readLine();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
       } else {
         throw new UnsupportedOperationException("Unknown IN message " + message);
       }
