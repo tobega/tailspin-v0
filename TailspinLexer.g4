@@ -87,6 +87,8 @@ StartProcessorDefinition: 'processor';
 
 StartOperatorDefinition: 'operator';
 
+StartStateDefinition: 'state';
+
 EndDefinition: 'end';
 
 Rule: 'rule';

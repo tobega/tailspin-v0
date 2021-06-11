@@ -23,57 +23,67 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInclusion(TailspinParser.InclusionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code definition}
-	 * labeled alternative in {@link TailspinParser#statement}.
+	 * Visit a parse tree produced by {@link TailspinParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStatement(TailspinParser.StatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#definition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitDefinition(TailspinParser.DefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code valueChainToSink}
-	 * labeled alternative in {@link TailspinParser#statement}.
+	 * Visit a parse tree produced by {@link TailspinParser#valueChainToSink}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitValueChainToSink(TailspinParser.ValueChainToSinkContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code templatesDefinition}
-	 * labeled alternative in {@link TailspinParser#statement}.
+	 * Visit a parse tree produced by {@link TailspinParser#templatesDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitTemplatesDefinition(TailspinParser.TemplatesDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code processorDefinition}
-	 * labeled alternative in {@link TailspinParser#statement}.
+	 * Visit a parse tree produced by {@link TailspinParser#processorDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitProcessorDefinition(TailspinParser.ProcessorDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code composerDefinition}
-	 * labeled alternative in {@link TailspinParser#statement}.
+	 * Visit a parse tree produced by {@link TailspinParser#typestateDefinition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypestateDefinition(TailspinParser.TypestateDefinitionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#messageDefinition}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMessageDefinition(TailspinParser.MessageDefinitionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#composerDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitComposerDefinition(TailspinParser.ComposerDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code testDefinition}
-	 * labeled alternative in {@link TailspinParser#statement}.
+	 * Visit a parse tree produced by {@link TailspinParser#testDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitTestDefinition(TailspinParser.TestDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code operatorDefinition}
-	 * labeled alternative in {@link TailspinParser#statement}.
+	 * Visit a parse tree produced by {@link TailspinParser#operatorDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitOperatorDefinition(TailspinParser.OperatorDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code stereotypeDefinition}
-	 * labeled alternative in {@link TailspinParser#statement}.
+	 * Visit a parse tree produced by {@link TailspinParser#stereotypeDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */

@@ -1,5 +1,7 @@
 package tailspin.transform;
 
+import static tailspin.transform.ExpectedParameter.resolveParameters;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,15 +12,16 @@ import tailspin.interpreter.Scope;
 import tailspin.types.Transform;
 
 public class Templates implements Transform {
-  private final Scope definingScope;
+  final String name;
+  final Scope definingScope;
   // @Nullable
-  private final Block block;
+  final Block block;
   private final List<MatchTemplate> matchTemplates;
-  private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
-  private String scopeName = "";
+  final List<ExpectedParameter> expectedParameters = new ArrayList<>();
 
-  public Templates(Scope definingScope,
+  public Templates(String name, Scope definingScope,
       /*@Nullable*/ Block block, List<MatchTemplate> matchTemplates) {
+    this.name = name;
     this.definingScope = definingScope;
     this.block = block;
     this.matchTemplates = matchTemplates;
@@ -31,20 +34,9 @@ public class Templates implements Transform {
   }
 
   TransformScope createTransformScope(Object it, Map<String, Object> parameters) {
-    TransformScope scope = new TransformScope(definingScope, scopeName);
+    TransformScope scope = new TransformScope(definingScope, name);
     scope.setTemplates(this);
-    int foundParameters = 0;
-    for (ExpectedParameter expectedParameter : expectedParameters) {
-      if (parameters.containsKey(expectedParameter.name)) {
-        foundParameters++;
-        scope.defineValue(expectedParameter.name, parameters.get(expectedParameter.name));
-      } else {
-        throw new IllegalArgumentException("Missing parameter " + expectedParameter.name + " to " + scope.scopeContext);
-      }
-    }
-    if (foundParameters != parameters.size()) {
-      throw new IllegalArgumentException("Too many parameters for " + scope.scopeContext + ":\n" + parameters);
-    }
+    resolveParameters(expectedParameters, parameters, scope, name);
     return scope;
   }
 
@@ -58,7 +50,7 @@ public class Templates implements Transform {
 
   public Optional<Object> matchTemplates(Object it, Scope scope) {
     if (it == null) {
-      throw new NullPointerException("Attempt to use templates " + scopeName + " as a source");
+      throw new NullPointerException("Attempt to use templates " + name + " as a source");
     }
     Optional<MatchTemplate> match =
         matchTemplates.stream().filter(m -> m.matcher.isMet(it, it, scope)).findFirst();
@@ -67,9 +59,5 @@ public class Templates implements Transform {
 
   public void expectParameters(List<ExpectedParameter> parameters) {
     expectedParameters.addAll(parameters);
-  }
-
-  public void setScopeContext(String name) {
-    scopeName = name;
   }
 }

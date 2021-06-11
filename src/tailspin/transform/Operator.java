@@ -8,9 +8,9 @@ public class Operator extends Templates {
 
   private final String[] operandNames;
 
-  public Operator(Scope definingScope, Block block,
+  public Operator(String name, Scope definingScope, Block block,
       List<MatchTemplate> matchTemplates, String[] operandNames) {
-    super(definingScope, block, matchTemplates);
+    super(name, definingScope, block, matchTemplates);
     this.operandNames = operandNames;
   }
 

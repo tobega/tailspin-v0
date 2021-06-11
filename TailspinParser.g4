@@ -6,15 +6,35 @@ program: useModule* inclusion* statement (statement)* EOF;
 
 inclusion: Include (localIdentifier From)? stringLiteral;
 
-statement: Def key valueProduction SemiColon                  # definition
-  | valueChain To sink                                   # valueChainToSink
-  | (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? templatesBody EndDefinition localIdentifier # templatesDefinition
-  | StartProcessorDefinition localIdentifier parameterDefinitions? block EndDefinition localIdentifier # processorDefinition
-  | StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier # composerDefinition
-  | StartTestDefinition stringLiteral useModule* programModification? testBody EndDefinition stringLiteral # testDefinition
-  | StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen templatesBody EndDefinition localIdentifier # operatorDefinition
-  | StereotypeDefinition localIdentifier matcher # stereotypeDefinition
+statement: definition
+  | valueChainToSink
+  | templatesDefinition
+  | processorDefinition
+  | composerDefinition
+  | testDefinition
+  | operatorDefinition
+  | stereotypeDefinition
 ;
+
+definition: Def key valueProduction SemiColon;
+
+valueChainToSink: valueChain To sink;
+
+templatesDefinition: (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? templatesBody EndDefinition localIdentifier;
+
+processorDefinition: StartProcessorDefinition localIdentifier parameterDefinitions? block typestateDefinition* EndDefinition localIdentifier;
+
+typestateDefinition: StartStateDefinition localIdentifier messageDefinition* EndDefinition localIdentifier;
+
+messageDefinition: templatesDefinition | processorDefinition | composerDefinition | operatorDefinition;
+
+composerDefinition: StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier;
+
+testDefinition: StartTestDefinition stringLiteral useModule* programModification? testBody EndDefinition stringLiteral;
+
+operatorDefinition: StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen templatesBody EndDefinition localIdentifier;
+
+stereotypeDefinition: StereotypeDefinition localIdentifier matcher;
 
 key: localIdentifier Colon;
 
@@ -264,6 +284,7 @@ keyword: Include
   | StartComposerDefinition
   | StartProcessorDefinition
   | StartOperatorDefinition
+  | StartStateDefinition
   | EndDefinition
   | StereotypeDefinition
   | Mod
