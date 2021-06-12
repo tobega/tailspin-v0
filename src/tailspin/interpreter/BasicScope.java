@@ -41,6 +41,11 @@ public class BasicScope extends Scope {
 
   @Override
   public boolean hasDefinition(String def) {
+    return isLocallyDefined(def);
+  }
+
+  @Override
+  public boolean isLocallyDefined(String def) {
     return definitions.containsKey(def);
   }
 

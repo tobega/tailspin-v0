@@ -10,24 +10,26 @@ import tailspin.transform.Templates;
 public class TemplatesDefinition {
 
   public interface TemplatesConstructor {
-    Templates create(Scope definingScope,
+    Templates create(String name, Scope definingScope,
         /*@Nullable*/ Block block, List<MatchTemplate> matchTemplates);
   }
 
+  private final String name;
   private final Block block;
   private final List<MatchTemplate> matchTemplates;
   private final TemplatesConstructor constructor;
   private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
 
-  public TemplatesDefinition(Block block, List<MatchTemplate> matchTemplates,
+  public TemplatesDefinition(String name, Block block, List<MatchTemplate> matchTemplates,
       TemplatesConstructor constructor) {
+    this.name = name;
     this.block = block;
     this.matchTemplates = matchTemplates;
     this.constructor = constructor;
   }
 
   public Templates define(Scope definingScope) {
-    Templates templates = constructor.create(definingScope, block, matchTemplates);
+    Templates templates = constructor.create(name, definingScope, block, matchTemplates);
     templates.expectParameters(expectedParameters);
     return templates;
   }
