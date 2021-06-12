@@ -40,6 +40,8 @@ should have been used instead. This is deliberate in order to free the mind of p
 1. [Relations](#relations)
 1. [Bytes](#bytes)
 1. [Processors](#processors)
+    1. [Messages](#messages)
+    1. [Typestates](#typestates)
 1. [Messages on standard objects](#built-in-messages)
 1. [Core system module](#the-core-system-module)
 1. [Including source files](#including-files)
@@ -841,7 +843,7 @@ f075 rotated right 3 bits is be0e
 ## Processors
 A processor is an object that is more complex than simply data. It would normally have some
 state that is kept over time (several accesses) and could possibly change.
-The processor object itseelf can be obtained and passed around as a value by dereferencing the associated identifier/state.
+The processor object itself can be obtained and passed around as a value by dereferencing the associated identifier/state.
 To interact with the defined templates/sources/sinks of processors, you send [messages](#messages) to them.
 
 Internally in the processor, state is accessed like the [local state of templates](#templates-state), but with the processor name.
@@ -863,6 +865,71 @@ if the message represents a source, with `!` if the message represents a sink an
 
 Processor messages are implemented as [defined templates](#defined-templates), [defined sources](#defined-sources) or [defined sinks](#defined-sinks) within the processor which then
 run within the scope of the processor instance. Therefore messages can also take parameters.
+
+### Typestates
+Typestates make it easy to implement the OO state pattern or simulate linear types.
+
+A processor can be defined to have different states that it can progress between. Only the messages in the currently active
+state are reachable. Templates defined before any state, in the "constructor" part of the processor, are usable by all states (but not message-able).
+
+To switch from one state to another, simply assign to the desired state.
+
+_Future work_: Matchers to enable querying which state a processor is in.
+Possibility to specify a certain "end" state that processor must be in before it goes out of scope.
+
+Example:
+```
+processor TicTacToe
+  @New: [];
+  templates isWonOrDone
+    def played: $::length;
+    @: [1..3 -> [1..3 -> '']];
+    $ -> @($.row;$.ol): $.mark;
+    [$@... -> #, 1..3 -> $@(1..3;$) -> #, [1..3 -> $@($; $)] -> #] -> #
+    when <=[]?($played <=9>)> do 'draw' !
+    when <[<=$(first)> VOID]?($(first) <~=''>)> do $(first)!
+  end isWonOrDone
+  state New
+    sink move
+      <~?($@New <[<{row: <=$.row>, col: <=$.col>}>]>)> ..|@New: $;
+        @Ongoing: $@New;
+    end move
+    templates ifPositionFree
+      <~?($@New <[<{row: <=$.row>, col: <=$.col>}>]>)> $!
+    end ifPositionFree
+  end New
+  state Ongoing
+    sink move
+      <~?($@Ongoing <[<{row: <=$.row>, col: <=$.col>}>]>)> ..|@Ongoing: $;
+        $@Ongoing -> isWonOrDone -> @Finished: $@Ongoing;
+    end move
+    templates ifPositionFree
+      <~?($@Ongoing <[<{row: <=$.row>, col: <=$.col>}>]>)> $!
+    end ifPositionFree
+    source takeMoveBack
+      ^@Ongoing(last) !
+      $@Ongoing -> #
+      when <=[]> do @New: $;
+    end takeMoveBack
+  end Ongoing
+  state Finished
+    source takeMoveBack
+      ^@Finished(last) !
+      @Ongoing: $@Finished;
+    end takeMoveBack
+    source whoWonOrDraw
+      $@Finished -> isWonOrDone !
+    end whoWonOrDraw
+  end Finished
+end TicTacToe
+```
+When a TicTacToe processor is created, it gets set into the `New` state. When a move is made, the state progresses
+to `Ongoing` which has a `takeMoveBack` message that the `New` state doesn't.
+
+The `isWonOrDone` templates is available for use by all the states.
+
+When using states, it is probably best to define all of them explicitly, but if so desired, the processor itself can
+be used as a state, with the same name as the processor. In that case, the templates in the "constructor" section get exposed as messages.
 
 ## Built-in messages
 All objects
