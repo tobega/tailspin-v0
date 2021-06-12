@@ -69,11 +69,17 @@ public class ProcessorScope extends Scope {
   }
 
   @Override
+  public boolean isLocallyDefined(String def) {
+    return false;
+  }
+
+  @Override
   public void undefineValue(String identifier) {
     throw new UnsupportedOperationException();
   }
 
   public Transform resolveMessage(String message) {
-    return (Transform) typestates.get(currentTypestate).resolveValue(message);
+    Scope typestateScope = typestates.get(currentTypestate);
+    return typestateScope.isLocallyDefined(message) ? (Transform) typestateScope.resolveValue(message) : null;
   }
 }

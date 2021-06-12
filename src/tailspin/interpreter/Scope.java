@@ -22,6 +22,8 @@ public abstract class Scope {
 
   public abstract boolean hasDefinition(String def);
 
+  public abstract boolean isLocallyDefined(String def);
+
   public abstract void undefineValue(String identifier);
 
   public ArithmeticContextKeywordResolver getArithmeticContextKeywordResolver() {

@@ -439,4 +439,222 @@ class Processor {
 
     assertEquals("yes", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void typestatesSwitch() throws Exception {
+    String program =
+        """
+        processor Blink
+          @Light: 1;
+          state Light
+            sink off
+              @Dark: 0;
+            end off
+            source shine
+              'yes' !
+            end shine
+          end Light
+          state Dark
+            sink on
+              @Light: 1;
+            end on
+            source shine
+              'no' !
+            end shine
+          end Dark
+        end Blink
+        
+        def blink: $Blink;
+        1 -> !blink::off
+        $blink::shine -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("no", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void typestatesDefaultRootState() throws Exception {
+    String program =
+        """
+        processor Light
+          @: 1;
+            sink off
+              @Dark: 0;
+            end off
+            source shine
+              'yes' !
+            end shine
+          state Dark
+            sink on
+              @Light: 1;
+            end on
+            source shine
+              'no' !
+            end shine
+          end Dark
+        end Light
+        
+        def blink: $Light;
+        1 -> !blink::off
+        $blink::shine -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("no", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void typestatesSwitchToDefaultState() throws Exception {
+    String program =
+        """
+        processor Light
+          @Dark: 1;
+            sink off
+              @Dark: 0;
+            end off
+            source shine
+              'yes' !
+            end shine
+          state Dark
+            sink on
+              @Light: 1;
+            end on
+            source shine
+              'no' !
+            end shine
+          end Dark
+        end Light
+        
+        def blink: $Light;
+        1 -> !blink::on
+        $blink::shine -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void typestatesUseRootTemplates() throws Exception {
+    String program =
+        """
+        processor Light
+          @Dark: 1;
+            templates foo
+              '$; foo' !
+            end foo
+          state Dark
+            source shine
+              'no' -> foo !
+            end shine
+          end Dark
+        end Light
+        
+        def blink: $Light;
+        $blink::shine -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("no foo", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void typestatesDontLeakRootTemplates() throws Exception {
+    String program =
+        """
+        processor Light
+          @Dark: 1;
+            templates foo
+              '$; foo' !
+            end foo
+          state Dark
+            source shine
+              'no' -> foo !
+            end shine
+          end Dark
+        end Light
+        
+        def blink: $Light;
+        'boo' -> blink::foo -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void cannotMessageExternalTemplates() throws Exception {
+    String program =
+        """
+        templates foo
+          '$; foo' !
+        end foo
+        processor Light
+          @: 1;
+          templates bar
+            $ -> foo !
+          end bar
+        end Light
+        
+        def blink: $Light;
+        'boo' -> blink::foo -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void canUseExternalTemplates() throws Exception {
+    String program =
+        """
+        templates foo
+          '$; foo' !
+        end foo
+        processor Light
+          @: 1;
+          templates bar
+            $ -> foo !
+          end bar
+        end Light
+        
+        def blink: $Light;
+        'boo' -> blink::bar -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("boo foo", output.toString(StandardCharsets.UTF_8));
+  }
 }

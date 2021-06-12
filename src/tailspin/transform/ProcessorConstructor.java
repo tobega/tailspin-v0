@@ -30,7 +30,7 @@ public class ProcessorConstructor extends Templates {
     resolveParameters(expectedParameters, parameters, constructorScope, name);
     scope.addTypestate(name, constructorScope);
     for (TypestateDefinition typestate : typestates) {
-      Scope stateScope = new NestedScope(scope);
+      Scope stateScope = new NestedScope(constructorScope);
       typestate.evaluateBlock(stateScope);
       scope.addTypestate(typestate.getName(), stateScope);
     }

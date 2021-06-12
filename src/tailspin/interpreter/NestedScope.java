@@ -24,7 +24,7 @@ public class NestedScope extends Scope {
 
   @Override
   public void defineValue(String identifier, Object value) {
-    if (definitions.containsKey(identifier)) {
+    if (isLocallyDefined(identifier)) {
       throw new IllegalStateException("Attempt to redefine " + identifier);
     }
     definitions.put(identifier, value);
@@ -32,7 +32,7 @@ public class NestedScope extends Scope {
 
   @Override
   public void undefineValue(String identifier) {
-    if (!definitions.containsKey(identifier)) {
+    if (!isLocallyDefined(identifier)) {
       throw new IllegalStateException("Attempt to undefine non-existent identifier " + identifier);
     }
     definitions.remove(identifier);
@@ -40,7 +40,12 @@ public class NestedScope extends Scope {
 
   @Override
   public boolean hasDefinition(String def) {
-    return definitions.containsKey(def) || parentScope.hasDefinition(def);
+    return isLocallyDefined(def) || parentScope.hasDefinition(def);
+  }
+
+  @Override
+  public boolean isLocallyDefined(String def) {
+    return definitions.containsKey(def);
   }
 
   @Override

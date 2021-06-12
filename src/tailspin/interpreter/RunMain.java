@@ -674,8 +674,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     // Parameters must be defined first so as they don't get required
     List<ExpectedParameter> expectedParameters = visitParameterDefinitions(ctx.parameterDefinitions());
+    // Then block, so those definitions may be used in typestates
+    Block rootBlock = visitBlock(ctx.block());
     List<TypestateDefinition> typestates = ctx.typestateDefinition().stream().map(this::visitTypestateDefinition).toList();
-    ProcessorDefinition processorDefinition = new ProcessorDefinition(name, visitBlock(ctx.block()), expectedParameters, typestates);
+    ProcessorDefinition processorDefinition = new ProcessorDefinition(name, rootBlock, expectedParameters, typestates);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().define(name);
     dependencyCounters.peek().requireAll(requiredDefinitions);
