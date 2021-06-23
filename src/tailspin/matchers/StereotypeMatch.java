@@ -13,7 +13,7 @@ public class StereotypeMatch implements Criterion {
 
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
-    AnyOf stereotype = (AnyOf) scope.resolveValue(identifier);
+    Criterion stereotype = scope.getDataDefinition(identifier);
     return stereotype.isMet(toMatch, it, scope);
   }
 }

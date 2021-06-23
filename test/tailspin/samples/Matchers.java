@@ -1218,7 +1218,7 @@ class Matchers {
 
   @Test
   void stereotypeMatch() throws Exception {
-    String program = "stereotype dice <1..6>\n"
+    String program = "data dice <1..6>\n"
         + "0..7 -> \\(when <dice> do $! otherwise '-' !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

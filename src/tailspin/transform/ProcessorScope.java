@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import tailspin.interpreter.Scope;
+import tailspin.types.Criterion;
 import tailspin.types.Transform;
 
 public class ProcessorScope extends Scope {
@@ -76,6 +77,21 @@ public class ProcessorScope extends Scope {
   @Override
   public void undefineValue(String identifier) {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void createDataDefinition(String identifier, Criterion def) {
+    parentScope.createDataDefinition(identifier, def);
+  }
+
+  @Override
+  public Criterion getDataDefinition(String identifier) {
+    return parentScope.getDataDefinition(identifier);
+  }
+
+  @Override
+  public void checkDataDefinition(String key, Object data) {
+    parentScope.checkDataDefinition(key, data);
   }
 
   public Transform resolveMessage(String message) {

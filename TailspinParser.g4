@@ -13,7 +13,7 @@ statement: definition
   | composerDefinition
   | testDefinition
   | operatorDefinition
-  | stereotypeDefinition
+  | dataDefinition
 ;
 
 definition: Def key valueProduction SemiColon;
@@ -34,7 +34,7 @@ testDefinition: StartTestDefinition stringLiteral useModule* programModification
 
 operatorDefinition: StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen templatesBody EndDefinition localIdentifier;
 
-stereotypeDefinition: StereotypeDefinition localIdentifier matcher;
+dataDefinition: DataDefinition localIdentifier matcher;
 
 key: localIdentifier Colon;
 
@@ -286,7 +286,7 @@ keyword: Include
   | StartOperatorDefinition
   | StartStateDefinition
   | EndDefinition
-  | StereotypeDefinition
+  | DataDefinition
   | Mod
   | Rule
   | When

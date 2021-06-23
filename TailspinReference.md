@@ -42,6 +42,7 @@ should have been used instead. This is deliberate in order to free the mind of p
 1. [Processors](#processors)
     1. [Messages](#messages)
     1. [Typestates](#typestates)
+1. [Types](#types)
 1. [Messages on standard objects](#built-in-messages)
 1. [Core system module](#the-core-system-module)
 1. [Including source files](#including-files)
@@ -525,7 +526,7 @@ executed for that _current value_.
 * Empty criterion, `<>`, matches anything.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
-* Stereotype match, matching a defined type, is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
+* Matching a defined data type, is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
 * Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
  the range operator on the side(s) where the bound is not included. E.g.
@@ -930,6 +931,36 @@ The `isWonOrDone` templates is available for use by all the states.
 
 When using states, it is probably best to define all of them explicitly, but if so desired, the processor itself can
 be used as a state, with the same name as the processor. In that case, the templates in the "constructor" section get exposed as messages.
+
+## Types
+Tailspin takes a practical approach to types, making it easy to use, yet trying to get the necessary support for
+program correctness that a good type system can provide.
+
+Basically, a type is anything you can identify with a [matcher](#matchers). The basic idea when it comes to compound
+data like [arrays](#arrays) and [structures](#structures) is that if it has the elements you need, all is good, it's
+fine if there is more (this is called structural typing). There are ways to declare that excess elements are not allowed
+if you need to, or that an element must not exist.
+
+One thing to note is that a key of a [key-value pair](#keyed-values), which is also the name of an element in a
+[structure](#structures), is expected to be connected to a value of the same type wherever it is used, i.e. keys form a
+[data dictionary](#data-dictionary). When you do a join on [relations](#relations), values with the same name will
+be joined together in a "natural join".
+
+Numbers in arithmetic expressions are in their bare state just scalar numbers, but they can be assigned a
+[unit of measure](#measures) which then defines their type as being of that measure.
+
+[Processor](#processors) instances are things that can carry state and they respond to messages. If an instance
+responds to the messages you need, all is good (this is known as duck-typing). A processor instance can change
+its type as a result of processing messages, if it's defined to do so, see [typestates](#typestates).
+_Future work_: A way to match processors by their protocol, i.e. the messages they respond to.
+
+### Data Dictionary
+A data type can be defined with a name, as part of a global data dictionary, by the statement starting with the word `data`,
+followed by an [identifier](#identifiers) and a [matcher](#matchers).
+E.g. `data adress <{number: <1..>, street: <'.*'>, town: <'.*'>}>`
+
+The defined data type can be used as a [matcher](#matchers), e.g. `<adress>`, but is also expected to be the data type of any
+[keyed-value](#keyed-values) or member of a [structure](#structures) that has key 'adress'.
 
 ## Built-in messages
 All objects

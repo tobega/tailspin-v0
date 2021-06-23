@@ -83,11 +83,11 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitOperatorDefinition(TailspinParser.OperatorDefinitionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#stereotypeDefinition}.
+	 * Visit a parse tree produced by {@link TailspinParser#dataDefinition}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStereotypeDefinition(TailspinParser.StereotypeDefinitionContext ctx);
+	T visitDataDefinition(TailspinParser.DataDefinitionContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#key}.
 	 * @param ctx the parse tree

@@ -3,6 +3,7 @@ package tailspin.interpreter;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
 import tailspin.arithmetic.ArithmeticContextKeywordResolver;
+import tailspin.types.Criterion;
 
 public abstract class Scope {
 
@@ -37,4 +38,10 @@ public abstract class Scope {
   public void popArithmeticContextKeywordResolver() {
     arithmeticContextKeywordResolvers.pop();
   }
+
+  public abstract void createDataDefinition(String identifier, Criterion def);
+
+  public abstract Criterion getDataDefinition(String identifier);
+
+  public abstract void checkDataDefinition(String key, Object data);
 }

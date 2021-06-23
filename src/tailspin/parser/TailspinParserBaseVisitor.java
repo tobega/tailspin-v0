@@ -101,7 +101,7 @@ public class TailspinParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> im
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitStereotypeDefinition(TailspinParser.StereotypeDefinitionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitDataDefinition(TailspinParser.DataDefinitionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -25,6 +25,7 @@ import tailspin.control.Bound;
 import tailspin.control.ChainStage;
 import tailspin.control.CollectorStage;
 import tailspin.control.ComposerDefinition;
+import tailspin.control.DataDefinition;
 import tailspin.control.Deconstructor;
 import tailspin.control.Definition;
 import tailspin.control.DeleteState;
@@ -93,7 +94,6 @@ import tailspin.parser.TailspinParser.OperandContext;
 import tailspin.parser.TailspinParser.OperatorExpressionContext;
 import tailspin.parser.TailspinParser.ProgramModificationContext;
 import tailspin.parser.TailspinParser.StateSinkContext;
-import tailspin.parser.TailspinParser.StereotypeDefinitionContext;
 import tailspin.parser.TailspinParser.StereotypeMatchContext;
 import tailspin.parser.TailspinParser.StructuresContext;
 import tailspin.parser.TailspinParser.TermArithmeticOperationContext;
@@ -509,7 +509,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public Criterion visitStereotypeMatch(StereotypeMatchContext ctx) {
     String identifier = ctx.localIdentifier() != null
         ? ctx.localIdentifier().getText() : ctx.externalIdentifier().getText();
-    dependencyCounters.peek().reference(identifier);
+    // We don't reference this as an identifier here, data definitions have a different namespace
     return new StereotypeMatch(identifier);
   }
 
@@ -764,11 +764,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Object visitStereotypeDefinition(StereotypeDefinitionContext ctx) {
+  public DataDefinition visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
     String identifier = ctx.localIdentifier().getText();
     AnyOf matcher = visitMatcher(ctx.matcher());
     dependencyCounters.peek().define(identifier);
-    return new Definition(identifier, (it,scope) -> matcher);
+    return new DataDefinition(identifier, (it,scope) -> matcher);
   }
 
   @Override

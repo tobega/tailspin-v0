@@ -3,6 +3,7 @@ package tailspin.interpreter;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import tailspin.types.Criterion;
 
 public class NestedScope extends Scope {
   private final Scope parentScope;
@@ -66,5 +67,20 @@ public class NestedScope extends Scope {
   @Override
   public Scope getParentScope() {
     return parentScope;
+  }
+
+  @Override
+  public void createDataDefinition(String identifier, Criterion def) {
+    parentScope.createDataDefinition(identifier, def);
+  }
+
+  @Override
+  public Criterion getDataDefinition(String identifier) {
+    return parentScope.getDataDefinition(identifier);
+  }
+
+  @Override
+  public void checkDataDefinition(String key, Object data) {
+    parentScope.checkDataDefinition(key, data);
   }
 }

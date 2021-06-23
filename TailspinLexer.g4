@@ -23,7 +23,7 @@ Do: 'do';
 
 Otherwise: 'otherwise';
 
-StereotypeDefinition: 'stereotype';
+DataDefinition: 'data';
 
 To: '->';
 
