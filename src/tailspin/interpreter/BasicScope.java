@@ -84,7 +84,10 @@ public class BasicScope extends Scope {
   @Override
   public void checkDataDefinition(String key, Object data) {
     Criterion def = dataDefinitions.get(key);
-    if (def == null) return;
+    if (def == null) {
+      dataDefinitions.put(key, getDefaultTypeCriterion(data));
+      return;
+    }
     if (!def.isMet(data, null, this))
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data " + data);
   }

@@ -1,12 +1,16 @@
 package tailspin.transform;
 
+import java.util.HashMap;
+import java.util.Map;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
+import tailspin.types.Criterion;
 
 public class TransformScope extends NestedScope {
   final String scopeContext;
   private Object state;
   private Templates templates;
+  final Map<String, Criterion> dataDefinitions = new HashMap<>();
 
   public TransformScope(Scope parentScope, String scopeContext) {
     super(parentScope);
@@ -29,6 +33,29 @@ public class TransformScope extends NestedScope {
     } else {
       return super.getState(stateContext);
     }
+  }
+
+  @Override
+  public void createDataDefinition(String identifier, Criterion def) {
+    dataDefinitions.put(identifier, def);
+  }
+
+  @Override
+  public Criterion getDataDefinition(String identifier) {
+    Criterion def = dataDefinitions.get(identifier);
+    if (def == null) return super.getDataDefinition(identifier);
+    return def;
+  }
+
+  @Override
+  public void checkDataDefinition(String key, Object data) {
+    Criterion def = getDataDefinition(key);
+    if (def == null) {
+      dataDefinitions.put(key, getDefaultTypeCriterion(data));
+      return;
+    }
+    if (!def.isMet(data, null, this))
+      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data " + data);
   }
 
   public void setTemplates(Templates templates) {

@@ -44,4 +44,16 @@ public abstract class Scope {
   public abstract Criterion getDataDefinition(String identifier);
 
   public abstract void checkDataDefinition(String key, Object data);
+
+  public static Criterion getDefaultTypeCriterion(Object data) {
+    if (data instanceof String) {
+      return new Criterion() {
+        @Override
+        public boolean isMet(Object toMatch, Object it, Scope scope) {
+          return toMatch instanceof String;
+        }
+      };
+    }
+    return null;
+  }
 }
