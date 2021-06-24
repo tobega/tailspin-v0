@@ -43,7 +43,7 @@ public class DataDictionary {
   }
 
   @Test
-  void autotypedTermCorrectValue() throws IOException {
+  void autotypedStringTermCorrectValue() throws IOException {
     String program = """
     {x: 'apple'} -> !OUT::write
     {x: 'banana'} -> !OUT::write
@@ -59,7 +59,7 @@ public class DataDictionary {
   }
 
   @Test
-  void autotypedTermConflict() throws IOException {
+  void autotypedStringTermConflict() throws IOException {
     String program = """
     {x: 'apple'} -> !OUT::write
     {x: 3} -> !OUT::write
@@ -86,5 +86,35 @@ public class DataDictionary {
     runner.run(input, output, List.of());
 
     assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void autotypedArrayTermCorrectValue() throws IOException {
+    String program = """
+    {x: ['apple']} -> !OUT::write
+    {x: [3, 2]} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=[apple]}{x=[3, 2]}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void autotypedArrayTermConflict() throws IOException {
+    String program = """
+    {x: ['apple']} -> !OUT::write
+    {x: 'banana'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 }

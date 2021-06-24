@@ -2,8 +2,11 @@ package tailspin.interpreter;
 
 import java.nio.file.Path;
 import java.util.ArrayDeque;
+import java.util.List;
 import tailspin.arithmetic.ArithmeticContextKeywordResolver;
+import tailspin.matchers.ArrayMatch;
 import tailspin.types.Criterion;
+import tailspin.types.TailspinArray;
 
 public abstract class Scope {
 
@@ -45,14 +48,21 @@ public abstract class Scope {
 
   public abstract void checkDataDefinition(String key, Object data);
 
+  private static Criterion stringMatch = new Criterion() {
+    @Override
+    public boolean isMet(Object toMatch, Object it, Scope scope) {
+      return toMatch instanceof String;
+    }
+  };
+
+  private static Criterion arrayMatch = new ArrayMatch((t, i, s) -> true, List.of(), false);
+
   public static Criterion getDefaultTypeCriterion(Object data) {
     if (data instanceof String) {
-      return new Criterion() {
-        @Override
-        public boolean isMet(Object toMatch, Object it, Scope scope) {
-          return toMatch instanceof String;
-        }
-      };
+      return stringMatch;
+    }
+    if (data instanceof TailspinArray) {
+      return arrayMatch;
     }
     return null;
   }
