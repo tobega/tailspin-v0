@@ -7,7 +7,9 @@ import java.util.Map;
 import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 import tailspin.matchers.ArrayMatch;
 import tailspin.matchers.StructureMatch;
+import tailspin.matchers.UnitMatch;
 import tailspin.types.Criterion;
+import tailspin.types.Measure;
 import tailspin.types.Structure;
 import tailspin.types.TailspinArray;
 
@@ -71,6 +73,9 @@ public abstract class Scope {
     }
     if (data instanceof Structure) {
       return structureMatch;
+    }
+    if (data instanceof Measure m) {
+      return new UnitMatch(m.getUnit());
     }
     return null;
   }
