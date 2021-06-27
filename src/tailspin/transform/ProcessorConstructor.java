@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import tailspin.control.Block;
+import tailspin.control.DelayedExecution;
 import tailspin.control.ResultIterator;
 import tailspin.control.TypestateDefinition;
 import tailspin.interpreter.NestedScope;
@@ -42,19 +43,18 @@ public class ProcessorConstructor extends Templates {
     Object results = block == null ? null : block.getResults(it, constructorScope);
     // TODO: assert everything null
     if (results instanceof ResultIterator ri) {
-      Object r;
-      while ((r = ri.getNextResult()) != null) {
-        if (r instanceof ResultIterator) {
-          ri = (ResultIterator) r;
+      while ((results = ri.getNextResult()) != null) {
+        if (results instanceof ResultIterator r) {
+          ri = r;
+        } else {
+          throw new IllegalStateException("Processor constructor " + name + " emitted value " + results);
         }
       }
-      results = r;
     }
-    if (results != null) throw new IllegalStateException("Processor constructor " + name + " emitted value " + results);
   }
 
   @Override
-  public Optional<Object> matchTemplates(Object it, Scope scope) {
+  public Optional<DelayedExecution> matchTemplates(Object it, Scope scope) {
     throw new UnsupportedOperationException("Cannot send to templates in");
   }
 }

@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import tailspin.Tailspin;
 
@@ -95,14 +96,22 @@ class Templates {
 
   @Test
   void templatesHasNotImportedName() {
-    String program = "templates my/spin\n<=5> $ + 2 ! <> $ + 1 -> #\nend my/spin\n" + "1 -> my/spin -> !OUT::write";
+    String program = """
+        templates my/spin
+        <=5> $ + 2 ! <> $ + 1 -> #
+        end my/spin
+        1 -> my/spin -> !OUT::write""";
     assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
   }
 
   @Test
   void recursiveMatch() throws Exception {
     String program =
-        "templates spin\n<=5> $ + 2 ! <> $ + 1 -> #\nend spin\n" + "1 -> spin -> !OUT::write";
+        """
+            templates spin
+            <=5> $ + 2 ! <> $ + 1 -> #
+            end spin
+            1 -> spin -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -116,7 +125,11 @@ class Templates {
   @Test
   void recursiveCall() throws Exception {
     String program =
-        "templates spin\n<=5> $ + 2 ! <> $ + 1 -> spin !\nend spin\n" + "1 -> spin -> !OUT::write";
+        """
+            templates spin
+            <=5> $ + 2 ! <> $ + 1 -> spin !
+            end spin
+            1 -> spin -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -128,10 +141,53 @@ class Templates {
   }
 
   @Test
+  void oneElementDeconstructorIsTailCall() throws Exception {
+    String program =
+        """
+        templates foo
+          <..64000> [$+1]... -> #
+        end foo
+        
+        [1]... -> foo -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+    // Pass if no stack overflow
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  @Disabled // Takes a bit long to run
+  void prefixedTailCall() throws Exception {
+    String program =
+        """
+        templates foo
+          <..64000> $+1..$+50001:50000 -> #
+        end foo
+        
+        1 -> foo -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+    // Pass if no stack overflow
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void consecutiveChainsInMatchBlock() throws Exception {
     String program =
-        "templates spin\n<=5> $ + 2 ! <> $ + 1 -> #\n $ -> !OUT::write\nend spin\n"
-            + "1 -> spin -> !OUT::write";
+        """
+            templates spin
+            <=5> $ + 2 ! <> $ + 1 -> #
+             $ -> !OUT::write
+            end spin
+            1 -> spin -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -150,8 +206,12 @@ class Templates {
   @Test
   void consecutiveChainsInMatchBlockReversedOrder() throws Exception {
     String program =
-        "templates spin\n<=5> $ + 2 ! <> $ -> !OUT::write\n $ + 1 -> #\nend spin\n"
-            + "1 -> spin -> !OUT::write";
+        """
+            templates spin
+            <=5> $ + 2 ! <> $ -> !OUT::write
+             $ + 1 -> #
+            end spin
+            1 -> spin -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -166,7 +226,12 @@ class Templates {
   @Test
   void multipleResultsInMatchBlock() throws Exception {
     String program =
-        "templates spin\n<=5> $ + 2 ! <> $ + 1 -> #\n $ !\nend spin\n" + "1 -> spin -> !OUT::write";
+        """
+            templates spin
+            <=5> $ + 2 ! <> $ + 1 -> #
+             $ !
+            end spin
+            1 -> spin -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -180,7 +245,12 @@ class Templates {
 
   @Test
   void initialBlock() throws Exception {
-    String program = "templates simple\n$ + 1 !\n $ !\nend simple\n" + "1 -> simple -> !OUT::write";
+    String program = """
+        templates simple
+        $ + 1 !
+         $ !
+        end simple
+        1 -> simple -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -195,7 +265,12 @@ class Templates {
   @Test
   void initialBlockCallsTemplates() throws Exception {
     String program =
-        "templates simple\n$ + 1 -> #\n <> $ + 1 !\nend simple\n" + "1 -> simple -> !OUT::write";
+        """
+            templates simple
+            $ + 1 -> #
+             <> $ + 1 !
+            end simple
+            1 -> simple -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -210,7 +285,13 @@ class Templates {
   @Test
   void noBlockRunTemplatesInNestedScope() throws Exception {
     String program =
-        "templates simple\n<=1>def a: 'aA';\n 2 -> #\n<=2> $a !\nend simple\n" + "1 -> simple -> !OUT::write";
+        """
+            templates simple
+            <=1>def a: 'aA';
+             2 -> #
+            <=2> $a !
+            end simple
+            1 -> simple -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -222,7 +303,14 @@ class Templates {
   @Test
   void templateCallsTemplatesNoNestedScope() throws Exception {
     String program =
-        "templates simple\n1 -> #\n<=1>def a: 'aA';\n 2 -> #\n<=2> $a !\nend simple\n" + "1 -> simple -> !OUT::write";
+        """
+            templates simple
+            1 -> #
+            <=1>def a: 'aA';
+             2 -> #
+            <=2> $a !
+            end simple
+            1 -> simple -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -234,7 +322,14 @@ class Templates {
   @Test
   void templateCallsTemplatesTwiceNoNestedScope() throws Exception {
     String program =
-        "templates simple\n1 -> #\n<=1>def a: 'aA';\n 2 -> #\n<=2> 3 -> # <=3> $a !\nend simple\n" + "1 -> simple -> !OUT::write";
+        """
+            templates simple
+            1 -> #
+            <=1>def a: 'aA';
+             2 -> #
+            <=2> 3 -> # <=3> $a !
+            end simple
+            1 -> simple -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -367,7 +462,13 @@ class Templates {
   @Test
   void templatesState() throws Exception {
     String program =
-        "templates state\n@: $ + 1;\n$ -> #\n<> $@ !\nend state\n" + "1 -> state -> !OUT::write";
+        """
+            templates state
+            @: $ + 1;
+            $ -> #
+            <> $@ !
+            end state
+            1 -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -382,7 +483,13 @@ class Templates {
   @Test
   void templatesNamedState() throws Exception {
     String program =
-        "templates state\n@state: $ + 1;\n$ -> #\n<> $@state !\nend state\n" + "1 -> state -> !OUT::write";
+        """
+            templates state
+            @state: $ + 1;
+            $ -> #
+            <> $@state !
+            end state
+            1 -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -397,12 +504,15 @@ class Templates {
   @Test
   void templatesNamedNestedState() throws Exception {
     String program =
-        "templates state\n"
-            + "templates nested\n"
-            + "@state: $ + 1;\n"
-            + "end nested\n"
-            + "$ -> nested !\n"
-            + "$@ !\nend state\n" + "1 -> state -> !OUT::write";
+        """
+            templates state
+            templates nested
+            @state: $ + 1;
+            end nested
+            $ -> nested !
+            $@ !
+            end state
+            1 -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -417,7 +527,12 @@ class Templates {
   @Test
   void templatesNamedFromInline() throws Exception {
     String program =
-            "templates state\n1..3 -> \\(@state: $ + 1;\\) !\n$@ !\nend state\n" + "1 -> state -> !OUT::write";
+        """
+            templates state
+            1..3 -> \\(@state: $ + 1;\\) !
+            $@ !
+            end state
+            1 -> state -> !OUT::write""";
     Tailspin runner =
             Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -510,9 +625,10 @@ class Templates {
 
   @Test
   void higherOrderFunction() throws Exception {
-    String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp&{discriminator:} $ -> discriminator -> # <=1> 'yes' ! <> 'no' ! end comp\n"
-        + "1..6 -> comp&{discriminator: low} -> !OUT::write";
+    String program = """
+        templates low <..3> 1 ! <> 0 ! end low
+        templates comp&{discriminator:} $ -> discriminator -> # <=1> 'yes' ! <> 'no' ! end comp
+        1..6 -> comp&{discriminator: low} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -525,9 +641,10 @@ class Templates {
 
   @Test
   void throwOnDereferenceFunction() throws Exception {
-    String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp&{discriminator:} $ -> $discriminator -> # <=1> 'yes' ! <> 'no' ! end comp\n"
-        + "1..6 -> comp&{discriminator: low} -> !OUT::write";
+    String program = """
+        templates low <..3> 1 ! <> 0 ! end low
+        templates comp&{discriminator:} $ -> $discriminator -> # <=1> 'yes' ! <> 'no' ! end comp
+        1..6 -> comp&{discriminator: low} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -538,10 +655,11 @@ class Templates {
 
   @Test
   void functionOfFunction() throws Exception {
-    String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp&{discriminator:} $ -> discriminator -> # <=1> 'yes' ! <=0> 'no' ! <> $ ! end comp\n"
-        + "templates meta&{f:} $ -> f&{discriminator: low} ! end meta\n"
-        + "1..6 -> meta&{f: comp} -> !OUT::write";
+    String program = """
+        templates low <..3> 1 ! <> 0 ! end low
+        templates comp&{discriminator:} $ -> discriminator -> # <=1> 'yes' ! <=0> 'no' ! <> $ ! end comp
+        templates meta&{f:} $ -> f&{discriminator: low} ! end meta
+        1..6 -> meta&{f: comp} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -554,10 +672,11 @@ class Templates {
 
   @Test
   void attemptToRedefineCurriedParameter() throws Exception {
-    String program = "templates low <..3> 1 ! <> 0 ! end low\n"
-        + "templates comp&{discriminator:} $ -> $discriminator -> # <=1> 'yes' ! <> 'no' ! end comp\n"
-        + "templates meta&{f:} $ -> f&{discriminator: low} ! end meta\n"
-        + "1..6 -> meta&{f: comp&{discriminator: low}} -> !OUT::write";
+    String program = """
+        templates low <..3> 1 ! <> 0 ! end low
+        templates comp&{discriminator:} $ -> $discriminator -> # <=1> 'yes' ! <> 'no' ! end comp
+        templates meta&{f:} $ -> f&{discriminator: low} ! end meta
+        1..6 -> meta&{f: comp&{discriminator: low}} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -583,7 +702,13 @@ class Templates {
   @Test
   void templatesStateAssignedEmptyStream() throws Exception {
     String program =
-        "templates state\n@: 1;\n@: $ -> \\(<5..> $ !\\);\n$@ !\nend state\n" + "3 -> state -> !OUT::write";
+        """
+            templates state
+            @: 1;
+            @: $ -> \\(<5..> $ !\\);
+            $@ !
+            end state
+            3 -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -595,7 +720,13 @@ class Templates {
   @Test
   void templatesStateAssignedMultiValuedStream() throws Exception {
     String program =
-        "templates state\n@: 1;\n@: 1..$;\n$@ !\nend state\n" + "3 -> state -> !OUT::write";
+        """
+            templates state
+            @: 1;
+            @: 1..$;
+            $@ !
+            end state
+            3 -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -607,7 +738,13 @@ class Templates {
   @Test
   void deleteState() throws Exception {
     String program =
-        "templates state\n@: $;\n^@ -> !OUT::write\n$@ !\nend state\n" + "3 -> state -> !OUT::write";
+        """
+            templates state
+            @: $;
+            ^@ -> !OUT::write
+            $@ !
+            end state
+            3 -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -622,7 +759,13 @@ class Templates {
   @Test
   void templatesWithKeywordName() throws Exception {
     String program =
-        "templates def\n@def: $;\n^@def -> !OUT::write\n$@def !\nend def\n" + "3 -> def -> !OUT::write";
+        """
+            templates def
+            @def: $;
+            ^@def -> !OUT::write
+            $@def !
+            end def
+            3 -> def -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -637,7 +780,11 @@ class Templates {
   @Test
   void sourceWithKeywordName() throws Exception {
     String program =
-        "source def\n3 !\nend def\n" + "$def -> !OUT::write";
+        """
+            source def
+            3 !
+            end def
+            $def -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -651,7 +798,11 @@ class Templates {
   @Test
   void sinkWithKeywordName() throws Exception {
     String program =
-        "sink def\n$ -> !OUT::write\nend def\n" + "3 -> !def";
+        """
+            sink def
+            $ -> !OUT::write
+            end def
+            3 -> !def""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -665,9 +816,15 @@ class Templates {
   @Test
   void cannotAccessCallingScope() throws Exception {
     String program =
-        "templates bar\n$ + $foo !\nend bar\n"
-            + "templates baz\n def foo: 2;\n$ -> bar !\nend baz\n"
-            + "3 -> baz -> !OUT::write";
+        """
+            templates bar
+            $ + $foo !
+            end bar
+            templates baz
+             def foo: 2;
+            $ -> bar !
+            end baz
+            3 -> baz -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -679,9 +836,16 @@ class Templates {
   @Test
   void shouldAccessDefiningScope() throws Exception {
     String program =
-        "def foo: 1;\ntemplates bar\n$ + $foo !\nend bar\n"
-            + "templates baz\n def foo: 2;\n$ -> bar !\nend baz\n"
-            + "3 -> baz -> !OUT::write";
+        """
+            def foo: 1;
+            templates bar
+            $ + $foo !
+            end bar
+            templates baz
+             def foo: 2;
+            $ -> bar !
+            end baz
+            3 -> baz -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -695,8 +859,11 @@ class Templates {
   @Test
   void dynamicReferenceAssignment() throws Exception {
     String program =
-        "templates bar\n@: [4,5,6]; def foo: $; @($foo): 0; $@!\nend bar\n"
-            + "2 -> bar -> !OUT::write";
+        """
+            templates bar
+            @: [4,5,6]; def foo: $; @($foo): 0; $@!
+            end bar
+            2 -> bar -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -710,8 +877,13 @@ class Templates {
   @Test
   void dynamicDereference() throws Exception {
     String program =
-        "templates bar\n@: [4,5,6];\ndef foo: $;\n $@($foo)!\nend bar\n"
-            + "2 -> bar -> !OUT::write";
+        """
+            templates bar
+            @: [4,5,6];
+            def foo: $;
+             $@($foo)!
+            end bar
+            2 -> bar -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -725,8 +897,13 @@ class Templates {
   @Test
   void defineFromSendToMatchers() throws Exception {
     String program =
-        "templates bar\ndef foo: $ -> #;\n$foo!\n <=1> 2! <> 0!\nend bar\n"
-            + "1 -> bar -> !OUT::write";
+        """
+            templates bar
+            def foo: $ -> #;
+            $foo!
+             <=1> 2! <> 0!
+            end bar
+            1 -> bar -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -740,8 +917,13 @@ class Templates {
   @Test
   void stateAssignedFromSendToMatchers() throws Exception {
     String program =
-        "templates bar\n@: $ -> #;\n$@!\n <=1> 2! <> 0!\nend bar\n"
-            + "1 -> bar -> !OUT::write";
+        """
+            templates bar
+            @: $ -> #;
+            $@!
+             <=1> 2! <> 0!
+            end bar
+            1 -> bar -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -755,8 +937,13 @@ class Templates {
   @Test
   void stateAssignedAfterValueChain() throws Exception {
     String program =
-        "templates bar\n@: 0;\n1..$ -> @: $ + $@;\n$@!\nend bar\n"
-            + "3 -> bar -> !OUT::write";
+        """
+            templates bar
+            @: 0;
+            1..$ -> @: $ + $@;
+            $@!
+            end bar
+            3 -> bar -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -770,8 +957,11 @@ class Templates {
   @Test
   void source() throws Exception {
     String program =
-        "source nums\n1..3 !\nend nums\n"
-            + "$nums -> !OUT::write";
+        """
+            source nums
+            1..3 !
+            end nums
+            $nums -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -785,8 +975,11 @@ class Templates {
   @Test
   void sink() throws Exception {
     String program =
-        "sink decorate\n'=$;=' -> !OUT::write\nend decorate\n"
-            + "1..3 -> !decorate";
+        """
+            sink decorate
+            '=$;=' -> !OUT::write
+            end decorate
+            1..3 -> !decorate""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -800,16 +993,23 @@ class Templates {
   @Test
   void noMessageToDeleteReference() {
     String program =
-        "templates bad\n@: [$];\n^@::length !\nend bad\n"
-            + "1 -> bad -> !OUT::write";
+        """
+            templates bad
+            @: [$];
+            ^@::length !
+            end bad
+            1 -> bad -> !OUT::write""";
     assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
   }
 
   @Test
   void stateAsTemplatesReference() throws Exception {
     String program =
-        "templates state\n@: $; 1 -> @::length !\nend state\n"
-            + "[1..3] -> state -> !OUT::write";
+        """
+            templates state
+            @: $; 1 -> @::length !
+            end state
+            [1..3] -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -823,11 +1023,12 @@ class Templates {
   @Test
   void previousStepsMustBeCompletedBeforeStartingNext() throws Exception {
     String program =
-        "templates state\n"
-            + "1..3 -> \\(<> @state: 1; $!\\) -> \\(<?($@state <=$>)> !VOID\n"
-            + "  <> @state:$+1; $!\\) !"
-            + "\nend state\n"
-            + "1 -> state -> !OUT::write";
+        """
+            templates state
+            1..3 -> \\(<> @state: 1; $!\\) -> \\(<?($@state <=$>)> !VOID
+              <> @state:$+1; $!\\) !
+            end state
+            1 -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -841,12 +1042,13 @@ class Templates {
   @Test
   void templatesParameterResolvesInDefinitionScope() throws Exception {
     String program =
-        "templates foo $+1 ! end foo\n"
-            + "templates bar&{baz:}\n"
-            + "  templates foo $+5 ! end foo\n"
-            + "  $ -> baz !\n"
-            + "end bar\n"
-            + "1 -> bar&{baz: foo} -> !OUT::write";
+        """
+            templates foo $+1 ! end foo
+            templates bar&{baz:}
+              templates foo $+5 ! end foo
+              $ -> baz !
+            end bar
+            1 -> bar&{baz: foo} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -860,11 +1062,12 @@ class Templates {
   @Test
   void lensAsParameter() throws Exception {
     String program =
-        "def a: [{foo:5}, {foo:7}, {foo:9}];"
-            + "templates bar&{baz:}\n"
-            + "  $ + $a(baz) !\n"
-            + "end bar\n"
-            + "1 -> bar&{baz: :(2; foo:)} -> !OUT::write";
+        """
+            def a: [{foo:5}, {foo:7}, {foo:9}];
+            templates bar&{baz:}
+              $ + $a(baz) !
+            end bar
+            1 -> bar&{baz: :(2; foo:)} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -878,11 +1081,12 @@ class Templates {
   @Test
   void lensAsParameterComposes() throws Exception {
     String program =
-        "def a: [{foo:[5, 2]}, {foo:[7, 3]}, {foo:[9, 4]}];"
-            + "source bar&{baz:}\n"
-            + "  $a(baz; 1) !\n"
-            + "end bar\n"
-            + "$bar&{baz: :(2; foo:)} -> !OUT::write";
+        """
+            def a: [{foo:[5, 2]}, {foo:[7, 3]}, {foo:[9, 4]}];
+            source bar&{baz:}
+              $a(baz; 1) !
+            end bar
+            $bar&{baz: :(2; foo:)} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -896,11 +1100,12 @@ class Templates {
   @Test
   void lensParameterResolvesInDefiningScope() throws Exception {
     String program =
-        "def a: [{foo:5}, {foo:7}, {foo:9}];"
-            + "source bar&{baz:}\n"
-            + "  2 -> $a(baz) !\n"
-            + "end bar\n"
-            + "1 -> $bar&{baz: :($; foo:)} -> !OUT::write";
+        """
+            def a: [{foo:5}, {foo:7}, {foo:9}];
+            source bar&{baz:}
+              2 -> $a(baz) !
+            end bar
+            1 -> $bar&{baz: :($; foo:)} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

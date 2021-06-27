@@ -26,19 +26,16 @@ public class SendToTemplates implements Expression {
     return new DelayedExecution() {
       final ResultIterator.Flat items = (ResultIterator.Flat) result;
       @Override
-      public Object getNextResult() {
+      public Object nextBaseResult() {
         while (true) {
           Object item = items.getNextResult();
           if (item == null) {
             return null;
           }
-          Optional<Object> r = templates.matchTemplates(item, transformScope);
+          Optional<DelayedExecution> r = templates.matchTemplates(item, transformScope);
           if (r.isPresent()) {
-            Object results = r.get();
-            if (results instanceof ResultIterator) {
-              return DelayedExecution.prefix((ResultIterator) results, this);
-            }
-            return results;
+            DelayedExecution results = r.get();
+            return prefix(results);
           }
         }
       }

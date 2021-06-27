@@ -44,8 +44,7 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof TailspinArray)) return false;
-    TailspinArray ta = (TailspinArray) obj;
+    if (!(obj instanceof TailspinArray ta)) return false;
     return array.equals(ta.array);
   }
 
@@ -71,6 +70,9 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
   public Object deconstruct() {
     if (array.isEmpty()) {
       return null;
+    }
+    if (array.size() == 1) {
+      return array.get(0);
     }
     Iterator<Object> iterator = array.iterator();
     return (ResultIterator.Flat) () -> {

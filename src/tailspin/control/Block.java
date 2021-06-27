@@ -11,12 +11,12 @@ public class Block implements Expression {
   }
 
   @Override
-  public Object getResults(Object it, Scope blockScope) {
+  public DelayedExecution getResults(Object it, Scope blockScope) {
     return new DelayedExecution() {
       int i = 0;
 
       @Override
-      public Object getNextResult() {
+      public Object nextBaseResult() {
         Object results = null;
         while (results == null) {
           if (i >= blockExpressions.size()) {
@@ -27,8 +27,8 @@ public class Block implements Expression {
         if (i == blockExpressions.size()) {
           return results;
         }
-        if (results instanceof ResultIterator) {
-          return DelayedExecution.prefix((ResultIterator) results, this);
+        if (results instanceof ResultIterator r) {
+          return prefix(r);
         }
         return results;
       }

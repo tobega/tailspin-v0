@@ -44,8 +44,12 @@ class ResultIteratorTest {
   @Test
   void resolveResult_embeddedPrefixedResultIterator() {
     assertThrows(AssertionError.class, () -> ResultIterator.appendResultValue("a",
-        DelayedExecution.prefix(new ArrayDeque<>(List.of(1,5,7))::poll,
-            new ArrayDeque<>(List.of("g"))::poll)));
+        new DelayedExecution() {
+          @Override
+          protected Object nextBaseResult() {
+            return null;
+          }
+        }));
   }
 
   @Test

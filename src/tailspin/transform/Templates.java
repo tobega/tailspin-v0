@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import tailspin.control.Block;
+import tailspin.control.DelayedExecution;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
 import tailspin.types.Transform;
@@ -40,7 +41,7 @@ public class Templates implements Transform {
     return scope;
   }
 
-  Object runInScope(Object it, TransformScope scope) {
+  DelayedExecution runInScope(Object it, TransformScope scope) {
     if (block != null) {
       return block.getResults(it, scope);
     } else {
@@ -48,7 +49,7 @@ public class Templates implements Transform {
     }
   }
 
-  public Optional<Object> matchTemplates(Object it, Scope scope) {
+  public Optional<DelayedExecution> matchTemplates(Object it, Scope scope) {
     if (it == null) {
       throw new NullPointerException("Attempt to use templates " + name + " as a source");
     }

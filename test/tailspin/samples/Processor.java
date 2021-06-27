@@ -34,6 +34,27 @@ class Processor {
   }
 
   @Test
+  void constructorCannotEmit() throws Exception {
+    String program =
+        """
+            processor Holder
+            @: $;
+            $!
+            templates add
+              $ + $@Holder !
+            end add
+            end Holder
+            def five: 5 -> Holder;
+            1..3 -> five::add -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () ->runner.run(input, output, List.of()));
+  }
+
+  @Test
   void noHiddenThisAccess() throws Exception {
     String program =
         """
