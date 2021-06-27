@@ -143,9 +143,9 @@ transform: To templates transform?
   | collectorChain transform?
 ;
 
-matcher: StartMatcher Invert? criterion (Else criterion)* EndMatcher;
+matcher: StartMatcher (Invert? criterion (Else criterion)*)? EndMatcher;
 
-criterion: (literalMatch | typeMatch)? condition*;
+criterion: (literalMatch | typeMatch) condition* | condition+;
 
 typeMatch: rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch

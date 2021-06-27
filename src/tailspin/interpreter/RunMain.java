@@ -107,7 +107,6 @@ import tailspin.transform.ExpectedParameter;
 import tailspin.transform.Lens;
 import tailspin.transform.MatchTemplate;
 import tailspin.transform.Operator;
-import tailspin.transform.ProcessorConstructor;
 import tailspin.transform.Templates;
 import tailspin.transform.lens.ArrayLens;
 import tailspin.transform.lens.CollectedValue;
@@ -463,8 +462,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       basicCriterion = visitLiteralMatch(ctx.literalMatch());
     }
     return new ValueMatcher(basicCriterion,
-        ctx.condition() == null ? List.of()
-            : ctx.condition().stream().map(this::visitCondition).collect(Collectors.toList()));
+        ctx.condition().stream().map(this::visitCondition).collect(Collectors.toList()));
   }
 
   @Override
@@ -609,10 +607,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().define(name);
     dependencyCounters.peek().requireAll(requiredDefinitions);
-    return new Definition(name, (it, scope) -> {
-      Templates templates = templatesDefinition.define(scope);
-      return templates;
-    });
+    return new Definition(name, (it, scope) -> templatesDefinition.define(scope));
   }
 
   @Override
@@ -658,10 +653,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().define(name);
     dependencyCounters.peek().requireAll(requiredDefinitions);
-    return new Definition(name, (it, scope) -> {
-      Templates templates = templatesDefinition.define(scope);
-      return templates;
-    });
+    return new Definition(name, (it, scope) -> templatesDefinition.define(scope));
   }
 
   @Override
@@ -681,10 +673,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().define(name);
     dependencyCounters.peek().requireAll(requiredDefinitions);
-    return new Definition(name, (it, scope) -> {
-      ProcessorConstructor processorConstructor = processorDefinition.define(scope);
-      return processorConstructor;
-    });
+    return new Definition(name, (it, scope) -> processorDefinition.define(scope));
   }
 
   @Override

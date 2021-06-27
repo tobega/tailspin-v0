@@ -1,6 +1,7 @@
 package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -583,6 +584,13 @@ class Matchers {
   }
 
   @Test
+  void elseConditionNotEmpty() {
+    String program = "5 -> \\(<=8 |> 'yes'! <> 'no'!\\) -> !OUT::write";
+    assertThrows(Exception.class,
+        () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  @Test
   void stringEquals() throws Exception {
     String program = "def char: 'b';\n ['a', 'b', 'c']... -> \\(<=$char> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
@@ -819,9 +827,10 @@ class Matchers {
 
   @Test
   void literalEqualityArray() throws Exception {
-    String program = "[3, 5, 2] -> \\(<=[3, 5, 2]> 'yes'! <> 'no'!\\) -> !OUT::write\n"
-    + "[3, 5, 2] -> \\(<=[3, 2, 5]> 'no'! <> 'yes'!\\) -> !OUT::write\n"
-    + "[3, 5, 2] -> \\(<=[3, 5, 2, 2]> 'no'! <> 'yes'!\\) -> !OUT::write";
+    String program = """
+        [3, 5, 2] -> \\(<=[3, 5, 2]> 'yes'! <> 'no'!\\) -> !OUT::write
+        [3, 5, 2] -> \\(<=[3, 2, 5]> 'no'! <> 'yes'!\\) -> !OUT::write
+        [3, 5, 2] -> \\(<=[3, 5, 2, 2]> 'no'! <> 'yes'!\\) -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -834,9 +843,10 @@ class Matchers {
 
   @Test
   void literalEqualityStructure() throws Exception {
-    String program = "{a: 1, b: 'a'} -> \\(<={a: 1, b: 'a'}> 'yes'! <> 'no'!\\) -> !OUT::write\n"
-    + "{a: 1, b: 'a'} -> \\(<={a: 1, b: 'a', c:0}> 'no'! <> 'yes'!\\) -> !OUT::write\n"
-    + "{a: 1, b: 'a'} -> \\(<={a: 1, b: 'b'}> 'no'! <> 'yes'!\\) -> !OUT::write";
+    String program = """
+        {a: 1, b: 'a'} -> \\(<={a: 1, b: 'a'}> 'yes'! <> 'no'!\\) -> !OUT::write
+        {a: 1, b: 'a'} -> \\(<={a: 1, b: 'a', c:0}> 'no'! <> 'yes'!\\) -> !OUT::write
+        {a: 1, b: 'a'} -> \\(<={a: 1, b: 'b'}> 'no'! <> 'yes'!\\) -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

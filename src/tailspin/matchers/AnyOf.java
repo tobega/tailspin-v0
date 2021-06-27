@@ -16,6 +16,7 @@ public class AnyOf implements Criterion {
 
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
+    if (alternativeCriteria.isEmpty()) return true;
     for (Criterion criterion : alternativeCriteria) {
       if (criterion.isMet(toMatch, it, scope)) {
         return !invert;
