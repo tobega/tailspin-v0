@@ -24,7 +24,7 @@ class FieldReference extends Reference {
       return structure.get(fieldIdentifier);
     } catch (ClassCastException e) {
       throw new IllegalStateException(
-          parent.toString() + " is not a structure. Tried to get " + fieldIdentifier, e);
+          parent + " is not a structure. Tried to get " + fieldIdentifier, e);
     } catch (Exception e) {
       throw new IllegalStateException("Error trying to get field " + fieldIdentifier, e);
     }
@@ -64,6 +64,7 @@ class FieldReference extends Reference {
       }
       collect(value, collector);
     } else {
+      scope.checkDataDefinition(fieldIdentifier, value);
       Structure structure = (Structure) parent.getValue(it, scope);
       if (structure == null) {
         throw new IllegalStateException("Unknown structure " + parent);

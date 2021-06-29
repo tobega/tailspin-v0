@@ -89,6 +89,55 @@ public class DataDictionary {
   }
 
   @Test
+  void settingStateChecksType() throws IOException {
+    String program = """
+    templates foo
+      @: {x: 'apple'};
+      @.x: 3;
+      $@ !
+    end foo
+    1 -> foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void settingStateLensChecksType() throws IOException {
+    String program = """
+    templates foo
+      @: {x: 'apple'};
+      @(x:): 3;
+      $@ !
+    end foo
+    1 -> foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void projectionChecksType() throws IOException {
+    String program = """
+    {x: 'apple'} -> $({x: 3}) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void autotypedArrayTermCorrectValue() throws IOException {
     String program = """
     {x: ['apple']} -> !OUT::write
