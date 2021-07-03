@@ -28,7 +28,7 @@ Thoughts somewhere on the roadmap are in [my notes](Notes.md)
 
 Most recent addition is relational values that can be manipulated through relational algebra. A good example is [this solution](https://github.com/tobega/aoc2020/blob/main/a21ra.tt) to the [adventofcode 2020 day 21 problem](https://adventofcode.com/2020/day/21)
 
-The next step is implementing automatic types and units (on branch autotypes)
+The next step is implementing automatic types and units (on branch data-dictionary)
 
 ## Code samples
 Small code samples can be found in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
