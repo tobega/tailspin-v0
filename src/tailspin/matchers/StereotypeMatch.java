@@ -14,6 +14,6 @@ public class StereotypeMatch implements Criterion {
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
     Criterion stereotype = scope.getDataDefinition(identifier);
-    return stereotype.isMet(toMatch, it, scope);
+    return stereotype.isMet(toMatch, null, null);
   }
 }

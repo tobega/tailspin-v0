@@ -25,6 +25,8 @@ Otherwise: 'otherwise';
 
 DataDefinition: 'data';
 
+LocalDefinition: 'local';
+
 To: '->';
 
 ResultMarker: '!';

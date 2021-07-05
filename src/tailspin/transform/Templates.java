@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import tailspin.control.Block;
 import tailspin.control.DelayedExecution;
 import tailspin.interpreter.NestedScope;
@@ -15,28 +16,32 @@ import tailspin.types.Transform;
 public class Templates implements Transform {
   final String name;
   final Scope definingScope;
+  final Set<String> localDatatypes;
   // @Nullable
   final Block block;
   private final List<MatchTemplate> matchTemplates;
   final List<ExpectedParameter> expectedParameters = new ArrayList<>();
 
   public Templates(String name, Scope definingScope,
-      /*@Nullable*/ Block block, List<MatchTemplate> matchTemplates) {
+      /*@Nullable*/ Set<String> localDatatypes, Block block,
+      List<MatchTemplate> matchTemplates) {
     this.name = name;
     this.definingScope = definingScope;
+    this.localDatatypes = localDatatypes;
     this.block = block;
     this.matchTemplates = matchTemplates;
   }
 
   @Override
   public Object getResults(Object it, Map<String, Object> parameters) {
-    TransformScope scope = createTransformScope(it, parameters);
+    TransformScope scope = createTransformScope(parameters);
     return runInScope(it, scope);
   }
 
-  TransformScope createTransformScope(Object it, Map<String, Object> parameters) {
+  TransformScope createTransformScope(Map<String, Object> parameters) {
     TransformScope scope = new TransformScope(definingScope, name);
     scope.setTemplates(this);
+    localDatatypes.forEach(key -> scope.localDictionary.createDataDefinition(key, null));
     resolveParameters(expectedParameters, parameters, scope, name);
     return scope;
   }

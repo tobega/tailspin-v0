@@ -2,11 +2,12 @@ package tailspin.control;
 
 import java.util.ArrayList;
 import java.util.List;
-import tailspin.transform.Composer;
-import tailspin.matchers.composer.CompositionSpec;
-import tailspin.transform.ExpectedParameter;
+import java.util.Set;
 import tailspin.interpreter.Scope;
+import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.SubComposerFactory;
+import tailspin.transform.Composer;
+import tailspin.transform.ExpectedParameter;
 
 public class ComposerDefinition {
 
@@ -23,8 +24,8 @@ public class ComposerDefinition {
     this.subComposerFactory = subComposerFactory;
   }
 
-  public Composer define(Scope definingScope) {
-    Composer composer = new Composer(definingScope, stateAssignment, composition, subComposerFactory);
+  public Composer define(Scope definingScope, Set<String> localDatatypes) {
+    Composer composer = new Composer(definingScope, localDatatypes, stateAssignment, composition, subComposerFactory);
     composer.expectParameters(expectedParameters);
     return composer;
   }

@@ -5,12 +5,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import tailspin.types.Criterion;
+import tailspin.types.DataDictionary;
 
 public class BasicScope extends Scope {
+
+  final DataDictionary dataDictionary = new DataDictionary();
   private final Path basePath;
 
   final Map<String, Object> definitions = new HashMap<>();
-  final Map<String, Criterion> dataDefinitions = new HashMap<>();
 
   public BasicScope(Path basePath) {
     this.basePath = basePath;
@@ -73,23 +75,17 @@ public class BasicScope extends Scope {
 
   @Override
   public void createDataDefinition(String identifier, Criterion def) {
-    dataDefinitions.put(identifier, def);
+    dataDictionary.createDataDefinition(identifier, def);
   }
 
   @Override
   public Criterion getDataDefinition(String identifier) {
-    return dataDefinitions.get(identifier);
+    return dataDictionary.getDataDefinition(identifier);
   }
 
   @Override
-  public void checkDataDefinition(String key, Object data) {
-    Criterion def = dataDefinitions.get(key);
-    if (def == null) {
-      dataDefinitions.put(key, getDefaultTypeCriterion(data));
-      return;
-    }
-    if (!def.isMet(data, null, this))
-      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data " + data);
+  public Object checkDataDefinition(String key, Object data) {
+    return dataDictionary.checkDataDefinition(key, data);
   }
 
   public void copyDefinitions(Map<String, Object> to) {

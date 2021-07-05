@@ -389,8 +389,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
             "Mismatched end \"" + endName + "\" for templates " + name);
       }
     }
-    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, ctx.templatesBody(), Templates::new);
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()), ctx.templatesBody(),
+        Templates::new);
     return new InlineTemplates(templatesDefinition);
+  }
+
+  @Override
+  public Set<String> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
+    return ctx == null ? Set.of() : ctx.localIdentifier().stream().map(RuleContext::getText).collect(Collectors.toSet());
   }
 
   @Override
@@ -414,7 +420,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     DependencyCounter depCounter = new DependencyCounter();
     loopVariables.forEach(depCounter::define);
     dependencyCounters.push(depCounter);
-    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, ctx.templatesBody(), Templates::new);
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()), ctx.templatesBody(),
+        Templates::new);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().requireAll(requiredDefinitions);
     return new ArrayTemplates(loopVariables, templatesDefinition);
@@ -425,7 +432,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     throw new UnsupportedOperationException();
   }
 
-  public TemplatesDefinition visitTemplatesBody(String name, TailspinParser.TemplatesBodyContext ctx,
+  public TemplatesDefinition visitTemplatesBody(String name,
+      Set<String> localDatatypes, TailspinParser.TemplatesBodyContext ctx,
       TemplatesConstructor constructor) {
     // The match templates are conceptually in the scope of the block, otherwise we could just do this in visitBlock
     dependencyCounters.push(new DependencyCounter());
@@ -439,7 +447,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().requireAll(requiredDefinitions);
-    return new TemplatesDefinition(name, block, matchTemplates, constructor);
+    return new TemplatesDefinition(name, localDatatypes, block, matchTemplates, constructor);
   }
 
   @Override
@@ -602,7 +610,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     // Parameters must be defined first so as they don't get required
     List<ExpectedParameter> expectedParameters = visitParameterDefinitions(ctx.parameterDefinitions());
-    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, ctx.templatesBody(), Templates::new);
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()), ctx.templatesBody(),
+        Templates::new);
     templatesDefinition.expectParameters(expectedParameters);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().define(name);
@@ -641,12 +650,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     String right = ctx.localIdentifier(2).getText();
     dependencyCounters.peek().define(right);
     expectedParameters.add(new ExpectedParameter(right));
-    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, ctx.templatesBody(),
-        new TemplatesConstructor() {
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()),
+        ctx.templatesBody(), new TemplatesConstructor() {
           @Override
-          public Templates create(String name, Scope definingScope, Block block,
+          public Templates create(String name, Scope definingScope, Set<String> localDatatypes, Block block,
               List<MatchTemplate> matchTemplates) {
-            return new Operator(name, definingScope, block, matchTemplates, new String[]{left, right});
+            return new Operator(name, definingScope, localDatatypes, block, matchTemplates, new String[]{left, right});
           }
         });
     templatesDefinition.expectParameters(expectedParameters);
@@ -669,7 +678,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     // Then block, so those definitions may be used in typestates
     Block rootBlock = visitBlock(ctx.block());
     List<TypestateDefinition> typestates = ctx.typestateDefinition().stream().map(this::visitTypestateDefinition).toList();
-    ProcessorDefinition processorDefinition = new ProcessorDefinition(name, rootBlock, expectedParameters, typestates);
+    ProcessorDefinition processorDefinition = new ProcessorDefinition(name, visitLocalDataDeclaration(ctx.localDataDeclaration()),
+        rootBlock, expectedParameters, typestates);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().define(name);
     dependencyCounters.peek().requireAll(requiredDefinitions);
@@ -1105,13 +1115,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     // Parameters must be defined first so as they don't get required
     List<ExpectedParameter> expectedParameters = visitParameterDefinitions(ctx.parameterDefinitions());
+    Set<String> localDatatypes = visitLocalDataDeclaration(ctx.localDataDeclaration());
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
     composerDefinition.expectParameters(expectedParameters);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().define(name);
     dependencyCounters.peek().requireAll(requiredDefinitions);
     return new Definition(name, (it, scope) -> {
-      Composer composer = composerDefinition.define(scope);
+      Composer composer = composerDefinition.define(scope, localDatatypes);
       composer.setScopeContext(name);
       return composer;
     });

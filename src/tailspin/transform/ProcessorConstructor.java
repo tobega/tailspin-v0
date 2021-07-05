@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import tailspin.control.Block;
 import tailspin.control.DelayedExecution;
 import tailspin.control.ResultIterator;
@@ -18,15 +19,16 @@ public class ProcessorConstructor extends Templates {
 
   private final List<TypestateDefinition> typestates;
 
-  public ProcessorConstructor(String name, Scope definingScope, Block block,
+  public ProcessorConstructor(String name, Scope definingScope, Set<String> localDatatypes, Block block,
       List<TypestateDefinition> typestates) {
-    super(name, definingScope, block, new ArrayList<>());
+    super(name, definingScope, localDatatypes, block, new ArrayList<>());
     this.typestates = typestates;
   }
 
   @Override
   public Object getResults(Object it, Map<String, Object> parameters) {
     ProcessorScope scope = new ProcessorScope(definingScope, name);
+    localDatatypes.forEach(key -> scope.localDictionary.createDataDefinition(key, null));
     Scope constructorScope = new NestedScope(scope);
     resolveParameters(expectedParameters, parameters, constructorScope, name);
     scope.addTypestate(name, constructorScope);

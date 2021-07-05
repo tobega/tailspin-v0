@@ -1,16 +1,15 @@
 package tailspin.transform;
 
-import java.util.HashMap;
-import java.util.Map;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
+import tailspin.types.DataDictionary;
 
 public class TransformScope extends NestedScope {
   final String scopeContext;
   private Object state;
   private Templates templates;
-  final Map<String, Criterion> dataDefinitions = new HashMap<>();
+  final DataDictionary localDictionary = new DataDictionary();
 
   public TransformScope(Scope parentScope, String scopeContext) {
     super(parentScope);
@@ -37,25 +36,29 @@ public class TransformScope extends NestedScope {
 
   @Override
   public void createDataDefinition(String identifier, Criterion def) {
-    dataDefinitions.put(identifier, def);
+    if (localDictionary.owns(identifier)) {
+      localDictionary.createDataDefinition(identifier, def);
+    } else {
+      super.createDataDefinition(identifier, def);
+    }
   }
 
   @Override
   public Criterion getDataDefinition(String identifier) {
-    Criterion def = dataDefinitions.get(identifier);
-    if (def == null) return super.getDataDefinition(identifier);
-    return def;
+    if (localDictionary.owns(identifier)) {
+      return localDictionary.getDataDefinition(identifier);
+    } else {
+      return super.getDataDefinition(identifier);
+    }
   }
 
   @Override
-  public void checkDataDefinition(String key, Object data) {
-    Criterion def = getDataDefinition(key);
-    if (def == null) {
-      dataDefinitions.put(key, getDefaultTypeCriterion(data));
-      return;
+  public Object checkDataDefinition(String key, Object data) {
+    if (localDictionary.owns(key)) {
+      return localDictionary.checkDataDefinition(key, data);
+    } else {
+      return super.checkDataDefinition(key, data);
     }
-    if (!def.isMet(data, null, this))
-      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data " + data);
   }
 
   public void setTemplates(Templates templates) {

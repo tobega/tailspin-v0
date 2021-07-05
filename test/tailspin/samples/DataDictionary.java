@@ -73,9 +73,105 @@ public class DataDictionary {
   }
 
   @Test
+  void localInlineTransformTypeStaysLocal() throws IOException {
+    String program = """
+    'apple' -> \\(data x local {x: $} -> !OUT::write\\) -> !VOID
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void localInlineArrayTransformTypeStaysLocal() throws IOException {
+    String program = """
+    ['apple'] -> \\[i](data x local {x: $} -> !OUT::write\\) -> !VOID
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void localTransformTypeStaysLocal() throws IOException {
     String program = """
-    'apple' -> \\({x: $} -> !OUT::write\\) -> !VOID
+    templates foo
+      data x local
+      {x: $} -> !OUT::write
+    end foo
+    'apple' -> foo -> !VOID
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void localProcessorTypeStaysLocal() throws IOException {
+    String program = """
+    processor foo
+      data x local
+      {x: $} -> !OUT::write
+    end foo
+    'apple' -> foo -> !VOID
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void localComposerTypeStaysLocal() throws IOException {
+    String program = """
+    composer foo
+      data x local
+      (<'.*'> -> @: {x: $};) $@.x
+    end foo
+    'apple' -> foo -> !OUT::write
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("apple{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void localOperatorTypeStaysLocal() throws IOException {
+    String program = """
+    operator (a foo b)
+      data x local
+      {x: '$a;$b;'} -> !OUT::write
+    end foo
+    ('app' foo 'le') -> !VOID
     {x: 3} -> !OUT::write
     """;
     Tailspin runner =

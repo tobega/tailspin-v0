@@ -20,21 +20,23 @@ definition: Def key valueProduction SemiColon;
 
 valueChainToSink: valueChain To sink;
 
-templatesDefinition: (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? templatesBody EndDefinition localIdentifier;
+templatesDefinition: (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? localDataDeclaration? templatesBody EndDefinition localIdentifier;
 
-processorDefinition: StartProcessorDefinition localIdentifier parameterDefinitions? block typestateDefinition* EndDefinition localIdentifier;
+processorDefinition: StartProcessorDefinition localIdentifier parameterDefinitions? localDataDeclaration? block typestateDefinition* EndDefinition localIdentifier;
 
 typestateDefinition: StartStateDefinition localIdentifier messageDefinition* EndDefinition localIdentifier;
 
 messageDefinition: templatesDefinition | processorDefinition | composerDefinition | operatorDefinition;
 
-composerDefinition: StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier;
+composerDefinition: StartComposerDefinition localIdentifier parameterDefinitions? localDataDeclaration? composerBody EndDefinition localIdentifier;
 
 testDefinition: StartTestDefinition stringLiteral useModule* programModification? testBody EndDefinition stringLiteral;
 
-operatorDefinition: StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen templatesBody EndDefinition localIdentifier;
+operatorDefinition: StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen localDataDeclaration? templatesBody EndDefinition localIdentifier;
 
 dataDefinition: DataDefinition localIdentifier matcher;
+
+localDataDeclaration: DataDefinition localIdentifier (Comma localIdentifier)* LocalDefinition;
 
 key: localIdentifier Colon;
 
@@ -99,8 +101,8 @@ keyValue: key valueProduction;
 
 templates: templatesReference                        # callDefinedTransform
   | source                        # literalTemplates
-  | Lambda localIdentifier? LeftParen templatesBody Lambda localIdentifier? RightParen # lambdaTemplates
-  | Lambda localIdentifier? arrayIndexDecomposition LeftParen templatesBody Lambda localIdentifier? RightParen # lambdaArrayTemplates
+  | Lambda localIdentifier? LeftParen localDataDeclaration? templatesBody Lambda localIdentifier? RightParen # lambdaTemplates
+  | Lambda localIdentifier? arrayIndexDecomposition LeftParen localDataDeclaration? templatesBody Lambda localIdentifier? RightParen # lambdaArrayTemplates
 ;
 
 arrayIndexDecomposition: LeftBracket localIdentifier (SemiColon localIdentifier)* RightBracket;
@@ -287,6 +289,7 @@ keyword: Include
   | StartStateDefinition
   | EndDefinition
   | DataDefinition
+  | LocalDefinition
   | Mod
   | Rule
   | When

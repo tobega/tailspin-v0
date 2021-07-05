@@ -80,7 +80,7 @@ public class NestedScope extends Scope {
   }
 
   @Override
-  public void checkDataDefinition(String key, Object data) {
-    parentScope.checkDataDefinition(key, data);
+  public Object checkDataDefinition(String key, Object data) {
+    return parentScope.checkDataDefinition(key, data);
   }
 }

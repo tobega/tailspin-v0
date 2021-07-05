@@ -89,6 +89,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitDataDefinition(TailspinParser.DataDefinitionContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#localDataDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#key}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
