@@ -16,7 +16,7 @@ public class KeyValueExpression implements Value {
   @Override
   public KeyValue getResults(Object it, Scope scope) {
     Object data = value.getResults(it, scope);
-    scope.checkDataDefinition(key, data);
+    data = scope.checkDataDefinition(key, data);
     return new KeyValue(key, data);
   }
 

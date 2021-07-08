@@ -7,6 +7,7 @@ import tailspin.types.KeyValue;
 import tailspin.types.Measure;
 import tailspin.types.Processor;
 import tailspin.types.Structure;
+import tailspin.types.TaggedIdentifier;
 import tailspin.types.TailspinArray;
 
 public abstract class Reference implements Value {
@@ -164,19 +165,17 @@ public abstract class Reference implements Value {
       ((Freezable<?>) value).freeze();
       return value;
     }
-    if (value instanceof String || value instanceof Number || value instanceof Processor || value instanceof byte[] || value instanceof Measure) {
+    if (value instanceof String || value instanceof Number || value instanceof Processor || value instanceof byte[] || value instanceof Measure || value instanceof TaggedIdentifier) {
       return value;
     }
     throw new IllegalArgumentException("Unknown value type " + value.getClass().getName());
   }
 
   public static void collect(Object it, Object collector) {
-    if (collector instanceof Structure) {
-      Structure collectorMap = (Structure) collector;
+    if (collector instanceof Structure collectorMap) {
       ResultIterator.forEach(it,
           m -> {
-            if (m instanceof Structure) {
-              Structure itMap = (Structure) m;
+            if (m instanceof Structure itMap) {
               ResultIterator.forEach(itMap.deconstruct(), member -> {
                 KeyValue entry = (KeyValue) member;
                 collectorMap.put(entry.getKey(), entry.getValue());
@@ -186,8 +185,7 @@ public abstract class Reference implements Value {
               collectorMap.put(itEntry.getKey(), itEntry.getValue());
             }
           });
-    } else if (collector instanceof TailspinArray) {
-      TailspinArray collectorList = (TailspinArray) collector;
+    } else if (collector instanceof TailspinArray collectorList) {
       ResultIterator.forEach(it, collectorList::append);
     } else {
       throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());

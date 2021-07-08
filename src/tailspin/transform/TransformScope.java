@@ -2,8 +2,8 @@ package tailspin.transform;
 
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
 import tailspin.types.DataDictionary;
+import tailspin.types.Membrane;
 
 public class TransformScope extends NestedScope {
   final String scopeContext;
@@ -35,7 +35,7 @@ public class TransformScope extends NestedScope {
   }
 
   @Override
-  public void createDataDefinition(String identifier, Criterion def) {
+  public void createDataDefinition(String identifier, Membrane def) {
     if (localDictionary.owns(identifier)) {
       localDictionary.createDataDefinition(identifier, def);
     } else {
@@ -44,7 +44,7 @@ public class TransformScope extends NestedScope {
   }
 
   @Override
-  public Criterion getDataDefinition(String identifier) {
+  public Membrane getDataDefinition(String identifier) {
     if (localDictionary.owns(identifier)) {
       return localDictionary.getDataDefinition(identifier);
     } else {

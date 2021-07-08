@@ -4,8 +4,8 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
 import tailspin.types.DataDictionary;
+import tailspin.types.Membrane;
 import tailspin.types.Transform;
 
 public class ProcessorScope extends Scope {
@@ -82,7 +82,7 @@ public class ProcessorScope extends Scope {
   }
 
   @Override
-  public void createDataDefinition(String identifier, Criterion def) {
+  public void createDataDefinition(String identifier, Membrane def) {
     if (localDictionary.owns(identifier)) {
       localDictionary.createDataDefinition(identifier, def);
     } else {
@@ -91,7 +91,7 @@ public class ProcessorScope extends Scope {
   }
 
   @Override
-  public Criterion getDataDefinition(String identifier) {
+  public Membrane getDataDefinition(String identifier) {
     if (localDictionary.owns(identifier)) {
       return localDictionary.getDataDefinition(identifier);
     } else {

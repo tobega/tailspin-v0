@@ -66,6 +66,7 @@ import tailspin.matchers.ArrayMatch;
 import tailspin.matchers.CollectionCriterionFactory;
 import tailspin.matchers.CollectionSegmentCriterion;
 import tailspin.matchers.Condition;
+import tailspin.matchers.DefinedMembrane;
 import tailspin.matchers.Equality;
 import tailspin.matchers.MultipliedCollectionCriterionFactory;
 import tailspin.matchers.OnceOnlyCollectionCriterionFactory;
@@ -778,7 +779,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     String identifier = ctx.localIdentifier().getText();
     AnyOf matcher = visitMatcher(ctx.matcher());
     dependencyCounters.peek().define(identifier);
-    return new DataDefinition(identifier, (it,scope) -> matcher);
+    return new DataDefinition(identifier, (it,scope) -> new DefinedMembrane(matcher, it, scope));
   }
 
   @Override

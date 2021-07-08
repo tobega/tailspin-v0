@@ -3,28 +3,28 @@ package tailspin.types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import tailspin.interpreter.Scope;
 import tailspin.matchers.ArrayMatch;
+import tailspin.matchers.DefinedMembrane;
 import tailspin.matchers.StructureMatch;
 import tailspin.matchers.UnitMatch;
 
 public class DataDictionary {
 
-  private static final Criterion stringMatch = new Criterion() {
+  private static final Membrane stringMatch = new Membrane() {
     @Override
-    public boolean isMet(Object toMatch, Object it, Scope scope) {
-      return toMatch instanceof String;
+    public Object permeate(Object toMatch) {
+      return (toMatch instanceof String) ? toMatch : null;
     }
   };
-  private static final Criterion arrayMatch = new ArrayMatch((t, i, s) -> true, List.of(), false);
-  private static final Criterion structureMatch = new StructureMatch(Map.of(), true);
+  private static final Membrane arrayMatch = new DefinedMembrane(new ArrayMatch((t, i, s) -> true, List.of(), false), null, null);
+  private static final Membrane structureMatch = new DefinedMembrane(new StructureMatch(Map.of(), true), null, null);
 
-  public final Map<String, Criterion> dataDefinitions = new HashMap<>();
+  public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
   public DataDictionary() {
   }
 
-  public static Criterion getDefaultTypeCriterion(Object data) {
+  public static Membrane getDefaultTypeMembrane(Object data) {
     if (data instanceof String) {
       return stringMatch;
     }
@@ -35,26 +35,28 @@ public class DataDictionary {
       return structureMatch;
     }
     if (data instanceof Measure m) {
-      return new UnitMatch(m.getUnit());
+      return new DefinedMembrane(new UnitMatch(m.getUnit()), null, null);
     }
     return null;
   }
 
-  public void createDataDefinition(String identifier, Criterion def) {
+  public void createDataDefinition(String identifier, Membrane def) {
     dataDefinitions.put(identifier, def);
   }
 
-  public Criterion getDataDefinition(String identifier) {
+  public Membrane getDataDefinition(String identifier) {
     return dataDefinitions.get(identifier);
   }
 
   public Object checkDataDefinition(String key, Object data) {
-    Criterion def = dataDefinitions.get(key);
+    Membrane def = dataDefinitions.get(key);
     if (def == null) {
-      dataDefinitions.put(key, getDefaultTypeCriterion(data));
-      return data;
+      def = getDefaultTypeMembrane(data);
+      dataDefinitions.put(key, def);
+      if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
-    if (!def.isMet(data, null, null)) {
+    data = def.permeate(data);
+    if (data == null) {
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data " + data);
     }
     return data;

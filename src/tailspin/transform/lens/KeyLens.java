@@ -34,7 +34,7 @@ public class KeyLens implements LensDimension {
       }
     }
     Object value = ri.getNextResult();
-    scope.checkDataDefinition(key, value);
+    value = scope.checkDataDefinition(key, value);
     structure.put(key, value);
   }
 
