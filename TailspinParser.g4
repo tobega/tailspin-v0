@@ -177,7 +177,7 @@ rangeLiteral: lowerBound? Range upperBound? (Colon arithmeticValue)?;
 
 integerLiteral: (Zero | nonZeroInteger) unit?;
 
-unit: Quote measureProduct measureDenominator? Quote;
+unit: Scalar | Quote measureProduct measureDenominator? Quote;
 
 measureProduct: localIdentifier*;
 

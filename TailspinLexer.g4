@@ -153,6 +153,8 @@ By: 'by';
 
 Collect: 'collect';
 
+Scalar: '"1"';
+
 Zero: '0';
 
 PositiveInteger: [1-9] Digits?;

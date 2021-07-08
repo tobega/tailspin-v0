@@ -6,6 +6,7 @@ import tailspin.java.JavaObject;
 import tailspin.types.Criterion;
 import tailspin.types.Measure;
 import tailspin.types.TaggedIdentifier;
+import tailspin.types.Unit;
 
 public class RangeMatch implements Criterion {
 
@@ -20,7 +21,7 @@ public class RangeMatch implements Criterion {
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
     try {
-      String unit = null;
+      Unit unit = null;
       if (lowerBound != null) {
         Object low = lowerBound.value.getResults(it, scope);
         if (low instanceof Measure m) unit = m.getUnit();

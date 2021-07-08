@@ -3,6 +3,7 @@ package tailspin.arithmetic;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
+import tailspin.types.Unit;
 
 public class ArithmeticOperation implements Value {
 
@@ -75,9 +76,11 @@ public class ArithmeticOperation implements Value {
     };
 
     private final boolean worksOnSameUnit;
+    private final boolean unchangedByScalar;
 
     Op(boolean worksOnSameUnit) {
       this.worksOnSameUnit = worksOnSameUnit;
+      this.unchangedByScalar = !worksOnSameUnit;
     }
 
     public abstract long apply(long left, long right);
@@ -85,7 +88,7 @@ public class ArithmeticOperation implements Value {
     public Object apply(Object left, Object right) {
       long lvalue;
       long rvalue;
-      String unit = null;
+      Unit unit = null;
       if (left instanceof Measure m) {
         lvalue = m.getValue();
         unit = m.getUnit();
@@ -94,7 +97,14 @@ public class ArithmeticOperation implements Value {
       }
       if (right instanceof Measure m) {
         rvalue = m.getValue();
-        unit = (unit == null || (worksOnSameUnit && unit.equals(m.getUnit()))) ? m.getUnit() : "";
+        if (unit == null
+            || (worksOnSameUnit && unit.equals(m.getUnit()))
+            || (unchangedByScalar && unit.equals(Unit.SCALAR))
+        ) {
+          unit = m.getUnit();
+        } else if (!unchangedByScalar || !m.getUnit().equals(Unit.SCALAR)) {
+          unit = Unit.UNKNOWN;
+        }
       } else {
         rvalue = (long) right;
       }
@@ -102,6 +112,7 @@ public class ArithmeticOperation implements Value {
       return unit == null ? result : new Measure(result, unit);
     }
   }
+
   @Override
   public Object getResults(Object it, Scope scope) {
     return op.apply(left.getResults(it, scope), right.getResults(it, scope));

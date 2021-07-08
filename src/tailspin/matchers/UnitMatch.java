@@ -3,11 +3,12 @@ package tailspin.matchers;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
 import tailspin.types.Measure;
+import tailspin.types.Unit;
 
 public class UnitMatch implements Criterion {
-  private final String unit;
+  private final Unit unit;
 
-  public UnitMatch(String unit) {
+  public UnitMatch(Unit unit) {
     this.unit = unit;
   }
 

@@ -5,23 +5,23 @@ import java.util.Objects;
 public class Measure {
 
   private final long value;
-  private final String unit;
+  private final Unit unit;
 
-  public Measure(long value, String unit) {
+  public Measure(long value, Unit unit) {
     this.value = value;
     this.unit = Objects.requireNonNull(unit);
   }
 
   @Override
   public String toString() {
-    return value + "\"" + unit + "\"";
+    return Long.toString(value) + unit;
   }
 
   public long getValue() {
     return value;
   }
 
-  public String getUnit() {
+  public Unit getUnit() {
     return unit;
   }
 
