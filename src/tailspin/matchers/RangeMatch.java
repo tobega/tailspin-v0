@@ -5,6 +5,7 @@ import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
 import tailspin.types.Criterion;
 import tailspin.types.Measure;
+import tailspin.types.TaggedIdentifier;
 
 public class RangeMatch implements Criterion {
 
@@ -62,6 +63,15 @@ public class RangeMatch implements Criterion {
         return Comparison.INCOMPARABLE;
       }
     }
+    if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
+      if (l.getTag().equals(r.getTag())) {
+        lhs = l.getValue();
+        rhs = r.getValue();
+      } else {
+        return Comparison.INCOMPARABLE;
+      }
+    }
+    if (lhs instanceof TaggedIdentifier t) lhs = t.getValue();
     if ((lhs instanceof String) && (rhs instanceof String)) {
       return Comparison.of(((String) lhs).compareTo((String) rhs));
     } else if ((lhs instanceof Number) && (rhs instanceof Number)) {

@@ -3,6 +3,7 @@ package tailspin.types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import tailspin.interpreter.Scope;
 import tailspin.matchers.ArrayMatch;
 import tailspin.matchers.DefinedMembrane;
 import tailspin.matchers.StructureMatch;
@@ -10,23 +11,48 @@ import tailspin.matchers.UnitMatch;
 
 public class DataDictionary {
 
-  private static final Membrane stringMatch = new Membrane() {
+  private static class TaggedIdentifierMembrane implements Membrane {
+    private final String tag;
+    private final Criterion baseType;
+
+    private TaggedIdentifierMembrane(String tag, Criterion baseType) {
+      this.tag = tag;
+      this.baseType = baseType;
+    }
+
     @Override
-    public Object permeate(Object toMatch) {
-      return (toMatch instanceof String) ? toMatch : null;
+    public Object permeate(Object candidate) {
+      if (candidate instanceof TaggedIdentifier t) {
+        if (t.getTag().equals(tag) && baseType.isMet(t.getValue(), null, null)) {
+          return t;
+        }
+      } else if (baseType.isMet(candidate, null, null)) {
+        return new TaggedIdentifier(tag, candidate);
+      }
+      return null;
+    }
+  }
+
+  private static final Criterion stringMatch = new Criterion() {
+    @Override
+    public boolean isMet(Object toMatch, Object it, Scope scope) {
+      return (toMatch instanceof String);
     }
   };
-  private static final Membrane arrayMatch = new DefinedMembrane(new ArrayMatch((t, i, s) -> true, List.of(), false), null, null);
-  private static final Membrane structureMatch = new DefinedMembrane(new StructureMatch(Map.of(), true), null, null);
+  private static final Membrane arrayMatch = new DefinedMembrane(new ArrayMatch((t, i, s) -> true, List.of(), false));
+  private static final Membrane structureMatch = new DefinedMembrane(new StructureMatch(Map.of(), true));
 
   public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
   public DataDictionary() {
   }
 
-  public static Membrane getDefaultTypeMembrane(Object data) {
+  private static Membrane getDefaultTypeMembrane(String key, Object data) {
+    if (data instanceof TaggedIdentifier t && t.getValue() instanceof String) {
+      return new TaggedIdentifierMembrane(t.getTag(), stringMatch);
+    }
     if (data instanceof String) {
-      return stringMatch;
+      return new TaggedIdentifierMembrane(key, stringMatch);
     }
     if (data instanceof TailspinArray) {
       return arrayMatch;
@@ -35,7 +61,7 @@ public class DataDictionary {
       return structureMatch;
     }
     if (data instanceof Measure m) {
-      return new DefinedMembrane(new UnitMatch(m.getUnit()), null, null);
+      return new DefinedMembrane(new UnitMatch(m.getUnit()));
     }
     return null;
   }
@@ -51,7 +77,7 @@ public class DataDictionary {
   public Object checkDataDefinition(String key, Object data) {
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
-      def = getDefaultTypeMembrane(data);
+      def = getDefaultTypeMembrane(key, data);
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
