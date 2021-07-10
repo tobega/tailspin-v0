@@ -2,7 +2,7 @@ package tailspin.types;
 
 import java.util.Map;
 
-public class TaggedIdentifier implements Processor {
+public class TaggedIdentifier extends Number implements Processor {
   private final String tag;
   private final Object value;
 
@@ -46,5 +46,27 @@ public class TaggedIdentifier implements Processor {
     } else {
       throw new UnsupportedOperationException("Unknown array message " + message);
     }
+  }
+
+  // Below is only for indexing arrays
+  @Override
+  public int intValue() {
+    if (value instanceof Long l) return l.intValue();
+    throw new IndexOutOfBoundsException("Cannot index by " + tag + ":" + value);
+  }
+
+  @Override
+  public long longValue() {
+    throw new UnsupportedOperationException("Cannot use tagged identifier " + tag + ":" + value + " for arithmetic");
+  }
+
+  @Override
+  public float floatValue() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public double doubleValue() {
+    throw new UnsupportedOperationException();
   }
 }

@@ -434,4 +434,20 @@ public class DataDictionary {
       runner.run(input, output, List.of());
     });
   }
+
+  @Test
+  void taggedNumberCanIndexArray() throws Exception {
+    String program = """
+    def a: {n: 2};
+    [5,6,7] -> $($a.n) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("6", output.toString(StandardCharsets.UTF_8));
+  }
 }
