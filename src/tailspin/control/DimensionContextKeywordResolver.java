@@ -27,7 +27,7 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
   }
 
   public Long resolveLowerRangeLimit(int index) {
-    if (!allowNegative && index <= 0) return 1L;
+    if (!allowNegative && index <= 0) index = 1;
     if (index > dimensionSize) return null;
     return (long) (index);
   }

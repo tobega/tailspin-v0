@@ -809,4 +809,18 @@ class Arrays {
 
     assertEquals("[1, a][2, a][3, a][1, g][2, g][3, g]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void reverseIterateEmpty() throws Exception {
+    String program =
+        "[] -> $(last..first:-1) -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[]", output.toString(StandardCharsets.UTF_8));
+  }
 }
