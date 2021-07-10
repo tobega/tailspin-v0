@@ -2,7 +2,7 @@
 // Simplest pancake sort
 
 templates pancakeSort
-  @: {stack: $, flips: 0};
+  @: {stack: $, flips: 0"1"};
   sink flip
     when <2..> do
       @pancakeSort.stack(1..$): $@pancakeSort.stack($..1:-1)...;
