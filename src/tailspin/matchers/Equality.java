@@ -16,7 +16,7 @@ public class Equality implements Criterion {
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
     Object required = value.getResults(it, scope);
-    if (toMatch instanceof Measure m && required instanceof Number) toMatch = m.getValue();
+    if (toMatch instanceof Measure m && !(required instanceof Measure)) toMatch = m.getValue();
     return Objects.deepEquals(toMatch, required);
   }
 }

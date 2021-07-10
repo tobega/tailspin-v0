@@ -55,7 +55,6 @@ public class RangeMatch implements Criterion {
   }
 
   private Comparison compare(Object lhs, Object rhs) {
-    if (lhs instanceof Measure m && rhs instanceof Number) lhs = m.getValue();
     if (lhs instanceof Measure l && rhs instanceof Measure r) {
       if (l.getUnit().equals(r.getUnit())) {
         lhs = l.getValue();
@@ -64,7 +63,9 @@ public class RangeMatch implements Criterion {
         return Comparison.INCOMPARABLE;
       }
     }
-    if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
+    else if (lhs instanceof Measure m) lhs = m.getValue();
+    else if (rhs instanceof Measure m) return Comparison.INCOMPARABLE;
+    else if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
       if (l.getTag().equals(r.getTag())) {
         lhs = l.getValue();
         rhs = r.getValue();
@@ -72,7 +73,8 @@ public class RangeMatch implements Criterion {
         return Comparison.INCOMPARABLE;
       }
     }
-    if (lhs instanceof TaggedIdentifier t) lhs = t.getValue();
+    else if (lhs instanceof TaggedIdentifier t) lhs = t.getValue();
+
     if ((lhs instanceof String) && (rhs instanceof String)) {
       return Comparison.of(((String) lhs).compareTo((String) rhs));
     } else if ((lhs instanceof Number) && (rhs instanceof Number)) {
