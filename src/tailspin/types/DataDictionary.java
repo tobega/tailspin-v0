@@ -97,7 +97,8 @@ public class DataDictionary {
     }
     Object permeated = def.permeate(data, scope);
     if (permeated == null) {
-      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data " + data);
+      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data "
+          + (data instanceof TaggedIdentifier t ? t.getTag() + ":" : "") + data);
     }
     return permeated;
   }

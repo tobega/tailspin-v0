@@ -45,7 +45,7 @@ public class ProcessorMessage extends Reference {
       if (message.equals("asBytes")) {
         return (it, params) -> BigInteger.valueOf((Long) receiver).toByteArray();
       } else {
-        throw new UnsupportedOperationException("Unknown array message " + message);
+        throw new UnsupportedOperationException("Unknown number message " + message);
       }
     } else if (receiver instanceof String) {
       if (message.equals("asCodePoints")) {
