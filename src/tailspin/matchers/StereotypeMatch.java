@@ -15,6 +15,6 @@ public class StereotypeMatch implements Criterion {
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
     Membrane stereotype = scope.getDataDefinition(identifier);
-    return stereotype.permeate(toMatch, scope) != null;
+    return stereotype.permeate(toMatch) != null;
   }
 }

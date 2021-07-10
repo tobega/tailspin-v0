@@ -21,12 +21,12 @@ public class DataDictionary {
     }
 
     @Override
-    public Object permeate(Object candidate, Scope scope) {
+    public Object permeate(Object candidate) {
       if (candidate instanceof TaggedIdentifier t) {
-        if (t.getTag().equals(tag) && baseType.isMet(t.getValue(), null, scope)) {
+        if (t.getTag().equals(tag) && baseType.isMet(t.getValue(), null, null)) {
           return t;
         }
-      } else if (baseType.isMet(candidate, null, scope)) {
+      } else if (baseType.isMet(candidate, null, null)) {
         return new TaggedIdentifier(tag, candidate);
       }
       return null;
@@ -47,8 +47,10 @@ public class DataDictionary {
     }
   };
 
-  private static final Membrane arrayMatch = new DefinedMembrane(new ArrayMatch((t, i, s) -> true, List.of(), false));
-  private static final Membrane structureMatch = new DefinedMembrane(new StructureMatch(Map.of(), true));
+  private static final Membrane arrayMatch = new DefinedMembrane(new ArrayMatch((t, i, s) -> true, List.of(), false),
+      null);
+  private static final Membrane structureMatch = new DefinedMembrane(new StructureMatch(Map.of(), true),
+      null);
 
   public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
@@ -75,7 +77,7 @@ public class DataDictionary {
       return structureMatch;
     }
     if (data instanceof Measure m) {
-      return new DefinedMembrane(new UnitMatch(m.getUnit()));
+      return new DefinedMembrane(new UnitMatch(m.getUnit()), null);
     }
     return null;
   }
@@ -88,14 +90,14 @@ public class DataDictionary {
     return dataDefinitions.get(identifier);
   }
 
-  public Object checkDataDefinition(String key, Object data, Scope scope) {
+  public Object checkDataDefinition(String key, Object data) {
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
       def = getDefaultTypeMembrane(key, data);
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
-    Object permeated = def.permeate(data, scope);
+    Object permeated = def.permeate(data);
     if (permeated == null) {
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data "
           + (data instanceof TaggedIdentifier t ? t.getTag() + ":" : "") + data);

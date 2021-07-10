@@ -779,7 +779,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     String identifier = ctx.localIdentifier().getText();
     AnyOf matcher = visitMatcher(ctx.matcher());
     dependencyCounters.peek().define(identifier);
-    return new DataDefinition(identifier, (it,scope) -> new DefinedMembrane(matcher));
+    return new DataDefinition(identifier, (it,scope) -> new DefinedMembrane(matcher, scope));
   }
 
   @Override

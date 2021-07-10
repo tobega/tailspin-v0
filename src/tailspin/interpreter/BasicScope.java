@@ -85,7 +85,7 @@ public class BasicScope extends Scope {
 
   @Override
   public Object checkDataDefinition(String key, Object data) {
-    return dataDictionary.checkDataDefinition(key, data, this);
+    return dataDictionary.checkDataDefinition(key, data);
   }
 
   public void copyDefinitions(Map<String, Object> to) {
