@@ -4,6 +4,7 @@ import java.util.regex.Pattern;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
+import tailspin.types.TaggedIdentifier;
 
 public class RegexpMatch implements Criterion {
   private final Value patternValue;
@@ -14,8 +15,8 @@ public class RegexpMatch implements Criterion {
 
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
-    if (!(toMatch instanceof String)) return false;
-    String stringToMatch = (String) toMatch;
+    if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
+    if (!(toMatch instanceof String stringToMatch)) return false;
     String pattern = (String) patternValue.getResults(it, scope);
     Pattern compiled =
         Pattern.compile(

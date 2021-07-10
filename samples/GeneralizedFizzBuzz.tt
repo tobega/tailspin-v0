@@ -1,4 +1,4 @@
-def input: {N: 110, words: [ { mod: 3, word: 'Fizz' }, { mod: 5, word: 'Buzz'}, {mod:7, word: 'Baxx'}]};
+def input: {N: 110"1", words: [ { mod: 3"1", word: 'Fizz' }, { mod: 5"1", word: 'Buzz'}, {mod:7"1", word: 'Baxx'}]};
 
 templates sayWords
   def i: $;
