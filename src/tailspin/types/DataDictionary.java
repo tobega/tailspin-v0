@@ -21,12 +21,12 @@ public class DataDictionary {
     }
 
     @Override
-    public Object permeate(Object candidate) {
+    public Object permeate(Object candidate, Scope scope) {
       if (candidate instanceof TaggedIdentifier t) {
-        if (t.getTag().equals(tag) && baseType.isMet(t.getValue(), null, null)) {
+        if (t.getTag().equals(tag) && baseType.isMet(t.getValue(), null, scope)) {
           return t;
         }
-      } else if (baseType.isMet(candidate, null, null)) {
+      } else if (baseType.isMet(candidate, null, scope)) {
         return new TaggedIdentifier(tag, candidate);
       }
       return null;
@@ -88,18 +88,18 @@ public class DataDictionary {
     return dataDefinitions.get(identifier);
   }
 
-  public Object checkDataDefinition(String key, Object data) {
+  public Object checkDataDefinition(String key, Object data, Scope scope) {
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
       def = getDefaultTypeMembrane(key, data);
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
-    data = def.permeate(data);
-    if (data == null) {
+    Object permeated = def.permeate(data, scope);
+    if (permeated == null) {
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data " + data);
     }
-    return data;
+    return permeated;
   }
 
   public boolean owns(String identifier) {

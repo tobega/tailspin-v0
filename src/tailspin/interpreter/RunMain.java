@@ -146,8 +146,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
       if (statement instanceof Test) {
         tests.add(new TestStatement((Test) statement, requiredDefinitions));
-      } else if (statement instanceof Definition) {
-        definitions.add(new DefinitionStatement((Definition) statement, requiredDefinitions));
+      } else if (statement instanceof Definition || statement instanceof DataDefinition) {
+        definitions.add(new DefinitionStatement(statement, requiredDefinitions));
       } else {
         statements.add(new TopLevelStatement(statement, requiredDefinitions));
       }
@@ -1377,7 +1377,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Expression statement = (Expression) visit(s);
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
       if (statement instanceof Definition) {
-        return new DefinitionStatement((Definition) statement, requiredDefinitions);
+        return new DefinitionStatement(statement, requiredDefinitions);
       } else {
         throw new UnsupportedOperationException("Only definitions are relevant in program modification");
       }

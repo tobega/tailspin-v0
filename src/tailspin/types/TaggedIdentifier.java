@@ -1,6 +1,8 @@
 package tailspin.types;
 
-public class TaggedIdentifier {
+import java.util.Map;
+
+public class TaggedIdentifier implements Processor {
   private final String tag;
   private final Object value;
 
@@ -33,5 +35,16 @@ public class TaggedIdentifier {
       return tag.equals(t.tag) && value.equals(t.value);
     }
     return value.equals(obj);
+  }
+
+  @Override
+  public Transform resolveMessage(String message, Map<String, Object> parameters) {
+    if (message.equals("hashCode")) {
+      return (it, params) -> value.hashCode();
+    } else if (message.equals("raw")) {
+      return (it, params) -> value;
+    } else {
+      throw new UnsupportedOperationException("Unknown array message " + message);
+    }
   }
 }

@@ -1063,6 +1063,9 @@ Bytes
 Relations
 * `$::count` returns the number of tuples in the relation.
 
+Tagged identifier
+* `$::raw` returns the raw untyped value without a tag.
+
 ## The Core System module
 The Core System module is provided by default to a main program and has no prefix. The module contains the following symbols:
 

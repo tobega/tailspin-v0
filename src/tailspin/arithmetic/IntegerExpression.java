@@ -3,6 +3,7 @@ package tailspin.arithmetic;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
+import tailspin.types.TaggedIdentifier;
 
 public class IntegerExpression implements Value {
   private final boolean isNegative;
@@ -22,7 +23,8 @@ public class IntegerExpression implements Value {
     if (value instanceof Measure m) {
       return isNegative ? new Measure(-m.getValue(), m.getUnit()) : m;
     }
-    throw new ArithmeticException("Not a number " + value);
+    throw new ArithmeticException("Not a number "
+        + ((value instanceof TaggedIdentifier t) ? t.getTag() + ":" : "") + value);
   }
 
   @Override

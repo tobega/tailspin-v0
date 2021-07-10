@@ -22,6 +22,10 @@ end calculator
 ' -> !OUT::write
 
 // parse arithmetic expression into an AST and then evaluate
+data binaryExpression <{left: <>, op: <>, right: <>}>
+data left <binaryExpression|"1">
+data right <binaryExpression|"1">
+
 templates variadicToBinary
   when <[](1)> do $(1) !
   otherwise [ { left: $(1), op: $(2), right: $(3)}, $(4..last)...] -> #
@@ -33,7 +37,8 @@ composer parseArithmetic
   rule addedTerm: (<WS>?) <'[+-]'> (<WS>?) <multiplication|term>
   rule multiplication: [<term> <multipliedTerm>+] -> variadicToBinary
   rule multipliedTerm: (<WS>?) <'[*/]'> (<WS>?) <term>
-  rule term: <INT|parentheses>
+  rule term: <scalar|parentheses>
+  rule scalar: <INT> -> ($)"1"
   rule parentheses: (<'\('> <WS>?) <addition|multiplication|term> (<WS>? <'\)'>)
 end parseArithmetic
 

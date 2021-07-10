@@ -43,6 +43,38 @@ public class DataDictionary {
   }
 
   @Test
+  void dataRunsBeforeDefinitions() throws IOException {
+    String program = """
+    data x <1..5>
+    def foo: {x: 6};
+    $foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void dataDefinitionsCanDependOnOtherDataDefinitions() throws IOException {
+    String program = """
+    data finger <1..5>
+    data x <finger>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void autotypedStringTermCorrectValue() throws IOException {
     String program = """
     {x: 'apple'} -> !OUT::write

@@ -15,16 +15,16 @@ templates collectVerticalLedArrays
 end collectVerticalLedArrays
 
 def digits: {|
-  { code: 64 + 5*8 + 7, digit: 0 },
-  { code: 8 + 1, digit: 1 },
-  { code: 64 + 3*8 + 6, digit: 2 },
-  { code: 64 + 3*8 + 3, digit: 3 },
-  { code: 7*8 + 1, digit: 4 },
-  { code: 64 + 6*8 + 3, digit: 5 },
-  { code: 64 + 6*8 + 7, digit: 6 },
-  { code: 64 + 8 + 1, digit: 7 },
-  { code: 64 + 7*8 + 7, digit: 8 },
-  { code: 64 + 7*8 + 3, digit: 9 }
+  { code: 64 + 5*8 + 7, digit: 0"1" },
+  { code: 8 + 1, digit: 1"1" },
+  { code: 64 + 3*8 + 6, digit: 2"1" },
+  { code: 64 + 3*8 + 3, digit: 3"1" },
+  { code: 7*8 + 1, digit: 4"1" },
+  { code: 64 + 6*8 + 3, digit: 5"1" },
+  { code: 64 + 6*8 + 7, digit: 6"1" },
+  { code: 64 + 8 + 1, digit: 7"1" },
+  { code: 64 + 7*8 + 7, digit: 8"1" },
+  { code: 64 + 7*8 + 3, digit: 9"1" }
 |};
 
 templates doScan
@@ -173,7 +173,7 @@ templates oneBitDifferences
 end oneBitDifferences
 
 def oneErrorDigits: {|
-  $digits... -> {by $.code -> oneBitDifferences -> (code: $), digit: $.digit}
+  $digits... -> {by $.code::raw -> oneBitDifferences -> (code: $), digit: $.digit}
 |};
 
 templates correct&{pos:}

@@ -1,5 +1,6 @@
 package tailspin.matchers;
 
+import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
 import tailspin.types.Membrane;
 
@@ -11,7 +12,7 @@ public class DefinedMembrane implements Membrane {
   }
 
   @Override
-  public Object permeate(Object candidate) {
-    return matcher.isMet(candidate, null, null) ? candidate : null;
+  public Object permeate(Object candidate, Scope scope) {
+    return matcher.isMet(candidate, null, scope) ? candidate : null;
   }
 }

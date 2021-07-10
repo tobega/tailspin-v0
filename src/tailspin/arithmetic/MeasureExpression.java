@@ -20,6 +20,6 @@ public class MeasureExpression implements Value {
     if (result instanceof Measure m) {
       return new Measure(m.getValue(), unit);
     }
-    return result;
+    return new Measure((Long) result, unit);
   }
 }

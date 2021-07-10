@@ -55,7 +55,7 @@ public class TransformScope extends NestedScope {
   @Override
   public Object checkDataDefinition(String key, Object data) {
     if (localDictionary.owns(key)) {
-      return localDictionary.checkDataDefinition(key, data);
+      return localDictionary.checkDataDefinition(key, data, this);
     } else {
       return super.checkDataDefinition(key, data);
     }
