@@ -234,7 +234,7 @@ class Numbers {
 
   @Test
   void dereferenceField() throws IOException {
-    String program = "def a: {x:5};\n $a.x + 2 -> !OUT::write";
+    String program = "def a: {x:5\"1\"};\n $a.x + 2 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -378,7 +378,11 @@ class Numbers {
   @Test
   void multiplicationSign() throws IOException {
     String program =
-        "1 * 2 -> !OUT::write\n" + "1 * -2 -> !OUT::write\n" + "-1 * -2 -> !OUT::write\n" + "-1 * 2 -> !OUT::write";
+        """
+            1 * 2 -> !OUT::write
+            1 * -2 -> !OUT::write
+            -1 * -2 -> !OUT::write
+            -1 * 2 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -391,10 +395,11 @@ class Numbers {
 
   @Test
   void truncateDivisionSign() throws IOException {
-    String program = "2 ~/ 1 -> !OUT::write\n"
-        + "-2 ~/ 1 -> !OUT::write\n"
-        + "-2 ~/ -1 -> !OUT::write\n"
-        + "2 ~/ -1 -> !OUT::write";
+    String program = """
+        2 ~/ 1 -> !OUT::write
+        -2 ~/ 1 -> !OUT::write
+        -2 ~/ -1 -> !OUT::write
+        2 ~/ -1 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

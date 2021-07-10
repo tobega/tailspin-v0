@@ -39,6 +39,14 @@ public class DataDictionary {
       return (toMatch instanceof String);
     }
   };
+
+  private static final Criterion numberMatch = new Criterion() {
+    @Override
+    public boolean isMet(Object toMatch, Object it, Scope scope) {
+      return (toMatch instanceof Long);
+    }
+  };
+
   private static final Membrane arrayMatch = new DefinedMembrane(new ArrayMatch((t, i, s) -> true, List.of(), false));
   private static final Membrane structureMatch = new DefinedMembrane(new StructureMatch(Map.of(), true));
 
@@ -51,8 +59,14 @@ public class DataDictionary {
     if (data instanceof TaggedIdentifier t && t.getValue() instanceof String) {
       return new TaggedIdentifierMembrane(t.getTag(), stringMatch);
     }
+    if (data instanceof TaggedIdentifier t && t.getValue() instanceof Long) {
+      return new TaggedIdentifierMembrane(t.getTag(), numberMatch);
+    }
     if (data instanceof String) {
       return new TaggedIdentifierMembrane(key, stringMatch);
+    }
+    if (data instanceof Long) {
+      return new TaggedIdentifierMembrane(key, numberMatch);
     }
     if (data instanceof TailspinArray) {
       return arrayMatch;

@@ -376,4 +376,30 @@ public class DataDictionary {
       runner.run(input, output, List.of());
     });
   }
+
+  @Test
+  void taggedNumberSameNameWorks() throws Exception {
+    String program = "{id: 1234, city: 'London'} -> { id: $.id } -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{id=1234}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedNumberOtherNameFails() {
+    String program = "{id: 1234, city_id: 3456} -> { id: $.city_id } -> !OUT::write";
+    assertThrows(Exception.class, () -> {
+      Tailspin runner =
+          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      runner.run(input, output, List.of());
+    });
+  }
 }

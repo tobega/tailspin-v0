@@ -758,7 +758,8 @@ class Arrays {
 
   @Test
   void projectionArray() throws IOException {
-    String program = "[{a: 1, b:5}, {a:2, b:2}] -> $({a:, b:, d: §.a+§.b}) -> !OUT::write";
+    String program =
+        "[{a: 1\"m\", b:5\"m\"}, {a:2\"m\", b:2\"m\"}] -> $({a:, b:, d: §.a+§.b}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -766,12 +767,15 @@ class Arrays {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=1, b=5, d=6}, {a=2, b=2, d=4}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals(
+        "[{a=1\"m\", b=5\"m\", d=6\"m\"}, {a=2\"m\", b=2\"m\", d=4\"m\"}]",
+        output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
   void grouping() throws IOException {
-    String program = "[{x: 1, y: 2}, {x:1, y: 3}] -> $(collect {ys: Sum&{of: :(y:)}} by $({x:})) -> !OUT::write";
+    String program =
+        "[{x: 1, y: 2\"1\"}, {x:1, y: 3\"1\"}] -> $(collect {ys: Sum&{of: :(y:)}} by $({x:})) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

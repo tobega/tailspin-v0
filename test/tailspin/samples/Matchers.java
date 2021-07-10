@@ -247,7 +247,7 @@ class Matchers {
 
   @Test
   void structureFieldMatchKeepsPerspectiveOfIt() throws Exception {
-    String program = "{ a: {x: 1, y:2}, b: 2 } -> \\(<{ b:<=$.a.y> }> 'yes'! <> 'no'!\\) -> !OUT::write";
+    String program = "{ a: {x: 1, y:2\"1\"}, b: 2\"1\" } -> \\(<{ b:<=$.a.y> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -260,7 +260,7 @@ class Matchers {
 
   @Test
   void deepStructureFieldMatchKeepsPerspectiveOfIt() throws Exception {
-    String program = "{ a: {x: 1, y:2}, b: 2 } -> \\(<{ a:<{y: <=$.b>}> }> 'yes'! <> 'no'!\\) -> !OUT::write";
+    String program = "{ a: {x: 1, y:2\"1\"}, b: 2\"1\" } -> \\(<{ a:<{y: <=$.b>}> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -273,7 +273,7 @@ class Matchers {
 
   @Test
   void deepStructureFieldMatchSuchThatChangesPerspectiveOfIt() throws Exception {
-    String program = "{ a: {x: 1, y:2}, b: 2 } -> \\(<{ a:<?($.y <$.x..>)> }> 'yes'! <> 'no'!\\) -> !OUT::write";
+    String program = "{ a: {x: 1\"1\", y:2\"1\"}, b: 2 } -> \\(<{ a:<?($.y <$.x..>)> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -801,7 +801,7 @@ class Matchers {
 
   @Test
   void arrayContainsSuchThatChangesPerspectiveOfIt() throws Exception {
-    String program = "[{x:1, y:1}] -> \\(<[<?($.x <=$.y>)>]> 'yes'! <> 'no'!\\) -> !OUT::write";
+    String program = "[{x:1\"1\", y:1\"1\"}] -> \\(<[<?($.x <=$.y>)>]> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

@@ -32,7 +32,7 @@ should have been used instead. This is deliberate in order to free the mind of p
     1. [Operator](#operator)
     1. [Projections and Lenses](#projections-and-lenses)
 1. [Matchers](#matchers)
-1. [Mutable state](#templates-state) (see also [Processors](#processors))
+1. [Mutable state](#mutable-state) (see also [Processors](#processors))
 1. [Parameters](#parameters)
 1. [Streams](#streams)
 1. [Arrays](#arrays)
@@ -135,6 +135,9 @@ Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 
 A value chain that yields a number can be used as an operand on either side of an operator, if it is eclosed in parentheses.
 
+NOTE: The example above shows the use of untyped numbers. Arithmetic is further restricted when numbers are typed as [measures](#measures), with a unit.
+Numbers typed as [tagged identifiers](#tagged-identifiers) cannot be used in arithmetic at all (but their raw values can be extracted and used).
+
 _Current limitations_: Only integers are supported.
 
 _Possible future directions_: Support for exact arithmetic with rational numbers.
@@ -148,10 +151,12 @@ The unit may contain one slash ('/') separating a numerator and a denominator. T
 a product of alphabetic symbols, each with an optional positive integer power.
 The symbols of a product should be separated with a space, e.g. `3"N m/s2"`.
 
-Arithmetic between a measure and scalar numbers will result in a measure of the same unit.
+Arithmetic between a measure and untyped numbers will result in a measure of the same unit.
 
-Comparing a measure to a scalar (with the scalar in the matcher) will work. Comparing measures will need
+Comparing a measure to an untyped number (with the untyped number in the matcher) will work. Comparing measures will need
 to have the same unit.
+
+There is a special unit, `"1"`, to define a scalar number. Scalars can be multiplied with other units, leaving the other unit unchanged on the result.
 
 When the resulting measure of arithmetic between measures cannot be inferred, you will need to
 parenthesize the expression and provide the new measure, e.g. `(4"J" + 3 "N m")"J"`
@@ -179,6 +184,8 @@ of the values `[1, 3]`, `[1, 4]`, `[2, 3]` and `[2, 4]`.
 A structure literal produces a [structure](#structures) value. It starts with a left brace, followed by
 literal key-value pairs or expressions generating [streams](#streams) of key-value pairs, separated by commas, and ends with a right brace.
 A literal key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
+
+NOTE: [Autotyping](#autotyping) and the [data dictionary](#data-dictionary) affects what things you can and cannot assign to a key.
 
 An example of an expression generating a stream of key-value pairs is a [deconstruct](#deconstructor)
  of a [dereferenced](#dereference) structure value. But as a convenience, you can just include the structure-valued
@@ -226,7 +233,7 @@ as, or a scope larger than (or outside), the scope where the dereference takes p
 
 A symbol may not change its value in the same scope, but it may be shadowed in a nested scope.
 
-Note that templates have a modifiable state value that can be dereferenced, see [templates state](#templates-state)
+Note that templates have a modifiable state value that can be dereferenced, see [mutable state](#mutable-state)
 
 ### Defined sources
 Sometimes you would like to just output a value from a [processor](#processors) or perform some complex operation without needing any particular input.
@@ -253,11 +260,11 @@ Some [sinks are defined](#defined-sinks) by the programmer. Others are defined b
 
 Sinks often entail [side effects](#side-effects)
 
-In templates, there is a special sink that sets the [templates state](#templates-state).
+In templates, there is a special sink that sets the [templates state](#mutable-state).
 
 ### Defined sinks
 Sometimes you would like to process a value before sending it to other sinks, e.g. the state of the surrounding [processor](#processors),
-or the surrounding [templates state](#templates-state), or just process a value before writing it to output.
+or the surrounding [templates state](#mutable-state), or just process a value before writing it to output.
 
 In such a case you can define a sink, which is very much like a [defined template](#defined-templates) except that
 the declaration starts with the word `sink` instead.
@@ -345,7 +352,10 @@ You cannot have an empty match block nor an empty templates object, but you can 
 Inside a templates object, sending to matchers can be used as an additional type of _value chain_ for most value productions.
 Note that the `#` to send to matchers ends the _value chain_ and the result at that point will be whatever the matchers and their blocks determine. If it is at the end of a statement it behaves as if it was followed by a `!` [emit marker](#emit-value).
 
-Templates have a special [mutable state value](#templates-state) which can be useful for iterative processing.
+Templates have a special [mutable state value](#mutable-state) which can be useful for iterative processing.
+
+NOTE: In the functioning of the templates you may need to define [local types](#local-types) that will only be valid
+within an execution of the templates, otherwise [autotyping](#autotyping) may interfere with following executions by creating global types.
 
 #### Defined templates
 Templates can be defined with an identifier as a top-level statement or inside another templates object.
@@ -371,7 +381,7 @@ followed by an optional identifier and an opening paranthesis,
 with the backslash-identifier sequence repeated before the closing parenthesisat the end,
 e.g. `$ -> \(<0> 'zero'!\)` or `$ -> \onlyZero(<0> 'zero'! \onlyZero)`. The example will output `zero` if `$` was `0` (but will not output anything at all otherwise).
 
-Of course, the identifier, if one is given, acts as a name for [templates state](#templates-state),
+Of course, the identifier, if one is given, acts as a name for [templates state](#mutable-state),
 otherwise only anonymous same-level state access is possible.
 
 #### Array templates
@@ -384,7 +394,7 @@ Multiple dimensions also work, provided that the array structure has at least as
 e.g `[[1,2,3],[4,5,6]] -> \[i;j]($ * $i + $j ! \)` gives `[[2,4,6],[9,12,15]]`
 
 Note that the array templates is currently not aware of the array other than that it has parameters for its indices,
-so each element is independently evaluated. This means that (at least currently) the [templates state](#templates-state)
+so each element is independently evaluated. This means that (at least currently) the [templates state](#mutable-state)
 is new for each element.
 
 As with inline templates, an optional name can be attached,
@@ -446,7 +456,7 @@ end time
 ```
 will print "73"
 
-A composer can have [state](#templates-state) that can be set initially as the first statement before the main pattern. It can be updated in skip compositions,
+A composer can have [state](#mutable-state) that can be set initially as the first statement before the main pattern. It can be updated in skip compositions,
 optionally with a value stream from a matcher. It can be accessed in the usual way.
 
 A composer must match the whole string, otherwise it will return a structure with a `composerFailed` element
@@ -497,7 +507,7 @@ e.g. `$(3; values: ; 5)` to get the 5th element of the values field of the third
 This can more conventionally be written as `$(3).values(5)`, which should be preferred when possible.
 
 While the above can be thought of as projections, we normally think of it as indexing into, or finding a position, in an
-array or a structure. As such, the above lenses may also be used to point out positions to change in [mutable state](#templates-state).
+array or a structure. As such, the above lenses may also be used to point out positions to change in [mutable state](#mutable-state).
 
 Other projections can only be used to get a, possibly transformed, view of an object. These are especially important for working
 with [relations](#relations) and relational algebra, where a "projection" is a transformation of the relation to only view
@@ -601,11 +611,17 @@ ended with a closing parenthesis, e.g. `<?($@ <=1>)>`. Several conditions can be
 
 Note that a condition will change the perspective of the _current value_ so that `$` will represent the value being matched by the closest enclosing matcher.
 
-### Defined stereotypes
-It is possible to define a named criterion (a stereotype), by the statement `stereotype _identifier_ <_condition_>`.
+### Defined types
+It is possible to define a named criterion (a type definition), by the statement `data _identifier_ <_condition_>`.
 The named criterion can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`
 
-## Templates state
+Note that [types](#types) can also be automatically defined. When you assign something to a key in a [structure](#structures)
+or a [keyed value](#keyed-values), a type with the same name as the key will be defined, if you haven't defined it yourself (see [autotyping](#autotyping))
+
+## Mutable state
+This section concerns mutable state that exists for the time of an invocation of a templates, for more permanent
+mutable state, see [Processors](#processors).
+
 A [templates](#templates) object has modifiable local temporary state, valid for the processing of one input value,
 which can be modified by the special identifier `@`, set as `@: _value chain_;` and dereferenced as `$@`. Optionally, or to access
 a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
@@ -732,6 +748,8 @@ A structure can be [deconstructed](#deconstructor) into a stream of keyed values
 The stream of keyed values can be captured into a [structure literal](#structure-literal) at some point.
 Of course, a keyed value is just a value and so may be captured in a definition or an array (in which case keys may, of course, repeat).
 
+NOTE: A value assigned to a key is affected by [autotyping](#autotyping), which may forbid the assignment or turn the value assigned into a [tagged identifier](#tagged-identifiers).
+
 When creating keyed values, the transform chain binds to the value, not the whole keyed value, e.g. `a: 1 -> (<1> 'yes')` will give the result `a: 'yes'`.
 To send the keyed value through a transform, put it in parentheses, so `(a: 1) -> ...{}` creates `{a: 1}`.
 
@@ -847,7 +865,7 @@ state that is kept over time (several accesses) and could possibly change.
 The processor object itself can be obtained and passed around as a value by dereferencing the associated identifier/state.
 To interact with the defined templates/sources/sinks of processors, you send [messages](#messages) to them.
 
-Internally in the processor, state is accessed like the [local state of templates](#templates-state), but with the processor name.
+Internally in the processor, state is accessed like the [local state of templates](#mutable-state), but with the processor name.
 The processor state is, however, permanent as long as the processor object is retained.
 
 A processor definition looks similar to a templates object but the definition starts with the word `processor` instead.
@@ -858,6 +876,9 @@ All templates defined are considered to be messages that the processor instance 
 Processors can have [parameters](#parameters) that modify their behaviour.
 
 By convention, a processor definition should have an identifier starting with a capital letter.
+
+A processor can often be thought of as being a "service", or even a "computer" in itself, so you may sometimes want to
+have [local type definitions](#local-types) inside it.
 
 ### Messages
 A message is sent to a processor by getting a reference to the processor and appending two colons and the message identifier,
@@ -934,9 +955,10 @@ be used as a state, with the same name as the processor. In that case, the templ
 
 ## Types
 Tailspin takes a practical approach to types, making it easy to use, yet trying to get the necessary support for
-program correctness that a good type system can provide.
+program correctness that a good type system can provide. The ideal is for types to be analyzed at compile time (or in static analysis),
+but it's better to get runtime type errors than unnoticed incorrect results.
 
-Basically, a type is anything you can identify with a [matcher](#matchers). The basic idea when it comes to compound
+Fundamentally, a type is anything you can identify with a [matcher](#matchers). The basic idea when it comes to compound
 data like [arrays](#arrays) and [structures](#structures) is that if it has the elements you need, all is good, it's
 fine if there is more (this is called structural typing). There are ways to declare that excess elements are not allowed
 if you need to, or that an element must not exist.
@@ -944,10 +966,12 @@ if you need to, or that an element must not exist.
 One thing to note is that a key of a [key-value pair](#keyed-values), which is also the name of an element in a
 [structure](#structures), is expected to be connected to a value of the same type wherever it is used, i.e. keys form a
 [data dictionary](#data-dictionary). When you do a join on [relations](#relations), values with the same name will
-be joined together in a "natural join".
+be joined together in a "natural join". If you don't specify a type in the [data dictionary](#data-dictionary),
+a type will automatically be assigned by [autotyping](#autotyping).
 
-Numbers in arithmetic expressions are in their bare state just scalar numbers, but they can be assigned a
-[unit of measure](#measures) which then defines their type as being of that measure.
+Numbers in arithmetic expressions are in their bare state just untyped numbers, but they can be assigned a
+[unit of measure](#measures) which then defines their type as being of that measure. An untyped number can also become
+a [tagged identifier](#tagged-identifiers).
 
 [Processor](#processors) instances are things that can carry state and they respond to messages. If an instance
 responds to the messages you need, all is good (this is known as duck-typing). A processor instance can change
@@ -955,12 +979,59 @@ its type as a result of processing messages, if it's defined to do so, see [type
 _Future work_: A way to match processors by their protocol, i.e. the messages they respond to.
 
 ### Data Dictionary
+A data dictionary is a collection of descriptions of all data elements you use in your program.
+
 A data type can be defined with a name, as part of a global data dictionary, by the statement starting with the word `data`,
 followed by an [identifier](#identifiers) and a [matcher](#matchers).
 E.g. `data adress <{number: <1..>, street: <'.*'>, town: <'.*'>}>`
 
 The defined data type can be used as a [matcher](#matchers), e.g. `<adress>`, but is also expected to be the data type of any
 [keyed-value](#keyed-values) or member of a [structure](#structures) that has key 'adress'.
+
+The data dictionary will also contain all [autotyped](#autotyping) definitions.
+
+There are also local data dictionaries to handle [local types](#local-types) that are valid only in a certain context, like
+the execution of [templates](#templates) or within a [processor](#processors)
+
+### Tagged identifiers
+A tagged identifier is a type that is used to identify something, e.g. a person or a city. It is tagged so that you cannot
+assign a person to a city (or vice-versa) by accident, for example.
+
+Tagging happens when you assign a [string](#string-literal) or an [untyped number](#arithmetic-expression) to a key
+in a [keyed value](#keyed-values) or a [structure](#structures)
+
+The following will not work: `{person: 'Pedro', city: 'Madrid'} -> {city: $.person}` because 'Pedro' has become tagged as an
+identifier of a person, while a city expects to be assigned an identifier of a city (or an untyped, or raw, string).
+
+Note that the tag does not always correspond to the key. In `{fruit: 'orange'} -> {bowl: $.fruit}` the bowl will be expecting to
+receive things tagged as fruit.
+
+### Local types
+In a context where you can have [mutable state](#mutable-state), you can also define local types. This can be useful
+for example in cases where your processing is general and the type may change between invocations, or where you need to
+translate between types in different modules.
+
+To declare a type as local, start with the 'data' keyword, followed by a comma-separated list of identifiers
+of local types, followed by the keyword 'local', e.g. `data max, min local` declares that 'max' and 'min' are to be local types.
+
+### Autotyping
+Fields in your [data structures](#structures) should have good names describing what they are.
+A type is also a description of what something is and you should have different types for different things.
+
+Autotyping helps you by making sure every field you use in a data structure is added to the [data dictionary](#data-dictionary)
+with an inferred type so that you don't make mistakes by assigning values of different types to the same field.
+You can, of course, always declare the type in the [data dictionary](#data-dictionary) yourself, or declare them
+as [local types](#local-types) if the autotyping rules don't do what you intended.
+
+Strings and untyped numbers are far too general to be considered useful in a data dictionary, so they will be
+autotyped as [tagged identifiers](#tagged-identifiers). Note that numeric identifiers cannot immediately be used
+in arithmetic.
+
+[Measures](#measures) (including scalars) will be autotyped as such and can be used in arithmetic.
+
+[Structures](#structures) and [arrays](#arrays) are currently only typed as structures and arrays respectively. In the future, this will become tighter.
+
+Other types are currently not autotyped.
 
 ## Built-in messages
 All objects

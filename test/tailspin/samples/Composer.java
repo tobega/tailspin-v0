@@ -14,10 +14,11 @@ import tailspin.Tailspin;
 class Composer {
   @Test
   void composeInt() throws IOException {
-    String program = "composer int\n"
-        + "<INT>\n"
-        + "end int\n"
-        + "'23' -> int -> \\(<=23> $!\\) -> $ + 12 -> !OUT::write";
+    String program = """
+        composer int
+        <INT>
+        end int
+        '23' -> int -> \\(<=23> $!\\) -> $ + 12 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -30,10 +31,11 @@ class Composer {
 
   @Test
   void composeEqualsLiteral() throws IOException {
-    String program = "composer eq\n"
-        + "<='Quo vadis?'>\n"
-        + "end eq\n"
-        + "'Quo vadis?' -> eq -> \\(<='Quo vadis?'> $!\\) -> 1 -> !OUT::write";
+    String program = """
+        composer eq
+        <='Quo vadis?'>
+        end eq
+        'Quo vadis?' -> eq -> \\(<='Quo vadis?'> $!\\) -> 1 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -46,10 +48,11 @@ class Composer {
 
   @Test
   void composeEqualsLiteralDoesNotMatch() throws IOException {
-    String program = "composer eq\n"
-        + "<='Quo vadis?'|INT>\n"
-        + "end eq\n"
-        + "'5' -> eq -> !OUT::write";
+    String program = """
+        composer eq
+        <='Quo vadis?'|INT>
+        end eq
+        '5' -> eq -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -62,11 +65,12 @@ class Composer {
 
   @Test
   void composeEqualsReference() throws IOException {
-    String program = "def who:'Quo vadis?';\n"
-        + "composer eq\n"
-        + "<=$who>\n"
-        + "end eq\n"
-        + "'Quo vadis?' -> eq -> \\(<='Quo vadis?'> $!\\) -> 1 -> !OUT::write";
+    String program = """
+        def who:'Quo vadis?';
+        composer eq
+        <=$who>
+        end eq
+        'Quo vadis?' -> eq -> \\(<='Quo vadis?'> $!\\) -> 1 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -79,11 +83,11 @@ class Composer {
 
   @Test
   void composeEqualsStateDelete() throws IOException {
-    String program = "composer eq\n"
-        + "@: 'Quo vadis?';"
-        + "<=^@>\n"
-        + "end eq\n"
-        + "'Quo vadis?' -> eq -> \\(<='Quo vadis?'> $!\\) -> 1 -> !OUT::write";
+    String program = """
+        composer eq
+        @: 'Quo vadis?';<=^@>
+        end eq
+        'Quo vadis?' -> eq -> \\(<='Quo vadis?'> $!\\) -> 1 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -96,10 +100,11 @@ class Composer {
 
   @Test
   void composeIntShouldWorkForZero() throws IOException {
-    String program = "composer int\n"
-        + "<INT>\n"
-        + "end int\n"
-        + "'0' -> int -> $ + 12 -> !OUT::write";
+    String program = """
+        composer int
+        <INT>
+        end int
+        '0' -> int -> $ + 12 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -112,10 +117,11 @@ class Composer {
 
   @Test
   void composeRegex() throws IOException {
-    String program = "composer all\n"
-        + "<'.*'>\n"
-        + "end all\n"
-        + "'Any text' -> all -> !OUT::write";
+    String program = """
+        composer all
+        <'.*'>
+        end all
+        'Any text' -> all -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -128,10 +134,11 @@ class Composer {
 
   @Test
   void composerWithKeywordName() throws IOException {
-    String program = "composer composer\n"
-        + "<'.*'>\n"
-        + "end composer\n"
-        + "'Any text' -> composer -> !OUT::write";
+    String program = """
+        composer composer
+        <'.*'>
+        end composer
+        'Any text' -> composer -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -144,20 +151,22 @@ class Composer {
 
   @Test
   void composerHasNotImportedName() {
-    String program = "composer my/all\n"
-        + "<'.*'>\n"
-        + "end my/all\n"
-        + "'Any text' -> my/all -> !OUT::write";
+    String program = """
+        composer my/all
+        <'.*'>
+        end my/all
+        'Any text' -> my/all -> !OUT::write""";
     assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
   }
 
   @Test
   void interpolateComposeRegex() throws IOException {
-    String program = "def any: '.*';\n"
-        + "composer all\n"
-        + "<'$any;'>\n"
-        + "end all\n"
-        + "'Any text' -> all -> !OUT::write";
+    String program = """
+        def any: '.*';
+        composer all
+        <'$any;'>
+        end all
+        'Any text' -> all -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -170,10 +179,11 @@ class Composer {
 
   @Test
   void composeSequence() throws IOException {
-    String program = "composer ab\n"
-        + "<'a'> <'b'>\n"
-        + "end ab\n"
-        + "'ab' -> ab -> '$;+' -> !OUT::write";
+    String program = """
+        composer ab
+        <'a'> <'b'>
+        end ab
+        'ab' -> ab -> '$;+' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -186,11 +196,14 @@ class Composer {
 
   @Test
   void composeMultilineSequence() throws IOException {
-    String program = "composer words\n"
-        + "<word>*"
-        + "rule word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'one two\n\nthree\nfour five six' -> words -> '$; ' -> !OUT::write";
+    String program = """
+        composer words
+        <word>*rule word: <~WS> (<WS>?)
+        end words
+        'one two
+
+        three
+        four five six' -> words -> '$; ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -203,10 +216,11 @@ class Composer {
 
   @Test
   void ignoreStuff() throws IOException {
-    String program = "composer int\n"
-        + "(<'Value: '>) <INT>\n"
-        + "end int\n"
-        + "'Value: 23' -> int -> $ + 12 -> !OUT::write";
+    String program = """
+        composer int
+        (<'Value: '>) <INT>
+        end int
+        'Value: 23' -> int -> $ + 12 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -219,10 +233,11 @@ class Composer {
 
   @Test
   void buildArray() throws IOException {
-    String program = "composer intArray\n"
-        + "[ [<INT>] (<','>) <INT> ]\n"
-        + "end intArray\n"
-        + "'1,2' -> intArray -> !OUT::write";
+    String program = """
+        composer intArray
+        [ [<INT>] (<','>) <INT> ]
+        end intArray
+        '1,2' -> intArray -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -235,10 +250,11 @@ class Composer {
 
   @Test
   void buildArray_placeCommaBeforeSkip() throws IOException {
-    String program = "composer intArray\n"
-        + "[ [<INT>] , (<','>) <INT> ]\n"
-        + "end intArray\n"
-        + "'1,2' -> intArray -> !OUT::write";
+    String program = """
+        composer intArray
+        [ [<INT>] , (<','>) <INT> ]
+        end intArray
+        '1,2' -> intArray -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -251,10 +267,11 @@ class Composer {
 
   @Test
   void buildArray_placeCommaAfterSkip() throws IOException {
-    String program = "composer intArray\n"
-        + "[ [<INT>] (<','>), <INT> ]\n"
-        + "end intArray\n"
-        + "'1,2' -> intArray -> !OUT::write";
+    String program = """
+        composer intArray
+        [ [<INT>] (<','>), <INT> ]
+        end intArray
+        '1,2' -> intArray -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -267,10 +284,11 @@ class Composer {
 
   @Test
   void buildArray_skipAfterLeftBrace() throws IOException {
-    String program = "composer intArray\n"
-        + "[ (<'='>) [<INT>] (<','>) <INT> ]\n"
-        + "end intArray\n"
-        + "'=1,2' -> intArray -> !OUT::write";
+    String program = """
+        composer intArray
+        [ (<'='>) [<INT>] (<','>) <INT> ]
+        end intArray
+        '=1,2' -> intArray -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -283,10 +301,11 @@ class Composer {
 
   @Test
   void buildArray_skipBeforeRightBrace() throws IOException {
-    String program = "composer intArray\n"
-        + "[ [<INT>] (<','>) <INT> (<'='>) ]\n"
-        + "end intArray\n"
-        + "'1,2=' -> intArray -> !OUT::write";
+    String program = """
+        composer intArray
+        [ [<INT>] (<','>) <INT> (<'='>) ]
+        end intArray
+        '1,2=' -> intArray -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -299,10 +318,11 @@ class Composer {
 
   @Test
   void failSkipped() throws IOException {
-    String program = "composer int\n"
-        + "(<'Value: '>) <INT>\n"
-        + "end int\n"
-        + "'23' -> int -> $ + 12 -> !OUT::write";
+    String program = """
+        composer int
+        (<'Value: '>) <INT>
+        end int
+        '23' -> int -> $ + 12 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -313,10 +333,11 @@ class Composer {
 
   @Test
   void failInt() throws IOException {
-    String program = "composer int\n"
-        + "(<'Value: '>) <INT>\n"
-        + "end int\n"
-        + "'Value: ' -> int -> $ + 12 -> !OUT::write";
+    String program = """
+        composer int
+        (<'Value: '>) <INT>
+        end int
+        'Value: ' -> int -> $ + 12 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -327,10 +348,11 @@ class Composer {
 
   @Test
   void failExtraSpace() throws IOException {
-    String program = "composer int\n"
-        + "<INT>\n"
-        + "end int\n"
-        + "'23 ' -> int -> $ + 12 -> !OUT::write";
+    String program = """
+        composer int
+        <INT>
+        end int
+        '23 ' -> int -> $ + 12 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -341,10 +363,11 @@ class Composer {
 
   @Test
   void composeWhitespace() throws IOException {
-    String program = "composer int\n"
-        + "<INT> (<WS>) <INT>\n"
-        + "end int\n"
-        + "'3 8' -> int -> $ + 12 -> !OUT::write";
+    String program = """
+        composer int
+        <INT> (<WS>) <INT>
+        end int
+        '3 8' -> int -> $ + 12 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -357,10 +380,12 @@ class Composer {
 
   @Test
   void multipleWhitespace() throws IOException {
-    String program = "composer int\n"
-        + "<INT> (<WS>) <INT>\n"
-        + "end int\n"
-        + "'3 \r\n\t 8' -> int -> $ + 12 -> !OUT::write";
+    String program = """
+        composer int
+        <INT> (<WS>) <INT>
+        end int
+        '3 \r
+        \t 8' -> int -> $ + 12 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -373,10 +398,11 @@ class Composer {
 
   @Test
   void optionalNamed() throws IOException {
-    String program = "composer int\n"
-        + "(<WS>?) <INT>\n"
-        + "end int\n"
-        + "'3' -> int -> $ + 12 -> !OUT::write";
+    String program = """
+        composer int
+        (<WS>?) <INT>
+        end int
+        '3' -> int -> $ + 12 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -389,10 +415,11 @@ class Composer {
 
   @Test
   void optionalRegex() throws IOException {
-    String program = "composer int\n"
-        + "(<'Value: '>?) <INT>\n"
-        + "end int\n"
-        + "'3' -> int -> $ + 12 -> !OUT::write";
+    String program = """
+        composer int
+        (<'Value: '>?) <INT>
+        end int
+        '3' -> int -> $ + 12 -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -405,10 +432,11 @@ class Composer {
 
   @Test
   void inverseWhitespace() throws IOException {
-    String program = "composer word\n"
-        + "<~WS> (<WS>) <~WS>\n"
-        + "end word\n"
-        + "'Hello World!' -> word -> ':$;:' -> !OUT::write";
+    String program = """
+        composer word
+        <~WS> (<WS>) <~WS>
+        end word
+        'Hello World!' -> word -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -421,10 +449,11 @@ class Composer {
 
   @Test
   void inverseRegex() throws IOException {
-    String program = "composer parts\n"
-        + "<~'def'> <~'z'>\n"
-        + "end parts\n"
-        + "'abcdefg' -> parts -> ':$;:' -> !OUT::write";
+    String program = """
+        composer parts
+        <~'def'> <~'z'>
+        end parts
+        'abcdefg' -> parts -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -437,11 +466,12 @@ class Composer {
 
   @Test
   void subrule() throws IOException {
-    String program = "composer words\n"
-        + "<word> <word>\n"
-        + "rule word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'Hello World!' -> words -> ':$;:' -> !OUT::write";
+    String program = """
+        composer words
+        <word> <word>
+        rule word: <~WS> (<WS>?)
+        end words
+        'Hello World!' -> words -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -454,11 +484,12 @@ class Composer {
 
   @Test
   void atLeastOne() throws IOException {
-    String program = "composer words\n"
-        + "<word>+\n"
-        + "rule word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'Hello World!' -> words -> ':$;:' -> !OUT::write";
+    String program = """
+        composer words
+        <word>+
+        rule word: <~WS> (<WS>?)
+        end words
+        'Hello World!' -> words -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -471,11 +502,12 @@ class Composer {
 
   @Test
   void atLeastOneFailsOnNone() throws IOException {
-    String program = "composer words\n"
-        + "<word>+\n"
-        + "word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'' -> words -> ':$;:' -> !OUT::write";
+    String program = """
+        composer words
+        <word>+
+        word: <~WS> (<WS>?)
+        end words
+        '' -> words -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -488,11 +520,12 @@ class Composer {
 
   @Test
   void any() throws IOException {
-    String program = "composer words\n"
-        + "<word>*\n"
-        + "rule word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'Hello World!' -> words -> ':$;:' -> !OUT::write";
+    String program = """
+        composer words
+        <word>*
+        rule word: <~WS> (<WS>?)
+        end words
+        'Hello World!' -> words -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -505,11 +538,12 @@ class Composer {
 
   @Test
   void anyNoneOk() throws IOException {
-    String program = "composer words\n"
-        + "<word>*\n"
-        + "rule word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'' -> words -> ':$;:' -> !OUT::write";
+    String program = """
+        composer words
+        <word>*
+        rule word: <~WS> (<WS>?)
+        end words
+        '' -> words -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -522,10 +556,11 @@ class Composer {
 
   @Test
   void buildStructure() throws IOException {
-    String program = "composer coords\n"
-        + "{ x: <INT> (<','>), y: <INT> }\n"
-        + "end coords\n"
-        + "'1,2' -> coords -> !OUT::write";
+    String program = """
+        composer coords
+        { x: <INT> (<','>), y: <INT> }
+        end coords
+        '1,2' -> coords -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -538,10 +573,11 @@ class Composer {
 
   @Test
   void buildArrayOfKeyValues() throws IOException {
-    String program = "composer coords\n"
-        + "[ x: <INT> (<','>), y: <INT> ]\n"
-        + "end coords\n"
-        + "'1,2' -> coords -> !OUT::write";
+    String program = """
+        composer coords
+        [ x: <INT> (<','>), y: <INT> ]
+        end coords
+        '1,2' -> coords -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -554,10 +590,11 @@ class Composer {
 
   @Test
   void buildArrayWithVariedContent() throws IOException {
-    String program = "composer coords\n"
-        + "[ 0, x: <INT> (<','>), {y: [<INT>]} ]\n"
-        + "end coords\n"
-        + "'1,2' -> coords -> !OUT::write";
+    String program = """
+        composer coords
+        [ 0, x: <INT> (<','>), {y: [<INT>]} ]
+        end coords
+        '1,2' -> coords -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -570,10 +607,11 @@ class Composer {
 
   @Test
   void buildStructure_noComma() throws IOException {
-    String program = "composer coords\n"
-        + "{ x: <INT> (<','>) y: <INT> }\n"
-        + "end coords\n"
-        + "'1,2' -> coords -> !OUT::write";
+    String program = """
+        composer coords
+        { x: <INT> (<','>) y: <INT> }
+        end coords
+        '1,2' -> coords -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -586,10 +624,11 @@ class Composer {
 
   @Test
   void buildStructure_placeCommaBeforeSkipMatcher() throws IOException {
-    String program = "composer coords\n"
-        + "{ x: <INT> ,(<','>) y: <INT> }\n"
-        + "end coords\n"
-        + "'1,2' -> coords -> !OUT::write";
+    String program = """
+        composer coords
+        { x: <INT> ,(<','>) y: <INT> }
+        end coords
+        '1,2' -> coords -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -602,10 +641,11 @@ class Composer {
 
   @Test
   void buildStructure_placeKeyBeforeSkipMatcher() throws IOException {
-    String program = "composer coords\n"
-        + "{ x: <INT> , y: (<','>) <INT> }\n"
-        + "end coords\n"
-        + "'1,2' -> coords -> !OUT::write";
+    String program = """
+        composer coords
+        { x: <INT> , y: (<','>) <INT> }
+        end coords
+        '1,2' -> coords -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -618,11 +658,12 @@ class Composer {
 
   @Test
   void dereferenceValue() throws IOException {
-    String program = "def val: 3;\n"
-        + "composer coords\n"
-        + "  { x: $val, y: <INT> }\n"
-        + "end coords\n"
-        + "'5' -> coords -> !OUT::write";
+    String program = """
+        def val: 3;
+        composer coords
+          { x: $val, y: <INT> }
+        end coords
+        '5' -> coords -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -635,10 +676,11 @@ class Composer {
 
   @Test
   void captureValue() throws IOException {
-    String program = "composer coords\n"
-        + "(def val: <INT>;) { x: $val }\n"
-        + "end coords\n"
-        + "'3' -> coords -> !OUT::write";
+    String program = """
+        composer coords
+        (def val: <INT>;) { x: $val }
+        end coords
+        '3' -> coords -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -651,11 +693,12 @@ class Composer {
 
   @Test
   void useCapturedValueInFollowingSubRule() throws IOException {
-    String program = "composer coords\n"
-        + "(def val: <INT>;) <struct>\n"
-        + "rule struct: { x: $val }\n"
-        + "end coords\n"
-        + "'3' -> coords -> !OUT::write";
+    String program = """
+        composer coords
+        (def val: <INT>;) <struct>
+        rule struct: { x: $val }
+        end coords
+        '3' -> coords -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -668,11 +711,12 @@ class Composer {
 
   @Test
   void exactAmount() throws IOException {
-    String program = "composer words\n"
-        + "<word>=2\n"
-        + "rule word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'Hello World!' -> words -> ':$;:' -> !OUT::write";
+    String program = """
+        composer words
+        <word>=2
+        rule word: <~WS> (<WS>?)
+        end words
+        'Hello World!' -> words -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -685,11 +729,12 @@ class Composer {
 
   @Test
   void exactAmountThrowsOnFewer() throws IOException {
-    String program = "composer words\n"
-        + "<word>=2\n"
-        + "word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'Hello!' -> words -> ':$;:' -> !OUT::write";
+    String program = """
+        composer words
+        <word>=2
+        word: <~WS> (<WS>?)
+        end words
+        'Hello!' -> words -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -700,11 +745,12 @@ class Composer {
 
   @Test
   void exactAmountThrowsOnMore() throws IOException {
-    String program = "composer words\n"
-        + "<word>=2\n"
-        + "word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'Hello wild World!' -> words -> ':$;:' -> !OUT::write";
+    String program = """
+        composer words
+        <word>=2
+        word: <~WS> (<WS>?)
+        end words
+        'Hello wild World!' -> words -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -715,11 +761,12 @@ class Composer {
 
   @Test
   void exactAmountNotGreedy() throws IOException {
-    String program = "composer words\n"
-        + "{ first: [<word>=2], last: <word> }\n"
-        + "rule word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'Hello wild World!' -> words -> !OUT::write";
+    String program = """
+        composer words
+        { first: [<word>=2], last: <word> }
+        rule word: <~WS> (<WS>?)
+        end words
+        'Hello wild World!' -> words -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -732,12 +779,13 @@ class Composer {
 
   @Test
   void exactAmountDereference() throws IOException {
-    String program = "def count: 2;\n"
-        + "composer words\n"
-        + "<word>=$count\n"
-        + "rule word: <~WS> (<WS>?)\n"
-        + "end words\n"
-        + "'Hello World!' -> words -> ':$;:' -> !OUT::write";
+    String program = """
+        def count: 2;
+        composer words
+        <word>=$count
+        rule word: <~WS> (<WS>?)
+        end words
+        'Hello World!' -> words -> ':$;:' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -750,11 +798,12 @@ class Composer {
 
   @Test
   void optionalSubSequence() throws IOException {
-    String program = "composer opt\n"
-        + "<level>? <INT>\n"
-        + "rule level: (<'\\+'>) [ <INT> ] (<'-'>)\n"
-        + "end opt\n"
-        + "'+7-5' -> opt -> !OUT::write";
+    String program = """
+        composer opt
+        <level>? <INT>
+        rule level: (<'\\+'>) [ <INT> ] (<'-'>)
+        end opt
+        '+7-5' -> opt -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -767,11 +816,12 @@ class Composer {
 
   @Test
   void optionalSubSequenceUnfulfilled() throws IOException {
-    String program = "composer opt\n"
-        + "<level>? <INT>\n"
-        + "rule level: (<'\\+'>) [ <INT> ] (<'-'>)\n"
-        + "end opt\n"
-        + "'5' -> opt -> !OUT::write";
+    String program = """
+        composer opt
+        <level>? <INT>
+        rule level: (<'\\+'>) [ <INT> ] (<'-'>)
+        end opt
+        '5' -> opt -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -785,11 +835,12 @@ class Composer {
   @Test
   void optionalSubSequencePartiallyFulfilled() throws IOException {
     String program =
-        "composer opt\n"
-            + "<level>? <INT>\n"
-            + "rule level: [ <INT> ] (<'\\+'>)\n"
-            + "end opt\n"
-            + "'5' -> opt -> !OUT::write";
+        """
+            composer opt
+            <level>? <INT>
+            rule level: [ <INT> ] (<'\\+'>)
+            end opt
+            '5' -> opt -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -802,11 +853,12 @@ class Composer {
 
   @Test
   void recurse() throws IOException {
-    String program = "composer recurse\n"
-        + "<level>\n"
-        + "rule level: (<'\\+'>) [ <level>? <INT> ] (<'-'>)\n"
-        + "end recurse\n"
-        + "'++7-5-' -> recurse -> !OUT::write";
+    String program = """
+        composer recurse
+        <level>
+        rule level: (<'\\+'>) [ <level>? <INT> ] (<'-'>)
+        end recurse
+        '++7-5-' -> recurse -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -820,13 +872,13 @@ class Composer {
   @Test
   void converter() throws IOException {
     String program =
-        "templates parity"
-            + "<?($ mod 2 <=1>)> 'odd' ! <> 'even' !\n"
-            + "end parity\n"
-            + "composer number\n"
-            + "<INT> -> parity\n"
-            + "end number\n"
-            + "['1', '56', '524', '43']... -> number -> '$; ' -> !OUT::write";
+        """
+            templates parity<?($ mod 2 <=1>)> 'odd' ! <> 'even' !
+            end parity
+            composer number
+            <INT> -> parity
+            end number
+            ['1', '56', '524', '43']... -> number -> '$; ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -840,14 +892,14 @@ class Composer {
   @Test
   void subRuleConverter() throws IOException {
     String program =
-        "templates parity"
-            + "<?($ mod 2 <=1>)> 'odd' ! <> 'even' !\n"
-            + "end parity\n"
-            + "composer number\n"
-            + "<mynum> -> parity\n"
-            + "rule mynum: <INT>\n"
-            + "end number\n"
-            + "['1', '56', '524', '43']... -> number -> '$; ' -> !OUT::write";
+        """
+            templates parity <?($ mod 2 <=1>)> 'odd' ! <> 'even' !
+            end parity
+            composer number
+            <mynum> -> parity
+            rule mynum: <INT>
+            end number
+            ['1', '56', '524', '43']... -> number -> '$; ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -861,13 +913,13 @@ class Composer {
   @Test
   void arrayConverter() throws IOException {
     String program =
-        "templates mul"
-            + "$(1) * $(2) !\n"
-            + "end mul\n"
-            + "composer numbers\n"
-            + "[ <INT> (<WS>) <INT> ] -> mul\n"
-            + "end numbers\n"
-            + "'5 7' -> numbers -> !OUT::write";
+        """
+            templates mul $(1) * $(2) !
+            end mul
+            composer numbers
+            [ <INT> (<WS>) <INT> ] -> mul
+            end numbers
+            '5 7' -> numbers -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -881,13 +933,13 @@ class Composer {
   @Test
   void structureConverter() throws IOException {
     String program =
-        "templates mul"
-            + "$.a * $.b !\n"
-            + "end mul\n"
-            + "composer numbers\n"
-            + "{ a:<INT> (<WS>), b:<INT> } -> mul\n"
-            + "end numbers\n"
-            + "'5 7' -> numbers -> !OUT::write";
+        """
+            templates mul $.a * $.b !
+            end mul
+            composer numbers
+            { a:<INT> (<WS>), b:<INT> } -> mul
+            end numbers
+            '5 7' -> numbers -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -901,12 +953,13 @@ class Composer {
   @Test
   void choice() throws IOException {
     String program =
-        "composer options\n"
-            + "<value>\n"
-            + "rule value: (<WS>?) <INT|'x[0-9a-f]'|array> (<WS>?)\n"
-            + "rule array: (<'\\('>) [ <value>* ] (<'\\)'>)\n"
-            + "end options\n"
-            + "['76', '( xb x5 45 (6))', 'x9']... -> options -> '$; ' -> !OUT::write";
+        """
+            composer options
+            <value>
+            rule value: (<WS>?) <INT|'x[0-9a-f]'|array> (<WS>?)
+            rule array: (<'\\('>) [ <value>* ] (<'\\)'>)
+            end options
+            ['76', '( xb x5 45 (6))', 'x9']... -> options -> '$; ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -921,10 +974,11 @@ class Composer {
   @Test
   void jsonNumber() throws IOException {
     String program =
-        "composer number\n"
-            + "<'-?(0|[1-9][0-9]*)(\\.[0-9]+)?((e|E)(\\+|-)?[0-9]+)?'>\n"
-            + "end number\n"
-            + "['10', '-5', '-7.3', '10e-7', '0.15e6']... -> number -> '$; ' -> !OUT::write";
+        """
+            composer number
+            <'-?(0|[1-9][0-9]*)(\\.[0-9]+)?((e|E)(\\+|-)?[0-9]+)?'>
+            end number
+            ['10', '-5', '-7.3', '10e-7', '0.15e6']... -> number -> '$; ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -938,11 +992,11 @@ class Composer {
   @Test
   void jsonString() throws IOException {
     String program =
-        "composer string\n"
-            + "(<'\"'>) <chars> -> '$...;'  (<'\"'>)\n"
-            + "rule chars: [ <'(\\\\\"|[^\"])'>* -> \\(<'\\\\\"'> '\"' ! <> $ !\\) ]"
-            + "end string\n"
-            + "'\"foo\\\"bar\"' -> string -> !OUT::write";
+        """
+            composer string
+            (<'"'>) <chars> -> '$...;'  (<'"'>)
+            rule chars: [ <'(\\\\"|[^"])'>* -> \\(<'\\\\"'> '"' ! <> $ !\\) ]end string
+            '"foo\\"bar"' -> string -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -955,10 +1009,11 @@ class Composer {
 
   @Test
   void composeStructureKey() throws IOException {
-    String program = "composer keyValue\n"
-        + "{ <~WS>: (<WS>) <~WS> }\n"
-        + "end keyValue\n"
-        + "'foo bar' -> keyValue -> !OUT::write";
+    String program = """
+        composer keyValue
+        { <~WS>: (<WS>) <~WS> }
+        end keyValue
+        'foo bar' -> keyValue -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -971,11 +1026,12 @@ class Composer {
 
   @Test
   void keyValueSubRule() throws IOException {
-    String program = "composer struct\n"
-        + "{ <keyValue>* }\n"
-        + "rule keyValue: <~WS>: (<WS>) <~WS> (<WS>?)\n"
-        + "end struct\n"
-        + "'foo bar baz qux' -> struct -> !OUT::write";
+    String program = """
+        composer struct
+        { <keyValue>* }
+        rule keyValue: <~WS>: (<WS>) <~WS> (<WS>?)
+        end struct
+        'foo bar baz qux' -> struct -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -988,11 +1044,12 @@ class Composer {
 
   @Test
   void composedKeyWithLiteralValue() throws IOException {
-    String program = "composer struct\n"
-        + "{ <keyValue>* }\n"
-        + "rule keyValue: <~WS>: 1 (<WS>?)\n"
-        + "end struct\n"
-        + "'foo bar baz qux' -> struct -> !OUT::write";
+    String program = """
+        composer struct
+        { <keyValue>* }
+        rule keyValue: <~WS>: 1 (<WS>?)
+        end struct
+        'foo bar baz qux' -> struct -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1005,11 +1062,12 @@ class Composer {
 
   @Test
   void emptyStructure() throws IOException {
-    String program = "composer struct\n"
-        + "{ <keyValue>* }\n"
-        + "rule keyValue: <~WS>: (<WS>) <~WS>\n"
-        + "end struct\n"
-        + "'' -> struct -> !OUT::write";
+    String program = """
+        composer struct
+        { <keyValue>* }
+        rule keyValue: <~WS>: (<WS>) <~WS>
+        end struct
+        '' -> struct -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1022,12 +1080,13 @@ class Composer {
 
   @Test
   void subRuleFollowingKeyValueSubRule() throws IOException {
-    String program = "composer struct\n"
-        + "<main>\n"
-        + "rule keyValue: <~WS>: (<WS>) <~WS> (<WS>?)\n"
-        + "rule main: { <keyValue>* }\n"
-        + "end struct\n"
-        + "'foo bar baz qux' -> struct -> !OUT::write";
+    String program = """
+        composer struct
+        <main>
+        rule keyValue: <~WS>: (<WS>) <~WS> (<WS>?)
+        rule main: { <keyValue>* }
+        end struct
+        'foo bar baz qux' -> struct -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1040,12 +1099,13 @@ class Composer {
 
   @Test
   void voidResult() throws IOException {
-    String program = "composer maybeA\n"
-        + "<a|not>\n"
-        + "rule a: <'[aA]'>\n"
-        + "rule not: (<'.'>)\n"
-        + "end maybeA\n"
-        + "['a', 'b', 'c', 'A']... -> maybeA -> !OUT::write";
+    String program = """
+        composer maybeA
+        <a|not>
+        rule a: <'[aA]'>
+        rule not: (<'.'>)
+        end maybeA
+        ['a', 'b', 'c', 'A']... -> maybeA -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1058,10 +1118,11 @@ class Composer {
 
   @Test
   void invertOptions() throws IOException {
-    String program = "composer foo\n"
-        + "<~'0'|'1'> <'0'|'1'>\n"
-        + "end foo\n"
-        + "['551' -> foo, '550' -> foo] -> !OUT::write";
+    String program = """
+        composer foo
+        <~'0'|'1'> <'0'|'1'>
+        end foo
+        ['551' -> foo, '550' -> foo] -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1074,10 +1135,11 @@ class Composer {
 
   @Test
   void matchCapturedValue() throws IOException {
-    String program = "composer bounds\n"
-        + "(def bound: <'.'>;) <~'$bound;'> (<'$bound;'>)\n"
-        + "end bounds\n"
-        + "'/word/' -> bounds -> !OUT::write";
+    String program = """
+        composer bounds
+        (def bound: <'.'>;) <~'$bound;'> (<'$bound;'>)
+        end bounds
+        '/word/' -> bounds -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1090,12 +1152,13 @@ class Composer {
 
   @Test
   void parameters() throws IOException {
-    String program = "composer split&{separator:}\n"
-        + "[ <token>* ]\n"
-        + "rule token: <~sep> (<sep>?)\n"
-        + "rule sep: <'$separator;'>\n"
-        + "end split\n"
-        + "'ab;cd;e' -> split&{separator:';'} -> !OUT::write";
+    String program = """
+        composer split&{separator:}
+        [ <token>* ]
+        rule token: <~sep> (<sep>?)
+        rule sep: <'$separator;'>
+        end split
+        'ab;cd;e' -> split&{separator:';'} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1108,11 +1171,11 @@ class Composer {
 
   @Test
   void recaptureValue() throws IOException {
-    String program = "composer bounds\n"
-        + "[<bounded>*]"
-        + "rule bounded: (def bound: <'.'>;) <~'$bound;'> (<'$bound;'>)\n"
-        + "end bounds\n"
-        + "'/word/;other;' -> bounds -> !OUT::write";
+    String program = """
+        composer bounds
+        [<bounded>*]rule bounded: (def bound: <'.'>;) <~'$bound;'> (<'$bound;'>)
+        end bounds
+        '/word/;other;' -> bounds -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1125,11 +1188,11 @@ class Composer {
 
   @Test
   void recaptureValueArray() throws IOException {
-    String program = "composer bounds\n"
-        + "[<bounded>*]"
-        + "rule bounded: [(def bound: <'.'>;) <~'$bound;'> (<'$bound;'>)]\n"
-        + "end bounds\n"
-        + "'/word/;other;' -> bounds -> !OUT::write";
+    String program = """
+        composer bounds
+        [<bounded>*]rule bounded: [(def bound: <'.'>;) <~'$bound;'> (<'$bound;'>)]
+        end bounds
+        '/word/;other;' -> bounds -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1142,11 +1205,11 @@ class Composer {
 
   @Test
   void captureValueArrayInSequenceScope() throws IOException {
-    String program = "composer foo\n"
-        + "<bar>"
-        + "rule bar: [(def bound: <'.'>;) <~'$bound;'>] (<'$bound;'>)\n"
-        + "end foo\n"
-        + "'/word/' -> foo -> !OUT::write";
+    String program = """
+        composer foo
+        <bar>rule bar: [(def bound: <'.'>;) <~'$bound;'>] (<'$bound;'>)
+        end foo
+        '/word/' -> foo -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1159,11 +1222,11 @@ class Composer {
 
   @Test
   void recaptureValueStructure() throws IOException {
-    String program = "composer bounds\n"
-        + "[<bounded>*]"
-        + "rule bounded: { (def bound: <'.'>;) a:<~'$bound;'> (<'$bound;'>)}\n"
-        + "end bounds\n"
-        + "'/word/' -> bounds -> !OUT::write";
+    String program = """
+        composer bounds
+        [<bounded>*]rule bounded: { (def bound: <'.'>;) a:<~'$bound;'> (<'$bound;'>)}
+        end bounds
+        '/word/' -> bounds -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1176,11 +1239,11 @@ class Composer {
 
   @Test
   void recaptureValueKeyValue() throws IOException {
-    String program = "composer bounds\n"
-        + "[<bounded>*]"
-        + "rule bounded: a: (def bound: <'.'>;) <~'$bound;'> (<'$bound;'>)\n"
-        + "end bounds\n"
-        + "'/word/' -> bounds -> !OUT::write";
+    String program = """
+        composer bounds
+        [<bounded>*]rule bounded: a: (def bound: <'.'>;) <~'$bound;'> (<'$bound;'>)
+        end bounds
+        '/word/' -> bounds -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1193,12 +1256,13 @@ class Composer {
 
   @Test
   void simpleState() throws IOException {
-    String program = "composer state\n"
-        + "@: 0;\n"
-        + "{ word: <hello>, flag: $@ }\n"
-        + "rule hello: <'.*'>\n"
-        + "end state\n"
-        + "'hello' -> state -> !OUT::write";
+    String program = """
+        composer state
+        @: 0;
+        { word: <hello>, flag: $@ }
+        rule hello: <'.*'>
+        end state
+        'hello' -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1211,12 +1275,13 @@ class Composer {
 
   @Test
   void setStateInRule() throws IOException {
-    String program = "composer state\n"
-        + "@: 0;\n"
-        + "{ word: <hello>, flag: $@ }\n"
-        + "rule hello: (@: 1;) <'.*'>\n"
-        + "end state\n"
-        + "'hello' -> state -> !OUT::write";
+    String program = """
+        composer state
+        @: 0;
+        { word: <hello>, flag: $@ }
+        rule hello: (@: 1;) <'.*'>
+        end state
+        'hello' -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1229,11 +1294,12 @@ class Composer {
 
   @Test
   void setStateFromMatch() throws IOException {
-    String program = "composer state\n"
-        + "<hello> $@\n"
-        + "rule hello: ({word: <'.*'>} -> @:$;)\n"
-        + "end state\n"
-        + "'hello' -> state -> !OUT::write";
+    String program = """
+        composer state
+        <hello> $@
+        rule hello: ({word: <'.*'>} -> @:$;)
+        end state
+        'hello' -> state -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1246,12 +1312,13 @@ class Composer {
 
   @Test
   void backtrack() throws IOException {
-    String program = "composer bt\n"
-        + "  <='a'|='aa'> <='ab'|='bc'>\n"
-        + "end bt\n"
-        + "\n"
-        + "'aabc' -> bt -> '$;\n"
-        + "' -> !OUT::write";
+    String program = """
+        composer bt
+          <='a'|='aa'> <='ab'|='bc'>
+        end bt
+
+        'aabc' -> bt -> '$;
+        ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1264,12 +1331,13 @@ class Composer {
 
   @Test
   void backtrackOneLessRepetitions() throws IOException {
-    String program = "composer bt\n"
-        + "  <='a'>+ <='abc'>\n"
-        + "end bt\n"
-        + "\n"
-        + "'aabc' -> bt -> '$;\n"
-        + "' -> !OUT::write";
+    String program = """
+        composer bt
+          <='a'>+ <='abc'>
+        end bt
+
+        'aabc' -> bt -> '$;
+        ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1282,12 +1350,13 @@ class Composer {
 
   @Test
   void backtrackRechooseLastRepetitions() throws IOException {
-    String program = "composer bt\n"
-        + "  <='ab'|='a'>+ <='bc'>\n"
-        + "end bt\n"
-        + "\n"
-        + "'aabc' -> bt -> '$;\n"
-        + "' -> !OUT::write";
+    String program = """
+        composer bt
+          <='ab'|='a'>+ <='bc'>
+        end bt
+
+        'aabc' -> bt -> '$;
+        ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1300,14 +1369,14 @@ class Composer {
 
   @Test
   void backtrackState() throws IOException {
-    String program = "composer bt\n"
-        + "  @:1;"
-        + "  <foo|='a'>+ $@ <='bc'>\n"
-        + "  rule foo: <='ab'> (@:2;)\n"
-        + "end bt\n"
-        + "\n"
-        + "'aabc' -> bt -> '$;\n"
-        + "' -> !OUT::write";
+    String program = """
+        composer bt
+          @:1;  <foo|='a'>+ $@ <='bc'>
+          rule foo: <='ab'> (@:2;)
+        end bt
+
+        'aabc' -> bt -> '$;
+        ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1320,14 +1389,14 @@ class Composer {
 
   @Test
   void backtrackAppendedState() throws IOException {
-    String program = "composer bt\n"
-        + "  @:[1];"
-        + "  <foo|='a'>+ $@ <='bc'>\n"
-        + "  rule foo: <='ab'> (..|@:2;)\n"
-        + "end bt\n"
-        + "\n"
-        + "'aabc' -> bt -> '$;\n"
-        + "' -> !OUT::write";
+    String program = """
+        composer bt
+          @:[1];  <foo|='a'>+ $@ <='bc'>
+          rule foo: <='ab'> (..|@:2;)
+        end bt
+
+        'aabc' -> bt -> '$;
+        ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1343,14 +1412,13 @@ class Composer {
    */
   @Test
   void backtrackIndexedState() throws IOException {
-    String program = "composer bt\n"
-        + "  @:[1..3 -> 0];"
-        + "  (<a|b>) $@"
-        + "  rule a: (<INT> -> @($): 1; <='a'>)\n"
-        + "  rule b: (<INT> -> @(1): $; <='b'>)\n"
-        + "end bt\n"
-        + "\n"
-        + "'2b' -> bt -> !OUT::write";
+    String program = """
+        composer bt
+          @:[1..3 -> 0];  (<a|b>) $@  rule a: (<INT> -> @($): 1; <='a'>)
+          rule b: (<INT> -> @(1): $; <='b'>)
+        end bt
+
+        '2b' -> bt -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1366,13 +1434,14 @@ class Composer {
    */
   @Test
   void regressionCannotParseRule() throws IOException {
-    String program = "composer bt\n"
-        + "  <foo> $@\n"
-        + "  rule foo: <='ab'> (@:2;)\n"
-        + "end bt\n"
-        + "\n"
-        + "'ab' -> bt -> '$;\n"
-        + "' -> !OUT::write";
+    String program = """
+        composer bt
+          <foo> $@
+          rule foo: <='ab'> (@:2;)
+        end bt
+
+        'ab' -> bt -> '$;
+        ' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1389,15 +1458,17 @@ class Composer {
   @Test
   void regressionDecodeRoman() throws IOException {
     String program =
-        "def digits: [(M:1000), (CM:900), (D:500), (CD:400), (C:100), (XC:90), (L:50), (XL:40), (X:10), (IX:9), (V:5), (IV:4), (I:1)];\n"
-            + "composer decodeRoman\n"
-            + "  @: 1;\n"
-            + "  [ <digit>* ] -> \\(@: 0; $... -> @: $@ + $; $@ !\\)\n"
-            + "  rule digit: <value>* (@: $@ + 1;)\n"
-            + "  rule value: <'$digits($@)::key;'> -> $digits($@)::value\n"
-            + "end decodeRoman\n"
-            + "\n"
-            + "'MMVIII' -> decodeRoman -> !OUT::write\n";
+        """
+            def digits: [(M:1000"1"), (CM:900"1"), (D:500"1"), (CD:400"1"), (C:100"1"), (XC:90"1"), (L:50"1"), (XL:40"1"), (X:10"1"), (IX:9"1"), (V:5"1"), (IV:4"1"), (I:1"1")];
+            composer decodeRoman
+              @: 1;
+              [ <digit>* ] -> \\(@: 0; $... -> @: $@ + $; $@ !\\)
+              rule digit: <value>* (@: $@ + 1;)
+              rule value: <'$digits($@)::key;'> -> $digits($@)::value
+            end decodeRoman
+
+            'MMVIII' -> decodeRoman -> !OUT::write
+            """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1410,13 +1481,13 @@ class Composer {
 
   @Test
   void positiveLookbehind() throws IOException {
-    String program = "composer foo\n"
-        + "  [<tar|not>*]"
-        + "  rule tar: <'(?<=s)tar'>\n"
-        + "  rule not: <~tar>\n"
-        + "end foo\n"
-        + "\n"
-        + "'startare' -> foo -> '$;' -> !OUT::write";
+    String program = """
+        composer foo
+          [<tar|not>*]  rule tar: <'(?<=s)tar'>
+          rule not: <~tar>
+        end foo
+
+        'startare' -> foo -> '$;' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1429,13 +1500,13 @@ class Composer {
 
   @Test
   void negativeLookbehind() throws IOException {
-    String program = "composer foo\n"
-        + "  [<tar|not>*]"
-        + "  rule tar: <'(?<!s)tar'>\n"
-        + "  rule not: <~tar>\n"
-        + "end foo\n"
-        + "\n"
-        + "'startare' -> foo -> '$;' -> !OUT::write";
+    String program = """
+        composer foo
+          [<tar|not>*]  rule tar: <'(?<!s)tar'>
+          rule not: <~tar>
+        end foo
+
+        'startare' -> foo -> '$;' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1448,13 +1519,13 @@ class Composer {
 
   @Test
   void noAnchorInTheMiddle() throws IOException {
-    String program = "composer foo\n"
-        + "  <bad|good>\n"
-        + "  rule bad: (<='s'>) <'^tar'>"
-        + "  rule good: <'.*'>\n"
-        + "end foo\n"
-        + "\n"
-        + "'star' -> foo -> '$;' -> !OUT::write";
+    String program = """
+        composer foo
+          <bad|good>
+          rule bad: (<='s'>) <'^tar'>  rule good: <'.*'>
+        end foo
+
+        'star' -> foo -> '$;' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1467,13 +1538,13 @@ class Composer {
 
   @Test
   void anchorAtStart() throws IOException {
-    String program = "composer foo\n"
-        + "  <good|bad>\n"
-        + "  rule good: (<'^s'>) <='tar'>"
-        + "  rule bad: <'.*'>\n"
-        + "end foo\n"
-        + "\n"
-        + "'star' -> foo -> '$;' -> !OUT::write";
+    String program = """
+        composer foo
+          <good|bad>
+          rule good: (<'^s'>) <='tar'>  rule bad: <'.*'>
+        end foo
+
+        'star' -> foo -> '$;' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1486,11 +1557,12 @@ class Composer {
 
   @Test
   void arithmeticOperationIsHeldTogetherAsTransform() throws IOException {
-    String program = "composer foo\n"
-        + "  (<'[a-z]'> -> $::asCodePoints -> $(1) - 96 -> @: $;) $@\n"
-        + "end foo\n"
-        + "\n"
-        + "'a' -> foo -> !OUT::write";
+    String program = """
+        composer foo
+          (<'[a-z]'> -> $::asCodePoints -> $(1) - 96 -> @: $;) $@
+        end foo
+
+        'a' -> foo -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1503,13 +1575,14 @@ class Composer {
 
   @Test
   void collector() throws IOException {
-    String program = "composer letters\n"
-        + "  <letter|not>+ -> ..=Count \n"
-        + "  rule letter: <'[a-z]'>\n"
-        + "  rule not: (<'.'>)\n"
-        + "end letters\n"
-        + "\n"
-        + "'a1bc2d' -> letters -> !OUT::write";
+    String program = """
+        composer letters
+          <letter|not>+ -> ..=Count\s
+          rule letter: <'[a-z]'>
+          rule not: (<'.'>)
+        end letters
+
+        'a1bc2d' -> letters -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
