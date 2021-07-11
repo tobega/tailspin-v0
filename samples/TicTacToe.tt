@@ -1,5 +1,5 @@
 processor Tic-Tac-Toe
-  @: [1..9];
+  @: [1..9 -> (position:$) -> $::value]; // TODO: simpler way to create tagged values?
 
   source isWonOrDone
     [$@Tic-Tac-Toe(1..3) -> #, $@Tic-Tac-Toe(4..6) -> #, $@Tic-Tac-Toe(7..9) -> #,
