@@ -64,6 +64,7 @@ public class RangeMatch implements Criterion {
       }
     }
     else if (lhs instanceof Measure m) lhs = m.getValue();
+    else if (lhs instanceof Number && rhs instanceof Measure m && m.getUnit().equals(Unit.SCALAR)) rhs = m.getValue();
     else if (rhs instanceof Measure m) return Comparison.INCOMPARABLE;
     else if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
       if (l.getTag().equals(r.getTag())) {
