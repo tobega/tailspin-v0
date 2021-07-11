@@ -133,7 +133,7 @@ Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 * subtraction `-`
 * parenthesized sub-expressions
 
-A value chain that yields a number can be used as an operand on either side of an operator, if it is eclosed in parentheses.
+A value chain that yields a number can be used as an operand on either side of an operator, if it is enclosed in parentheses.
 
 NOTE: The example above shows the use of untyped numbers. Arithmetic is further restricted when numbers are typed as [measures](#measures), with a unit.
 Numbers typed as [tagged identifiers](#tagged-identifiers) cannot be used in arithmetic at all (but their raw values can be extracted and used).
@@ -153,10 +153,10 @@ The symbols of a product should be separated with a space, e.g. `3"N m/s2"`.
 
 Arithmetic between a measure and untyped numbers will result in a measure of the same unit.
 
-Comparing a measure to an untyped number (with the untyped number in the matcher) will work. Comparing measures will need
-to have the same unit.
-
 There is a special unit, `"1"`, to define a scalar number. Scalars can be multiplied with other units, leaving the other unit unchanged on the result.
+
+Comparing a measure to an untyped number (with the untyped number in the matcher) will work. Comparing measures will need
+to have the same unit. An untyped number can be compared to a scalar when the scalar is in the matcher.
 
 When the resulting measure of arithmetic between measures cannot be inferred, you will need to
 parenthesize the expression and provide the new measure, e.g. `(4"J" + 3 "N m")"J"`
@@ -186,6 +186,7 @@ literal key-value pairs or expressions generating [streams](#streams) of key-val
 A literal key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
 
 NOTE: [Autotyping](#autotyping) and the [data dictionary](#data-dictionary) affects what things you can and cannot assign to a key.
+Also, you will not be able to retrieve an untyped string or number, it will either be a [tagged identifier](#tagged-identifiers) or a [measure](#measures).
 
 An example of an expression generating a stream of key-value pairs is a [deconstruct](#deconstructor)
  of a [dereferenced](#dereference) structure value. But as a convenience, you can just include the structure-valued

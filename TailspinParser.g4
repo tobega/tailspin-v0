@@ -85,7 +85,7 @@ relationLiteral: LeftBrace Else (structures (Comma structures)*)? Else RightBrac
 
 bytesLiteral: StartBytes byteValue (byteValue)* EndBytes;
 
-byteValue: Bytes | term;
+byteValue: Bytes | LeftParen valueProduction RightParen | operatorExpression;
 
 structures: structureLiteral
   | valueProduction
@@ -200,6 +200,7 @@ arithmeticValue: arithmeticExpression;
 
 arithmeticExpression: integerLiteral
   | LeftParen arithmeticExpression RightParen unit?
+  | term unit
   | additiveOperator? sourceReference
   | arithmeticExpression multiplicativeOperator arithmeticExpression
   | arithmeticExpression additiveOperator arithmeticExpression

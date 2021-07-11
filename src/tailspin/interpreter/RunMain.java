@@ -883,17 +883,20 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       }
       return value;
     }
+    if (ctx.term() != null && ctx.unit() != null) {
+      return new MeasureExpression(visitTerm(ctx.term()), visitUnit(ctx.unit()));
+    }
     if (ctx.additiveOperator() != null) {
       Value left = visitArithmeticExpression(ctx.arithmeticExpression(0));
       Value right = ctx.term() == null ? visitArithmeticExpression(ctx.arithmeticExpression(1))
-          : Value.of(visitTerm(ctx.term()));
+          : visitTerm(ctx.term());
       String operation = ctx.additiveOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
     if (ctx.multiplicativeOperator() != null) {
       Value left = visitArithmeticExpression(ctx.arithmeticExpression(0));
       Value right = ctx.term() == null ? visitArithmeticExpression(ctx.arithmeticExpression(1))
-          : Value.of(visitTerm(ctx.term()));
+          : visitTerm(ctx.term());
       String operation = ctx.multiplicativeOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
@@ -928,16 +931,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Value visitTermArithmeticOperation(TermArithmeticOperationContext ctx) {
     if (ctx.additiveOperator() != null) {
-      Value left = Value.of(visitTerm(ctx.term(0)));
+      Value left = visitTerm(ctx.term(0));
       Value right = ctx.arithmeticExpression() != null ? visitArithmeticExpression(ctx.arithmeticExpression())
-          : Value.of(visitTerm(ctx.term(1)));
+          : visitTerm(ctx.term(1));
       String operation = ctx.additiveOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
     if (ctx.multiplicativeOperator() != null) {
-      Value left = Value.of(visitTerm(ctx.term(0)));
+      Value left = visitTerm(ctx.term(0));
       Value right = ctx.arithmeticExpression() != null ? visitArithmeticExpression(ctx.arithmeticExpression())
-          : Value.of(visitTerm(ctx.term(1)));
+          : visitTerm(ctx.term(1));
       String operation = ctx.multiplicativeOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
@@ -945,12 +948,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Expression visitTerm(TermContext ctx) {
+  public Value visitTerm(TermContext ctx) {
     if (ctx.valueProduction() != null) {
-      return visitValueProduction(ctx.valueProduction());
+      return Value.of(visitValueProduction(ctx.valueProduction()));
     }
     if (ctx.operatorExpression() != null) {
-      return visitOperatorExpression(ctx.operatorExpression());
+      return Value.of(visitOperatorExpression(ctx.operatorExpression()));
     }
     throw new IllegalArgumentException("Unknown term type");
   }
@@ -966,7 +969,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Value visitOperand(OperandContext ctx) {
     if (ctx.term() != null) {
-      return Value.of(visitTerm(ctx.term()));
+      return visitTerm(ctx.term());
     }
     if (ctx.source() != null) {
       return Value.of(visitSource(ctx.source()));
@@ -993,7 +996,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else if (ctx.term() != null) {
-      bound = Value.of(visitTerm(ctx.term()));
+      bound = visitTerm(ctx.term());
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
@@ -1011,7 +1014,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else if (ctx.term() != null) {
-      bound = Value.of(visitTerm(ctx.term()));
+      bound = visitTerm(ctx.term());
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
@@ -1101,8 +1104,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       }
       return new BytesConstant(bytes);
     }
-    if (ctx.term() != null) {
-      return visitTerm(ctx.term());
+    if (ctx.LeftParen() != null) {
+      return visitValueProduction(ctx.valueProduction());
+    }
+    if (ctx.operatorExpression() != null) {
+      return visitOperatorExpression(ctx.operatorExpression());
     }
     throw new UnsupportedOperationException();
   }
