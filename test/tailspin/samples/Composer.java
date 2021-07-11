@@ -934,7 +934,7 @@ class Composer {
   void structureConverter() throws IOException {
     String program =
         """
-            templates mul $.a * $.b !
+            templates mul $.a::raw * $.b::raw !
             end mul
             composer numbers
             { a:<INT> (<WS>), b:<INT> } -> mul

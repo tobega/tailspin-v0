@@ -31,8 +31,7 @@ public class SubComposerFactory {
   }
 
   public SubComposer resolveSpec(CompositionSpec spec, Scope scope) {
-    if (spec instanceof NamedComposition) {
-      NamedComposition namedSpec = (NamedComposition) spec;
+    if (spec instanceof NamedComposition namedSpec) {
       String name = namedSpec.namedPattern;
       if (definedSequences.containsKey(name)) {
         return new ScopedSequenceSubComposer(definedSequences.get(name), scope);
@@ -42,8 +41,7 @@ public class SubComposerFactory {
       }
       return new RegexpSubComposer(namedPatterns.get(name), namedValueCreators.get(name));
     }
-    if (spec instanceof RegexComposition) {
-      RegexComposition regexSpec = (RegexComposition) spec;
+    if (spec instanceof RegexComposition regexSpec) {
       // Note that we do not allow regex interpolations to reference $. What would that even mean?
       return new RegexpSubComposer(
           Pattern.compile((String) regexSpec.pattern.getResults(null, scope)), Function.identity());
@@ -51,24 +49,20 @@ public class SubComposerFactory {
     if (spec instanceof SkipComposition) {
       return new SkipSubComposer(new SequenceSubComposer(((SkipComposition) spec).skipSpecs, scope, this::resolveSpec));
     }
-    if (spec instanceof ChoiceComposition) {
-      ChoiceComposition choiceSpec = (ChoiceComposition) spec;
+    if (spec instanceof ChoiceComposition choiceSpec) {
       return new ChoiceSubComposer(resolveSpecs(choiceSpec.choices, scope));
     }
-    if (spec instanceof ArrayComposition) {
-      ArrayComposition arraySpec = (ArrayComposition) spec;
+    if (spec instanceof ArrayComposition arraySpec) {
       return new ArraySubComposer(
           new SequenceSubComposer(arraySpec.itemSpecs, scope, this::resolveSpec));
     }
-    if (spec instanceof StructureComposition) {
-      StructureComposition structureSpec = (StructureComposition) spec;
+    if (spec instanceof StructureComposition structureSpec) {
       return new StructureSubComposer(
           new SequenceSubComposer(structureSpec.contents, scope, this::resolveSpec));
     }
-    if (spec instanceof KeyValueComposition) {
-      KeyValueComposition keyValueSpec = (KeyValueComposition) spec;
+    if (spec instanceof KeyValueComposition keyValueSpec) {
       return new KeyValueSubComposer(resolveSpec(keyValueSpec.key, scope),
-          new SequenceSubComposer(keyValueSpec.valueMatch, scope, this::resolveSpec));
+          new SequenceSubComposer(keyValueSpec.valueMatch, scope, this::resolveSpec), scope);
     }
     if (spec instanceof MultiplierComposition) {
       return new MultiplierSubComposer(
@@ -78,8 +72,7 @@ public class SubComposerFactory {
     if (spec instanceof DereferenceComposition) {
       return new DereferenceSubComposer(((DereferenceComposition) spec).source, scope);
     }
-    if (spec instanceof CaptureComposition) {
-      CaptureComposition captureComposition = (CaptureComposition) spec;
+    if (spec instanceof CaptureComposition captureComposition) {
       return new CaptureSubComposer(captureComposition.identifier, scope,
           resolveSpec(captureComposition.compositionSpec, scope));
     }
@@ -90,13 +83,11 @@ public class SubComposerFactory {
       return new InvertSubComposer(
           resolveSpec(((InverseComposition) spec).compositionSpec, scope));
     }
-    if (spec instanceof TransformComposition) {
-      TransformComposition transformSpec = (TransformComposition) spec;
+    if (spec instanceof TransformComposition transformSpec) {
       return new TransformSubComposer(resolveSpec(transformSpec.compositionSpec, scope),
           transformSpec.transform, scope);
     }
-    if (spec instanceof StateAssignmentComposition) {
-      StateAssignmentComposition stateSpec = (StateAssignmentComposition) spec;
+    if (spec instanceof StateAssignmentComposition stateSpec) {
       SubComposer value = stateSpec.value == null ? null : resolveSpec(stateSpec.value, scope);
       return new StateAssignmentSubComposer(value, stateSpec.stateAssignment,
           stateSpec.stateContext, scope);

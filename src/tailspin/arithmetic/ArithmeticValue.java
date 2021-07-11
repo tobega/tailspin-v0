@@ -16,7 +16,7 @@ public class ArithmeticValue implements Value {
   public Object getResults(Object it, Scope scope) {
     Object result = value.getResults(it, scope);
     if (result instanceof Measure m && m.getUnit().equals(Unit.UNKNOWN)) {
-      throw new ArithmeticException("Cannot infer type for expression " + value);
+      throw new ArithmeticException("Cannot infer unit of measure for expression " + value);
     }
     return result;
   }

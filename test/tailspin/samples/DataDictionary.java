@@ -450,4 +450,20 @@ public class DataDictionary {
 
     assertEquals("6", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void composedStructureIsAutotypedToNonArithmeticTaggedIdentifier() throws IOException {
+    String program = """
+    composer foo
+      { x: <INT> }
+    end foo
+    '1' -> foo -> $.x + 3 -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
 }
