@@ -464,6 +464,48 @@ public class DataDictionary {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(UnsupportedOperationException.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void collectedRelationStructureIsAutotypedToNonArithmeticTaggedIdentifier() throws IOException {
+    String program = """
+    processor Five
+      sink accumulate
+        !VOID
+      end accumulate
+      source result
+        5!
+      end result
+    end Five
+    {|{}|} -> $(collect {x: Five} by $) ... -> $.x + 3 -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(UnsupportedOperationException.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void collectedArrayStructureIsAutotypedToNonArithmeticTaggedIdentifier() throws IOException {
+    String program = """
+    processor Five
+      sink accumulate
+        !VOID
+      end accumulate
+      source result
+        5!
+      end result
+    end Five
+    [{}] -> $(collect {x: Five} by $) ... -> $.x + 3 -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(UnsupportedOperationException.class, () -> runner.run(input, output, List.of()));
   }
 }
