@@ -5,7 +5,7 @@ import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
 import tailspin.types.Measure;
-import tailspin.types.Unit;
+import tailspin.types.TaggedIdentifier;
 
 public class Equality implements Criterion {
   private final Value value;
@@ -17,11 +17,8 @@ public class Equality implements Criterion {
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
     Object required = value.getResults(it, scope);
-    if (toMatch instanceof Measure m && !(required instanceof Measure)) toMatch = m.getValue();
-    if (toMatch instanceof Number
-        && !(toMatch instanceof Measure)
-        && required instanceof Measure r
-        && r.getUnit().equals(Unit.SCALAR)) required = r.getValue();
+    if (toMatch instanceof Measure || toMatch instanceof TaggedIdentifier || required instanceof Measure || required instanceof TaggedIdentifier)
+      return RangeMatch.Comparison.EQUAL.equals(RangeMatch.compare(toMatch, required));
     return Objects.deepEquals(toMatch, required);
   }
 }

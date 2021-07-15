@@ -29,6 +29,9 @@ become auto-typed identifiers. Proposed syntax for units is double quotes around
 where numbers are powers, space is multiplication and there is one slash allowed for division,
 e.g. `"kg m2/s2"` or the inverse `"s2/kg m2"`
 
+#### Confusing
+* items with different field names just compare unequal. Perhaps should error? You can always type match first.
+
 ### Exceptions
 Proposed syntax is
 ```

@@ -155,8 +155,10 @@ Arithmetic between a measure and untyped numbers will result in a measure of the
 
 There is a special unit, `"1"`, to define a scalar number. Scalars can be multiplied with other units, leaving the other unit unchanged on the result.
 
-Comparing a measure to an untyped number (with the untyped number in the matcher) will work. Comparing measures will need
-to have the same unit. An untyped number can be compared to a scalar when the scalar is in the matcher.
+* Comparing a measure to an untyped number (with the untyped number in the matcher) will work.
+* Comparing measures with a measure of the same unit works.
+* Comparing a measure to a measure of different unit is an error. If you need to do this, first type match on the unit, e.g. `<"m" ?($ <=3"m">)>`.
+* An untyped number can be compared to a scalar when the scalar is in the matcher.
 
 When the resulting measure of arithmetic between measures cannot be inferred, you will need to
 parenthesize the expression and provide the new measure, e.g. `(4"J" + 3 "N m")"J"`
@@ -537,8 +539,9 @@ executed for that _current value_.
 * Empty criterion, `<>`, matches anything.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
-* Matching a defined data type, is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
-* Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`
+* Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
+* Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`. See the [measure](#measures) documentation for rules of how measures match equality and ranges.
+* Tags (of [tagged identifiers](#tagged-identifiers)) can be tested by name, like [defined data types](#defined-types). See the [tagged identifier](#tagged-identifiers) documentation for rules of how tagged identifiers match equality, ranges and regular expressions.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
  the range operator on the side(s) where the bound is not included. E.g.
   * `<2..5>` for "between 2 and 5 inclusive"
@@ -1006,6 +1009,11 @@ identifier of a person, while a city expects to be assigned an identifier of a c
 
 Note that the tag does not always correspond to the key. In `{fruit: 'orange'} -> {bowl: $.fruit}` the bowl will be expecting to
 receive things tagged as fruit.
+
+* Comparing a tagged number to an untyped number or untyped range works.
+* Comparing a tagged string to a raw string, raw string range or regex match works.
+* Comparing tagged strings with same tag works.
+* Comparing tagged strings with different tags is an error. If you need to do this, first check the tag, e.g. `<fruit ?(<=$plate.fruit>)>`
 
 ### Local types
 In a context where you can have [mutable state](#mutable-state), you can also define local types. This can be useful

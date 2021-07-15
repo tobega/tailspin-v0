@@ -40,7 +40,7 @@ public class TaggedIdentifier extends Number implements Processor {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("hashCode")) {
-      return (it, params) -> value.hashCode();
+      return (it, params) -> hashCode();
     } else if (message.equals("raw")) {
       return (it, params) -> value;
     } else {

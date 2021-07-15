@@ -1,8 +1,9 @@
 package tailspin.types;
 
+import java.util.Map;
 import java.util.Objects;
 
-public class Measure extends Number {
+public class Measure extends Number implements Processor {
 
   private final long value;
   private final Unit unit;
@@ -40,6 +41,17 @@ public class Measure extends Number {
   @Override
   public int hashCode() {
     return Objects.hash(value, unit);
+  }
+
+  @Override
+  public Transform resolveMessage(String message, Map<String, Object> parameters) {
+    if (message.equals("hashCode")) {
+      return (it, params) -> hashCode();
+    } else if (message.equals("raw")) {
+      return (it, params) -> value;
+    } else {
+      throw new UnsupportedOperationException("Unknown array message " + message);
+    }
   }
 
   // Below is only for array indexing
