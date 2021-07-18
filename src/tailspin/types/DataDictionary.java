@@ -5,33 +5,11 @@ import java.util.List;
 import java.util.Map;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.ArrayMatch;
-import tailspin.matchers.DefinedMembrane;
 import tailspin.matchers.StructureMatch;
+import tailspin.matchers.TaggedIdentifierMembrane;
 import tailspin.matchers.UnitMatch;
 
 public class DataDictionary {
-
-  private static class TaggedIdentifierMembrane implements Membrane {
-    private final String tag;
-    private final Criterion baseType;
-
-    private TaggedIdentifierMembrane(String tag, Criterion baseType) {
-      this.tag = tag;
-      this.baseType = baseType;
-    }
-
-    @Override
-    public Object permeate(Object candidate) {
-      if (candidate instanceof TaggedIdentifier t) {
-        if (t.getTag().equals(tag) && baseType.isMet(t.getValue(), null, null)) {
-          return t;
-        }
-      } else if (baseType.isMet(candidate, null, null)) {
-        return new TaggedIdentifier(tag, candidate);
-      }
-      return null;
-    }
-  }
 
   private static final Criterion stringMatch = new Criterion() {
     @Override
@@ -59,16 +37,16 @@ public class DataDictionary {
 
   private static Membrane getDefaultTypeMembrane(String key, Object data) {
     if (data instanceof TaggedIdentifier t && t.getValue() instanceof String) {
-      return new TaggedIdentifierMembrane(t.getTag(), stringMatch);
+      return new TaggedIdentifierMembrane(t.getTag(), stringMatch, null);
     }
     if (data instanceof TaggedIdentifier t && t.getValue() instanceof Long) {
-      return new TaggedIdentifierMembrane(t.getTag(), numberMatch);
+      return new TaggedIdentifierMembrane(t.getTag(), numberMatch, null);
     }
     if (data instanceof String) {
-      return new TaggedIdentifierMembrane(key, stringMatch);
+      return new TaggedIdentifierMembrane(key, stringMatch, null);
     }
     if (data instanceof Long) {
-      return new TaggedIdentifierMembrane(key, numberMatch);
+      return new TaggedIdentifierMembrane(key, numberMatch, null);
     }
     if (data instanceof TailspinArray) {
       return arrayMatch;
@@ -107,5 +85,20 @@ public class DataDictionary {
 
   public boolean owns(String identifier) {
     return dataDefinitions.containsKey(identifier);
+  }
+
+  private static class DefinedMembrane implements Membrane {
+    private final Criterion matcher;
+    private final Scope definingScope;
+
+    public DefinedMembrane(Criterion matcher, Scope definingScope) {
+      this.matcher = matcher;
+      this.definingScope = definingScope;
+    }
+
+    @Override
+    public Object permeate(Object candidate) {
+      return matcher.isMet(candidate, null, definingScope) ? candidate : null;
+    }
   }
 }
