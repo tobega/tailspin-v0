@@ -549,6 +549,40 @@ public class DataDictionary {
   }
 
   @Test
+  void sourceDefinedAsSameTagWorks() throws Exception {
+    String program = """
+    data name <'.*'>
+    data city <name>
+    {name: 'John', city: 'London'} -> { name: $.city } -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{name=London}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void destinationDefinedAsSameTagWorks() throws Exception {
+    String program = """
+    data city <'.*'>
+    data name <city>
+    {name: 'John', city: 'London'} -> { name: $.city } -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{name=London}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void taggedNumberSameNameWorks() throws Exception {
     String program = "{id: 1234, city: 'London'} -> { id: $.id } -> !OUT::write";
     Tailspin runner =

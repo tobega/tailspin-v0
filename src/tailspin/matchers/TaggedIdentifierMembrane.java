@@ -13,6 +13,13 @@ public class TaggedIdentifierMembrane implements Membrane {
 
   public TaggedIdentifierMembrane(String tag, Criterion baseType,
       Scope definingScope) {
+    // Hackish :-/
+    if (baseType instanceof AnyOf a
+        && !a.invert && a.alternativeCriteria.size() == 1
+        && a.alternativeCriteria.get(0) instanceof ValueMatcher v
+        && v.basicCriterion instanceof StereotypeMatch s) {
+      tag = s.identifier;
+    }
     this.tag = tag;
     this.baseType = baseType;
     this.definingScope = definingScope;

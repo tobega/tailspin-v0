@@ -6,8 +6,8 @@ import tailspin.types.Criterion;
 
 public class AnyOf implements Criterion {
 
-  private final boolean invert;
-  private final List<Criterion> alternativeCriteria;
+  final boolean invert;
+  final List<Criterion> alternativeCriteria;
 
   public AnyOf(boolean invert, List<Criterion> alternativeCriteria) {
     this.invert = invert;

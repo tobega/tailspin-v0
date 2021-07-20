@@ -6,7 +6,7 @@ import tailspin.types.Membrane;
 
 public class StereotypeMatch implements Criterion {
 
-  private final String identifier;
+  final String identifier;
 
   public StereotypeMatch(String identifier) {
     this.identifier = identifier;
