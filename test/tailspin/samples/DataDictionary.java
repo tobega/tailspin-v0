@@ -282,56 +282,6 @@ public class DataDictionary {
   }
 
   @Test
-  void autotypedArrayIsNotTagged() throws IOException {
-    String program = """
-    {x: ['apple'], y: ['banana']} ->
-    {x: $.y} -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{x=[banana]}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void definedSourceArrayIsNotTagged() throws IOException {
-    String program = """
-    data y <[]>
-    {x: ['apple'], y: ['banana']} ->
-    {x: $.y} -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{x=[banana]}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void definedDestinationArrayIsNotTagged() throws IOException {
-    String program = """
-    data x <[]>
-    {x: ['apple'], y: ['banana']} ->
-    {x: $.y} -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{x=[banana]}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void autotypedArrayTermConflict() throws IOException {
     String program = """
     {x: ['apple']} -> !OUT::write
@@ -359,56 +309,6 @@ public class DataDictionary {
     runner.run(input, output, List.of());
 
     assertEquals("{x={fruit=apple}}{x={days=2}}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void autotypedStructureIsNotTagged() throws IOException {
-    String program = """
-    {x: {fruit: 'apple'}, y: {fruit: 'banana'} } ->
-    {x: $.y} -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{x={fruit=banana}}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void definedSourceStructureIsNotTagged() throws IOException {
-    String program = """
-    data y <{fruit: <>}>
-    {x: {fruit: 'apple'}, y: {fruit: 'banana'} } ->
-    {x: $.y} -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{x={fruit=banana}}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void definedDestinationStructureIsNotTagged() throws IOException {
-    String program = """
-    data x <{fruit: <>}>
-    {x: {fruit: 'apple'}, y: {fruit: 'banana'} } ->
-    {x: $.y} -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{x={fruit=banana}}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -484,203 +384,43 @@ public class DataDictionary {
   }
 
   @Test
-  void taggedStringSameNameWorks() throws Exception {
-    String program = "{name: 'John', city: 'London'} -> { name: $.name } -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{name=John}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void taggedStringOtherNameFails() {
-    String program = "{name: 'John', city: 'London'} -> { name: $.city } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
-      Tailspin runner =
-          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      runner.run(input, output, List.of());
-    });
-  }
-
-  @Test
-  void definedStringSameNameWorks() throws Exception {
-    String program = "data name <'.*'> {name: 'John', city: 'London'} -> { name: $.name } -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{name=John}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void definedStringAsOtherNameFails() {
-    String program = "data city <'.*'> {name: 'John', city: 'London'} -> { name: $.city } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
-      Tailspin runner =
-          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      runner.run(input, output, List.of());
-    });
-  }
-
-  @Test
-  void definedStringFromOtherNameFails() {
-    String program = "data city <'.*'> {name: 'John', city: 'London'} -> { city: $.name } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
-      Tailspin runner =
-          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      runner.run(input, output, List.of());
-    });
-  }
-
-  @Test
-  void sourceDefinedAsSameTagWorks() throws Exception {
-    String program = """
-    data name <'.*'>
-    data city <name>
-    {name: 'John', city: 'London'} -> { name: $.city } -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{name=London}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void destinationDefinedAsSameTagWorks() throws Exception {
-    String program = """
-    data city <'.*'>
-    data name <city>
-    {name: 'John', city: 'London'} -> { name: $.city } -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{name=London}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void taggedNumberSameNameWorks() throws Exception {
-    String program = "{id: 1234, city: 'London'} -> { id: $.id } -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{id=1234}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void taggedNumberOtherNameFails() {
-    String program = "{id: 1234, city_id: 3456} -> { id: $.city_id } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
-      Tailspin runner =
-          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      runner.run(input, output, List.of());
-    });
-  }
-
-  @Test
-  void definedNumberSameNameWorks() throws Exception {
-    String program = "data id <1000..9999> {id: 1234, city: 'London'} -> { id: $.id } -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{id=1234}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void definedNumberAsOtherNameFails() {
-    String program = "data id <1000..9999> {id: 1234, city_id: 3456} -> { city_id: $.id } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
-      Tailspin runner =
-          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      runner.run(input, output, List.of());
-    });
-  }
-
-  @Test
-  void definedNumberFromOtherNameFails() {
-    String program = "data id <1000..9999> {id: 1234, city_id: 3456} -> { id: $.city_id } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
-      Tailspin runner =
-          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-      ByteArrayOutputStream output = new ByteArrayOutputStream();
-      runner.run(input, output, List.of());
-    });
-  }
-
-  @Test
-  void taggedNumberCanIndexArray() throws Exception {
-    String program = """
-    def a: {n: 2};
-    [5,6,7] -> $($a.n) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("6", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void composedStructureIsAutotypedToNonArithmeticTaggedIdentifier() throws IOException {
+  void composedStructureAutotypedCorrectValue() throws IOException {
     String program = """
     composer foo
       { x: <INT> }
     end foo
-    '1' -> foo -> $.x + 3 -> !OUT::write
+    '1' -> foo -> !OUT::write
+    {x: 5} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(UnsupportedOperationException.class, () -> runner.run(input, output, List.of()));
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=1}{x=5}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void collectedRelationStructureIsAutotypedToNonArithmeticTaggedIdentifier() throws IOException {
+  void composedStructureAutotypedConflict() throws IOException {
+    String program = """
+    composer foo
+      { x: <INT> }
+    end foo
+    '1' -> foo -> !OUT::write
+    {x: 'apple'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void collectedRelationStructureAutotypedCorrectValue() throws IOException {
     String program = """
     processor Five
       sink accumulate
@@ -690,18 +430,21 @@ public class DataDictionary {
         5!
       end result
     end Five
-    {|{}|} -> $(collect {x: Five} by $) ... -> $.x + 3 -> !OUT::write
+    {|{}|} -> $(collect {x: Five} by $) ... -> !OUT::write
+    {x: 1} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(UnsupportedOperationException.class, () -> runner.run(input, output, List.of()));
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=5}{x=1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void collectedArrayStructureIsAutotypedToNonArithmeticTaggedIdentifier() throws IOException {
+  void collectedRelationStructureAutotypedConflict() throws IOException {
     String program = """
     processor Five
       sink accumulate
@@ -711,20 +454,8 @@ public class DataDictionary {
         5!
       end result
     end Five
-    [{}] -> $(collect {x: Five} by $) ... -> $.x + 3 -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(UnsupportedOperationException.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void comparingEqualityForNumbersWithDifferentTagsIsError() throws IOException {
-    String program = """
-    {dep: 2, step: 2} -> \\(<{dep: <=$.step>}> $ ! \\) -> !OUT::write
+    {|{}|} -> $(collect {x: Five} by $) ... -> !OUT::write
+    {x: 'apple'} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -735,10 +466,18 @@ public class DataDictionary {
   }
 
   @Test
-  void comparingEqualityForNumbersWithDifferentTagsIsError_alsoForDefinedTag() throws IOException {
+  void collectedArrayStructureAutotypedConflict() throws IOException {
     String program = """
-    data dep <0..5>
-    {dep: 2, step: 2} -> \\(<{dep: <=$.step>}> $ ! \\) -> !OUT::write
+    processor Five
+      sink accumulate
+        !VOID
+      end accumulate
+      source result
+        5!
+      end result
+    end Five
+    [{}] -> $(collect {x: Five} by $) ... -> !OUT::write
+    {x: 'apple'} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -749,9 +488,18 @@ public class DataDictionary {
   }
 
   @Test
-  void comparingEqualityForNumbersWithSameTagsWorks() throws IOException {
+  void collectedArrayStructureAutotypedCorrectValue() throws IOException {
     String program = """
-    {step: 2} -> {dep: $.step, step: 1} ->  \\(<{dep: <~=$.step>}> $ ! \\) -> !OUT::write
+    processor Five
+      sink accumulate
+        !VOID
+      end accumulate
+      source result
+        5!
+      end result
+    end Five
+    [{}] -> $(collect {x: Five} by $) ... -> !OUT::write
+    {x: 1} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -760,226 +508,6 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{dep=2, step=1}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void comparingEqualityForStringsWithDifferentTagsIsError() throws IOException {
-    String program = """
-    {dep: 'A', step: 'A'} -> \\(<{dep: <=$.step>}> $ ! \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void comparingEqualityForStringsWithDifferentTagsIsError_alsoForDefinedTags() throws IOException {
-    String program = """
-    data dep <'A'..'F'>
-    {dep: 'A', step: 'A'} -> \\(<{dep: <=$.step>}> $ ! \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void comparingEqualityForStringsWithSameTagsWorks() throws IOException {
-    String program = """
-    {step: 'A'} -> {dep: $.step, step: 'B'} ->  \\(<{dep: <~=$.step>}> $ ! \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{dep=A, step=B}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void comparingMeasureEqualToTagIsError() throws IOException {
-    String program = """
-    {dep: 2"m", step: 2} -> \\(<{dep: <=$.step>}> $ ! \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void comparingTagEqualToMeasureIsError() throws IOException {
-    String program = """
-    {dep: 2, step: 2"m"} -> \\(<{dep: <=$.step>}> $ ! \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void comparingRangeForNumbersWithDifferentTagsIsError() throws IOException {
-    String program = """
-    def low: {step: 1};
-    def high: {step: 3};
-    {dep: 2} -> \\(<{dep: <$low.step..$high.step>}> $ ! \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void comparingRangeForNumbersWithSameTagsWorks() throws IOException {
-    String program = """
-    def low: {step: 1};
-    def high: {step: 3};
-    {step: 2} -> {dep: $.step} -> \\(<{dep: <$low.step..$high.step>}> $ ! \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{dep=2}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void comparingMeasureToTagRangeIsError() throws IOException {
-    String program = """
-    def low: {step: 1};
-    def high: {step: 3};
-    {dep: 2"m"} -> \\(<{dep: <$low.step..$high.step>}> $ ! \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void comparingTagToMeasureRangeIsError() throws IOException {
-    String program = """
-    def low: {step: 1"m"};
-    def high: {step: 3"m"};
-    {dep: 2} -> \\(<{dep: <$low.step..$high.step>}> $ ! \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void taggedStringRegexMatch() throws Exception {
-    String program = """
-    {city: 'London'} -> \\(
-      <{city: <'L.*'>}> 'yes'!
-      <> 'no'!
-    \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void taggedStringEqualsRawString() throws Exception {
-    String program = """
-    {city: 'London'} -> \\(
-      <{city: <='London'>}> 'yes'!
-      <> 'no'!
-    \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void taggedStringInRawStringRange() throws Exception {
-    String program = """
-    {city: 'London'} -> \\(
-      <{city: <'K'..'M'>}> 'yes'!
-      <> 'no'!
-    \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void taggedNumberEqualsUntyped() throws Exception {
-    String program = """
-    {city: 5} -> \\(
-      <{city: <=5>}> 'yes'!
-      <> 'no'!
-    \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void taggedNumberInUntypedRange() throws Exception {
-    String program = """
-    {city: 5} -> \\(
-      <{city: <2..6>}> 'yes'!
-      <> 'no'!
-    \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x=5}{x=1}", output.toString(StandardCharsets.UTF_8));
   }
 }

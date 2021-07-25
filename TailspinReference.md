@@ -136,7 +136,6 @@ Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 A value chain that yields a number can be used as an operand on either side of an operator, if it is enclosed in parentheses.
 
 NOTE: The example above shows the use of untyped numbers. Arithmetic is further restricted when numbers are typed as [measures](#measures), with a unit.
-Numbers typed as [tagged identifiers](#tagged-identifiers) cannot be used in arithmetic at all (but their raw values can be extracted and used).
 
 _Current limitations_: Only integers are supported.
 
@@ -188,7 +187,6 @@ literal key-value pairs or expressions generating [streams](#streams) of key-val
 A literal key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
 
 NOTE: [Autotyping](#autotyping) and the [data dictionary](#data-dictionary) affects what things you can and cannot assign to a key.
-Also, you will not be able to retrieve an untyped string or number, it will either be a [tagged identifier](#tagged-identifiers) or a [measure](#measures).
 
 An example of an expression generating a stream of key-value pairs is a [deconstruct](#deconstructor)
  of a [dereferenced](#dereference) structure value. But as a convenience, you can just include the structure-valued
@@ -541,7 +539,7 @@ executed for that _current value_.
   matches according to standard rules of equality, with lists being ordered.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
 * Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`. See the [measure](#measures) documentation for rules of how measures match equality and ranges.
-* Tags (of [tagged identifiers](#tagged-identifiers)) can be tested by name, like [defined data types](#defined-types). See the [tagged identifier](#tagged-identifiers) documentation for rules of how tagged identifiers match equality, ranges and regular expressions.
+* You can use the name of a [defined data type](#defined-types) or an [autotyped](#autotyping) field to determine if a value matches that type.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
  the range operator on the side(s) where the bound is not included. E.g.
   * `<2..5>` for "between 2 and 5 inclusive"
@@ -752,7 +750,7 @@ A structure can be [deconstructed](#deconstructor) into a stream of keyed values
 The stream of keyed values can be captured into a [structure literal](#structure-literal) at some point.
 Of course, a keyed value is just a value and so may be captured in a definition or an array (in which case keys may, of course, repeat).
 
-NOTE: A value assigned to a key is affected by [autotyping](#autotyping), which may forbid the assignment or turn the value assigned into a [tagged identifier](#tagged-identifiers).
+NOTE: A value assigned to a key is affected by [autotyping](#autotyping), which may forbid the assignment.
 
 When creating keyed values, the transform chain binds to the value, not the whole keyed value, e.g. `a: 1 -> (<1> 'yes')` will give the result `a: 'yes'`.
 To send the keyed value through a transform, put it in parentheses, so `(a: 1) -> ...{}` creates `{a: 1}`.
@@ -974,8 +972,7 @@ be joined together in a "natural join". If you don't specify a type in the [data
 a type will automatically be assigned by [autotyping](#autotyping).
 
 Numbers in arithmetic expressions are in their bare state just untyped numbers, but they can be assigned a
-[unit of measure](#measures) which then defines their type as being of that measure. An untyped number can also become
-a [tagged identifier](#tagged-identifiers).
+[unit of measure](#measures) which then defines their type as being of that measure.
 
 [Processor](#processors) instances are things that can carry state and they respond to messages. If an instance
 responds to the messages you need, all is good (this is known as duck-typing). A processor instance can change
@@ -997,24 +994,6 @@ The data dictionary will also contain all [autotyped](#autotyping) definitions.
 There are also local data dictionaries to handle [local types](#local-types) that are valid only in a certain context, like
 the execution of [templates](#templates) or within a [processor](#processors)
 
-### Tagged identifiers
-A tagged identifier is a type that is used to identify something, e.g. a person or a city. It is tagged so that you cannot
-assign a person to a city (or vice-versa) by accident, for example.
-
-Tagging happens when you assign a [string](#string-literal) or an [untyped number](#arithmetic-expression) to a key
-in a [keyed value](#keyed-values) or a [structure](#structures)
-
-The following will not work: `{person: 'Pedro', city: 'Madrid'} -> {city: $.person}` because 'Pedro' has become tagged as an
-identifier of a person, while a city expects to be assigned an identifier of a city (or an untyped, or raw, string).
-
-Note that the tag does not always correspond to the key. In `{fruit: 'orange'} -> {bowl: $.fruit}` the bowl will be expecting to
-receive things tagged as fruit.
-
-* Comparing a tagged number to an untyped number or untyped range works.
-* Comparing a tagged string to a raw string, raw string range or regex match works.
-* Comparing tagged strings with same tag works.
-* Comparing tagged strings with different tags is an error. If you need to do this, first check the tag, e.g. `<fruit ?(<=$plate.fruit>)>`
-
 ### Local types
 In a context where you can have [mutable state](#mutable-state), you can also define local types. This can be useful
 for example in cases where your processing is general and the type may change between invocations, or where you need to
@@ -1032,11 +1011,7 @@ with an inferred type so that you don't make mistakes by assigning values of dif
 You can, of course, always declare the type in the [data dictionary](#data-dictionary) yourself, or declare them
 as [local types](#local-types) if the autotyping rules don't do what you intended.
 
-Strings and untyped numbers are far too general to be considered useful in a data dictionary, so they will be
-autotyped as [tagged identifiers](#tagged-identifiers). Note that numeric identifiers cannot immediately be used
-in arithmetic.
-
-[Measures](#measures) (including scalars) will be autotyped as such and can be used in arithmetic.
+[Measures](#measures) (including scalars) will be autotyped as such.
 
 [Structures](#structures) and [arrays](#arrays) are currently only typed as structures and arrays respectively. In the future, this will become tighter.
 
@@ -1071,9 +1046,6 @@ Bytes
 
 Relations
 * `$::count` returns the number of tuples in the relation.
-
-Tagged identifier
-* `$::raw` returns the raw untyped value without a tag.
 
 ## The Core System module
 The Core System module is provided by default to a main program and has no prefix. The module contains the following symbols:

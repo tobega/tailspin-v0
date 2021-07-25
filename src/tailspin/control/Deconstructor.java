@@ -7,7 +7,6 @@ import tailspin.java.JavaObject;
 import tailspin.java.JavaTypeConverter;
 import tailspin.types.Relation;
 import tailspin.types.Structure;
-import tailspin.types.TaggedIdentifier;
 import tailspin.types.TailspinArray;
 
 public class Deconstructor implements Expression {
@@ -24,7 +23,6 @@ public class Deconstructor implements Expression {
 
   @SuppressWarnings("unchecked")
   Object getDeconstructedStream(Object it) {
-    if (it instanceof TaggedIdentifier t) it = t.getValue();
     if (it instanceof TailspinArray) {
       return ((TailspinArray) it).deconstruct();
     } else if (it instanceof Relation) {

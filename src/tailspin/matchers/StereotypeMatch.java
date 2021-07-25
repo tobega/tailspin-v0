@@ -2,7 +2,6 @@ package tailspin.matchers;
 
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
-import tailspin.types.Membrane;
 
 public class StereotypeMatch implements Criterion {
 
@@ -14,7 +13,7 @@ public class StereotypeMatch implements Criterion {
 
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
-    Membrane stereotype = scope.getDataDefinition(identifier);
-    return stereotype.permeate(toMatch) != null;
+    Criterion stereotype = scope.getDataDefinition(identifier);
+    return stereotype.isMet(toMatch, null, null);
   }
 }

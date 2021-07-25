@@ -5,7 +5,6 @@ import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
 import tailspin.types.Criterion;
 import tailspin.types.Measure;
-import tailspin.types.TaggedIdentifier;
 import tailspin.types.Unit;
 
 public class RangeMatch implements Criterion {
@@ -55,20 +54,7 @@ public class RangeMatch implements Criterion {
   }
 
   public static Comparison compare(Object lhs, Object rhs) {
-    if (lhs instanceof Measure && rhs instanceof TaggedIdentifier r)
-      throw new IllegalArgumentException("Cannot compare " + lhs + " with " + r.getTag() + ":" + r.getValue());
-    if (lhs instanceof TaggedIdentifier l && rhs instanceof Measure)
-      throw new IllegalArgumentException("Cannot compare " + l.getTag() + ":" + l.getValue() + " with " + rhs);
-    else if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
-      if (l.getTag().equals(r.getTag())) {
-        lhs = l.getValue();
-        rhs = r.getValue();
-      } else {
-        throw new IllegalArgumentException("Cannot compare " + l.getTag() + ":" + l.getValue() + " with " + r.getTag() + ":" + r.getValue());
-      }
-    }
-    else if (lhs instanceof TaggedIdentifier t) lhs = t.getValue();
-    else if (lhs instanceof Measure l && rhs instanceof Measure r) {
+    if (lhs instanceof Measure l && rhs instanceof Measure r) {
       if (l.getUnit().equals(r.getUnit())) {
         lhs = l.getValue();
         rhs = r.getValue();

@@ -7,7 +7,6 @@ import tailspin.types.KeyValue;
 import tailspin.types.Measure;
 import tailspin.types.Processor;
 import tailspin.types.Structure;
-import tailspin.types.TaggedIdentifier;
 import tailspin.types.TailspinArray;
 
 public abstract class Reference implements Value {
@@ -165,7 +164,7 @@ public abstract class Reference implements Value {
       ((Freezable<?>) value).freeze();
       return value;
     }
-    if (value instanceof String || value instanceof Number || value instanceof Processor || value instanceof byte[] || value instanceof Measure || value instanceof TaggedIdentifier) {
+    if (value instanceof String || value instanceof Number || value instanceof Processor || value instanceof byte[]) {
       return value;
     }
     throw new IllegalArgumentException("Unknown value type " + value.getClass().getName());
