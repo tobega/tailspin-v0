@@ -14,6 +14,7 @@ public class UnitMatch implements Criterion {
 
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
-    return toMatch instanceof Measure m && unit.equals(m.getUnit());
+    return toMatch instanceof Measure m && unit.equals(m.getUnit())
+        || toMatch instanceof Number && unit.equals(Unit.SCALAR);
   }
 }

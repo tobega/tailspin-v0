@@ -154,13 +154,14 @@ Arithmetic between a measure and untyped numbers will result in a measure of the
 
 There is a special unit, `"1"`, to define a scalar number. Scalars can be multiplied with other units, leaving the other unit unchanged on the result.
 
-* Comparing a measure to an untyped number (with the untyped number in the matcher) will work.
 * Comparing measures with a measure of the same unit works.
-* Comparing a measure to a measure of different unit is an error. If you need to do this, first type match on the unit, e.g. `<"m" ?($ <=3"m">)>`.
-* An untyped number can be compared to a scalar when the scalar is in the matcher.
+* Comparing scalars and untyped numbers works.
+* Comparing a measure to a measure of different unit, or to an untyped number, is an error. If you need to do this, first type match on the unit, e.g. `<"m" ?($ <=3"m">)>`.
 
 When the resulting measure of arithmetic between measures cannot be inferred, you will need to
 parenthesize the expression and provide the new measure, e.g. `(4"J" + 3 "N m")"J"`
+
+The message `::raw` can be used on a measure to get the magnitude without the unit.
 
 ### Range literal
 A range literal produces a [stream](#streams) of numbers. They are specified by a start, an end and
@@ -538,7 +539,8 @@ executed for that _current value_.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
-* Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`. See the [measure](#measures) documentation for rules of how measures match equality and ranges.
+* Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`. An untyped number will match the special scalar unit `"1"`.
+  See the [measure](#measures) documentation for rules of how measures match equality and ranges.
 * You can use the name of a [defined data type](#defined-types) or an [autotyped](#autotyping) field to determine if a value matches that type.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
  the range operator on the side(s) where the bound is not included. E.g.
@@ -549,12 +551,12 @@ executed for that _current value_.
   * An arithmetic expression can be a bound if encased in parentheses, e.g. `<($a+4)..>`
   * Ranges can compare strings.
 * Regular expression match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
-For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
-Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
-`<''>` matches the empty string, `<'.*'>` matches any string, `<'.+'>` any non-empty string.
-For comparing strings for simple equality, see "Equality" above.
+  For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
+  Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
+  `<''>` matches the empty string, `<'.*'>` matches any string, `<'.+'>` any non-empty string.
+  For comparing strings for simple equality, see "Equality" above.
 * Structure match is similar to a [structure literal](#structure-literal), surrounded by braces,
-lists keys of fields that need to exist for the matcher to match, with a matcher for the value of the field, e.g.
+  lists keys of fields that need to exist for the matcher to match, with a matcher for the value of the field, e.g.
   * `<{}>` matches any structure, but not numbers, strings or arrays
   * `<{a: <>}>` matches any structure that has a field `a`, whatever its value
   * `<{a:<=0>, b:<=1>}>` matches any structure that has a field `a` with value `0` and a field `b` with value `1`,
@@ -1034,6 +1036,9 @@ Strings
 
 Integer
 * `$::asBytes` returns the minimal [bytes value](#bytes) that can represent the integer in twos complement notation.
+
+Measure
+* `$::raw` returns the magnitude of the measure without the unit.
 
 Bytes
 * `$::inverse` returns a bytes value with all ones turned to zeroes and all zeroes turned to ones.

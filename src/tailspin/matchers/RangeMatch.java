@@ -62,9 +62,9 @@ public class RangeMatch implements Criterion {
         throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
       }
     }
-    else if (lhs instanceof Measure m) lhs = m.getValue();
+    else if (lhs instanceof Measure m && m.getUnit().equals(Unit.SCALAR) && rhs instanceof Number) lhs = m.getValue();
     else if (lhs instanceof Number && rhs instanceof Measure m && m.getUnit().equals(Unit.SCALAR)) rhs = m.getValue();
-    else if (rhs instanceof Measure m) return Comparison.INCOMPARABLE;
+    else if (lhs instanceof Measure || rhs instanceof Measure) throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
 
     if ((lhs instanceof String) && (rhs instanceof String)) {
       return Comparison.of(((String) lhs).compareTo((String) rhs));
