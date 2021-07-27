@@ -1,5 +1,6 @@
 package tailspin.matchers;
 
+import tailspin.arithmetic.IntegerConstant;
 import tailspin.control.Bound;
 import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
@@ -8,6 +9,15 @@ import tailspin.types.Measure;
 import tailspin.types.Unit;
 
 public class RangeMatch implements Criterion {
+  public static final RangeMatch AT_MOST_ONE = new RangeMatch(
+      new Bound(new IntegerConstant(0, null), true),
+      new Bound(new IntegerConstant(1, null), true));
+  public static final RangeMatch AT_LEAST_ONE = new RangeMatch(
+          new Bound(new IntegerConstant(1, null), true),
+          null);
+  public static final RangeMatch ANY_AMOUNT = new RangeMatch(
+              new Bound(new IntegerConstant(0, null), true),
+              null);
 
   private final Bound lowerBound;
   private final Bound upperBound;
@@ -62,9 +72,18 @@ public class RangeMatch implements Criterion {
         throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
       }
     }
-    else if (lhs instanceof Measure m && m.getUnit().equals(Unit.SCALAR) && rhs instanceof Number) lhs = m.getValue();
-    else if (lhs instanceof Number && rhs instanceof Measure m && m.getUnit().equals(Unit.SCALAR)) rhs = m.getValue();
-    else if (lhs instanceof Measure || rhs instanceof Measure) throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+    else if (lhs instanceof Measure m && rhs instanceof Number) {
+      if (m.getUnit().equals(Unit.SCALAR))
+        lhs = m.getValue();
+      else
+        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+    }
+    else if (lhs instanceof Number && rhs instanceof Measure m) {
+      if (m.getUnit().equals(Unit.SCALAR))
+        rhs = m.getValue();
+      else
+        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+    }
 
     if ((lhs instanceof String) && (rhs instanceof String)) {
       return Comparison.of(((String) lhs).compareTo((String) rhs));

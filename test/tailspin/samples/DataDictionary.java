@@ -269,7 +269,7 @@ public class DataDictionary {
   void autotypedArrayTermCorrectValue() throws IOException {
     String program = """
     {x: ['apple']} -> !OUT::write
-    {x: [3, 2]} -> !OUT::write
+    {x: ['banana', 'orange']} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -278,14 +278,41 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=[apple]}{x=[3, 2]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x=[apple]}{x=[banana, orange]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void autotypedArrayTermConflict() throws IOException {
+  void autotypedArrayWrongType() throws IOException {
     String program = """
     {x: ['apple']} -> !OUT::write
     {x: 'banana'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedArrayWrongContentType() throws IOException {
+    String program = """
+    {x: ['apple']} -> !OUT::write
+    {x: [2]} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedArrayMayNotHaveMixedContentType() throws IOException {
+    String program = """
+    {x: ['apple', 2]} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

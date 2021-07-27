@@ -1304,21 +1304,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return compositionSpec;
   }
 
-  private final RangeMatch AT_MOST_ONE = new RangeMatch(
-      new Bound(new IntegerConstant(0, null), true),
-      new Bound(new IntegerConstant(1, null), true));
-  private final RangeMatch AT_LEAST_ONE = new RangeMatch(
-      new Bound(new IntegerConstant(1, null), true),
-      null);
-  private final RangeMatch ANY_AMOUNT = new RangeMatch(
-      new Bound(new IntegerConstant(0, null), true),
-      null);
   @Override
   public RangeMatch visitMultiplier(TailspinParser.MultiplierContext ctx) {
     switch (ctx.getText()) {
-      case "?": return AT_MOST_ONE;
-      case "+": return AT_LEAST_ONE;
-      case "*": return ANY_AMOUNT;
+      case "?": return RangeMatch.AT_MOST_ONE;
+      case "+": return RangeMatch.AT_LEAST_ONE;
+      case "*": return RangeMatch.ANY_AMOUNT;
     }
     if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
     Value count;

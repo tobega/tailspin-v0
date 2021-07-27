@@ -173,7 +173,7 @@ templates oneBitDifferences
 end oneBitDifferences
 
 def oneErrorDigits: {|
-  $digits... -> {by $.code::raw -> oneBitDifferences -> (code: $), digit: $.digit}
+  $digits... -> {by $.code -> oneBitDifferences -> (code: $), digit: $.digit}
 |};
 
 templates correct&{pos:}
