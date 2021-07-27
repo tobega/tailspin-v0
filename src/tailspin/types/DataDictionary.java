@@ -3,7 +3,10 @@ package tailspin.types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
+import tailspin.matchers.AnyOf;
 import tailspin.matchers.ArrayMatch;
 import tailspin.matchers.StructureMatch;
 import tailspin.matchers.UnitMatch;
@@ -25,7 +28,7 @@ public class DataDictionary {
   };
 
   private static final Criterion arrayMatch = new ArrayMatch((t, i, s) -> true, List.of(), false);
-  private static final Criterion structureMatch = new StructureMatch(Map.of(), true);
+  private static final Criterion exists = new AnyOf(false, List.of());
 
   public final Map<String, Criterion> dataDefinitions = new HashMap<>();
 
@@ -42,8 +45,8 @@ public class DataDictionary {
     if (data instanceof TailspinArray) {
       return arrayMatch;
     }
-    if (data instanceof Structure) {
-      return structureMatch;
+    if (data instanceof Structure s) {
+      return new StructureMatch(s.keySet().stream().collect(Collectors.toMap(Function.identity(), (k) -> exists)), false);
     }
     if (data instanceof Measure m) {
       return new UnitMatch(m.getUnit());

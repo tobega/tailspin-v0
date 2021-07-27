@@ -299,7 +299,7 @@ public class DataDictionary {
   void autotypedStructureTermCorrectValue() throws IOException {
     String program = """
     {x: {fruit: 'apple'}} -> !OUT::write
-    {x: {days: 2}} -> !OUT::write
+    {x: {fruit: 'banana'}} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -308,14 +308,70 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x={fruit=apple}}{x={days=2}}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x={fruit=apple}}{x={fruit=banana}}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void autotypedStructureTermConflict() throws IOException {
+  void autotypedStructureWrongType() throws IOException {
     String program = """
     {x: {fruit: 'apple'}} -> !OUT::write
     {x: 'banana'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedStructureWrongExtraField() throws IOException {
+    String program = """
+    {x: {fruit: 'apple'}} -> !OUT::write
+    {x: {fruit: 'banana', days: 2}} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedStructureWrongMissingField() throws IOException {
+    String program = """
+    {x: {fruit: 'banana', days: 2}} -> !OUT::write
+    {x: {fruit: 'apple'}} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedStructureWrongContainedField() throws IOException {
+    String program = """
+    {x: {days: 2}} -> !OUT::write
+    {x: {fruit: 'apple'}} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedStructureWrongTypeContainedField() throws IOException {
+    String program = """
+    {x: {fruit: 2}} -> !OUT::write
+    {x: {fruit: 'apple'}} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
