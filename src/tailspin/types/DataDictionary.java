@@ -23,12 +23,22 @@ public class DataDictionary {
     public boolean isMet(Object toMatch, Object it, Scope scope) {
       return (toMatch instanceof String);
     }
+
+    @Override
+    public String toString() {
+      return "a string";
+    }
   };
 
   private static final Criterion numberMatch = new Criterion() {
     @Override
     public boolean isMet(Object toMatch, Object it, Scope scope) {
       return (toMatch instanceof Long);
+    }
+
+    @Override
+    public String toString() {
+      return "a number";
     }
   };
 
@@ -103,7 +113,7 @@ public class DataDictionary {
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
     if (!def.isMet(data, null, null)) {
-      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data " + data);
+      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + data);
     }
     return data;
   }

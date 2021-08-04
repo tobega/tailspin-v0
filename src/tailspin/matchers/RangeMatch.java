@@ -54,6 +54,12 @@ public class RangeMatch implements Criterion {
     }
   }
 
+  @Override
+  public String toString() {
+    return (lowerBound == null ? "" : lowerBound.value + (lowerBound.inclusive ? "~" : "")) + ".."
+        + (upperBound == null ? "" : (upperBound.inclusive ? "~" : "") + upperBound.value);
+  }
+
   public enum Comparison {
     LESS, EQUAL, GREATER, INCOMPARABLE;
     static Comparison of(int comparatorResult) {

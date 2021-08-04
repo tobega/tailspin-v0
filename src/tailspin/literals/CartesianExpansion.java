@@ -36,4 +36,9 @@ public class CartesianExpansion {
         }));
     return expansion;
   }
+
+  @Override
+  public String toString() {
+    return (isMultiStructure ? "by " : "") + expression;
+  }
 }

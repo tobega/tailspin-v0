@@ -21,4 +21,9 @@ public class RegexpMatch implements Criterion {
             "\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ + Pattern.DOTALL);
     return compiled.matcher(stringToMatch).matches();
   }
+
+  @Override
+  public String toString() {
+    return "'" + patternValue + "'";
+  }
 }

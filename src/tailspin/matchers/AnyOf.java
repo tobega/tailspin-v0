@@ -1,6 +1,7 @@
 package tailspin.matchers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
 
@@ -23,5 +24,11 @@ public class AnyOf implements Criterion {
       }
     }
     return invert;
+  }
+
+  @Override
+  public String toString() {
+    return "<" + (invert ? "~" : "") + alternativeCriteria.stream().map(Object::toString).collect(
+        Collectors.joining("|")) + ">";
   }
 }

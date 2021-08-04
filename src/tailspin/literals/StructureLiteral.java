@@ -2,6 +2,7 @@ package tailspin.literals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
@@ -34,5 +35,10 @@ public class StructureLiteral implements Expression {
       result = ResultIterator.appendResultValue(result, Structure.value(ResultIterator.wrap(contents)));
     }
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "{" + expansions.stream().map(Object::toString).collect(Collectors.joining(",")) + "}";
   }
 }

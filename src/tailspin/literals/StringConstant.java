@@ -14,4 +14,9 @@ public class StringConstant implements Value {
   public Object getResults(Object it, Scope scope) {
     return value;
   }
+
+  @Override
+  public String toString() {
+    return value;
+  }
 }

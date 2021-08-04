@@ -20,4 +20,9 @@ public class Equality implements Criterion {
       return RangeMatch.Comparison.EQUAL.equals(RangeMatch.compare(toMatch, required));
     return Objects.deepEquals(toMatch, required);
   }
+
+  @Override
+  public String toString() {
+    return "=" + value;
+  }
 }

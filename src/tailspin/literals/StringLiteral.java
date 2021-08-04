@@ -19,4 +19,9 @@ public class StringLiteral implements Value {
         .map(Object::toString)
         .collect(Collectors.joining());
   }
+
+  @Override
+  public String toString() {
+    return stringLiteral.stream().map(Object::toString).collect(Collectors.joining());
+  }
 }

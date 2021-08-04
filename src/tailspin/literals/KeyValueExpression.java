@@ -23,4 +23,9 @@ public class KeyValueExpression implements Value {
   public String getKey() {
     return key;
   }
+
+  @Override
+  public String toString() {
+    return key + ": " + value;
+  }
 }

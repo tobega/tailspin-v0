@@ -16,4 +16,9 @@ public class DefinedCriterion implements Criterion {
   public boolean isMet(Object toMatch, Object it, Scope scope) {
     return baseType.isMet(toMatch, null, definingScope);
   }
+
+  @Override
+  public String toString() {
+    return baseType.toString();
+  }
 }

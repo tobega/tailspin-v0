@@ -16,4 +16,9 @@ public class Condition {
     Object value = lhs.getResults(toMatch, scope);
     return matcher.isMet(value, toMatch, scope);
   }
+
+  @Override
+  public String toString() {
+    return "?(" + lhs + " " + matcher + ")";
+  }
 }

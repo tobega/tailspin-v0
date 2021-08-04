@@ -2,6 +2,7 @@ package tailspin.literals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
@@ -25,5 +26,10 @@ public class RelationLiteral implements Value {
       ResultIterator.forEach(result, s -> lines.add((Structure) s));
     }
     return new Relation(lines);
+  }
+
+  @Override
+  public String toString() {
+    return "{|" + structures.stream().map(Object::toString).collect(Collectors.joining(",")) + "|}";
   }
 }

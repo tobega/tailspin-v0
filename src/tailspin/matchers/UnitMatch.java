@@ -17,4 +17,9 @@ public class UnitMatch implements Criterion {
     return toMatch instanceof Measure m && unit.equals(m.getUnit())
         || toMatch instanceof Number && unit.equals(Unit.SCALAR);
   }
+
+  @Override
+  public String toString() {
+    return unit.toString();
+  }
 }
