@@ -510,6 +510,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Criterion matcher = matcherCtx.Void() == null ? visitMatcher(matcherCtx.matcher())
           : AlwaysFalse.INSTANCE;
       keyMatchers.put(key, matcher);
+      if (implicitDataDefinitions != null) {
+        if (ctx.structureContentMatcher(i).matcher().criterion().size() != 1
+          || ctx.structureContentMatcher(i).matcher().criterion(0).typeMatch() == null
+          || !ctx.structureContentMatcher(i).matcher().criterion(0).typeMatch().getText().equals(key)) {
+              implicitDataDefinitions.put(key, (it,scope) -> new DefinedCriterion(matcher, scope));
+        }
+      }
     }
     return new StructureMatch(keyMatchers, ctx.Void() == null);
   }
@@ -774,12 +781,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return visitSource(ctx.source());
   }
 
+  private Map<String, Value> implicitDataDefinitions;
   @Override
   public DataDefinition visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
+    implicitDataDefinitions = new HashMap<>();
     String identifier = ctx.localIdentifier().getText();
     AnyOf matcher = visitMatcher(ctx.matcher());
     dependencyCounters.peek().define(identifier);
-    return new DataDefinition(identifier, (it,scope) -> new DefinedCriterion(matcher, scope));
+    Map<String, Value> definitions = implicitDataDefinitions;
+    implicitDataDefinitions = null;
+    definitions.put(identifier, (it,scope) -> new DefinedCriterion(matcher, scope));
+    return new DataDefinition(definitions);
   }
 
   @Override

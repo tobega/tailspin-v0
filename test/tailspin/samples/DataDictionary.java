@@ -27,9 +27,86 @@ public class DataDictionary {
   }
 
   @Test
+  void redefinedTermIsError() throws IOException {
+    String program = """
+    data x <1..5>
+    data x <1..5>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void definedTermCorrectValue() throws IOException {
     String program = """
     data x <1..5>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void implicitlyDefinedTermWrongValue() throws IOException {
+    String program = """
+    data coord <{x: <1..5>}>
+    {x: 6} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void implicitlyDefinedTermCorrectValue() throws IOException {
+    String program = """
+    data coord <{x: <1..5>}>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void implicitlyRedefinedTermIsError() throws IOException {
+    String program = """
+    data x <1..5>
+    data coord <{x: <1..5>}>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void implicitlyRedefinedTermSelfReferenceIsCorrect() throws IOException {
+    String program = """
+    data x <1..5>
+    data coord <{x: <x>}>
     {x: 3} -> !OUT::write
     """;
     Tailspin runner =

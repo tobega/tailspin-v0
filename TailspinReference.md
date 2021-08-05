@@ -619,6 +619,13 @@ Note that a condition will change the perspective of the _current value_ so that
 It is possible to define a named criterion (a type definition), by the statement `data _identifier_ <_condition_>`.
 The named criterion can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`
 
+When a type definition contains a structure, each key will also be defined as a type. Note that it is an error
+to define the same type twice. If you already have defined a type for a key, you must reference that definition, e.g.
+```
+data x <0..>
+data coordinate <{x: <x>, y: <0..>}>
+```
+
 Note that [types](#types) can also be automatically defined. When you assign something to a key in a [structure](#structures)
 or a [keyed value](#keyed-values), a type with the same name as the key will be defined, if you haven't defined it yourself (see [autotyping](#autotyping))
 

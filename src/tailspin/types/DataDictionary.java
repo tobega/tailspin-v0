@@ -98,7 +98,12 @@ public class DataDictionary {
   }
 
   public void createDataDefinition(String identifier, Criterion def) {
-    dataDefinitions.put(identifier, def);
+    Criterion existingDef = dataDefinitions.get(identifier);
+    if (existingDef == null) {
+      dataDefinitions.put(identifier, def);
+    } else if (existingDef != def) {
+      throw new IllegalStateException("Attempt to redefine " + identifier + " from " + existingDef + " to " + def);
+    }
   }
 
   public Criterion getDataDefinition(String identifier) {
