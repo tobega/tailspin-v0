@@ -120,6 +120,68 @@ public class DataDictionary {
   }
 
   @Test
+  void implicitlyDoublyDefinedTermIsError() throws IOException {
+    String program = """
+    data coord <{a: <{x: <1..5>}>, b: <{x: <1..5>}>}>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void implicitlyDoublyDefinedTermSelfReferenceIsCorrect() throws IOException {
+    String program = """
+    data coord <{a: <{x: <1..5>}>, b: <{x: <x>}>}>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void implicitSelfReferenceFirstInLexicalOrderIsCorrect() throws IOException {
+    String program = """
+    data coord <{a: <{x: <x>}>, b: <{x: <1..5>}>}>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void implicitSelfReferenceOnAllForAutotypingIsCorrect() throws IOException {
+    String program = """
+    data coord <{a: <{x: <x>}>, b: <{x: <x>}>}>
+    {coord: {a: {x: 3}, b: {x: 4}}} -> $.coord.a -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void dataRunsBeforeDefinitions() throws IOException {
     String program = """
     data x <1..5>
