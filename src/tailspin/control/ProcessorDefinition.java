@@ -1,20 +1,21 @@
 package tailspin.control;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import tailspin.interpreter.Scope;
 import tailspin.transform.ExpectedParameter;
 import tailspin.transform.ProcessorConstructor;
+import tailspin.types.Criterion;
 
 public class ProcessorDefinition {
 
   private final String name;
-  private final Set<String> localDatatypes;
+  private final List<Map.Entry<String, Criterion>> localDatatypes;
   private final Block block;
   private final List<ExpectedParameter> expectedParameters;
   private final List<TypestateDefinition> typestates;
 
-  public ProcessorDefinition(String name, Set<String> localDatatypes,
+  public ProcessorDefinition(String name, List<Map.Entry<String, Criterion>> localDatatypes,
       Block block,
       List<ExpectedParameter> expectedParameters,
       List<TypestateDefinition> typestates) {

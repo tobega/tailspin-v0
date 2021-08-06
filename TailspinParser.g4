@@ -36,7 +36,9 @@ operatorDefinition: StartOperatorDefinition LeftParen localIdentifier localIdent
 
 dataDefinition: DataDefinition localIdentifier matcher;
 
-localDataDeclaration: DataDefinition localIdentifier (Comma localIdentifier)* LocalDefinition;
+localDataDeclaration: DataDefinition localDataDefinition (Comma localDataDefinition)* LocalDefinition;
+
+localDataDefinition: localIdentifier matcher?;
 
 key: localIdentifier Colon;
 

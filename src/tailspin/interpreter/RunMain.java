@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -396,8 +397,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Set<String> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
-    return ctx == null ? Set.of() : ctx.localIdentifier().stream().map(RuleContext::getText).collect(Collectors.toSet());
+  public List<Map.Entry<String, Criterion>> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
+    return ctx == null ? List.of() : ctx.localDataDefinition().stream().map(this::visitLocalDataDefinition).collect(Collectors.toList());
+  }
+
+  @Override
+  public Map.Entry<String, Criterion> visitLocalDataDefinition(TailspinParser.LocalDataDefinitionContext ctx) {
+    return new AbstractMap.SimpleEntry<>(ctx.localIdentifier().getText(), ctx.matcher() == null ? null : visitMatcher(ctx.matcher()));
   }
 
   @Override
@@ -434,7 +440,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   public TemplatesDefinition visitTemplatesBody(String name,
-      Set<String> localDatatypes, TailspinParser.TemplatesBodyContext ctx,
+      List<Map.Entry<String, Criterion>> localDatatypes, TailspinParser.TemplatesBodyContext ctx,
       TemplatesConstructor constructor) {
     // The match templates are conceptually in the scope of the block, otherwise we could just do this in visitBlock
     dependencyCounters.push(new DependencyCounter());
@@ -661,7 +667,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()),
         ctx.templatesBody(), new TemplatesConstructor() {
           @Override
-          public Templates create(String name, Scope definingScope, Set<String> localDatatypes, Block block,
+          public Templates create(String name, Scope definingScope, List<Map.Entry<String, Criterion>> localDatatypes, Block block,
               List<MatchTemplate> matchTemplates) {
             return new Operator(name, definingScope, localDatatypes, block, matchTemplates, new String[]{left, right});
           }
@@ -1135,7 +1141,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     // Parameters must be defined first so as they don't get required
     List<ExpectedParameter> expectedParameters = visitParameterDefinitions(ctx.parameterDefinitions());
-    Set<String> localDatatypes = visitLocalDataDeclaration(ctx.localDataDeclaration());
+    List<Map.Entry<String, Criterion>> localDatatypes = visitLocalDataDeclaration(ctx.localDataDeclaration());
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
     composerDefinition.expectParameters(expectedParameters);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();

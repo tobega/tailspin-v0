@@ -626,8 +626,8 @@ data x <0..>
 data coordinate <{x: <x>, y: <0..>}>
 ```
 
-Note that [types](#types) can also be automatically defined. When you assign something to a key in a [structure](#structures)
-or a [keyed value](#keyed-values), a type with the same name as the key will be defined, if you haven't defined it yourself (see [autotyping](#autotyping))
+Note that [types](#types) can also be [automatically defined](#autotyping). When you assign something to a key in a [structure](#structures)
+or a [keyed value](#keyed-values), a type with the same name as the key will be defined, if you haven't defined it yourself.
 
 ## Mutable state
 This section concerns mutable state that exists for the time of an invocation of a templates, for more permanent
@@ -989,7 +989,8 @@ its type as a result of processing messages, if it's defined to do so, see [type
 _Future work_: A way to match processors by their protocol, i.e. the messages they respond to.
 
 ### Data Dictionary
-A data dictionary is a collection of descriptions of all data elements you use in your program.
+A data dictionary is a collection of descriptions of all data elements you use in your program. Or, more accurately, your module.
+Separate files and modules each have their own data dictionary.
 
 A data type can be defined with a name, as part of a global data dictionary, by the statement starting with the word `data`,
 followed by an [identifier](#identifiers) and a [matcher](#matchers).
@@ -1003,6 +1004,8 @@ The data dictionary will also contain all [autotyped](#autotyping) definitions.
 There are also local data dictionaries to handle [local types](#local-types) that are valid only in a certain context, like
 the execution of [templates](#templates) or within a [processor](#processors)
 
+NOTE: there is currently no checking of types that "escape" from one data dictionary to another, as can happen from local types or other modules.
+
 ### Local types
 In a context where you can have [mutable state](#mutable-state), you can also define local types. This can be useful
 for example in cases where your processing is general and the type may change between invocations, or where you need to
@@ -1010,6 +1013,9 @@ translate between types in different modules.
 
 To declare a type as local, start with the 'data' keyword, followed by a comma-separated list of identifiers
 of local types, followed by the keyword 'local', e.g. `data max, min local` declares that 'max' and 'min' are to be local types.
+
+You can also define the type for some local types, if you want more control than [autotyping](#autotyping) gives.
+E.g. `data max <0..>, min local`
 
 ### Autotyping
 Fields in your [data structures](#structures) should have good names describing what they are.
