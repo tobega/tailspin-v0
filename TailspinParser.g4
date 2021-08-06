@@ -13,7 +13,7 @@ statement: definition
   | composerDefinition
   | testDefinition
   | operatorDefinition
-  | dataDefinition
+  | dataDeclaration
 ;
 
 definition: Def key valueProduction SemiColon;
@@ -34,7 +34,9 @@ testDefinition: StartTestDefinition stringLiteral useModule* programModification
 
 operatorDefinition: StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen localDataDeclaration? templatesBody EndDefinition localIdentifier;
 
-dataDefinition: DataDefinition localIdentifier matcher;
+dataDeclaration: DataDefinition dataDefinition (Comma dataDefinition)*;
+
+dataDefinition: localIdentifier matcher;
 
 localDataDeclaration: DataDefinition localDataDefinition (Comma localDataDefinition)* LocalDefinition;
 

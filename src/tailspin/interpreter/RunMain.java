@@ -789,14 +789,19 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   private List<Map.Entry<String, Value>> implicitDataDefinitions;
   @Override
-  public DataDefinition visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
+  public DataDefinition visitDataDeclaration(TailspinParser.DataDeclarationContext ctx) {
     implicitDataDefinitions = new ArrayList<>();
-    String identifier = ctx.localIdentifier().getText();
-    AnyOf matcher = visitMatcher(ctx.matcher());
+    ctx.dataDefinition().forEach(d -> implicitDataDefinitions.add(visitDataDefinition(d)));
     List<Map.Entry<String, Value>> definitions = implicitDataDefinitions;
     implicitDataDefinitions = null;
-    definitions.add(Map.entry(identifier, (it,scope) -> new DefinedCriterion(matcher, scope)));
     return new DataDefinition(definitions);
+  }
+
+  @Override
+  public Map.Entry<String, Value> visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
+    String identifier = ctx.localIdentifier().getText();
+    AnyOf matcher = visitMatcher(ctx.matcher());
+    return Map.entry(identifier, (it,scope) -> new DefinedCriterion(matcher, scope));
   }
 
   @Override
