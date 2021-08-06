@@ -56,6 +56,11 @@ public class DataDictionary {
         }
         return 0;
       }
+
+      @Override
+      public String toString() {
+        return contentCriterion.toString();
+      }
     }
 
     private static class AllTheSameContent implements CollectionCriterionFactory {
@@ -63,6 +68,11 @@ public class DataDictionary {
       @Override
       public CollectionCriterion newCriterion() {
         return new MultipliedCollectionCriterion(discoveredContent, RangeMatch.ANY_AMOUNT);
+      }
+
+      @Override
+      public String toString() {
+        return "<" + discoveredContent + ">*";
       }
     }
 

@@ -13,4 +13,22 @@ public class MultipliedCollectionCriterionFactory implements CollectionCriterion
   public CollectionCriterion newCriterion() {
     return new MultipliedCollectionCriterion(criterion, multiplier);
   }
+
+  @Override
+  public String toString() {
+    return criterion.toString() + multiplierString();
+  }
+
+  private String multiplierString() {
+    if (multiplier == RangeMatch.ANY_AMOUNT) {
+      return "*";
+    }
+    if (multiplier == RangeMatch.AT_LEAST_ONE) {
+      return "+";
+    }
+    if (multiplier == RangeMatch.AT_MOST_ONE) {
+      return "?";
+    }
+    return "=" + multiplier;
+  }
 }

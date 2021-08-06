@@ -18,4 +18,9 @@ public class OneElementMatch implements CollectionSegmentCriterion {
     }
     return 0;
   }
+
+  @Override
+  public String toString() {
+    return criterion.toString();
+  }
 }

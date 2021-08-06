@@ -1,6 +1,7 @@
 package tailspin.matchers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
 import tailspin.types.Criterion;
 import tailspin.types.TailspinArray;
@@ -20,5 +21,10 @@ public class SequenceMatch implements CollectionSegmentCriterion {
       if (!sequence.get(i).isMet(tail.get(i+1), it, scope)) return 0;
     }
     return sequence.size();
+  }
+
+  @Override
+  public String toString() {
+    return "(" + sequence.stream().map(c -> "<" + c + ">").collect(Collectors.joining(":")) + ")";
   }
 }
