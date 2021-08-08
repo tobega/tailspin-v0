@@ -67,7 +67,6 @@ import tailspin.matchers.ArrayMatch;
 import tailspin.matchers.CollectionCriterionFactory;
 import tailspin.matchers.CollectionSegmentCriterion;
 import tailspin.matchers.Condition;
-import tailspin.matchers.DefinedCriterion;
 import tailspin.matchers.Equality;
 import tailspin.matchers.MultipliedCollectionCriterionFactory;
 import tailspin.matchers.OnceOnlyCollectionCriterionFactory;
@@ -398,7 +397,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public List<Map.Entry<String, Criterion>> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
-    return ctx == null ? List.of() : ctx.localDataDefinition().stream().map(this::visitLocalDataDefinition).collect(Collectors.toList());
+    if (ctx == null) return List.of();
+    implicitDataDefinitions = new ArrayList<>();
+    ctx.localDataDefinition().forEach(d -> implicitDataDefinitions.add(visitLocalDataDefinition(d)));
+    List<Map.Entry<String, Criterion>> definitions = implicitDataDefinitions;
+    implicitDataDefinitions = null;
+    return definitions;
   }
 
   @Override
@@ -520,7 +524,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         if (ctx.structureContentMatcher(i).matcher().criterion().size() != 1
           || ctx.structureContentMatcher(i).matcher().criterion(0).typeMatch() == null
           || !ctx.structureContentMatcher(i).matcher().criterion(0).typeMatch().getText().equals(key)) {
-              implicitDataDefinitions.add(Map.entry(key, (it,scope) -> new DefinedCriterion(matcher, scope)));
+              implicitDataDefinitions.add(Map.entry(key, matcher));
         }
       }
     }
@@ -787,21 +791,21 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return visitSource(ctx.source());
   }
 
-  private List<Map.Entry<String, Value>> implicitDataDefinitions;
+  private List<Map.Entry<String, Criterion>> implicitDataDefinitions;
   @Override
   public DataDefinition visitDataDeclaration(TailspinParser.DataDeclarationContext ctx) {
     implicitDataDefinitions = new ArrayList<>();
     ctx.dataDefinition().forEach(d -> implicitDataDefinitions.add(visitDataDefinition(d)));
-    List<Map.Entry<String, Value>> definitions = implicitDataDefinitions;
+    List<Map.Entry<String, Criterion>> definitions = implicitDataDefinitions;
     implicitDataDefinitions = null;
     return new DataDefinition(definitions);
   }
 
   @Override
-  public Map.Entry<String, Value> visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
+  public Map.Entry<String, Criterion> visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
     String identifier = ctx.localIdentifier().getText();
     AnyOf matcher = visitMatcher(ctx.matcher());
-    return Map.entry(identifier, (it,scope) -> new DefinedCriterion(matcher, scope));
+    return Map.entry(identifier, matcher);
   }
 
   @Override

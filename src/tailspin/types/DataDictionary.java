@@ -59,7 +59,7 @@ public class DataDictionary {
 
       @Override
       public String toString() {
-        return contentCriterion.toString();
+        return contentCriterion == null ? "??" : contentCriterion.toString();
       }
     }
 
