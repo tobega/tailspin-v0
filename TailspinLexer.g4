@@ -23,7 +23,9 @@ Do: 'do';
 
 Otherwise: 'otherwise';
 
-StereotypeDefinition: 'stereotype';
+DataDefinition: 'data';
+
+LocalDefinition: 'local';
 
 To: '->';
 
@@ -150,6 +152,8 @@ Modify: 'modify';
 By: 'by';
 
 Collect: 'collect';
+
+Scalar: '"1"';
 
 Zero: '0';
 

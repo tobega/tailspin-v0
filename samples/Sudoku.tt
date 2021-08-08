@@ -1,7 +1,7 @@
 templates deduceRemainingDigits
   templates findOpenPosition
-    @:{options: 10};
-    $ -> \[i;j](when <[](..~$@findOpenPosition.options)> do @findOpenPosition: {row: $i, col: $j, options: $::length}; \) -> !VOID
+    @:{options: 10"1"};
+    $ -> \[i;j](when <[](..~$@findOpenPosition.options)> do @findOpenPosition: {row: ($i)"1", col: ($j)"1", options: ($::length)"1"}; \) -> !VOID
     $@ !
   end findOpenPosition
 
@@ -22,7 +22,7 @@ templates deduceRemainingDigits
   when <{options: <=10>}> do $@ !
   when <> do def next: $;
      $@ -> selectFirst&{pos: $next} -> deduceRemainingDigits
-        -> \(when <~=[]> do @deduceRemainingDigits: $; {options: 10} !
+        -> \(when <~=[]> do @deduceRemainingDigits: $; {options: 10"1"} !
           when <=[]> do ^@deduceRemainingDigits($next.row;$next.col;1)
                -> { $next..., options: $next.options-1} ! \) -> #
 end deduceRemainingDigits

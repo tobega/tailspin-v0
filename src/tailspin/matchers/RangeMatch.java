@@ -1,12 +1,23 @@
 package tailspin.matchers;
 
+import tailspin.arithmetic.IntegerConstant;
 import tailspin.control.Bound;
 import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
 import tailspin.types.Criterion;
 import tailspin.types.Measure;
+import tailspin.types.Unit;
 
 public class RangeMatch implements Criterion {
+  public static final RangeMatch AT_MOST_ONE = new RangeMatch(
+      new Bound(new IntegerConstant(0, null), true),
+      new Bound(new IntegerConstant(1, null), true));
+  public static final RangeMatch AT_LEAST_ONE = new RangeMatch(
+          new Bound(new IntegerConstant(1, null), true),
+          null);
+  public static final RangeMatch ANY_AMOUNT = new RangeMatch(
+              new Bound(new IntegerConstant(0, null), true),
+              null);
 
   private final Bound lowerBound;
   private final Bound upperBound;
@@ -19,7 +30,7 @@ public class RangeMatch implements Criterion {
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
     try {
-      String unit = null;
+      Unit unit = null;
       if (lowerBound != null) {
         Object low = lowerBound.value.getResults(it, scope);
         if (low instanceof Measure m) unit = m.getUnit();
@@ -43,7 +54,13 @@ public class RangeMatch implements Criterion {
     }
   }
 
-  private enum Comparison {
+  @Override
+  public String toString() {
+    return (lowerBound == null ? "" : lowerBound.value + (lowerBound.inclusive ? "~" : "")) + ".."
+        + (upperBound == null ? "" : (upperBound.inclusive ? "~" : "") + upperBound.value);
+  }
+
+  public enum Comparison {
     LESS, EQUAL, GREATER, INCOMPARABLE;
     static Comparison of(int comparatorResult) {
       if (comparatorResult < 0) return LESS;
@@ -52,16 +69,28 @@ public class RangeMatch implements Criterion {
     }
   }
 
-  private Comparison compare(Object lhs, Object rhs) {
-    if (lhs instanceof Measure m && rhs instanceof Number) lhs = m.getValue();
+  public static Comparison compare(Object lhs, Object rhs) {
     if (lhs instanceof Measure l && rhs instanceof Measure r) {
       if (l.getUnit().equals(r.getUnit())) {
         lhs = l.getValue();
         rhs = r.getValue();
       } else {
-        return Comparison.INCOMPARABLE;
+        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
       }
     }
+    else if (lhs instanceof Measure m && rhs instanceof Number) {
+      if (m.getUnit().equals(Unit.SCALAR))
+        lhs = m.getValue();
+      else
+        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+    }
+    else if (lhs instanceof Number && rhs instanceof Measure m) {
+      if (m.getUnit().equals(Unit.SCALAR))
+        rhs = m.getValue();
+      else
+        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+    }
+
     if ((lhs instanceof String) && (rhs instanceof String)) {
       return Comparison.of(((String) lhs).compareTo((String) rhs));
     } else if ((lhs instanceof Number) && (rhs instanceof Number)) {

@@ -2,7 +2,7 @@
 // Quicksort-inspired solution to pancake sort
 
 templates pancakeQuick
-  @: {stack: $, flips: 0};
+  @: {stack: $, flips: 0"1"};
 
   sink flip
     when <2..> do
@@ -60,7 +60,7 @@ templates pancakeQuick
       $ - 1 -> #
 
     otherwise
-      ..|@: (break: $);
+      ..|@: (break: ($)"1");
       $ - 1 -> #
   end order
   $::length -> !order&{cmp: 1}
@@ -71,4 +71,4 @@ composer toInt
   <INT>
 end toInt
 
-[$IN::lines -> toInt] -> pancakeQuick -> !OUT::write
+[23, 72, 40, 43, 91, 38, 23, 58, 26, 59, 12, 18, 27, 39, 69, 74, 11, 41, 3, 40] -> pancakeQuick -> !OUT::write

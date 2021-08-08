@@ -2,17 +2,33 @@ package tailspin.types;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class Unit {
-  private static final Pattern POWER = Pattern.compile("\\A(\\D+)(\\d*)");
-  private Unit() {}
+  public static final Unit UNKNOWN = new Unit("");
 
-  public static String validate(String unit) {
+  public static final Unit SCALAR = new Unit("1") {
+    @Override
+    public String toString() {
+      return "";
+    }
+  };
+
+  private static final Pattern POWER = Pattern.compile("\\A(\\D+)(\\d*)");
+
+  private final String unit;
+
+  private Unit(String unit) {
+    this.unit = unit;
+  }
+
+  public static Unit validate(String unit) {
     if (unit == null) return null;
+    if (unit.equals("1")) return SCALAR;
     String[] division = unit.split("/");
     Set<String> measures = new HashSet<>();
     Stream.concat(
@@ -25,7 +41,7 @@ public class Unit {
               if (!measures.add(m))
                 throw new IllegalArgumentException("Same measure given twice in " + unit);
             });
-    return unit;
+    return new Unit(unit);
   }
 
   private static Stream<String> powers(String product) {
@@ -35,5 +51,20 @@ public class Unit {
         throw new IllegalArgumentException("Cannot understand measure " + power);
       return matcher.group(1);
     });
+  }
+
+  @Override
+  public String toString() {
+    return "\"" + unit + "\"";
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(unit);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return (obj instanceof Unit u) && Objects.equals(unit, u.unit);
   }
 }

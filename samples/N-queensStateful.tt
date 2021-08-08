@@ -19,14 +19,14 @@ templates queens
     1 -> #
     when <=-1> do 1! // Use -1 to signal successful completion
     when <=$n+1> do 0 !
-    when <?({r: $, c: $c} -> getRowColumn <=1>)> do
+    when <?({r: ($)"1", c: ($c)"1"} -> getRowColumn <=1>)> do
       def r: $;
       @queens.queenRows($r): $c;
-      {r: $, c: $c, val: 0} -> !setRowColumn
+      {r: ($)"1", c: ($c)"1", val: 0} -> !setRowColumn
       $c -> \(<=$n> -1!
         <?($c + 1 -> placeQueen <=1>)> -1!
         <>
-          {r: $r, c: $c, val: 1} -> !setRowColumn
+          {r: ($r)"1", c: ($c)"1", val: 1} -> !setRowColumn
           $r + 1 !\) -> #
     otherwise $ + 1 -> #
   end placeQueen

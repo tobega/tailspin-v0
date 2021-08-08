@@ -13,28 +13,34 @@ statement: definition
   | composerDefinition
   | testDefinition
   | operatorDefinition
-  | stereotypeDefinition
+  | dataDeclaration
 ;
 
 definition: Def key valueProduction SemiColon;
 
 valueChainToSink: valueChain To sink;
 
-templatesDefinition: (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? templatesBody EndDefinition localIdentifier;
+templatesDefinition: (StartTemplatesDefinition|StartSinkDefinition|StartSourceDefinition) localIdentifier parameterDefinitions? localDataDeclaration? templatesBody EndDefinition localIdentifier;
 
-processorDefinition: StartProcessorDefinition localIdentifier parameterDefinitions? block typestateDefinition* EndDefinition localIdentifier;
+processorDefinition: StartProcessorDefinition localIdentifier parameterDefinitions? localDataDeclaration? block typestateDefinition* EndDefinition localIdentifier;
 
 typestateDefinition: StartStateDefinition localIdentifier messageDefinition* EndDefinition localIdentifier;
 
 messageDefinition: templatesDefinition | processorDefinition | composerDefinition | operatorDefinition;
 
-composerDefinition: StartComposerDefinition localIdentifier parameterDefinitions? composerBody EndDefinition localIdentifier;
+composerDefinition: StartComposerDefinition localIdentifier parameterDefinitions? localDataDeclaration? composerBody EndDefinition localIdentifier;
 
 testDefinition: StartTestDefinition stringLiteral useModule* programModification? testBody EndDefinition stringLiteral;
 
-operatorDefinition: StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen templatesBody EndDefinition localIdentifier;
+operatorDefinition: StartOperatorDefinition LeftParen localIdentifier localIdentifier parameterDefinitions? localIdentifier RightParen localDataDeclaration? templatesBody EndDefinition localIdentifier;
 
-stereotypeDefinition: StereotypeDefinition localIdentifier matcher;
+dataDeclaration: DataDefinition dataDefinition (Comma dataDefinition)*;
+
+dataDefinition: localIdentifier matcher;
+
+localDataDeclaration: DataDefinition localDataDefinition (Comma localDataDefinition)* LocalDefinition;
+
+localDataDefinition: localIdentifier matcher?;
 
 key: localIdentifier Colon;
 
@@ -83,7 +89,7 @@ relationLiteral: LeftBrace Else (structures (Comma structures)*)? Else RightBrac
 
 bytesLiteral: StartBytes byteValue (byteValue)* EndBytes;
 
-byteValue: Bytes | term;
+byteValue: Bytes | LeftParen valueProduction RightParen | operatorExpression;
 
 structures: structureLiteral
   | valueProduction
@@ -99,8 +105,8 @@ keyValue: key valueProduction;
 
 templates: templatesReference                        # callDefinedTransform
   | source                        # literalTemplates
-  | Lambda localIdentifier? LeftParen templatesBody Lambda localIdentifier? RightParen # lambdaTemplates
-  | Lambda localIdentifier? arrayIndexDecomposition LeftParen templatesBody Lambda localIdentifier? RightParen # lambdaArrayTemplates
+  | Lambda localIdentifier? LeftParen localDataDeclaration? templatesBody Lambda localIdentifier? RightParen # lambdaTemplates
+  | Lambda localIdentifier? arrayIndexDecomposition LeftParen localDataDeclaration? templatesBody Lambda localIdentifier? RightParen # lambdaArrayTemplates
 ;
 
 arrayIndexDecomposition: LeftBracket localIdentifier (SemiColon localIdentifier)* RightBracket;
@@ -175,7 +181,7 @@ rangeLiteral: lowerBound? Range upperBound? (Colon arithmeticValue)?;
 
 integerLiteral: (Zero | nonZeroInteger) unit?;
 
-unit: Quote measureProduct measureDenominator? Quote;
+unit: Scalar | Quote measureProduct measureDenominator? Quote;
 
 measureProduct: localIdentifier*;
 
@@ -198,6 +204,7 @@ arithmeticValue: arithmeticExpression;
 
 arithmeticExpression: integerLiteral
   | LeftParen arithmeticExpression RightParen unit?
+  | term unit
   | additiveOperator? sourceReference
   | arithmeticExpression multiplicativeOperator arithmeticExpression
   | arithmeticExpression additiveOperator arithmeticExpression
@@ -286,7 +293,8 @@ keyword: Include
   | StartOperatorDefinition
   | StartStateDefinition
   | EndDefinition
-  | StereotypeDefinition
+  | DataDefinition
+  | LocalDefinition
   | Mod
   | Rule
   | When

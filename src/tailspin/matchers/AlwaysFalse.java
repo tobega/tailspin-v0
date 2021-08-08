@@ -9,6 +9,11 @@ public class AlwaysFalse implements Criterion {
   private AlwaysFalse() {}
 
   @Override
+  public String toString() {
+    return "false";
+  }
+
+  @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
     return false;
   }

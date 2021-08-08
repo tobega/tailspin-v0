@@ -21,8 +21,7 @@ public class ArrayMatch implements Criterion {
 
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
-    if (!(toMatch instanceof TailspinArray)) return false;
-    TailspinArray listToMatch = (TailspinArray) toMatch;
+    if (!(toMatch instanceof TailspinArray listToMatch)) return false;
     if (lengthCriterion != null && !lengthCriterion.isMet((long) listToMatch.length(), it, scope)) {
       return false;
     }
@@ -48,5 +47,11 @@ public class ArrayMatch implements Criterion {
       tail = tail.tailFrom(2);
     }
     return criteria.stream().allMatch(c -> c.isSatisfied(it, scope));
+  }
+
+  @Override
+  public String toString() {
+    return "[" + contentMatcherFactories.stream().map(Object::toString).collect(Collectors.joining(",")) + (nothingElseAllowed ? "VOID" : "") + "]"
+        + (lengthCriterion != null ? "(" + lengthCriterion + ")" : "");
   }
 }

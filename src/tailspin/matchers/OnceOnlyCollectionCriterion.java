@@ -23,4 +23,9 @@ public class OnceOnlyCollectionCriterion implements CollectionCriterion {
   public boolean isSatisfied(Object it, Scope scope) {
     return wasMatched;
   }
+
+  @Override
+  public String toString() {
+    return criterion.toString();
+  }
 }

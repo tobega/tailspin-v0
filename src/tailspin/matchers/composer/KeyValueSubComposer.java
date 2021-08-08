@@ -1,16 +1,20 @@
 package tailspin.matchers.composer;
 
 import tailspin.control.Value;
+import tailspin.interpreter.Scope;
 import tailspin.types.KeyValue;
 
 class KeyValueSubComposer implements SubComposer {
   private final SubComposer keyComposer;
   private final SequenceSubComposer valueComposer;
+  private final Scope scope;
   String key;
 
-  KeyValueSubComposer(SubComposer keyComposer, SequenceSubComposer valueComposer) {
+  KeyValueSubComposer(SubComposer keyComposer, SequenceSubComposer valueComposer,
+      Scope scope) {
     this.keyComposer = keyComposer;
     this.valueComposer = valueComposer;
+    this.scope = scope;
   }
 
   @Override
@@ -46,6 +50,7 @@ class KeyValueSubComposer implements SubComposer {
   @Override
   public KeyValue getValues() {
     Object value = Value.oneValue(valueComposer.getValues());
+    value = scope.checkDataDefinition(key, value);
     return new KeyValue(key, value);
   }
 

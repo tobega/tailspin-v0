@@ -326,7 +326,7 @@ class Structures {
 
   @Test
   void projection() throws IOException {
-    String program = "{a: 1, b:5} -> $({a:, b:, d: §.a+§.b}) -> !OUT::write";
+    String program = "{a: 1\"1\", b:5\"1\"} -> $({a:, b:, d: §.a+§.b}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

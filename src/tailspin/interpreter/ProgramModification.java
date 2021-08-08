@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import tailspin.control.Definition;
 
 public class ProgramModification {
 
@@ -15,10 +16,11 @@ public class ProgramModification {
 
   public List<DefinitionStatement> overrideDefinitions(List<DefinitionStatement> programDefinitions) {
     Map<String, DefinitionStatement> indexedDefinitions = definitions.stream()
-        .collect(Collectors.toMap(d -> d.statement.getIdentifier(), Function.identity()));
+        .filter(d -> d.statement instanceof Definition)
+        .collect(Collectors.toMap(d -> ((Definition) d.statement).getIdentifier(), Function.identity()));
     return programDefinitions.stream().map(d -> {
-      if (indexedDefinitions.containsKey(d.statement.getIdentifier())) {
-        return indexedDefinitions.get(d.statement.getIdentifier());
+      if ((d.statement instanceof Definition def) && indexedDefinitions.containsKey(def.getIdentifier())) {
+        return indexedDefinitions.get(def.getIdentifier());
       } else {
         return d;
       }

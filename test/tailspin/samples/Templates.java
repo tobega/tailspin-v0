@@ -1063,7 +1063,7 @@ class Templates {
   void lensAsParameter() throws Exception {
     String program =
         """
-            def a: [{foo:5}, {foo:7}, {foo:9}];
+            def a: [{foo:5"1"}, {foo:7"1"}, {foo:9"1"}];
             templates bar&{baz:}
               $ + $a(baz) !
             end bar

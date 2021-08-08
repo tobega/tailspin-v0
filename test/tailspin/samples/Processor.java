@@ -387,18 +387,18 @@ class Processor {
     String program =
         """
             processor Var
-            @: {a: $};
+            @: {foo: $};
             sink set&{lens:}
-              @Var(a:; lens): $;
+              @Var(foo:; lens): $;
             end set
             sink merge&{lens:}
-              ..|@Var(a:; lens): $;
+              ..|@Var(foo:; lens): $;
             end merge
             source get&{lens:}
-              $@Var(a:; lens) !
+              $@Var(foo:; lens) !
             end get
             source delete&{lens:}
-              ^@Var(a:; lens) !
+              ^@Var(foo:; lens) !
             end delete
             end Var
             def var: {a:1} -> Var;
@@ -406,7 +406,38 @@ class Processor {
             $var::get&{lens: :(a:)} -> !OUT::write
             2 -> !var::set&{lens: :(a:)}
             $var::get&{lens: :()} -> !OUT::write
-            [3] -> !var::set&{lens: :()}
+            """
+            ;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a=1}1{a=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void mutableArrayInStructure() throws Exception {
+    String program =
+        """
+            processor Var
+            @: {foo: $};
+            sink set&{lens:}
+              @Var(foo:; lens): $;
+            end set
+            sink merge&{lens:}
+              ..|@Var(foo:; lens): $;
+            end merge
+            source get&{lens:}
+              $@Var(foo:; lens) !
+            end get
+            source delete&{lens:}
+              ^@Var(foo:; lens) !
+            end delete
+            end Var
+            def var: [3] -> Var;
             $var::get&{lens: :()} -> !OUT::write
             $var::get&{lens: :(1)} -> !OUT::write
             4 -> !var::merge&{lens: :()}
@@ -422,7 +453,7 @@ class Processor {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1}1{a=2}[3]3[3, 4]3[4]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[3]3[3, 4]3[4]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

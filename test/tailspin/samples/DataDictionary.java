@@ -11,201 +11,41 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import tailspin.Tailspin;
 
-public class Units {
+public class DataDictionary {
   @Test
-  void printLiteral() throws IOException {
-    String program = "1337\"m/s\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("1337\"m/s\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void definitionOfProductUnit() throws IOException {
-    String program = "def leet: 1337\"N m\";\n" + "$leet -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("1337\"N m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void powers() throws IOException {
-    String program = "1337\"m/s2\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("1337\"m/s2\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void noInternalNumbers() throws IOException {
-    String program = "1337\"m3s\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void noDuplicateMeasures() throws IOException {
-    String program = "1337\"m2 m\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void addUntypedWorks() throws IOException {
-    String program = "4\"m\" + 3 -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void subtractUntypedWorks() throws IOException {
-    String program = "4\"m\" - 3 -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("1\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void multiplyUntypedWorks() throws IOException {
-    String program = "4\"m\" * 3 -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("12\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void integerDivideUntypedWorks() throws IOException {
-    String program = "12\"m\" ~/ 3 -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("4\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void moduloUntypedWorks() throws IOException {
-    String program = "11\"m\" mod 3 -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("2\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void addDifferentUnitFails() throws IOException {
-    String program = "4\"m\" + 3\"s\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void addSameUnitWorks() throws IOException {
-    String program = "4\"m\" + 3\"m\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void subtractSameUnitWorks() throws IOException {
-    String program = "4\"m\" - 3\"m\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("1\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void provideUnitForExpression() throws IOException {
-    String program = "(4\"J\" + 3\"N m\")\"J\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7\"J\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void provideUnitForUntypedExpression() throws IOException {
-    String program = "(4 + 3)\"J\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7\"J\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void provideUnitForTerm() throws IOException {
+  void definedTermWrongValue() throws IOException {
     String program = """
-    templates foo 7! end foo
-    ('ok' -> foo)"J" + 1 -> !OUT::write
+    data x <1..5>
+    {x: 6} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void redefinedTermIsError() throws IOException {
+    String program = """
+    data x <1..5>
+    data x <1..5>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void definedTermCorrectValue() throws IOException {
+    String program = """
+    data x <1..5>
+    {x: 3} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -214,14 +54,14 @@ public class Units {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("8\"J\"", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void provideUnitForValueProduction() throws IOException {
+  void multipleDefinedTermsCorrectValue() throws IOException {
     String program = """
-    templates foo 7! end foo
-    ('ok' -> foo)"J" -> !OUT::write
+    data x <1..5>, y <6..8>
+    {x: 3, y: 6} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -230,436 +70,28 @@ public class Units {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("7\"J\"", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x=3, y=6}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void measureComparedToUntypedIsError() throws IOException {
-    String program = "4\"J\" -> \\(<=2> 'never'! <=4> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void scalarEqualsUntyped() throws IOException {
-    String program = "4\"1\" -> \\(<=2> 'never'! <=4> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void measureInUntypedRangeIsError() throws IOException {
-    String program = "4\"J\" -> \\(<0..2> 'never'! <3..5> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void scalarInUntypedRange() throws IOException {
-    String program = "4\"1\" -> \\(<0..2> 'never'! <3..5> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void untypedComparedToMeasureIsError() throws IOException {
-    String program = "4 -> \\(<=2\"J\"> 'never'! <=4\"J\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void untypedDoesEqualScalar() throws IOException {
-    String program = "4 -> \\(<=2\"1\"> 'never'! <=4\"1\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void untypedIsErrorForMeasureRange() throws IOException {
-    String program =
-        "4 -> \\(<0\"J\"..2\"J\"> 'never'! <3\"J\"..5\"J\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void measureEqualsMeasureWithSameUnit() throws IOException {
-    String program = "4\"J\" -> \\(<=2\"J\"> 'never'! <=4\"J\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void measureInMeasureRangeOfSameUnit() throws IOException {
-    String program =
-        "4\"J\" -> \\(<0\"J\"..2\"J\"> 'never'! <3\"J\"..5\"J\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void measureNotEqualToStringButNotError() throws IOException {
-    String program = "4\"J\" -> \\(<='foo'> 'never'! <> 'yes'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void measureNotInStringRangeButNoError() throws IOException {
-    String program =
-        "4\"J\" -> \\(<'bar'..'foo'> 'never'! <> 'yes'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void compareEqualityMeasureWithDifferentUnitIsError() throws IOException {
-    String program = "4\"J\" -> \\(<=2\"m\"> 'never'! <=4\"m\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void compareRangeOfDifferentUnitIsError() throws IOException {
-    String program =
-        "4\"J\" -> \\(<0\"m\"..2\"m\"> 'never'! <3\"m\"..5\"m\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void untypedInMeasureRangeOfScalar() throws IOException {
-    String program =
-        "4 -> \\(<0\"1\"..2\"1\"> 'never'! <3\"1\"..5\"1\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void unitAsTypeComparison() throws IOException {
-    String program =
-        "4\"J\" -> \\(<\"m\"> 'never'! <\"J\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void untypedInTypeComparisonIsNoError() throws IOException {
-    String program =
-        "4 -> \\(<\"m\"> 'never'! <\"J\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("no", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void untypedIsScalarType() throws IOException {
-    String program =
-        "4 -> \\(<\"m\"> 'never'! <\"1\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void dereferenceMeasure() throws IOException {
-    String program =
-        "def a: 4\"J\"; 3\"J\" -> -$ + $a -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("1\"J\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void measureRange() throws IOException {
-    String program =
-        "4\"J\"..6\"J\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("4\"J\"5\"J\"6\"J\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void measureRangeUpperBound() throws IOException {
-    String program =
-        "4..6\"J\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("4\"J\"5\"J\"6\"J\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void measureRangeLowerBound() throws IOException {
-    String program =
-        "4\"J\"..6 -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("4\"J\"5\"J\"6\"J\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void measureRangeDifferentBoundsIllegal() throws IOException {
-    String program =
-        "4\"J\"..6\"m\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () ->runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void measureRangeMatchDifferentBoundsIllegal() throws IOException {
-    String program =
-        "5\"J\" -> \\(<4\"J\"..6\"m\"> $! \\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () ->runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void unitInState() throws IOException {
-    String program =
-        "4\"J\" -> \\(@: $; $@ + 1 ! \\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("5\"J\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void printScalar() throws IOException {
-    String program = "1337\"1\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("1337", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void addScalarFails() throws IOException {
-    String program = "4\"m\" + 3\"1\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void addTwoScalarsWorks() throws IOException {
-    String program = "4\"1\" + 3\"1\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void subtractScalarFails() throws IOException {
-    String program = "4\"m\" - 3\"1\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void multiplyScalarWorks() throws IOException {
-    String program = "4\"m\" * 3\"1\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("12\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void integerDivideScalarWorks() throws IOException {
-    String program = "12\"m\" ~/ 3\"1\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("4\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void moduloScalarWorks() throws IOException {
-    String program = "11\"m\" mod 3\"1\" -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("2\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void indexByScalarWorks() throws IOException {
-    String program = "[6,7,8] -> $(2\"1\") -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void indexByMeasureFails() throws IOException {
-    String program = "[6,7,8] -> $(2\"m\") -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void indexByMeasureRawValueWorks() throws IOException {
+  void implicitlyDefinedTermWrongValue() throws IOException {
     String program = """
-    def foo: 2"m";
-    [6,7,8] -> $($foo::raw) -> !OUT::write
+    data coord <{x: <1..5>}>
+    {x: 6} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void implicitlyDefinedTermCorrectValue() throws IOException {
+    String program = """
+    data coord <{x: <1..5>}>
+    {x: 3} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -668,6 +100,673 @@ public class Units {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("7", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void implicitlyRedefinedTermIsError() throws IOException {
+    String program = """
+    data x <1..5>
+    data coord <{x: <1..5>}>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void implicitlyRedefinedTermSelfReferenceIsCorrect() throws IOException {
+    String program = """
+    data x <1..5>
+    data coord <{x: <x>}>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void implicitlyDoublyDefinedTermIsError() throws IOException {
+    String program = """
+    data coord <{a: <{x: <1..5>}>, b: <{x: <1..5>}>}>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void implicitlyDoublyDefinedTermSelfReferenceIsCorrect() throws IOException {
+    String program = """
+    data coord <{a: <{x: <1..5>}>, b: <{x: <x>}>}>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void implicitSelfReferenceFirstInLexicalOrderIsCorrect() throws IOException {
+    String program = """
+    data coord <{a: <{x: <x>}>, b: <{x: <1..5>}>}>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void implicitSelfReferenceOnAllForAutotypingIsCorrect() throws IOException {
+    String program = """
+    data coord <{a: <{x: <x>}>, b: <{x: <x>}>}>
+    {coord: {a: {x: 3}, b: {x: 4}}} -> $.coord.a -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void dataRunsBeforeDefinitions() throws IOException {
+    String program = """
+    data x <1..5>
+    def foo: {x: 6};
+    $foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void dataDefinitionsCanDependOnOtherDataDefinitions() throws IOException {
+    String program = """
+    data finger <1..5>
+    data x <finger>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void autotypedStringTermCorrectValue() throws IOException {
+    String program = """
+    {x: 'apple'} -> !OUT::write
+    {x: 'banana'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=banana}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void autotypedStringTermConflict() throws IOException {
+    String program = """
+    {x: 'apple'} -> !OUT::write
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void localInlineTransformTypeStaysLocal() throws IOException {
+    String program = """
+    'apple' -> \\(data x local {x: $} -> !OUT::write\\) -> !VOID
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void localInlineArrayTransformTypeStaysLocal() throws IOException {
+    String program = """
+    ['apple'] -> \\[i](data x local {x: $} -> !OUT::write\\) -> !VOID
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void localTransformTypeStaysLocal() throws IOException {
+    String program = """
+    templates foo
+      data x local
+      {x: $} -> !OUT::write
+    end foo
+    'apple' -> foo -> !VOID
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void localTypeCanBeDefined() throws IOException {
+    String program = """
+    data x <0..>
+    templates foo
+      data x <'.*'> local
+      {x: $} -> !OUT::write
+    end foo
+    'apple' -> foo -> !VOID
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void localProcessorTypeStaysLocal() throws IOException {
+    String program = """
+    processor foo
+      data x local
+      {x: $} -> !OUT::write
+    end foo
+    'apple' -> foo -> !VOID
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void localComposerTypeStaysLocal() throws IOException {
+    String program = """
+    composer foo
+      data x local
+      (<'.*'> -> @: {x: $};) $@.x
+    end foo
+    'apple' -> foo -> !OUT::write
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("apple{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void localOperatorTypeStaysLocal() throws IOException {
+    String program = """
+    operator (a foo b)
+      data x local
+      {x: '$a;$b;'} -> !OUT::write
+    end foo
+    ('app' foo 'le') -> !VOID
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void settingStateChecksType() throws IOException {
+    String program = """
+    templates foo
+      @: {x: 'apple'};
+      @.x: 3;
+      $@ !
+    end foo
+    1 -> foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void settingStateLensChecksType() throws IOException {
+    String program = """
+    templates foo
+      @: {x: 'apple'};
+      @(x:): 3;
+      $@ !
+    end foo
+    1 -> foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void projectionChecksType() throws IOException {
+    String program = """
+    {x: 'apple'} -> $({x: 3}) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedArrayTermCorrectValue() throws IOException {
+    String program = """
+    {x: ['apple']} -> !OUT::write
+    {x: ['banana', 'orange']} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=[apple]}{x=[banana, orange]}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void autotypedArrayWrongType() throws IOException {
+    String program = """
+    {x: ['apple']} -> !OUT::write
+    {x: 'banana'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedArrayWrongContentType() throws IOException {
+    String program = """
+    {x: ['apple']} -> !OUT::write
+    {x: [2]} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedArrayMayNotHaveMixedContentType() throws IOException {
+    String program = """
+    {x: ['apple', 2]} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedStructureTermCorrectValue() throws IOException {
+    String program = """
+    {x: {fruit: 'apple'}} -> !OUT::write
+    {x: {fruit: 'banana'}} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x={fruit=apple}}{x={fruit=banana}}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void autotypedStructureWrongType() throws IOException {
+    String program = """
+    {x: {fruit: 'apple'}} -> !OUT::write
+    {x: 'banana'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedStructureWrongExtraField() throws IOException {
+    String program = """
+    {x: {fruit: 'apple'}} -> !OUT::write
+    {x: {fruit: 'banana', days: 2}} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedStructureWrongMissingField() throws IOException {
+    String program = """
+    {x: {fruit: 'banana', days: 2}} -> !OUT::write
+    {x: {fruit: 'apple'}} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedStructureWrongContainedField() throws IOException {
+    String program = """
+    {x: {days: 2}} -> !OUT::write
+    {x: {fruit: 'apple'}} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedStructureWrongTypeContainedField() throws IOException {
+    String program = """
+    {x: {fruit: 2}} -> !OUT::write
+    {x: {fruit: 'apple'}} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedMeasureTermCorrectValue() throws IOException {
+    String program = """
+    {x: 1"s"} -> !OUT::write
+    {x: 2"s"} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=1\"s\"}{x=2\"s\"}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void autotypedMeasureTermConflict() throws IOException {
+    String program = """
+    {x: 1"s"} -> !OUT::write
+    {x: 'banana'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedMeasureDoesNotMatchOtherMeasure() throws IOException {
+    String program = """
+    {x: 1"s"} -> !OUT::write
+    {x: 2"m"} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedMeasureDoesNotMatchScalar() throws IOException {
+    String program = """
+    {x: 1"s"} -> !OUT::write
+    {x: 2} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composedStructureAutotypedCorrectValue() throws IOException {
+    String program = """
+    composer foo
+      { x: <INT> }
+    end foo
+    '1' -> foo -> !OUT::write
+    {x: 5} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=1}{x=5}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composedStructureAutotypedConflict() throws IOException {
+    String program = """
+    composer foo
+      { x: <INT> }
+    end foo
+    '1' -> foo -> !OUT::write
+    {x: 'apple'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void collectedRelationStructureAutotypedCorrectValue() throws IOException {
+    String program = """
+    processor Five
+      sink accumulate
+        !VOID
+      end accumulate
+      source result
+        5!
+      end result
+    end Five
+    {|{}|} -> $(collect {x: Five} by $) ... -> !OUT::write
+    {x: 1} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=5}{x=1}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void collectedRelationStructureAutotypedConflict() throws IOException {
+    String program = """
+    processor Five
+      sink accumulate
+        !VOID
+      end accumulate
+      source result
+        5!
+      end result
+    end Five
+    {|{}|} -> $(collect {x: Five} by $) ... -> !OUT::write
+    {x: 'apple'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void collectedArrayStructureAutotypedConflict() throws IOException {
+    String program = """
+    processor Five
+      sink accumulate
+        !VOID
+      end accumulate
+      source result
+        5!
+      end result
+    end Five
+    [{}] -> $(collect {x: Five} by $) ... -> !OUT::write
+    {x: 'apple'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void collectedArrayStructureAutotypedCorrectValue() throws IOException {
+    String program = """
+    processor Five
+      sink accumulate
+        !VOID
+      end accumulate
+      source result
+        5!
+      end result
+    end Five
+    [{}] -> $(collect {x: Five} by $) ... -> !OUT::write
+    {x: 1} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=5}{x=1}", output.toString(StandardCharsets.UTF_8));
   }
 }

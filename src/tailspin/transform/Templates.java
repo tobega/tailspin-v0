@@ -10,33 +10,40 @@ import tailspin.control.Block;
 import tailspin.control.DelayedExecution;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
+import tailspin.matchers.DefinedCriterion;
+import tailspin.types.Criterion;
 import tailspin.types.Transform;
 
 public class Templates implements Transform {
   final String name;
   final Scope definingScope;
+  final List<Map.Entry<String, Criterion>> localDatatypes;
   // @Nullable
   final Block block;
   private final List<MatchTemplate> matchTemplates;
   final List<ExpectedParameter> expectedParameters = new ArrayList<>();
 
   public Templates(String name, Scope definingScope,
-      /*@Nullable*/ Block block, List<MatchTemplate> matchTemplates) {
+      List<Map.Entry<String, Criterion>> localDatatypes, /*@Nullable*/ Block block,
+      List<MatchTemplate> matchTemplates) {
     this.name = name;
     this.definingScope = definingScope;
+    this.localDatatypes = localDatatypes;
     this.block = block;
     this.matchTemplates = matchTemplates;
   }
 
   @Override
   public Object getResults(Object it, Map<String, Object> parameters) {
-    TransformScope scope = createTransformScope(it, parameters);
+    TransformScope scope = createTransformScope(parameters);
     return runInScope(it, scope);
   }
 
-  TransformScope createTransformScope(Object it, Map<String, Object> parameters) {
+  TransformScope createTransformScope(Map<String, Object> parameters) {
     TransformScope scope = new TransformScope(definingScope, name);
     scope.setTemplates(this);
+    localDatatypes.forEach(dataDef -> scope.localDictionary.createDataDefinition(dataDef.getKey(),
+        dataDef.getValue() == null ? null : new DefinedCriterion(dataDef.getValue(), scope)));
     resolveParameters(expectedParameters, parameters, scope, name);
     return scope;
   }

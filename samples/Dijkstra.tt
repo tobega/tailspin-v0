@@ -1,6 +1,6 @@
 templates shortestPaths&{graph:}
   @: [];
-  [ {to: $, distance: 0, path:[]} ] -> #
+  [ {to: $, distance: 0"1", path:[]} ] -> #
   when <[](0)> do $@ !
   otherwise
     def closest: $ -> \(@: $(1);
@@ -10,20 +10,20 @@ templates shortestPaths&{graph:}
     $closest -> ..|@: $;
     def path: [ $closest.path..., $closest.to ];
     [ $... -> \(when <{to: <~=$closest.to>}> do $!\),
-      $graph... -> \(when <?($.edge(1) <=$closest.to>) ?($@shortestPaths <~[<{to: <=$.edge(2)>}>]>)> do $!\)
+      $graph... -> \(when <?($.edge(1) <=$closest.to::raw>) ?($@shortestPaths <~[<{to: <=$.edge(2)>}>]>)> do $!\)
         -> { to: $.edge(2), distance: $.cost + $closest.distance, path: $path} ] -> #
 end shortestPaths
 
 def edges: [
-  { edge: ['a', 'b'], cost: 7 },
-  { edge: ['a', 'c'], cost: 9 },
-  { edge: ['a', 'f'], cost: 14 },
-  { edge: ['b', 'c'], cost: 10 },
-  { edge: ['b', 'd'], cost: 15 },
-  { edge: ['c', 'd'], cost: 11 },
-  { edge: ['c', 'f'], cost: 2 },
-  { edge: ['d', 'e'], cost: 6 },
-  { edge: ['e', 'f'], cost: 9 }];
+  { edge: ['a', 'b'], cost: 7"1" },
+  { edge: ['a', 'c'], cost: 9"1" },
+  { edge: ['a', 'f'], cost: 14"1" },
+  { edge: ['b', 'c'], cost: 10"1" },
+  { edge: ['b', 'd'], cost: 15"1" },
+  { edge: ['c', 'd'], cost: 11"1" },
+  { edge: ['c', 'f'], cost: 2"1" },
+  { edge: ['d', 'e'], cost: 6"1" },
+  { edge: ['e', 'f'], cost: 9"1" }];
 
 def fromA: 'a' -> shortestPaths&{graph: $edges};
 

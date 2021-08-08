@@ -9,6 +9,8 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import tailspin.control.DataDefinition;
+import tailspin.control.Definition;
 import tailspin.interpreter.lang.Lang;
 
 public class Module {
@@ -25,9 +27,13 @@ public class Module {
   void resolveSymbols(Set<String> internalSymbols, BasicScope scope,
       List<SymbolLibrary> providedDependencies) {
     Map<String, Set<String>> definedSymbols = definitions.stream()
+        .filter(d -> (d.statement instanceof Definition))
         .collect(Collectors
-            .toMap(d -> d.statement.getIdentifier(), d -> d.requiredDefinitions));
+            .toMap(d -> ((Definition) d.statement).getIdentifier(), d -> d.requiredDefinitions));
     Queue<String> neededDefinitions = new ArrayDeque<>(internalSymbols);
+    definitions.stream()
+        .filter(d -> (d.statement instanceof DataDefinition))
+        .forEach(d -> neededDefinitions.addAll(d.requiredDefinitions));
     Set<String> transientDefinitions = new HashSet<>();
     Set<String> externalDefinitions = new HashSet<>();
     while (!neededDefinitions.isEmpty()) {
@@ -52,13 +58,15 @@ public class Module {
     if (!externalDefinitions.isEmpty())
       Lang.installBuiltins(externalDefinitions, scope);
     definitions.stream()
-        .filter(d -> transientDefinitions.contains(d.statement.getIdentifier()))
+        .filter(d -> (d.statement instanceof DataDefinition) || transientDefinitions.contains(((Definition) d.statement).getIdentifier()))
         .forEach(d -> d.statement.getResults(null, scope));
   }
 
   public void resolveAll(BasicScope scope, List<SymbolLibrary> providedDependencies) {
     resolveSymbols(
-        definitions.stream().map(d -> d.statement.getIdentifier()).collect(Collectors.toSet()),
+        definitions.stream()
+            .filter(d -> (d.statement instanceof Definition))
+            .map(d -> ((Definition) d.statement).getIdentifier()).collect(Collectors.toSet()),
         scope, providedDependencies);
   }
 

@@ -20,6 +20,8 @@
 //Additionally, list the solution for all the houses.
 //Optionally, show the solution is unique.
 
+data ES_temp__ <"1">
+
 processor EinsteinSolver
   @: [{|{}|}]; // A list of possible relations, start with one relation with an empty tuple
   $ -> \(
@@ -43,7 +45,7 @@ processor EinsteinSolver
   operator (a nextTo&{byField:, bMinusA:} b)
     @EinsteinSolver: [$@EinsteinSolver... -> \(
       def in: $;
-      def temp: {| $... -> {$, ES_temp__: $(byField)} |};
+      def temp: {| $... -> {$, ES_temp__: ($(byField)::raw)"1"} |};
       def numbers: [$temp({ES_temp__:})... -> $.ES_temp__];
       $numbers... -> \(
         def aNumber: $;

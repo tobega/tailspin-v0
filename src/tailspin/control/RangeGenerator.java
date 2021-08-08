@@ -4,6 +4,7 @@ import java.util.function.Function;
 import java.util.stream.LongStream;
 import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
+import tailspin.types.Unit;
 
 public class RangeGenerator implements Expression {
 
@@ -24,7 +25,7 @@ public class RangeGenerator implements Expression {
 
   public RangeIterator resultIterator(Function<Long, Long> lowerBoundTransform,
       Function<Long, Long> upperBoundTransform, Object it, Scope scope) {
-    String unit = null;
+    Unit unit = null;
     long increment = step == null ? 1 : ((Number) step.getResults(it, scope)).longValue();
     if (increment == 0) {
       throw new IllegalArgumentException("Cannot produce range with zero increment");
@@ -56,9 +57,9 @@ public class RangeGenerator implements Expression {
     private long i;
     private final long increment;
     private final long end;
-    private final String unit;
+    private final Unit unit;
 
-    RangeIterator(long start, long increment, long end, String unit) {
+    RangeIterator(long start, long increment, long end, Unit unit) {
       this.i = start;
       this.increment = increment;
       this.end = end;

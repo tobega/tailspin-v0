@@ -169,7 +169,8 @@ public class Relations {
 
   @Test
   void extend() throws IOException {
-    String program = "{|{x: 1, y: 2}, {x:2, y: 3}|} -> $({x:, y:, z: 1 + §.y}) -> !OUT::write";
+    String program =
+        "{|{x: 1\"1\", y: 2\"1\"}, {x:2\"1\", y: 3\"1\"}|} -> $({x:, y:, z: 1 + §.y}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -245,7 +246,7 @@ public class Relations {
   @Test
   void summarize() throws IOException {
     String program =
-        "{|{x: 1, y: 2}, {x:1, y: 3}|} -> $(collect {xs: Sum&{of: :(x:)}, ys: Sum&{of: :(y:)}} by {|{}|}) -> !OUT::write";
+        "{|{x: 1\"x\", y: 2\"y\"}, {x:1\"x\", y: 3\"y\"}|} -> $(collect {xs: Sum&{of: :(x:)}, ys: Sum&{of: :(y:)}} by {|{}|}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -254,7 +255,7 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{|{xs=2, ys=5}|}", result);
+    assertEquals("{|{xs=2\"x\", ys=5\"y\"}|}", result);
   }
 
   @Test

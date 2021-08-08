@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.util.AbstractMap;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -25,6 +26,7 @@ import tailspin.control.Bound;
 import tailspin.control.ChainStage;
 import tailspin.control.CollectorStage;
 import tailspin.control.ComposerDefinition;
+import tailspin.control.DataDefinition;
 import tailspin.control.Deconstructor;
 import tailspin.control.Definition;
 import tailspin.control.DeleteState;
@@ -65,6 +67,7 @@ import tailspin.matchers.ArrayMatch;
 import tailspin.matchers.CollectionCriterionFactory;
 import tailspin.matchers.CollectionSegmentCriterion;
 import tailspin.matchers.Condition;
+import tailspin.matchers.DefinedCriterion;
 import tailspin.matchers.Equality;
 import tailspin.matchers.MultipliedCollectionCriterionFactory;
 import tailspin.matchers.OnceOnlyCollectionCriterionFactory;
@@ -93,7 +96,6 @@ import tailspin.parser.TailspinParser.OperandContext;
 import tailspin.parser.TailspinParser.OperatorExpressionContext;
 import tailspin.parser.TailspinParser.ProgramModificationContext;
 import tailspin.parser.TailspinParser.StateSinkContext;
-import tailspin.parser.TailspinParser.StereotypeDefinitionContext;
 import tailspin.parser.TailspinParser.StereotypeMatchContext;
 import tailspin.parser.TailspinParser.StructuresContext;
 import tailspin.parser.TailspinParser.TermArithmeticOperationContext;
@@ -145,8 +147,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
       if (statement instanceof Test) {
         tests.add(new TestStatement((Test) statement, requiredDefinitions));
-      } else if (statement instanceof Definition) {
-        definitions.add(new DefinitionStatement((Definition) statement, requiredDefinitions));
+      } else if (statement instanceof Definition || statement instanceof DataDefinition) {
+        definitions.add(new DefinitionStatement(statement, requiredDefinitions));
       } else {
         statements.add(new TopLevelStatement(statement, requiredDefinitions));
       }
@@ -389,8 +391,19 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
             "Mismatched end \"" + endName + "\" for templates " + name);
       }
     }
-    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, ctx.templatesBody(), Templates::new);
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()), ctx.templatesBody(),
+        Templates::new);
     return new InlineTemplates(templatesDefinition);
+  }
+
+  @Override
+  public List<Map.Entry<String, Criterion>> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
+    return ctx == null ? List.of() : ctx.localDataDefinition().stream().map(this::visitLocalDataDefinition).collect(Collectors.toList());
+  }
+
+  @Override
+  public Map.Entry<String, Criterion> visitLocalDataDefinition(TailspinParser.LocalDataDefinitionContext ctx) {
+    return new AbstractMap.SimpleEntry<>(ctx.localIdentifier().getText(), ctx.matcher() == null ? null : visitMatcher(ctx.matcher()));
   }
 
   @Override
@@ -414,7 +427,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     DependencyCounter depCounter = new DependencyCounter();
     loopVariables.forEach(depCounter::define);
     dependencyCounters.push(depCounter);
-    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, ctx.templatesBody(), Templates::new);
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()), ctx.templatesBody(),
+        Templates::new);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().requireAll(requiredDefinitions);
     return new ArrayTemplates(loopVariables, templatesDefinition);
@@ -425,7 +439,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     throw new UnsupportedOperationException();
   }
 
-  public TemplatesDefinition visitTemplatesBody(String name, TailspinParser.TemplatesBodyContext ctx,
+  public TemplatesDefinition visitTemplatesBody(String name,
+      List<Map.Entry<String, Criterion>> localDatatypes, TailspinParser.TemplatesBodyContext ctx,
       TemplatesConstructor constructor) {
     // The match templates are conceptually in the scope of the block, otherwise we could just do this in visitBlock
     dependencyCounters.push(new DependencyCounter());
@@ -439,7 +454,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().requireAll(requiredDefinitions);
-    return new TemplatesDefinition(name, block, matchTemplates, constructor);
+    return new TemplatesDefinition(name, localDatatypes, block, matchTemplates, constructor);
   }
 
   @Override
@@ -501,6 +516,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Criterion matcher = matcherCtx.Void() == null ? visitMatcher(matcherCtx.matcher())
           : AlwaysFalse.INSTANCE;
       keyMatchers.put(key, matcher);
+      if (implicitDataDefinitions != null) {
+        if (ctx.structureContentMatcher(i).matcher().criterion().size() != 1
+          || ctx.structureContentMatcher(i).matcher().criterion(0).typeMatch() == null
+          || !ctx.structureContentMatcher(i).matcher().criterion(0).typeMatch().getText().equals(key)) {
+              implicitDataDefinitions.add(Map.entry(key, (it,scope) -> new DefinedCriterion(matcher, scope)));
+        }
+      }
     }
     return new StructureMatch(keyMatchers, ctx.Void() == null);
   }
@@ -509,7 +531,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public Criterion visitStereotypeMatch(StereotypeMatchContext ctx) {
     String identifier = ctx.localIdentifier() != null
         ? ctx.localIdentifier().getText() : ctx.externalIdentifier().getText();
-    dependencyCounters.peek().reference(identifier);
+    // We don't reference this as an identifier here, data definitions have a different namespace
     return new StereotypeMatch(identifier);
   }
 
@@ -602,7 +624,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     // Parameters must be defined first so as they don't get required
     List<ExpectedParameter> expectedParameters = visitParameterDefinitions(ctx.parameterDefinitions());
-    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, ctx.templatesBody(), Templates::new);
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()), ctx.templatesBody(),
+        Templates::new);
     templatesDefinition.expectParameters(expectedParameters);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().define(name);
@@ -641,12 +664,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     String right = ctx.localIdentifier(2).getText();
     dependencyCounters.peek().define(right);
     expectedParameters.add(new ExpectedParameter(right));
-    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, ctx.templatesBody(),
-        new TemplatesConstructor() {
+    TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()),
+        ctx.templatesBody(), new TemplatesConstructor() {
           @Override
-          public Templates create(String name, Scope definingScope, Block block,
+          public Templates create(String name, Scope definingScope, List<Map.Entry<String, Criterion>> localDatatypes, Block block,
               List<MatchTemplate> matchTemplates) {
-            return new Operator(name, definingScope, block, matchTemplates, new String[]{left, right});
+            return new Operator(name, definingScope, localDatatypes, block, matchTemplates, new String[]{left, right});
           }
         });
     templatesDefinition.expectParameters(expectedParameters);
@@ -669,7 +692,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     // Then block, so those definitions may be used in typestates
     Block rootBlock = visitBlock(ctx.block());
     List<TypestateDefinition> typestates = ctx.typestateDefinition().stream().map(this::visitTypestateDefinition).toList();
-    ProcessorDefinition processorDefinition = new ProcessorDefinition(name, rootBlock, expectedParameters, typestates);
+    ProcessorDefinition processorDefinition = new ProcessorDefinition(name, visitLocalDataDeclaration(ctx.localDataDeclaration()),
+        rootBlock, expectedParameters, typestates);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().define(name);
     dependencyCounters.peek().requireAll(requiredDefinitions);
@@ -763,12 +787,21 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return visitSource(ctx.source());
   }
 
+  private List<Map.Entry<String, Value>> implicitDataDefinitions;
   @Override
-  public Object visitStereotypeDefinition(StereotypeDefinitionContext ctx) {
+  public DataDefinition visitDataDeclaration(TailspinParser.DataDeclarationContext ctx) {
+    implicitDataDefinitions = new ArrayList<>();
+    ctx.dataDefinition().forEach(d -> implicitDataDefinitions.add(visitDataDefinition(d)));
+    List<Map.Entry<String, Value>> definitions = implicitDataDefinitions;
+    implicitDataDefinitions = null;
+    return new DataDefinition(definitions);
+  }
+
+  @Override
+  public Map.Entry<String, Value> visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
     String identifier = ctx.localIdentifier().getText();
     AnyOf matcher = visitMatcher(ctx.matcher());
-    dependencyCounters.peek().define(identifier);
-    return new Definition(identifier, (it,scope) -> matcher);
+    return Map.entry(identifier, (it,scope) -> new DefinedCriterion(matcher, scope));
   }
 
   @Override
@@ -826,15 +859,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Value visitIntegerLiteral(TailspinParser.IntegerLiteralContext ctx) {
     long value = ctx.Zero() != null ? 0 : visitNonZeroInteger(ctx.nonZeroInteger());
-    return new IntegerConstant(value, Unit.validate(visitUnit(ctx.unit())));
+    return new IntegerConstant(value, visitUnit(ctx.unit()));
   }
 
   @Override
-  public String visitUnit(TailspinParser.UnitContext ctx) {
+  public Unit visitUnit(TailspinParser.UnitContext ctx) {
     if (ctx == null) return null;
-    return visitMeasureProduct(ctx.measureProduct())
+    if (ctx.Scalar() != null) return Unit.SCALAR;
+    return Unit.validate(visitMeasureProduct(ctx.measureProduct())
         + (ctx.measureDenominator() == null ? ""
-        : "/" + visitMeasureProduct(ctx.measureDenominator().measureProduct()));
+        : "/" + visitMeasureProduct(ctx.measureDenominator().measureProduct())));
   }
 
   @Override
@@ -867,21 +901,24 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.LeftParen() != null) {
       Value value = visitArithmeticExpression(ctx.arithmeticExpression(0));
       if (ctx.unit() != null) {
-        return new MeasureExpression(value, Unit.validate(visitUnit(ctx.unit())));
+        return new MeasureExpression(value, visitUnit(ctx.unit()));
       }
       return value;
+    }
+    if (ctx.term() != null && ctx.unit() != null) {
+      return new MeasureExpression(visitTerm(ctx.term()), visitUnit(ctx.unit()));
     }
     if (ctx.additiveOperator() != null) {
       Value left = visitArithmeticExpression(ctx.arithmeticExpression(0));
       Value right = ctx.term() == null ? visitArithmeticExpression(ctx.arithmeticExpression(1))
-          : Value.of(visitTerm(ctx.term()));
+          : visitTerm(ctx.term());
       String operation = ctx.additiveOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
     if (ctx.multiplicativeOperator() != null) {
       Value left = visitArithmeticExpression(ctx.arithmeticExpression(0));
       Value right = ctx.term() == null ? visitArithmeticExpression(ctx.arithmeticExpression(1))
-          : Value.of(visitTerm(ctx.term()));
+          : visitTerm(ctx.term());
       String operation = ctx.multiplicativeOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
@@ -916,16 +953,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Value visitTermArithmeticOperation(TermArithmeticOperationContext ctx) {
     if (ctx.additiveOperator() != null) {
-      Value left = Value.of(visitTerm(ctx.term(0)));
+      Value left = visitTerm(ctx.term(0));
       Value right = ctx.arithmeticExpression() != null ? visitArithmeticExpression(ctx.arithmeticExpression())
-          : Value.of(visitTerm(ctx.term(1)));
+          : visitTerm(ctx.term(1));
       String operation = ctx.additiveOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
     if (ctx.multiplicativeOperator() != null) {
-      Value left = Value.of(visitTerm(ctx.term(0)));
+      Value left = visitTerm(ctx.term(0));
       Value right = ctx.arithmeticExpression() != null ? visitArithmeticExpression(ctx.arithmeticExpression())
-          : Value.of(visitTerm(ctx.term(1)));
+          : visitTerm(ctx.term(1));
       String operation = ctx.multiplicativeOperator().getText();
       return newArithmeticOperation(left, right, operation);
     }
@@ -933,12 +970,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Expression visitTerm(TermContext ctx) {
+  public Value visitTerm(TermContext ctx) {
     if (ctx.valueProduction() != null) {
-      return visitValueProduction(ctx.valueProduction());
+      return Value.of(visitValueProduction(ctx.valueProduction()));
     }
     if (ctx.operatorExpression() != null) {
-      return visitOperatorExpression(ctx.operatorExpression());
+      return Value.of(visitOperatorExpression(ctx.operatorExpression()));
     }
     throw new IllegalArgumentException("Unknown term type");
   }
@@ -954,7 +991,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Value visitOperand(OperandContext ctx) {
     if (ctx.term() != null) {
-      return Value.of(visitTerm(ctx.term()));
+      return visitTerm(ctx.term());
     }
     if (ctx.source() != null) {
       return Value.of(visitSource(ctx.source()));
@@ -981,7 +1018,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else if (ctx.term() != null) {
-      bound = Value.of(visitTerm(ctx.term()));
+      bound = visitTerm(ctx.term());
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
@@ -999,7 +1036,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (ctx.stringLiteral() != null) {
       bound = visitStringLiteral(ctx.stringLiteral());
     } else if (ctx.term() != null) {
-      bound = Value.of(visitTerm(ctx.term()));
+      bound = visitTerm(ctx.term());
     } else {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
@@ -1089,8 +1126,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       }
       return new BytesConstant(bytes);
     }
-    if (ctx.term() != null) {
-      return visitTerm(ctx.term());
+    if (ctx.LeftParen() != null) {
+      return visitValueProduction(ctx.valueProduction());
+    }
+    if (ctx.operatorExpression() != null) {
+      return visitOperatorExpression(ctx.operatorExpression());
     }
     throw new UnsupportedOperationException();
   }
@@ -1105,13 +1145,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     // Parameters must be defined first so as they don't get required
     List<ExpectedParameter> expectedParameters = visitParameterDefinitions(ctx.parameterDefinitions());
+    List<Map.Entry<String, Criterion>> localDatatypes = visitLocalDataDeclaration(ctx.localDataDeclaration());
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
     composerDefinition.expectParameters(expectedParameters);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
     dependencyCounters.peek().define(name);
     dependencyCounters.peek().requireAll(requiredDefinitions);
     return new Definition(name, (it, scope) -> {
-      Composer composer = composerDefinition.define(scope);
+      Composer composer = composerDefinition.define(scope, localDatatypes);
       composer.setScopeContext(name);
       return composer;
     });
@@ -1285,21 +1326,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return compositionSpec;
   }
 
-  private final RangeMatch AT_MOST_ONE = new RangeMatch(
-      new Bound(new IntegerConstant(0, null), true),
-      new Bound(new IntegerConstant(1, null), true));
-  private final RangeMatch AT_LEAST_ONE = new RangeMatch(
-      new Bound(new IntegerConstant(1, null), true),
-      null);
-  private final RangeMatch ANY_AMOUNT = new RangeMatch(
-      new Bound(new IntegerConstant(0, null), true),
-      null);
   @Override
   public RangeMatch visitMultiplier(TailspinParser.MultiplierContext ctx) {
     switch (ctx.getText()) {
-      case "?": return AT_MOST_ONE;
-      case "+": return AT_LEAST_ONE;
-      case "*": return ANY_AMOUNT;
+      case "?": return RangeMatch.AT_MOST_ONE;
+      case "+": return RangeMatch.AT_LEAST_ONE;
+      case "*": return RangeMatch.ANY_AMOUNT;
     }
     if (ctx.Equal() == null) throw new UnsupportedOperationException("Unknown multiplier " + ctx.getText());
     Value count;
@@ -1364,7 +1396,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Expression statement = (Expression) visit(s);
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
       if (statement instanceof Definition) {
-        return new DefinitionStatement((Definition) statement, requiredDefinitions);
+        return new DefinitionStatement(statement, requiredDefinitions);
       } else {
         throw new UnsupportedOperationException("Only definitions are relevant in program modification");
       }

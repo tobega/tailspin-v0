@@ -5,7 +5,7 @@ import tailspin.types.Criterion;
 
 public class StereotypeMatch implements Criterion {
 
-  private final String identifier;
+  final String identifier;
 
   public StereotypeMatch(String identifier) {
     this.identifier = identifier;
@@ -13,7 +13,12 @@ public class StereotypeMatch implements Criterion {
 
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
-    AnyOf stereotype = (AnyOf) scope.resolveValue(identifier);
-    return stereotype.isMet(toMatch, it, scope);
+    Criterion stereotype = scope.getDataDefinition(identifier);
+    return stereotype.isMet(toMatch, null, null);
+  }
+
+  @Override
+  public String toString() {
+    return identifier;
   }
 }

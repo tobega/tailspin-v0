@@ -14,12 +14,16 @@ public class RegexpMatch implements Criterion {
 
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
-    if (!(toMatch instanceof String)) return false;
-    String stringToMatch = (String) toMatch;
+    if (!(toMatch instanceof String stringToMatch)) return false;
     String pattern = (String) patternValue.getResults(it, scope);
     Pattern compiled =
         Pattern.compile(
             "\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ + Pattern.DOTALL);
     return compiled.matcher(stringToMatch).matches();
+  }
+
+  @Override
+  public String toString() {
+    return "'" + patternValue + "'";
   }
 }

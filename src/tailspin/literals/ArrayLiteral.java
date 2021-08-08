@@ -2,6 +2,7 @@ package tailspin.literals;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
@@ -25,5 +26,10 @@ public class ArrayLiteral implements Value {
       result = ResultIterator.appendResultValue(result, TailspinArray.value(seed));
     }
     return result;
+  }
+
+  @Override
+  public String toString() {
+    return "[" + expansions.stream().map(Object::toString).collect(Collectors.joining(",")) + "]";
   }
 }

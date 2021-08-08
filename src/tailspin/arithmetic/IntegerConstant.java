@@ -3,12 +3,13 @@ package tailspin.arithmetic;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
+import tailspin.types.Unit;
 
 public class IntegerConstant implements Value {
   private final long value;
-  private final String unit;
+  private final Unit unit;
 
-  public IntegerConstant(long value, String unit) {
+  public IntegerConstant(long value, Unit unit) {
     this.value = value;
     this.unit = unit;
   }

@@ -33,4 +33,10 @@ public class StringInterpolation implements Value {
     }
     return builder;
   }
+
+  @Override
+  public String toString() {
+    String expr = expression.toString();
+    return (expr.startsWith("$") ? "" : "$") + expr + ";";
+  }
 }

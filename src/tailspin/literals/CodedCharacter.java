@@ -14,4 +14,9 @@ public class CodedCharacter implements Value {
   public Object getResults(Object it, Scope scope) {
     return Character.toString(((Number) code.getResults(it, scope)).intValue());
   }
+
+  @Override
+  public String toString() {
+    return "$#" + code + ";";
+  }
 }

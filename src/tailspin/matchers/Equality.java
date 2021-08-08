@@ -16,7 +16,13 @@ public class Equality implements Criterion {
   @Override
   public boolean isMet(Object toMatch, Object it, Scope scope) {
     Object required = value.getResults(it, scope);
-    if (toMatch instanceof Measure m && required instanceof Number) toMatch = m.getValue();
+    if (toMatch instanceof Measure || required instanceof Measure)
+      return RangeMatch.Comparison.EQUAL.equals(RangeMatch.compare(toMatch, required));
     return Objects.deepEquals(toMatch, required);
+  }
+
+  @Override
+  public String toString() {
+    return "=" + value;
   }
 }

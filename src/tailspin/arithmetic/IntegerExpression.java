@@ -16,11 +16,11 @@ public class IntegerExpression implements Value {
   @Override
   public Object getResults(Object it, Scope scope) {
     Object value = dereferenceValue.getResults(it, scope);
-    if (value instanceof Number n) {
-      return isNegative ? -n.longValue() : n.longValue();
-    }
     if (value instanceof Measure m) {
       return isNegative ? new Measure(-m.getValue(), m.getUnit()) : m;
+    }
+    if (value instanceof Number n) {
+      return isNegative ? -n.longValue() : n.longValue();
     }
     throw new ArithmeticException("Not a number " + value);
   }

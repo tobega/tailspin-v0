@@ -3,6 +3,7 @@ package tailspin.literals;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
@@ -26,5 +27,10 @@ public class ByteLiteral implements Value {
         .map(byte[].class::cast)
         .forEach(result::writeBytes);
     return result.size() == 0 ? null : result.toByteArray();
+  }
+
+  @Override
+  public String toString() {
+    return "[x " + byteValues.stream().map(Object::toString).collect(Collectors.joining(" ")) + " x]";
   }
 }
