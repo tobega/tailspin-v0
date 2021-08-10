@@ -495,7 +495,8 @@ the parentheses. A lens is applied directly after a [dereference](#dereference),
 A lens can be passed as a parameter to templates, but it must then have a colon before the first parenthesis,
 e.g. `mylist -> sum&{of: :(amount:)}` to sum the amount fields of the structures in the list. When passed as a parameter,
 the lens can be empty to access the referenced element itself, e.g. `mynumberlist -> sum&{of: :()}` to sum the
-numbers in the list. (`sum` could be defined as `templates sum&{of:} $... -> ..=Sum&{of: :(of)} ! end sum`)
+numbers in the list. E.g. `sum` could be defined as `templates sum&{of:} $... -> ..=Sum&{of: :(of)} ! end sum`.
+Note that the lens passed as a parameter is then used simply by referencing its name, e.g. `$(of)` (no colon).
 
 The most common lenses are the ones used to access [array](#arrays) elements, where integer values project onto
 elements of the array. Single integers, `$(3)`, the values `first` and `last`, or integer expressions will access

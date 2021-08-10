@@ -57,16 +57,34 @@ Syntax for creating exceptions and format for error objects TBD (just throw any 
 - When a definition refers to a mutable processor instances, and if another definition is produced from the processor, statements mutating state will not execute before the second definition.
 
 ## Bugs
-- composer rule updates state when called in not-context:
-  operator (word count char)
+composer rule updates state when called in not-context (even more weird, 'bananas' counts 2 b, 9 a, 6 n and 3 s):
+  ```
+    operator (word count char)
+    composer howMany
+    @: 0;
+    (<not|is_char>+) $@
+    rule is_char: (<='$char;'>) (@: $@ + 1;)
+    rule not: (<~is_char>)
+    end howMany
+    $word -> howMany !
+    end count
+  ```
+  The explanation is that a `~` rule is greedy, so it hits when it just skipped a non-matching, then it updates for the not-rule when matching, and then for the match. ('graal' counts 5 a)
+  Maybe this is more confusion than an actual bug? The following works fine:
+  ```
+    operator (word count char)
   composer howMany
   @: 0;
-  (<not|is_char>+) $@
-  rule is_char: (<='$char;'>) (@: $@ + 1;)
+  (<counted|not>+) $@
+  rule is_char: (<='$char;'>)
+  rule counted: (<is_char>) (@: $@ + 1;)
   rule not: (<~is_char>)
   end howMany
   $word -> howMany !
   end count
+
+  ('bananas' count 'a') -> !OUT::write
+  ```
 
 ## Too much syntax?
 - quick filter by \<match> to mean \(<match> $!\).
