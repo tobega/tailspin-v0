@@ -122,6 +122,8 @@ e.g. `The total price is $$ $ -> $ * $quantity;` or `$:1..3 -> #;`. Note that wh
 you can reference it directly, like `'$p::message;'` if the message does not require input, otherwise you need to use it as a transform,
 that is like `'$->p::message;'`. Note that we now reference the message expression without the $.
 
+NOTE: Raw strings will often become [tagged identifiers](#tagged-identifiers).
+
 ### Arithmetic expression
 The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference)
 (including a state deletion, see the [delete operator](#delete-operator).
@@ -136,6 +138,7 @@ Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 A value chain that yields a number can be used as an operand on either side of an operator, if it is enclosed in parentheses.
 
 NOTE: The example above shows the use of untyped numbers. Arithmetic is further restricted when numbers are typed as [measures](#measures), with a unit.
+When untyped numbers become [tagged identifiers](#tagged-identifiers) they cannot be used for arithmetic at all.
 
 _Current limitations_: Only integers are supported.
 
@@ -984,6 +987,9 @@ a type will automatically be assigned by [autotyping](#autotyping).
 Numbers in arithmetic expressions are in their bare state just untyped numbers, but they can be assigned a
 [unit of measure](#measures) which then defines their type as being of that measure.
 
+Untyped numbers and raw strings become [tagged identifiers](#tagged-identifiers) as soon as they interact with
+the [data dictionary](#data-dictionary)
+
 [Processor](#processors) instances are things that can carry state and they respond to messages. If an instance
 responds to the messages you need, all is good (this is known as duck-typing). A processor instance can change
 its type as a result of processing messages, if it's defined to do so, see [typestates](#typestates).
@@ -998,7 +1004,10 @@ followed by an [identifier](#identifiers) and a [matcher](#matchers).
 E.g. `data adress <{number: <1..>, street: <'.*'>, town: <'.*'>}>`
 
 The defined data type can be used as a [matcher](#matchers), e.g. `<adress>`, but is also expected to be the data type of any
-[keyed-value](#keyed-values) or member of a [structure](#structures) that has key 'adress'.
+[keyed-value](#keyed-values) or member of a [structure](#structures) that has key 'adress'. NOTE that if the base type
+of a defined type is a raw string or untyped number, the defined type will actually be a [tagged identifier](#tagged-identifiers).
+If a defined (or [autotyped](#autotyping)) type "foo" refers to a defined (or [autotyped](#autotyping)) [tagged identifier](#tagged-identifiers) called "bar",
+all values assigned as "foo"s will be tagged as "bar"s (all "foo"s are "bar"s).
 
 The data dictionary will also contain all [autotyped](#autotyping) definitions.
 
@@ -1031,7 +1040,22 @@ as [local types](#local-types) if the autotyping rules don't do what you intende
 
 [Structures](#structures) and [arrays](#arrays) are currently only typed as structures and arrays respectively. In the future, this will become tighter.
 
+Raw strings and untyped numbers will be autotyped as [tagged identifiers](#tagged-identifiers).
+
 Other types are currently not autotyped.
+
+### Tagged identifiers
+Untyped numbers and raw strings are far too general to count as proper types on their own (they are basic types or representational types).
+When untyped numbers or raw strings get assigned to a key, the [data dictionary](#data-dictionary) will convert them to
+tagged identifiers.
+
+Tagged identifiers will work well with raw strings or untyped numbers (the raw or untyped data will "morph" and acquire the tag).
+Numeric tagged identifiers cannot be used in arithmetic, however, so if you intend to use a number in arithmetic, give it a unit (or the scalar unit "1").
+
+Tagged identifiers do not mix with other tagged identifiers. Trying to assign or compare them with the wrong tag is an error.
+If you do need to compare in situations where there might be a tag mismatch, do a type check first, e.g. `<myTag ?($ <=$foo.myTag>)>` instead of just `<=$foo.myTag>`
+
+You can use the `::raw` message on a tagged identifier to get the base value without the tag, when you need to.
 
 ## Built-in messages
 All objects
@@ -1053,6 +1077,9 @@ Integer
 
 Measure
 * `$::raw` returns the magnitude of the measure without the unit.
+
+Tagged identifier
+* `$::raw` returns the base value without the tag.
 
 Bytes
 * `$::inverse` returns a bytes value with all ones turned to zeroes and all zeroes turned to ones.
