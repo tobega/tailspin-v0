@@ -102,7 +102,7 @@ public class ProcessorScope extends Scope {
   @Override
   public Object checkDataDefinition(String key, Object data) {
     if (localDictionary.owns(key)) {
-      return localDictionary.checkDataDefinition(key, data);
+      return localDictionary.checkDataDefinition(key, data, this);
     } else {
       return parentScope.checkDataDefinition(key, data);
     }

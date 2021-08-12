@@ -2,6 +2,7 @@ package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,6 +38,19 @@ public class TaggedIdentifier {
       ByteArrayOutputStream output = new ByteArrayOutputStream();
       runner.run(input, output, List.of());
     });
+  }
+
+  @Test
+  void taggedStringOtherNameCanBeAssignedRawValue() throws Exception {
+    String program = "{id: 'abc', city: 'London'} -> { id: $.city::raw } -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{id=London}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -159,7 +173,7 @@ public class TaggedIdentifier {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(UnsupportedOperationException.class, () -> runner.run(input, output, List.of()));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -189,7 +203,7 @@ public class TaggedIdentifier {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(UnsupportedOperationException.class, () -> runner.run(input, output, List.of()));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -210,7 +224,7 @@ public class TaggedIdentifier {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(UnsupportedOperationException.class, () -> runner.run(input, output, List.of()));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -231,7 +245,7 @@ public class TaggedIdentifier {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(UnsupportedOperationException.class, () -> runner.run(input, output, List.of()));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -629,5 +643,38 @@ public class TaggedIdentifier {
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void projection() throws IOException {
+    String program = "{|{x: 'a', y: 2}, {x:'b', y: 3}, {x: 'a', y: 4}|} -> $({x:}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
+    assertTrue(result.contains("{x=a}"));
+    assertTrue(result.contains("{x=b}"));
+    assertEquals(16, result.length());
+  }
+
+  @Test
+  void autotypedArray() throws IOException {
+    String program = """
+      [{by 1..3 -> (d:$)} -> $.d] -> {ds: $} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{ds=[1, 2, 3]}", output.toString(StandardCharsets.UTF_8));
   }
 }

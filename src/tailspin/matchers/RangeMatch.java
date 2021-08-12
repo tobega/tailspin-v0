@@ -6,6 +6,7 @@ import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
 import tailspin.types.Membrane;
 import tailspin.types.Measure;
+import tailspin.types.TaggedIdentifier;
 import tailspin.types.Unit;
 
 public class RangeMatch implements Membrane {
@@ -84,7 +85,30 @@ public class RangeMatch implements Membrane {
 
   public static Object compare(Object toMatch, Comparison comparison, Object rhs) {
     Object lhs = toMatch;
-    if (lhs instanceof Measure l && rhs instanceof Measure r) {
+    if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
+      if (l.getTag().equals(r.getTag())) {
+        lhs = l.getValue();
+        rhs = r.getValue();
+      } else {
+        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+      }
+    }
+    else if (lhs instanceof TaggedIdentifier l) {
+      if (rhs instanceof Measure) {
+        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+      }
+      lhs = l.getValue();
+    }
+    else if (rhs instanceof TaggedIdentifier r) {
+      if (lhs instanceof Measure) {
+        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+      }
+      rhs = r.getValue();
+      if (lhs instanceof Long || lhs instanceof String) {
+        toMatch = new TaggedIdentifier(r.getTag(), lhs);
+      }
+    }
+    else if (lhs instanceof Measure l && rhs instanceof Measure r) {
       if (l.getUnit().equals(r.getUnit())) {
         lhs = l.getValue();
         rhs = r.getValue();

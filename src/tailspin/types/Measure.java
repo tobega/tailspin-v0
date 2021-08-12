@@ -29,12 +29,30 @@ public class Measure extends Number implements Processor {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("hashCode")) {
-      return (it, params) -> Objects.hash(value, unit);
+      return (it, params) -> hashCode();
     } else if (message.equals("raw")) {
       return (it, params) -> value;
     } else {
-      throw new UnsupportedOperationException("Unknown array message " + message);
+      throw new UnsupportedOperationException("Unknown measure message " + message);
     }
+  }
+
+  // This is for use in relations
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Measure measure = (Measure) o;
+    return value == measure.value && unit.equals(measure.unit);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(value, unit);
   }
 
   // Below is only for array indexing

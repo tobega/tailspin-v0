@@ -11,6 +11,7 @@ import tailspin.matchers.ArrayMatch;
 import tailspin.matchers.CollectionCriterion;
 import tailspin.matchers.CollectionCriterionFactory;
 import tailspin.matchers.CollectionSegmentCriterion;
+import tailspin.matchers.DefinedTag;
 import tailspin.matchers.MultipliedCollectionCriterion;
 import tailspin.matchers.RangeMatch;
 import tailspin.matchers.StructureMatch;
@@ -44,12 +45,19 @@ public class DataDictionary {
 
   private static class AutotypedArray extends ArrayMatch {
     private static class DiscoveredContent implements CollectionSegmentCriterion {
+
+      private final Scope definingScope;
       private Membrane contentMembrane;
+
+      public DiscoveredContent(Scope definingScope) {
+        this.definingScope = definingScope;
+      }
+
       @Override
       public int isMetAt(TailspinArray.Tail toMatch, Object it, Scope scope) {
         // This should never be called if Tail is empty
         if (contentMembrane == null) {
-          contentMembrane = getDefaultTypeCriterion(toMatch.get(1));
+          contentMembrane = getDefaultTypeCriterion(null, toMatch.get(1), definingScope);
           return 1;
         } else if (null != contentMembrane.permeate(toMatch.get(1), null, null)) {
           return 1;
@@ -64,7 +72,12 @@ public class DataDictionary {
     }
 
     private static class AllTheSameContent implements CollectionCriterionFactory {
-      DiscoveredContent discoveredContent = new DiscoveredContent();
+      private final DiscoveredContent discoveredContent;
+
+      public AllTheSameContent(Scope definingScope) {
+        discoveredContent = new DiscoveredContent(definingScope);
+      }
+
       @Override
       public CollectionCriterion newCriterion() {
         return new MultipliedCollectionCriterion(discoveredContent, RangeMatch.ANY_AMOUNT);
@@ -76,8 +89,8 @@ public class DataDictionary {
       }
     }
 
-    public AutotypedArray() {
-      super(null, List.of(new AllTheSameContent()), true);
+    public AutotypedArray(Scope definingScope) {
+      super(null, List.of(new AllTheSameContent(definingScope)), true);
     }
   }
 
@@ -88,21 +101,24 @@ public class DataDictionary {
   public DataDictionary() {
   }
 
-  private static Membrane getDefaultTypeCriterion(Object data) {
+  private static Membrane getDefaultTypeCriterion(String tag, Object data, Scope scope) {
     if (data instanceof String) {
-      return stringMatch;
+      return tag == null ? stringMatch : new DefinedTag(tag, stringMatch, null);
     }
     if (data instanceof Long) {
-      return numberMatch;
+      return tag == null ? numberMatch : new DefinedTag(tag, numberMatch, null);
     }
     if (data instanceof TailspinArray) {
-      return new AutotypedArray();
+      return new AutotypedArray(scope);
     }
     if (data instanceof Structure s) {
       return new StructureMatch(s.keySet().stream().collect(Collectors.toMap(Function.identity(), (k) -> exists)), false);
     }
     if (data instanceof Measure m) {
       return new UnitMatch(m.getUnit());
+    }
+    if (data instanceof TaggedIdentifier t) {
+      return scope.getDataDefinition(t.getTag());
     }
     return null;
   }
@@ -120,10 +136,10 @@ public class DataDictionary {
     return dataDefinitions.get(identifier);
   }
 
-  public Object checkDataDefinition(String key, Object data) {
+  public Object checkDataDefinition(String key, Object data, Scope scope) {
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
-      def = getDefaultTypeCriterion(data);
+      def = getDefaultTypeCriterion(key, data, scope);
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }

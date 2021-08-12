@@ -24,7 +24,7 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("hashCode")) {
-      return (it, params) -> array.hashCode();
+      return (it, params) -> ((Number)array.hashCode()).longValue();
     } else if (message.equals("length")) {
       return (it, params) -> ((Number)array.size()).longValue();
     } else {

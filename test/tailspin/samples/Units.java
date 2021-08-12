@@ -2,6 +2,7 @@ package tailspin.samples;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -726,5 +727,23 @@ public class Units {
     runner.run(input, output, List.of());
 
     assertEquals("7", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void projection() throws IOException {
+    String program = "{|{x: 1\"m\", y: 2}, {x:2\"m\", y: 3}, {x: 1\"m\", y: 4}|} -> $({x:}) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("{|"));
+    assertTrue(result.endsWith("|}"));
+    assertTrue(result.contains("{x=1\"m\"}"));
+    assertTrue(result.contains("{x=2\"m\"}"));
+    assertEquals(22, result.length());
   }
 }

@@ -39,7 +39,7 @@ public class ProcessorMessage extends Reference {
     if (receiver instanceof Processor) {
       return  ((Processor) receiver).resolveMessage(message, resolvedParams);
     } else if (message.equals("hashCode")) {
-      if (receiver instanceof byte[]) return (it, parameters) -> Arrays.hashCode((byte[]) receiver);
+      if (receiver instanceof byte[]) return (it, parameters) -> ((Number)Arrays.hashCode((byte[]) receiver)).longValue();
       return (it, params) -> ((Number) receiver.hashCode()).longValue();
     } else if (receiver instanceof Long) {
       if (message.equals("asBytes")) {
@@ -65,22 +65,22 @@ public class ProcessorMessage extends Reference {
         throw new UnsupportedOperationException("Unknown keyValue message " + message);
       }
     } else if (receiver instanceof byte[]) {
-      switch (message) {
-        case "inverse":
-          return (it, params) -> {
-            byte[] in = (byte[]) receiver;
-            byte[] result = new byte[in.length];
-            for (int i = 0; i < in.length; i++) {
-              result[i] = (byte) ~in[i];
-            }
-            return result;
-          };
-        case "length": return (it, parameters) -> ((byte[]) receiver).length;
-        case "asUtf8String": return (it, parameters) -> new String((byte[]) receiver, StandardCharsets.UTF_8);
-        case "asInteger": return (it, parameters) -> new BigInteger((byte[]) receiver).longValue();
-        case "shift": return new ByteShift(receiver, resolvedParams);
-        default: throw new UnsupportedOperationException("Unknown bytes message " + message);
-      }
+      return switch (message) {
+        case "inverse" -> (it, params) -> {
+          byte[] in = (byte[]) receiver;
+          byte[] result = new byte[in.length];
+          for (int i = 0; i < in.length; i++) {
+            result[i] = (byte) ~in[i];
+          }
+          return result;
+        };
+        case "length" -> (it, parameters) -> ((byte[]) receiver).length;
+        case "asUtf8String" -> (it, parameters) -> new String((byte[]) receiver,
+            StandardCharsets.UTF_8);
+        case "asInteger" -> (it, parameters) -> new BigInteger((byte[]) receiver).longValue();
+        case "shift" -> new ByteShift(receiver, resolvedParams);
+        default -> throw new UnsupportedOperationException("Unknown bytes message " + message);
+      };
     } else {
       throw new UnsupportedOperationException("Unimplemented message " + message + " on  processor type " + receiver.getClass().getSimpleName());
     }
