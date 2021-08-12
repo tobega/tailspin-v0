@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import tailspin.control.Expression;
 import tailspin.interpreter.Scope;
-import tailspin.matchers.DefinedCriterion;
+import tailspin.matchers.DefinedTag;
 import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.Memo;
 import tailspin.matchers.composer.SequenceSubComposer;
@@ -58,7 +58,7 @@ public class Composer implements Transform {
   private TransformScope createTransformScope(Map<String, Object> parameters) {
     TransformScope scope = new TransformScope(definingScope, scopeName);
     localDatatypes.forEach(dataDef -> scope.localDictionary.createDataDefinition(dataDef.getKey(),
-        dataDef.getValue() == null ? null : new DefinedCriterion(dataDef.getValue(), scope)));
+        dataDef.getValue() == null ? null : new DefinedTag(dataDef.getKey(), dataDef.getValue(), scope)));
     int foundParameters = 0;
     for (ExpectedParameter expectedParameter : expectedParameters) {
       if (parameters.containsKey(expectedParameter.name)) {

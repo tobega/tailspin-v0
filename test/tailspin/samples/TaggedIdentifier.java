@@ -163,6 +163,20 @@ public class TaggedIdentifier {
   }
 
   @Test
+  void definedFieldIsNonArithmeticTaggedIdentifier() throws IOException {
+    String program = """
+     data x <0..>
+     {x: 1} -> $.x + 3 -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void composedStructureIsAutotypedToNonArithmeticTaggedIdentifier() throws IOException {
     String program = """
     composer foo

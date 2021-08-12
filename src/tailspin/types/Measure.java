@@ -27,26 +27,9 @@ public class Measure extends Number implements Processor {
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Measure measure = (Measure) o;
-    return value == measure.value && unit.equals(measure.unit);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(value, unit);
-  }
-
-  @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("hashCode")) {
-      return (it, params) -> hashCode();
+      return (it, params) -> Objects.hash(value, unit);
     } else if (message.equals("raw")) {
       return (it, params) -> value;
     } else {

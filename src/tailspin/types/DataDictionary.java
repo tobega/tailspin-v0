@@ -127,7 +127,8 @@ public class DataDictionary {
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
-    if (null == def.permeate(data, null, null)) {
+    data = def.permeate(data, null, null);
+    if (data == null) {
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + data);
     }
     return data;

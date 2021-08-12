@@ -10,7 +10,7 @@ import tailspin.control.Block;
 import tailspin.control.DelayedExecution;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
-import tailspin.matchers.DefinedCriterion;
+import tailspin.matchers.DefinedTag;
 import tailspin.types.Membrane;
 import tailspin.types.Transform;
 
@@ -43,7 +43,7 @@ public class Templates implements Transform {
     TransformScope scope = new TransformScope(definingScope, name);
     scope.setTemplates(this);
     localDatatypes.forEach(dataDef -> scope.localDictionary.createDataDefinition(dataDef.getKey(),
-        dataDef.getValue() == null ? null : new DefinedCriterion(dataDef.getValue(), scope)));
+        dataDef.getValue() == null ? null : new DefinedTag(dataDef.getKey(), dataDef.getValue(), scope)));
     resolveParameters(expectedParameters, parameters, scope, name);
     return scope;
   }
