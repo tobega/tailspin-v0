@@ -1,19 +1,19 @@
 package tailspin.matchers;
 
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.TailspinArray;
 
 public class OneElementMatch implements CollectionSegmentCriterion {
-  private final Criterion criterion;
+  private final Membrane membrane;
 
-  public OneElementMatch(Criterion criterion) {
-    this.criterion = criterion;
+  public OneElementMatch(Membrane membrane) {
+    this.membrane = membrane;
   }
 
   @Override
   public int isMetAt(TailspinArray.Tail tail, Object it, Scope scope) {
-    if (criterion.isMet(tail.get(1), it, scope)) {
+    if (null != membrane.permeate(tail.get(1), it, scope)) {
       return 1;
     }
     return 0;
@@ -21,6 +21,6 @@ public class OneElementMatch implements CollectionSegmentCriterion {
 
   @Override
   public String toString() {
-    return criterion.toString();
+    return membrane.toString();
   }
 }

@@ -11,14 +11,14 @@ import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.Memo;
 import tailspin.matchers.composer.SequenceSubComposer;
 import tailspin.matchers.composer.SubComposerFactory;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.Structure;
 import tailspin.types.Transform;
 
 public class Composer implements Transform {
 
   private final Scope definingScope;
-  private final List<Map.Entry<String, Criterion>> localDatatypes;
+  private final List<Map.Entry<String, Membrane>> localDatatypes;
   private final Expression stateAssignment;
   private final List<CompositionSpec> specs;
   private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
@@ -26,7 +26,7 @@ public class Composer implements Transform {
   private String scopeName = "";
 
   public Composer(Scope definingScope, /* @Nullable */
-      List<Map.Entry<String, Criterion>> localDatatypes, Expression stateAssignment,
+      List<Map.Entry<String, Membrane>> localDatatypes, Expression stateAssignment,
       List<CompositionSpec> specs,
       SubComposerFactory subComposerFactory) {
     this.definingScope = definingScope;

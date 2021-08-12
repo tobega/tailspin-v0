@@ -18,10 +18,10 @@ import tailspin.matchers.UnitMatch;
 
 public class DataDictionary {
 
-  private static final Criterion stringMatch = new Criterion() {
+  private static final Membrane stringMatch = new Membrane() {
     @Override
-    public boolean isMet(Object toMatch, Object it, Scope scope) {
-      return (toMatch instanceof String);
+    public Object permeate(Object toMatch, Object it, Scope scope) {
+      return (toMatch instanceof String) ? toMatch : null;
     }
 
     @Override
@@ -30,10 +30,10 @@ public class DataDictionary {
     }
   };
 
-  private static final Criterion numberMatch = new Criterion() {
+  private static final Membrane numberMatch = new Membrane() {
     @Override
-    public boolean isMet(Object toMatch, Object it, Scope scope) {
-      return (toMatch instanceof Long);
+    public Object permeate(Object toMatch, Object it, Scope scope) {
+      return (toMatch instanceof Long) ? toMatch : null;
     }
 
     @Override
@@ -44,14 +44,14 @@ public class DataDictionary {
 
   private static class AutotypedArray extends ArrayMatch {
     private static class DiscoveredContent implements CollectionSegmentCriterion {
-      private Criterion contentCriterion;
+      private Membrane contentMembrane;
       @Override
       public int isMetAt(TailspinArray.Tail toMatch, Object it, Scope scope) {
         // This should never be called if Tail is empty
-        if (contentCriterion == null) {
-          contentCriterion = getDefaultTypeCriterion(toMatch.get(1));
+        if (contentMembrane == null) {
+          contentMembrane = getDefaultTypeCriterion(toMatch.get(1));
           return 1;
-        } else if (contentCriterion.isMet(toMatch.get(1), null, null)) {
+        } else if (null != contentMembrane.permeate(toMatch.get(1), null, null)) {
           return 1;
         }
         return 0;
@@ -59,7 +59,7 @@ public class DataDictionary {
 
       @Override
       public String toString() {
-        return contentCriterion == null ? "??" : contentCriterion.toString();
+        return contentMembrane == null ? "??" : contentMembrane.toString();
       }
     }
 
@@ -81,14 +81,14 @@ public class DataDictionary {
     }
   }
 
-  private static final Criterion exists = new AnyOf(false, List.of());
+  private static final Membrane exists = new AnyOf(false, List.of());
 
-  public final Map<String, Criterion> dataDefinitions = new HashMap<>();
+  public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
   public DataDictionary() {
   }
 
-  private static Criterion getDefaultTypeCriterion(Object data) {
+  private static Membrane getDefaultTypeCriterion(Object data) {
     if (data instanceof String) {
       return stringMatch;
     }
@@ -107,8 +107,8 @@ public class DataDictionary {
     return null;
   }
 
-  public void createDataDefinition(String identifier, Criterion def) {
-    Criterion existingDef = dataDefinitions.get(identifier);
+  public void createDataDefinition(String identifier, Membrane def) {
+    Membrane existingDef = dataDefinitions.get(identifier);
     if (existingDef == null) {
       dataDefinitions.put(identifier, def);
     } else if (existingDef != def) {
@@ -116,18 +116,18 @@ public class DataDictionary {
     }
   }
 
-  public Criterion getDataDefinition(String identifier) {
+  public Membrane getDataDefinition(String identifier) {
     return dataDefinitions.get(identifier);
   }
 
   public Object checkDataDefinition(String key, Object data) {
-    Criterion def = dataDefinitions.get(key);
+    Membrane def = dataDefinitions.get(key);
     if (def == null) {
       def = getDefaultTypeCriterion(data);
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
-    if (!def.isMet(data, null, null)) {
+    if (null == def.permeate(data, null, null)) {
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + data);
     }
     return data;

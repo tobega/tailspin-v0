@@ -4,11 +4,11 @@ import tailspin.arithmetic.IntegerConstant;
 import tailspin.control.Bound;
 import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.Measure;
 import tailspin.types.Unit;
 
-public class RangeMatch implements Criterion {
+public class RangeMatch implements Membrane {
   public static final RangeMatch AT_MOST_ONE = new RangeMatch(
       new Bound(new IntegerConstant(0, null), true),
       new Bound(new IntegerConstant(1, null), true));
@@ -28,30 +28,21 @@ public class RangeMatch implements Criterion {
   }
 
   @Override
-  public boolean isMet(Object toMatch, Object it, Scope scope) {
-    try {
-      Unit unit = null;
-      if (lowerBound != null) {
-        Object low = lowerBound.value.getResults(it, scope);
-        if (low instanceof Measure m) unit = m.getUnit();
-        Comparison comparison = compare(toMatch, low);
-        if (comparison == Comparison.INCOMPARABLE) return false;
-        if (comparison == Comparison.LESS) return false;
-        if (!lowerBound.inclusive && comparison == Comparison.EQUAL) return false;
-      }
-      if (upperBound != null) {
-        Object high = upperBound.value.getResults(it, scope);
-        if (high instanceof Measure m && unit != null && !unit.equals(m.getUnit()))
-          throw new IllegalArgumentException("Match lower bound unit " + unit + " incompatible with upper bound " + m);
-        Comparison comparison = compare(toMatch, high);
-        if (comparison == Comparison.INCOMPARABLE) return false;
-        if (comparison == Comparison.GREATER) return false;
-        if (!upperBound.inclusive && comparison == Comparison.EQUAL) return false;
-      }
-      return true;
-    } catch (ClassCastException e) {
-      return false;
+  public Object permeate(Object toMatch, Object it, Scope scope) {
+    Unit unit = null;
+    if (lowerBound != null) {
+      Object low = lowerBound.value.getResults(it, scope);
+      if (low instanceof Measure m) unit = m.getUnit();
+      toMatch = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low);
+      if (toMatch == null) return null;
     }
+    if (upperBound != null) {
+      Object high = upperBound.value.getResults(it, scope);
+      if (high instanceof Measure m && unit != null && !unit.equals(m.getUnit()))
+        throw new IllegalArgumentException("Match lower bound unit " + unit + " incompatible with upper bound " + m);
+      toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high);
+    }
+    return toMatch;
   }
 
   @Override
@@ -61,15 +52,38 @@ public class RangeMatch implements Criterion {
   }
 
   public enum Comparison {
-    LESS, EQUAL, GREATER, INCOMPARABLE;
-    static Comparison of(int comparatorResult) {
-      if (comparatorResult < 0) return LESS;
-      if (comparatorResult == 0) return EQUAL;
-      return GREATER;
-    }
+    LESS {
+      @Override
+      public boolean isValid(int comparison) {
+        return comparison < 0;
+      }
+    }, EQUAL {
+      @Override
+      public boolean isValid(int comparison) {
+        return comparison == 0;
+      }
+    }, GREATER {
+      @Override
+      public boolean isValid(int comparison) {
+        return comparison > 0;
+      }
+    }, GREATER_OR_EQUAL {
+      @Override
+      public boolean isValid(int comparison) {
+        return GREATER.isValid(comparison) || EQUAL.isValid(comparison);
+      }
+    }, LESS_OR_EQUAL {
+      @Override
+      public boolean isValid(int comparison) {
+        return LESS.isValid(comparison) || EQUAL.isValid(comparison);
+      }
+    };
+
+    public abstract boolean isValid(int comparison);
   }
 
-  public static Comparison compare(Object lhs, Object rhs) {
+  public static Object compare(Object toMatch, Comparison comparison, Object rhs) {
+    Object lhs = toMatch;
     if (lhs instanceof Measure l && rhs instanceof Measure r) {
       if (l.getUnit().equals(r.getUnit())) {
         lhs = l.getValue();
@@ -84,26 +98,28 @@ public class RangeMatch implements Criterion {
       else
         throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
     }
-    else if (lhs instanceof Number && rhs instanceof Measure m) {
-      if (m.getUnit().equals(Unit.SCALAR))
+    else if (lhs instanceof Long ll && rhs instanceof Measure m) {
+      if (m.getUnit().equals(Unit.SCALAR)) {
         rhs = m.getValue();
-      else
+        toMatch = new Measure(ll, Unit.SCALAR);
+      } else
         throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
     }
 
-    if ((lhs instanceof String) && (rhs instanceof String)) {
-      return Comparison.of(((String) lhs).compareTo((String) rhs));
-    } else if ((lhs instanceof Number) && (rhs instanceof Number)) {
-      return Comparison.of(Long.compare(((Number) lhs).longValue(), ((Number) rhs).longValue()));
-    } else if ((lhs instanceof JavaObject) && (rhs instanceof JavaObject)) {
-      lhs = ((JavaObject) lhs).getRealObject();
-      rhs = ((JavaObject) rhs).getRealObject();
+    boolean matches = false;
+    if ((lhs instanceof String ls) && (rhs instanceof String rs)) {
+      matches = comparison.isValid(ls.compareTo(rs));
+    } else if ((lhs instanceof Number ln) && (rhs instanceof Number rn)) {
+      matches = comparison.isValid(Long.compare(ln.longValue(), rn.longValue()));
+    } else if ((lhs instanceof JavaObject lj) && (rhs instanceof JavaObject rj)) {
+      lhs = lj.getRealObject();
+      rhs = rj.getRealObject();
       if ((lhs instanceof Comparable) && (rhs instanceof Comparable)) {
         @SuppressWarnings("unchecked")
         Comparable<Object> comparable = (Comparable<Object>) lhs;
-        return Comparison.of(comparable.compareTo(rhs));
+        matches = comparison.isValid(comparable.compareTo(rhs));
       }
     }
-    return Comparison.INCOMPARABLE;
+    return matches ? toMatch : null;
   }
 }

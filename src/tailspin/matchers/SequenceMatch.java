@@ -3,14 +3,14 @@ package tailspin.matchers;
 import java.util.List;
 import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.TailspinArray;
 
 public class SequenceMatch implements CollectionSegmentCriterion {
 
-  private final List<Criterion> sequence;
+  private final List<Membrane> sequence;
 
-  public SequenceMatch(List<Criterion> sequence) {
+  public SequenceMatch(List<Membrane> sequence) {
     this.sequence = sequence;
   }
 
@@ -18,7 +18,7 @@ public class SequenceMatch implements CollectionSegmentCriterion {
   public int isMetAt(TailspinArray.Tail tail, Object it, Scope scope) {
     for (int i = 0; i < sequence.size(); i++) {
       if (i >= tail.length()) return 0;
-      if (!sequence.get(i).isMet(tail.get(i+1), it, scope)) return 0;
+      if (null == sequence.get(i).permeate(tail.get(i+1), it, scope)) return 0;
     }
     return sequence.size();
   }

@@ -13,14 +13,14 @@ import tailspin.control.TypestateDefinition;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.DefinedCriterion;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.ProcessorInstance;
 
 public class ProcessorConstructor extends Templates {
 
   private final List<TypestateDefinition> typestates;
 
-  public ProcessorConstructor(String name, Scope definingScope, List<Map.Entry<String, Criterion>> localDatatypes, Block block,
+  public ProcessorConstructor(String name, Scope definingScope, List<Map.Entry<String, Membrane>> localDatatypes, Block block,
       List<TypestateDefinition> typestates) {
     super(name, definingScope, localDatatypes, block, new ArrayList<>());
     this.typestates = typestates;

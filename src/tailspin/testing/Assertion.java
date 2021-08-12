@@ -6,16 +6,16 @@ import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 
 public class Assertion implements Expression {
   private final Expression expression;
-  private final Criterion criterion;
+  private final Membrane membrane;
   private final Value description;
 
-  public Assertion(Expression expression, Criterion criterion, Value description) {
+  public Assertion(Expression expression, Membrane membrane, Value description) {
     this.expression = expression;
-    this.criterion = criterion;
+    this.membrane = membrane;
     this.description = description;
   }
 
@@ -37,7 +37,7 @@ public class Assertion implements Expression {
       return "assertion that " + description.getResults(null, blockScope) + " got too many values: "
           + results;
     }
-    if (!criterion.isMet(value, value, blockScope)) {
+    if (null == membrane.permeate(value, value, blockScope)) {
       return "assertion that " + description.getResults(null, blockScope) + " failed with value " + value;
     }
     return null; // Null means pass

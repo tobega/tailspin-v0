@@ -241,7 +241,7 @@ valueChain
 collectorChain
 transform
 matcher
-criterion
+membrane
 typeMatch
 structureContentMatcher
 arrayContentMatcher

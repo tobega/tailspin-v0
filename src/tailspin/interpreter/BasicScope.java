@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.DataDictionary;
 
 public class BasicScope extends Scope {
@@ -74,12 +74,12 @@ public class BasicScope extends Scope {
   }
 
   @Override
-  public void createDataDefinition(String identifier, Criterion def) {
+  public void createDataDefinition(String identifier, Membrane def) {
     dataDictionary.createDataDefinition(identifier, def);
   }
 
   @Override
-  public Criterion getDataDefinition(String identifier) {
+  public Membrane getDataDefinition(String identifier) {
     return dataDictionary.getDataDefinition(identifier);
   }
 

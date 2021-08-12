@@ -1,9 +1,9 @@
 package tailspin.matchers;
 
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 
-public class AlwaysFalse implements Criterion {
+public class AlwaysFalse implements Membrane {
   public static final AlwaysFalse INSTANCE = new AlwaysFalse();
 
   private AlwaysFalse() {}
@@ -14,7 +14,7 @@ public class AlwaysFalse implements Criterion {
   }
 
   @Override
-  public boolean isMet(Object toMatch, Object it, Scope scope) {
-    return false;
+  public Object permeate(Object toMatch, Object it, Scope scope) {
+    return null;
   }
 }

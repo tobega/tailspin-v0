@@ -1,20 +1,20 @@
 package tailspin.matchers;
 
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 
-public class DefinedCriterion implements Criterion {
-  private final Criterion baseType;
+public class DefinedCriterion implements Membrane {
+  private final Membrane baseType;
   private final Scope definingScope;
 
-  public DefinedCriterion(Criterion baseType, Scope definingScope) {
+  public DefinedCriterion(Membrane baseType, Scope definingScope) {
     this.baseType = baseType;
     this.definingScope = definingScope;
   }
 
   @Override
-  public boolean isMet(Object toMatch, Object it, Scope scope) {
-    return baseType.isMet(toMatch, null, definingScope);
+  public Object permeate(Object toMatch, Object it, Scope scope) {
+    return baseType.permeate(toMatch, null, definingScope);
   }
 
   @Override

@@ -3,10 +3,10 @@ package tailspin.matchers;
 import java.util.Objects;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.Measure;
 
-public class Equality implements Criterion {
+public class Equality implements Membrane {
   private final Value value;
 
   public Equality(Value value) {
@@ -14,11 +14,11 @@ public class Equality implements Criterion {
   }
 
   @Override
-  public boolean isMet(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope) {
     Object required = value.getResults(it, scope);
     if (toMatch instanceof Measure || required instanceof Measure)
-      return RangeMatch.Comparison.EQUAL.equals(RangeMatch.compare(toMatch, required));
-    return Objects.deepEquals(toMatch, required);
+      return RangeMatch.compare(toMatch, RangeMatch.Comparison.EQUAL, required);
+    return Objects.deepEquals(toMatch, required) ? toMatch : null;
   }
 
   @Override

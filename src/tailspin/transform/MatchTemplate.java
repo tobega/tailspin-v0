@@ -1,13 +1,13 @@
 package tailspin.transform;
 
 import tailspin.control.Block;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 
 public class MatchTemplate {
-  final Criterion matcher;
+  final Membrane matcher;
   final Block block;
 
-  public MatchTemplate(Criterion matcher, Block block) {
+  public MatchTemplate(Membrane matcher, Block block) {
     this.matcher = matcher;
     this.block = block;
   }

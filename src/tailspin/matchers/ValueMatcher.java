@@ -3,34 +3,35 @@ package tailspin.matchers;
 import java.util.List;
 import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 
-public class ValueMatcher implements Criterion {
+public class ValueMatcher implements Membrane {
   // @Nullable
-  final Criterion basicCriterion;
+  final Membrane basicMembrane;
   private final List<Condition> suchThatMatchers;
 
-  public ValueMatcher(Criterion basicCriterion, List<Condition> suchThatMatchers) {
-    this.basicCriterion = basicCriterion;
+  public ValueMatcher(Membrane basicMembrane, List<Condition> suchThatMatchers) {
+    this.basicMembrane = basicMembrane;
     this.suchThatMatchers = suchThatMatchers;
   }
 
   @Override
-  public boolean isMet(Object toMatch, Object it, Scope scope) {
-    if (basicCriterion != null && !basicCriterion.isMet(toMatch, it, scope)) {
-      return false;
+  public Object permeate(Object toMatch, Object it, Scope scope) {
+    Object baseValue = basicMembrane == null ? toMatch : basicMembrane.permeate(toMatch, it, scope);
+    if (baseValue == null) {
+      return null;
     }
     for (Condition condition : suchThatMatchers) {
       if (!condition.isFulfilled(toMatch, scope)) {
-        return false;
+        return null;
       }
     }
-    return true;
+    return baseValue;
   }
 
   @Override
   public String toString() {
-    return basicCriterion.toString() + suchThatMatchers.stream().map(Object::toString).collect(
+    return basicMembrane.toString() + suchThatMatchers.stream().map(Object::toString).collect(
         Collectors.joining());
   }
 }

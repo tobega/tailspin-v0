@@ -119,7 +119,7 @@ import tailspin.transform.lens.MultiValueArrayLens;
 import tailspin.transform.lens.Projection;
 import tailspin.transform.lens.RangeArrayLens;
 import tailspin.transform.lens.SingleValueArrayLens;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.KeyValue;
 import tailspin.types.Unit;
 
@@ -396,17 +396,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public List<Map.Entry<String, Criterion>> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
+  public List<Map.Entry<String, Membrane>> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
     if (ctx == null) return List.of();
     implicitDataDefinitions = new ArrayList<>();
     ctx.localDataDefinition().forEach(d -> implicitDataDefinitions.add(visitLocalDataDefinition(d)));
-    List<Map.Entry<String, Criterion>> definitions = implicitDataDefinitions;
+    List<Map.Entry<String, Membrane>> definitions = implicitDataDefinitions;
     implicitDataDefinitions = null;
     return definitions;
   }
 
   @Override
-  public Map.Entry<String, Criterion> visitLocalDataDefinition(TailspinParser.LocalDataDefinitionContext ctx) {
+  public Map.Entry<String, Membrane> visitLocalDataDefinition(TailspinParser.LocalDataDefinitionContext ctx) {
     return new AbstractMap.SimpleEntry<>(ctx.localIdentifier().getText(), ctx.matcher() == null ? null : visitMatcher(ctx.matcher()));
   }
 
@@ -444,7 +444,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   public TemplatesDefinition visitTemplatesBody(String name,
-      List<Map.Entry<String, Criterion>> localDatatypes, TailspinParser.TemplatesBodyContext ctx,
+      List<Map.Entry<String, Membrane>> localDatatypes, TailspinParser.TemplatesBodyContext ctx,
       TemplatesConstructor constructor) {
     // The match templates are conceptually in the scope of the block, otherwise we could just do this in visitBlock
     dependencyCounters.push(new DependencyCounter());
@@ -476,11 +476,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public ValueMatcher visitCriterion(TailspinParser.CriterionContext ctx) {
-    Criterion basicCriterion = ctx.typeMatch() == null ? null : (Criterion) visit(ctx.typeMatch());
-    if (basicCriterion == null && ctx.literalMatch() != null) {
-      basicCriterion = visitLiteralMatch(ctx.literalMatch());
+    Membrane basicMembrane = ctx.typeMatch() == null ? null : (Membrane) visit(ctx.typeMatch());
+    if (basicMembrane == null && ctx.literalMatch() != null) {
+      basicMembrane = visitLiteralMatch(ctx.literalMatch());
     }
-    return new ValueMatcher(basicCriterion,
+    return new ValueMatcher(basicMembrane,
         ctx.condition().stream().map(this::visitCondition).collect(Collectors.toList()));
   }
 
@@ -490,12 +490,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Criterion visitLiteralMatch(TailspinParser.LiteralMatchContext ctx) {
+  public Membrane visitLiteralMatch(TailspinParser.LiteralMatchContext ctx) {
     return new Equality(Value.of(visitSource(ctx.source())));
   }
 
   @Override
-  public Criterion visitRangeMatch(TailspinParser.RangeMatchContext ctx) {
+  public Membrane visitRangeMatch(TailspinParser.RangeMatchContext ctx) {
     return visitRangeBounds(ctx.rangeBounds());
   }
 
@@ -507,17 +507,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Criterion visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
+  public Membrane visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
     return new RegexpMatch(visitStringLiteral(ctx.stringLiteral()));
   }
 
   @Override
-  public Criterion visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
-    Map<String, Criterion> keyMatchers = new HashMap<>();
+  public Membrane visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
+    Map<String, Membrane> keyMatchers = new HashMap<>();
     for (int i = 0; i < ctx.key().size(); i++) {
       String key = ctx.key(i).localIdentifier().getText();
       TailspinParser.StructureContentMatcherContext matcherCtx = ctx.structureContentMatcher(i);
-      Criterion matcher = matcherCtx.Void() == null ? visitMatcher(matcherCtx.matcher())
+      Membrane matcher = matcherCtx.Void() == null ? visitMatcher(matcherCtx.matcher())
           : AlwaysFalse.INSTANCE;
       keyMatchers.put(key, matcher);
       if (implicitDataDefinitions != null) {
@@ -532,7 +532,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Criterion visitStereotypeMatch(StereotypeMatchContext ctx) {
+  public Membrane visitStereotypeMatch(StereotypeMatchContext ctx) {
     String identifier = ctx.localIdentifier() != null
         ? ctx.localIdentifier().getText() : ctx.externalIdentifier().getText();
     // We don't reference this as an identifier here, data definitions have a different namespace
@@ -540,17 +540,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Criterion visitArrayMatch(TailspinParser.ArrayMatchContext ctx) {
+  public Membrane visitArrayMatch(TailspinParser.ArrayMatchContext ctx) {
     List<CollectionCriterionFactory> criterionFactories = ctx.arrayContentMatcher().stream()
         .map(this::visitArrayContentMatcher)
         .collect(Collectors.toList());
-    Criterion lengthCriterion = null;
+    Membrane lengthMembrane = null;
     if (ctx.rangeBounds() != null) {
-      lengthCriterion = visitRangeBounds(ctx.rangeBounds());
+      lengthMembrane = visitRangeBounds(ctx.rangeBounds());
     } else if (ctx.arithmeticValue() != null) {
-      lengthCriterion = new Equality(visitArithmeticValue(ctx.arithmeticValue()));
+      lengthMembrane = new Equality(visitArithmeticValue(ctx.arithmeticValue()));
     }
-    return new ArrayMatch(lengthCriterion, criterionFactories, ctx.Void() != null);
+    return new ArrayMatch(lengthMembrane, criterionFactories, ctx.Void() != null);
   }
 
   @Override
@@ -573,7 +573,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public Criterion visitUnitMatch(TailspinParser.UnitMatchContext ctx) {
+  public Membrane visitUnitMatch(TailspinParser.UnitMatchContext ctx) {
     return new UnitMatch(visitUnit(ctx.unit()));
   }
 
@@ -671,7 +671,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()),
         ctx.templatesBody(), new TemplatesConstructor() {
           @Override
-          public Templates create(String name, Scope definingScope, List<Map.Entry<String, Criterion>> localDatatypes, Block block,
+          public Templates create(String name, Scope definingScope, List<Map.Entry<String, Membrane>> localDatatypes, Block block,
               List<MatchTemplate> matchTemplates) {
             return new Operator(name, definingScope, localDatatypes, block, matchTemplates, new String[]{left, right});
           }
@@ -791,18 +791,18 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return visitSource(ctx.source());
   }
 
-  private List<Map.Entry<String, Criterion>> implicitDataDefinitions;
+  private List<Map.Entry<String, Membrane>> implicitDataDefinitions;
   @Override
   public DataDefinition visitDataDeclaration(TailspinParser.DataDeclarationContext ctx) {
     implicitDataDefinitions = new ArrayList<>();
     ctx.dataDefinition().forEach(d -> implicitDataDefinitions.add(visitDataDefinition(d)));
-    List<Map.Entry<String, Criterion>> definitions = implicitDataDefinitions;
+    List<Map.Entry<String, Membrane>> definitions = implicitDataDefinitions;
     implicitDataDefinitions = null;
     return new DataDefinition(definitions);
   }
 
   @Override
-  public Map.Entry<String, Criterion> visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
+  public Map.Entry<String, Membrane> visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
     String identifier = ctx.localIdentifier().getText();
     AnyOf matcher = visitMatcher(ctx.matcher());
     return Map.entry(identifier, matcher);
@@ -1149,7 +1149,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     // Parameters must be defined first so as they don't get required
     List<ExpectedParameter> expectedParameters = visitParameterDefinitions(ctx.parameterDefinitions());
-    List<Map.Entry<String, Criterion>> localDatatypes = visitLocalDataDeclaration(ctx.localDataDeclaration());
+    List<Map.Entry<String, Membrane>> localDatatypes = visitLocalDataDeclaration(ctx.localDataDeclaration());
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
     composerDefinition.expectParameters(expectedParameters);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();

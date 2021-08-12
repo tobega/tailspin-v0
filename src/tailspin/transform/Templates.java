@@ -11,20 +11,20 @@ import tailspin.control.DelayedExecution;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.DefinedCriterion;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.Transform;
 
 public class Templates implements Transform {
   final String name;
   final Scope definingScope;
-  final List<Map.Entry<String, Criterion>> localDatatypes;
+  final List<Map.Entry<String, Membrane>> localDatatypes;
   // @Nullable
   final Block block;
   private final List<MatchTemplate> matchTemplates;
   final List<ExpectedParameter> expectedParameters = new ArrayList<>();
 
   public Templates(String name, Scope definingScope,
-      List<Map.Entry<String, Criterion>> localDatatypes, /*@Nullable*/ Block block,
+      List<Map.Entry<String, Membrane>> localDatatypes, /*@Nullable*/ Block block,
       List<MatchTemplate> matchTemplates) {
     this.name = name;
     this.definingScope = definingScope;
@@ -60,9 +60,13 @@ public class Templates implements Transform {
     if (it == null) {
       throw new NullPointerException("Attempt to use templates " + name + " as a source");
     }
-    Optional<MatchTemplate> match =
-        matchTemplates.stream().filter(m -> m.matcher.isMet(it, it, scope)).findFirst();
-    return match.map(m -> m.block.getResults(it, new NestedScope(scope)));
+    for (MatchTemplate match : matchTemplates) {
+      Object matching = match.matcher.permeate(it, it, scope);
+      if (matching != null) {
+        return Optional.of(match.block.getResults(matching, new NestedScope(scope)));
+      }
+    }
+    return Optional.empty();
   }
 
   public void expectParameters(List<ExpectedParameter> parameters) {
