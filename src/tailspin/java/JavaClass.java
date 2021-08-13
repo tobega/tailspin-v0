@@ -7,6 +7,7 @@ import java.lang.reflect.Executable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
+import tailspin.types.DataDictionary;
 import tailspin.types.Processor;
 import tailspin.types.TailspinArray;
 import tailspin.types.Transform;
@@ -25,7 +26,8 @@ public class JavaClass implements Processor, Transform {
   }
 
   @Override
-  public Object getResults(Object it, Map<String, Object> parameters) {
+  public Object getResults(Object it, Map<String, Object> parameters,
+      DataDictionary callingDictionary) {
     List<Object> params = it == null ? List.of() :
         ((it instanceof TailspinArray) ? toList((TailspinArray)it) : List.of(it));
     Executable[] methods = c.getConstructors();

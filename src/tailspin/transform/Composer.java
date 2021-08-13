@@ -11,6 +11,7 @@ import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.Memo;
 import tailspin.matchers.composer.SequenceSubComposer;
 import tailspin.matchers.composer.SubComposerFactory;
+import tailspin.types.DataDictionary;
 import tailspin.types.Membrane;
 import tailspin.types.Structure;
 import tailspin.types.Transform;
@@ -37,8 +38,9 @@ public class Composer implements Transform {
   }
 
   @Override
-  public Object getResults(Object it, Map<String, Object> parameters) {
-    TransformScope scope = createTransformScope(parameters);
+  public Object getResults(Object it, Map<String, Object> parameters,
+      DataDictionary callingDictionary) {
+    TransformScope scope = createTransformScope(parameters, callingDictionary);
     if (stateAssignment != null) {
       stateAssignment.getResults(null, scope);
     }
@@ -55,9 +57,10 @@ public class Composer implements Transform {
     return subComposer.getValues();
   }
 
-  private TransformScope createTransformScope(Map<String, Object> parameters) {
-    TransformScope scope = new TransformScope(definingScope, scopeName);
-    localDatatypes.forEach(dataDef -> scope.localDictionary.createDataDefinition(dataDef.getKey(),
+  private TransformScope createTransformScope(Map<String, Object> parameters,
+      DataDictionary callingDictionary) {
+    TransformScope scope = new TransformScope(definingScope, scopeName, callingDictionary);
+    localDatatypes.forEach(dataDef -> scope.getLocalDictionary().createDataDefinition(dataDef.getKey(),
         dataDef.getValue() == null ? null : new DefinedTag(dataDef.getKey(), dataDef.getValue(), scope)));
     int foundParameters = 0;
     for (ExpectedParameter expectedParameter : expectedParameters) {

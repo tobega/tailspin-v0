@@ -29,9 +29,9 @@ public class Measure extends Number implements Processor {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("hashCode")) {
-      return (it, params) -> hashCode();
+      return (it, params, callingDictionary) -> hashCode();
     } else if (message.equals("raw")) {
-      return (it, params) -> value;
+      return (it, params, callingDictionary) -> value;
     } else {
       throw new UnsupportedOperationException("Unknown measure message " + message);
     }

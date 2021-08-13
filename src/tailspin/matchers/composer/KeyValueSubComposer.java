@@ -50,7 +50,7 @@ class KeyValueSubComposer implements SubComposer {
   @Override
   public KeyValue getValues() {
     Object value = Value.oneValue(valueComposer.getValues());
-    value = scope.checkDataDefinition(key, value);
+    value = scope.getLocalDictionary().checkDataDefinition(key, value);
     return new KeyValue(key, value);
   }
 

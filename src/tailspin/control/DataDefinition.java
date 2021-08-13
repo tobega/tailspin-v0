@@ -15,7 +15,7 @@ public class DataDefinition implements Expression {
 
   public Object getResults(Object it, Scope blockScope) {
     for (Map.Entry<String, Membrane> definition : definitions) {
-      blockScope.createDataDefinition(
+      blockScope.getLocalDictionary().createDataDefinition(
           definition.getKey(), new DefinedTag(definition.getKey(), definition.getValue(), blockScope));
     }
     return null;

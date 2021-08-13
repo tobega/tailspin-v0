@@ -12,7 +12,7 @@ public class SystemProcessor implements Processor {
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
-    return (it, params) -> {
+    return (it, params, callingDictionary) -> {
       if (message.equals("nanoCount")) {
         return System.nanoTime();
       } else if (message.equals("randomInt")) {

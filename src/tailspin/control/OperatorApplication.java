@@ -24,6 +24,6 @@ public class OperatorApplication implements Expression {
     }
     String[] operandNames = transform.getOperandNames();
     return transform.getResults(it, Map.of(operandNames[0], left.getResults(it, blockScope),
-        operandNames[1], right.getResults(it, blockScope)));
+        operandNames[1], right.getResults(it, blockScope)), blockScope.getLocalDictionary());
   }
 }
