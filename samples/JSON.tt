@@ -76,3 +76,7 @@ end printJson
 
 { blue: [1,2], ocean: 'water' } -> printJson -> '$;
 ' -> !OUT::write
+
+'plain string
+' -> printJson -> '$;
+' -> !OUT::write

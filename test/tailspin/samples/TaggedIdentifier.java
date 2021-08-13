@@ -424,6 +424,24 @@ public class TaggedIdentifier {
   }
 
   @Test
+  void taggedStringLosesTagInRegexMatch() throws Exception {
+    String program = """
+    {city: 'London', id: 'foo'} -> $.city -> \\(
+      <'L.*'> {id: $}!
+      <> 'no'!
+    \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{id=London}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void taggedStringEqualsRawString() throws Exception {
     String program = """
     {city: 'London'} -> \\(
@@ -496,7 +514,7 @@ public class TaggedIdentifier {
   }
 
   @Test
-  void taggedNumberKeepsTagWhenEqualsUntyped() throws Exception {
+  void taggedNumberLosesTagWhenEqualsUntyped() throws Exception {
     String program = """
     {city: 5, id: 8} -> $.city -> \\(
       <=5> {id: $} !
@@ -507,28 +525,13 @@ public class TaggedIdentifier {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void taggedNumberKeepsTagWhenEqualsUntypedSoSameNameWorks() throws Exception {
-    String program = """
-    {city: 5, id: 8} -> $.city -> \\(
-      <=5> {city: $} !
-    \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{city=5}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{id=5}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void taggedNumberKeepsTagWhenInUntypedRange() throws Exception {
+  void taggedNumberLosesTagWhenInUntypedRange() throws Exception {
     String program = """
     {city: 5, id: 8} -> $.city -> \\(
       <2..6> {id: $} !
@@ -539,24 +542,9 @@ public class TaggedIdentifier {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void taggedNumberKeepsTagWhenInUntypedRangeSoSameNameWorks() throws Exception {
-    String program = """
-    {city: 5, id: 8} -> $.city -> \\(
-      <2..6> {city: $} !
-    \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{city=5}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{id=5}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

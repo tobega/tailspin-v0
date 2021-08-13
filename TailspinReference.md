@@ -64,7 +64,7 @@ stage, simply the value produced by the stage before. At the start of a top-leve
 A transform is a function which only takes one value as input (the _current value_) and can emit a
 variable amount of values, even no value at all, into the [stream](#streams). It is typically a [literal expression](#sources)
 to create a different value or a defined [templates](#templates) object where the block to be executed is
-decided by a [matcher](#matchers) membrane on the _current value_.
+decided by a [matcher](#matchers) criterion on the _current value_.
 
 Note that at each step of a _value chain_, any number of values may be emitted for each input value.
 If no values are emitted from a step, the processing of that _value chain_ ends. Note that "no value" 
@@ -158,7 +158,8 @@ Arithmetic between a measure and untyped numbers will result in a measure of the
 There is a special unit, `"1"`, to define a scalar number. Scalars can be multiplied with other units, leaving the other unit unchanged on the result.
 
 * Comparing measures with a measure of the same unit works.
-* Comparing scalars and untyped numbers works.
+* Comparing scalars and untyped numbers works. Note that the resulting type will be what is in the matcher,
+  e.g. `<0..> // Here the value is untyped` and `<0"1"..> // Here the value is scalar`
 * Comparing a measure to a measure of different unit, or to an untyped number, is an error. If you need to do this, first type match on the unit, e.g. `<"m" ?($ <=3"m">)>`.
 
 When the resulting measure of arithmetic between measures cannot be inferred, you will need to
@@ -537,10 +538,15 @@ A projection cannot utilize [structure expansion](#structure-expansion) because 
 while a projection is required to provide a value.
 
 ## Matchers
-A matcher is a membrane enclosed by angle brackets. A sequence of matchers is evaluated from the
+A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the
 start to the end, where the first matcher that matches the _current value_ will have its block
 executed for that _current value_.
-* Empty membrane, `<>`, matches anything.
+
+Matchers are also used to [define datatypes](#defined-types)
+
+Note that some values, notably numbers and strings, can morph to match what is in the criterion, see [measures](#measures) and [tagged identifiers](#tagged-identifiers).
+
+* Empty criterion, `<>`, matches anything.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
@@ -570,15 +576,15 @@ executed for that _current value_.
   * At the end of the structure matcher, just before the `}`, the symbol `VOID` may be written to assert that the structure has no unmatched fields.
     e.g. `{a: <> VOID}` matches a structure that only has an `a` field and no other fields.
 * If either of several criteria is acceptable, just list the acceptable criteria inside the angle brackets separated by `|` as a logical "or".
-  The criteria are tried in order, stopping after the first true membrane. E.g. `<='apple'|='orange'>` will be true for both 'apple' and 'orange'.
-* Inverse match, to match the opposite of a membrane, just put a tilde inside the angle bracket, e.g. `<~=5>`
+  The criteria are tried in order, stopping after the first true criterion. E.g. `<='apple'|='orange'>` will be true for both 'apple' and 'orange'.
+* Inverse match, to match the opposite of a criterion, just put a tilde inside the angle bracket, e.g. `<~=5>`
   Note that inverse is applied to the entire expression within the angle brackets so `<~='apple'|='orange'>` will be false for both 'apple' and 'orange'.
 * Array match, given as `<[]>` matches if the _current value_ is an array.
   * A match can also be restricted to arrays
   of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`.
   * Match criteria on array content are written inside the brackets, separated by commas.
   Array content criteria can have a [multiplier](#multipliers) attached.
-  * The simplest array content matching tests if there exist elements in any order so that each membrane is met,
+  * The simplest array content matching tests if there exist elements in any order so that each criterion is met,
   with extra content ignored. In this mode, the `+` and `*` multipliers make no difference to the result,
   but may clarify the intent.
   * The `?` and `=` multipliers will fail if there are more than the allowed amount elements.
@@ -621,8 +627,8 @@ ended with a closing parenthesis, e.g. `<?($@ <=1>)>`. Several conditions can be
 Note that a condition will change the perspective of the _current value_ so that `$` will represent the value being matched by the closest enclosing matcher.
 
 ### Defined types
-It is possible to define a named membrane (a type definition), by the statement `data _identifier_ <_condition_>`.
-The named membrane can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`
+It is possible to define a named criterion (a type definition), by the keyword "data" followed by an identifier and a [matcher](#matchers), e.g. `data _identifier_ <_condition_>`.
+The named criterion can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`
 
 When a type definition contains a structure, each key will also be defined as a type. Note that it is an error
 to define the same type twice. If you already have defined a type for a key, you must reference that definition, e.g.
@@ -1050,8 +1056,14 @@ Untyped numbers and raw strings are far too general to count as proper types on 
 When untyped numbers or raw strings get assigned to a key, the [data dictionary](#data-dictionary) will convert them to
 tagged identifiers.
 
-Tagged identifiers will work well with raw strings or untyped numbers (the raw or untyped data will "morph" and acquire the tag).
-Numeric tagged identifiers cannot be used in arithmetic, however, so if you intend to use a number in arithmetic, give it a unit (or the scalar unit "1").
+Tagged identifiers can "morph" back and forth to raw strings or untyped numbers. When assignment to a [keyed value](#keyed-values) happens,
+the tag is added and will remain when the value is accessed. In [matching](#matchers), a tagged value will lose the tag
+when the matcher is for a raw value, e.g. `<0..> // here the value is an untyped number` or `<'.*'> // here the value is a raw string`.
+Similarly, a raw value can gain a tag in matching when matching the tag definition, e.g. `<myTag> // here the string or number is tagged as myTag`. Note that
+defined types will not have tags when their representation type is not a raw string or untyped number.
+
+Numeric tagged identifiers cannot be used in arithmetic, so if you intend to use a number in arithmetic,
+the recommendation is to give it a unit (or the scalar unit "1").
 
 Tagged identifiers do not mix with other tagged identifiers. Trying to assign or compare them with the wrong tag is an error.
 If you do need to compare in situations where there might be a tag mismatch, do a type check first, e.g. `<myTag ?($ <=$foo.myTag>)>` instead of just `<=$foo.myTag>`
