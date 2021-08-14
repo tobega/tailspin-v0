@@ -29,7 +29,8 @@ public class Measure extends Number implements Processor {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("hashCode")) {
-      return (it, params, callingDictionary) -> ((Number)hashCode()).longValue();
+      return (it, params, callingDictionary) ->
+          ((Number) (unit.equals(Unit.SCALAR) ? ((Long) value).hashCode() : hashCode())).longValue();
     } else if (message.equals("raw")) {
       return (it, params, callingDictionary) -> value;
     } else {

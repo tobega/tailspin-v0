@@ -259,6 +259,39 @@ public class Units {
   }
 
   @Test
+  void scalarHashCodeEqualsUntypedHashCode() throws IOException {
+    String program = """
+    def two: 2 -> $::hashCode;
+    def four: 4 -> $::hashCode;
+    4"1" -> $::hashCode -> \\(<=$two> 'never'! <=$four> 'yes'! <> 'no'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void measureHashCodeNotEqualToUntypedHashCode() throws IOException {
+    String program = """
+    def four: 4 -> $::hashCode;
+    4"m" -> $::hashCode -> \\(<=$four> 'no'! <> 'yes'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void scalarBecomesUntypedWhenEqualsUntyped() throws IOException {
     String program = "4\"1\" -> \\(<=2> 'never'! <=4> $ + 3\"m\" ! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =

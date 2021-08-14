@@ -460,6 +460,25 @@ public class TaggedIdentifier {
   }
 
   @Test
+  void taggedStringHashCodeEqualsRawStringHashCode() throws Exception {
+    String program = """
+    def london: 'London' -> $::hashCode;
+    {city: 'London'} -> $.city::hashCode -> \\(
+      <=$london> 'yes'!
+      <> 'no'!
+    \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void taggedStringInRawStringRange() throws Exception {
     String program = """
     {city: 'London'} -> \\(
@@ -482,6 +501,25 @@ public class TaggedIdentifier {
     String program = """
     {city: 5} -> \\(
       <{city: <=5>}> 'yes'!
+      <> 'no'!
+    \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedNumberHashCodeEqualsUntypedHashCode() throws Exception {
+    String program = """
+    def five: 5 -> $::hashCode;
+    {city: 5} -> $.city::hashCode -> \\(
+      <=$five> 'yes'!
       <> 'no'!
     \\) -> !OUT::write
     """;
