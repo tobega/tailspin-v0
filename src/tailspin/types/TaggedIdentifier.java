@@ -29,7 +29,7 @@ public class TaggedIdentifier extends Number implements Processor {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("hashCode")) {
-      return (it, params, callingDictionary) -> hashCode();
+      return (it, params, callingDictionary) -> ((Number) hashCode()).longValue();
     } else if (message.equals("raw")) {
       return (it, params, callingDictionary) -> value;
     } else {
