@@ -90,19 +90,19 @@ public class RangeMatch implements Membrane {
         lhs = l.getValue();
         rhs = r.getValue();
       } else {
-        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+        throw new IllegalArgumentException("Cannot compare " + l.getTag() + ":" + l.getValue() + " with " + r.getTag() + ":" + r.getValue());
       }
     }
     else if (lhs instanceof TaggedIdentifier l) {
       if (rhs instanceof Measure) {
-        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+        throw new IllegalArgumentException("Cannot compare " + l.getTag() + ":" + l.getValue() + " with " + rhs);
       }
       lhs = l.getValue();
       toMatch = l.getValue();
     }
     else if (rhs instanceof TaggedIdentifier r) {
       if (lhs instanceof Measure) {
-        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + r.getTag() + ":" + r.getValue());
       }
       rhs = r.getValue();
       if (lhs instanceof Long || lhs instanceof String) {

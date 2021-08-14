@@ -9,7 +9,7 @@ processor Tic-Tac-Toe
         when <=[]?($@Tic-Tac-Toe <~[<1..9>]>)> do 'draw' !
         when <~=[]> do $(1) !
       \) !
-    when <[<=$(first)>+ VOID]> do '$(first); wins!'!
+    when <[<=$(first)::raw>+ VOID]> do '$(first); wins!'!
   end isWonOrDone
 
   source validMoves
@@ -17,7 +17,7 @@ processor Tic-Tac-Toe
   end validMoves
 
   templates move
-    when <?($@Tic-Tac-Toe <[<=$.position>]>)> do @Tic-Tac-Toe($.position): $.mark;
+    when <?($@Tic-Tac-Toe($.position) <position>)> do @Tic-Tac-Toe($.position): $.mark;
       $ !
     otherwise
       'Incorrect move$#10;' -> !OUT::write
