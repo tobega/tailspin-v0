@@ -31,16 +31,26 @@ public class RangeMatch implements Membrane {
   @Override
   public Object permeate(Object toMatch, Object it, Scope scope) {
     Unit unit = null;
+    String tag = null;
     if (lowerBound != null) {
       Object low = lowerBound.value.getResults(it, scope);
       if (low instanceof Measure m) unit = m.getUnit();
+      if (low instanceof TaggedIdentifier t) tag = t.getTag();
       toMatch = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low);
       if (toMatch == null) return null;
     }
     if (upperBound != null) {
       Object high = upperBound.value.getResults(it, scope);
-      if (high instanceof Measure m && unit != null && !unit.equals(m.getUnit()))
-        throw new IllegalArgumentException("Match lower bound unit " + unit + " incompatible with upper bound " + m);
+      if (high instanceof Measure m && lowerBound != null) {
+        if (!m.getUnit().equals(unit))
+          throw new IllegalArgumentException("Match lower bound unit " + unit + " incompatible with upper bound " + m);
+      } else if (unit != null)
+        throw new IllegalArgumentException("Match lower bound unit " + unit + " incompatible with upper bound " + high);
+      if (high instanceof TaggedIdentifier t && lowerBound != null) {
+        if (!t.getTag().equals(tag))
+          throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + t.getTag() + ":" + t.getValue());
+      } else if (tag != null)
+        throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + high);
       toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high);
     }
     return toMatch;
