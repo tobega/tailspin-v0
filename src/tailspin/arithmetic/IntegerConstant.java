@@ -24,6 +24,6 @@ public class IntegerConstant implements Value {
 
   @Override
   public String toString() {
-    return value + (unit == null ? "" : "\"" + unit + "\"");
+    return value + (unit == null ? "" : unit.toString());
   }
 }

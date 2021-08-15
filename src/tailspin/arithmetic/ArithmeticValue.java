@@ -20,4 +20,9 @@ public class ArithmeticValue implements Value {
     }
     return result;
   }
+
+  @Override
+  public String toString() {
+    return value.toString();
+  }
 }

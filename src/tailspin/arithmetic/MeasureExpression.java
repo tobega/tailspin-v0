@@ -22,4 +22,9 @@ public class MeasureExpression implements Value {
     }
     return new Measure((Long) result, unit);
   }
+
+  @Override
+  public String toString() {
+    return value.toString() + unit.toString();
+  }
 }

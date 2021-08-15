@@ -1090,6 +1090,8 @@ Integer
 
 Measure
 * `$::raw` returns the magnitude of the measure without the unit.
+* `$::asBytes` returns the minimal [bytes value](#bytes) that can represent the integer in twos complement notation, 
+  if this measure is a scalar (unit "1") and an integer, otherwise error.
 
 Tagged identifier
 * `$::raw` returns the base value without the tag.

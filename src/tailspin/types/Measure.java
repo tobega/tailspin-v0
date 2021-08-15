@@ -1,5 +1,6 @@
 package tailspin.types;
 
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
 
@@ -33,6 +34,8 @@ public class Measure extends Number implements Processor {
           ((Number) (unit.equals(Unit.SCALAR) ? ((Long) value).hashCode() : hashCode())).longValue();
     } else if (message.equals("raw")) {
       return (it, params, callingDictionary) -> value;
+    } else if (message.equals("asBytes") && unit.equals(Unit.SCALAR)) {
+      return (it, params, callingDictionary) -> BigInteger.valueOf(value).toByteArray();
     } else {
       throw new UnsupportedOperationException("Unknown measure message " + message);
     }
