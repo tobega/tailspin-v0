@@ -154,7 +154,7 @@ public class DataDictionary {
     }
     Object result = def.permeate(data, null, null);
     if (result == null) {
-      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + data);
+      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + data + (data instanceof TaggedIdentifier t ? " with tag " + t.getTag() : ""));
     }
     return result;
   }

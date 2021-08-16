@@ -96,6 +96,23 @@ public class TaggedIdentifier {
   }
 
   @Test
+  void tagDefinedToOtherTag() throws Exception {
+    String program = """
+      data city <'.*'>, destination <city>
+      {city: 'London'} -> { destination: $.city } -> !OUT::write
+      {destination: 'Paris'} -> { city: $.destination } -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{destination=London}{city=Paris}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void taggedNumberSameNameWorks() throws Exception {
     String program = "{id: 1234, city: 'London'} -> { id: $.id } -> !OUT::write";
     Tailspin runner =
