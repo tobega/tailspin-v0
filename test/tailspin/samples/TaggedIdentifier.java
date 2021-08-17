@@ -41,6 +41,32 @@ public class TaggedIdentifier {
   }
 
   @Test
+  void definedStringSameNameWorks() throws Exception {
+    String program = "data city <'.*'> {id: 1234, city: 'London'} -> { city: $.city } -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{city=London}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void definedStringOtherNameFails() {
+    String program = "data id <'.*'> {id: 'abc', city: 'London'} -> { id: $.city } -> !OUT::write";
+    assertThrows(Exception.class, () -> {
+      Tailspin runner =
+          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      runner.run(input, output, List.of());
+    });
+  }
+
+  @Test
   void taggedStringOtherNameCanBeAssignedRawValue() throws Exception {
     String program = "{id: 'abc', city: 'London'} -> { id: $.city::raw } -> !OUT::write";
     Tailspin runner =
@@ -110,6 +136,20 @@ public class TaggedIdentifier {
     runner.run(input, output, List.of());
 
     assertEquals("{destination=London}{city=Paris}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void tagDefinedToOtherTagWrongSubTagIsError() throws Exception {
+    String program = """
+      data city <'.*'>, destination <city>
+      {name: 'John'} -> { destination: $.name } -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test

@@ -19,9 +19,13 @@ public class DefinedTag implements Membrane {
   @Override
   public Object permeate(Object toMatch, Object it, Scope scope) {
     Object result = baseType.permeate(toMatch, null, definingScope);
-    if (result == null && toMatch instanceof TaggedIdentifier t) {
-      if (!tag.equals(t.getTag())
-          || baseType.permeate(t.getValue(), null, definingScope) == null)
+    if (toMatch instanceof TaggedIdentifier t) {
+      if (result instanceof TaggedIdentifier) {
+        return result;
+      }
+      if (!tag.equals(t.getTag()))
+        return null;
+      if (result == null && baseType.permeate(t.getValue(), null, definingScope) == null)
         return null;
       return toMatch;
     }
