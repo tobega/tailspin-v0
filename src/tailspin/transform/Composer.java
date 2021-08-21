@@ -14,6 +14,7 @@ import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.types.DataDictionary;
 import tailspin.types.Membrane;
 import tailspin.types.Structure;
+import tailspin.types.TaggedIdentifier;
 import tailspin.types.Transform;
 
 public class Composer implements Transform {
@@ -44,7 +45,9 @@ public class Composer implements Transform {
     if (stateAssignment != null) {
       stateAssignment.getResults(null, scope);
     }
-    String s = (String) Objects.requireNonNull(it);
+    Objects.requireNonNull(it);
+    if (it instanceof TaggedIdentifier t) it = t.getValue();
+    String s = (String) it;
     Memo memo = new Memo(0, null);
     SequenceSubComposer subComposer = new SequenceSubComposer(specs, scope, subComposerFactory::resolveSpec);
     memo = subComposer.nibble(s, memo);

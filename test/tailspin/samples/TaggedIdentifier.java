@@ -899,4 +899,35 @@ public class TaggedIdentifier {
 
     assertEquals("{ds=[1, 2, 3]}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void taggedIdentifierStringCanBePassedToComposer() throws IOException {
+    String program = """
+      composer toInt <INT> end toInt
+      {foo: '13'} -> $.foo -> toInt -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("13", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedIdentifierStringCanBeDeconstructed() throws IOException {
+    String program = """
+      {foo: 'ab'} -> [$.foo...] -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[a, b]", output.toString(StandardCharsets.UTF_8));
+  }
 }

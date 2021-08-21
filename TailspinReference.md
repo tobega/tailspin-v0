@@ -1070,6 +1070,9 @@ If you do need to compare in situations where there might be a tag mismatch, do 
 
 You can use the `::raw` message on a tagged identifier to get the base value without the tag, when you need to.
 
+If you want to create a value with a tag, you need to first assign it to the desired key and then retrieve the value.
+E.g. `(id:1234) -> $::value` and `{id:1234} -> $.id` will both attach the tag "id" to the number 1234.
+
 ## Built-in messages
 All objects
 * `$::hashCode` returns a hash code consistent with equality.
