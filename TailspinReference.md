@@ -506,7 +506,7 @@ Note that the lens passed as a parameter is then used simply by referencing its 
 The most common lenses are the ones used to access [array](#arrays) elements, where integer values project onto
 elements of the array. Single integers, `$(3)`, the values `first` and `last`, or integer expressions will access
 a single element of the array. Ranges and lists/arrays of integer values will project onto a new array consisting of
-the selected elements, e.g. `$(3..5)` or `$([3,1,2])`
+the selected elements, e.g. `$(3..5)` or `$([3,1,2])`. See the [array documentation](#arrays) for details.
 
 A key can be used to project onto a field of a [structure](#structures), e.g. `$(x:)`
 
@@ -554,8 +554,9 @@ Note that some values, notably numbers and strings, can morph to match what is i
   See the [measure](#measures) documentation for rules of how measures match equality and ranges.
 * You can use the name of a [defined data type](#defined-types) or an [autotyped](#autotyping) field to determine if a value matches that type.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
- the range operator on the side(s) where the bound is not included. E.g.
-  * `<2..5>` for "between 2 and 5 inclusive"
+ the range operator on the side(s) where the bound is not included. Note that the [type](#types) of the upper and lower bounds must match.
+ Examples of ranges:
+  * `<2..5>` for "between 2 and 5 inclusive" (or `<2"m"..5"m">` for a range of metres)
   * `<..3>` for "less than or equal to 3", or `<..~3>` for "less than 3"
   * `<10..>` for "greater than or equal to 10" , or `<10~..>` for "greater than 10"
   * A value dereference can be a bound, e.g. `<$min..$max>`
@@ -723,10 +724,15 @@ Elements can also be selected counting from the end of the array by counting fro
  e.g. the last element of an array can be accessed by selector `last`, the second last element by `last-1` and so on.
 Of course, the selector may be any arithmetic expression.
 
+Note that selectors can be untyped numbers, [measures](#measures) or [tagged numbers](#tagged-identifiers)
+
 A new array can be created by selecting from an existing array by a [range literal](#range-literal), using keywords
 `first` and `last` if needed.
 E.g. `$(2..last-1:3)` would select every third element starting at the second element and ending on or before
 the second last element. As usual, you can leave out the increment which defaults to 1.
+
+Note that the type of the upper and lower bounds of a range selector must match, except that an untyped expression involving
+`first` or `last` will be coerced to match the type of the other bound.
 
 An array or integer for index can be obtained from a value [dereference](#dereference). The result must be an integer or a stream
 of integers, or a single array of integers.

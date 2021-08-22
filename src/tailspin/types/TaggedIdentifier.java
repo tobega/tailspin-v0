@@ -3,7 +3,7 @@ package tailspin.types;
 import java.util.Map;
 import java.util.Objects;
 
-public class TaggedIdentifier extends Number implements Processor {
+public class TaggedIdentifier implements Processor {
 
   private final String tag;
   private final Object value;
@@ -52,26 +52,5 @@ public class TaggedIdentifier extends Number implements Processor {
   @Override
   public int hashCode() {
     return Objects.hash(tag, value);
-  }
-
-  // Below is only for array indexing
-  @Override
-  public int intValue() {
-    return ((Number) value).intValue();
-  }
-
-  @Override
-  public long longValue() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public float floatValue() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public double doubleValue() {
-    throw new UnsupportedOperationException();
   }
 }

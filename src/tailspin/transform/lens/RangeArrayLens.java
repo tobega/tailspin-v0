@@ -17,8 +17,7 @@ public class RangeArrayLens extends ArrayLens {
   public IntStream getIndices(DimensionContextKeywordResolver context, Object it, Scope scope) {
     RangeGenerator.RangeIterator rangeIterator =
         rangeGenerator.resultIterator(
-            i -> context.resolveLowerRangeLimit(i.intValue()),
-            i -> context.resolveUpperRangeLimit(i.intValue()),
+            context,
             it, scope);
     return rangeIterator == null
         ? IntStream.empty()
