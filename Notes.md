@@ -6,6 +6,7 @@
     - networking
     - files. File systems? module loading of API vs implementation? Handled by duck-typing?
 - Contracts and type specifications: Based on matchers. Maybe "templates connect requires <[<point>*]> produces <line>*"
+  Consider how produces might change because of parameters.
   How about matchers for processor protocols? Specify minimum requirements, extra stuff allowed.
 - Concurrency: The basic idea is that state variable changes will be transactional/atomic for each processor template or template chain stage.
   Mechanism will likely be "CAS or retry". How about processors holding processors, giving a "distributed" transaction?
@@ -19,15 +20,7 @@
 - Unlimited size arrays
 - Use composers as rules in other composers (and INT and WS should be top-level composers)
 - Projection just copying all fields or all fields except some
-
-### Automatic names as types and number units
-Field names of a structure automatically correspond to a type, which is automatically inferred if it
-is not declared.
-
-Numbers can be assigned units and the unit then determines the type, while numbers without units will
-become auto-typed identifiers. Proposed syntax for units is double quotes around a symbolic expression
-where numbers are powers, space is multiplication and there is one slash allowed for division,
-e.g. `"kg m2/s2"` or the inverse `"s2/kg m2"`
+- Conditions on array indices. Allow start at arbitrary value? Only specified units?
 
 #### Confusing
 * items with different field names just compare unequal. Perhaps should error? You can always type match first.

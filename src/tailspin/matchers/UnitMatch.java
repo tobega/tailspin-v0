@@ -21,6 +21,6 @@ public class UnitMatch implements Membrane {
 
   @Override
   public String toString() {
-    return unit.toString();
+    return unit.equals(Unit.SCALAR) ? "\"1\"" : unit.toString();
   }
 }

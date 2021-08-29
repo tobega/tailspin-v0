@@ -25,4 +25,9 @@ public class SourceReference implements Expression {
     }
     return value;
   }
+
+  @Override
+  public String toString() {
+    return "$" + reference;
+  }
 }

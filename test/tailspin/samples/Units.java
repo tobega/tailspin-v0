@@ -803,15 +803,20 @@ public class Units {
     assertEquals("[7, 8]", output.toString(StandardCharsets.UTF_8));
   }
 
+  /**
+   * Unless otherwise specified any numeric integer works as index
+   */
   @Test
-  void indexByMeasureFails() throws IOException {
+  void indexByMeasureWorks() throws IOException {
     String program = "[6,7,8] -> $(2\"m\") -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    runner.run(input, output, List.of());
+
+    assertEquals("7", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -867,6 +872,34 @@ public class Units {
   void measureAsBytesIsError() throws IOException {
     String program = """
     127"m" -> $::asBytes -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void scalarAsCodedCharacter() throws IOException {
+    String program = """
+    32"1" -> '$#$;' -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals(" ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void measureAsCodedCharacterIsError() throws IOException {
+    String program = """
+    32"m" -> '$#$;' -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

@@ -4,7 +4,6 @@ import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
 import tailspin.types.TaggedIdentifier;
-import tailspin.types.Unit;
 
 public class DimensionContextKeywordResolver implements ArithmeticContextKeywordResolver,
     RangeGenerator.BoundsResolver {
@@ -40,7 +39,7 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
     if (indexValue instanceof TaggedIdentifier t) {
       return ((Long) t.getValue()).intValue();
     }
-    if (indexValue instanceof Measure m && m.getUnit().equals(Unit.SCALAR)) {
+    if (indexValue instanceof Measure m) {
       return (int) m.getValue();
     }
     return ((Long) indexValue).intValue();
