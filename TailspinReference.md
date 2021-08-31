@@ -1022,7 +1022,8 @@ of a defined type is a raw string or untyped number, the defined type will actua
 If a defined (or [autotyped](#autotyping)) type "foo" refers to a defined (or [autotyped](#autotyping)) [tagged identifier](#tagged-identifiers) called "bar",
 all values assigned as "foo"s will be tagged as "bar"s (all "foo"s are "bar"s).
 
-The data dictionary will also contain all [autotyped](#autotyping) definitions.
+The data dictionary will also contain all [autotyped](#autotyping) definitions. Note that for modules, all defined types stay in the defining scope of the module,
+while autotyping will affect the calling scope. These two scopes coincide for the outer module (program or test being run).
 
 There are also local data dictionaries to handle [local types](#local-types) that are valid only in a certain context, like
 the execution of [templates](#templates) or within a [processor](#processors)
@@ -1056,6 +1057,9 @@ as [local types](#local-types) if the autotyping rules don't do what you intende
 Raw strings and untyped numbers will be autotyped as [tagged identifiers](#tagged-identifiers).
 
 Other types are currently not autotyped.
+
+Note that autotyping will occur in the calling scope, even when calling code in other modules, unless the type is defined or local
+in the called module.
 
 ### Tagged identifiers
 Untyped numbers and raw strings are far too general to count as proper types on their own (they are basic types or representational types).

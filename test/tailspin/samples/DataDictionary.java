@@ -409,6 +409,30 @@ public class DataDictionary {
   }
 
   @Test
+  void localProcessorTypeAppliesInProcessorTemplates() throws IOException {
+    String program = """
+    processor Foo
+      data x local
+      {x: $} -> !OUT::write
+      sink bar
+        {x: $} -> !OUT::write
+      end bar
+    end Foo
+    def foo: 'apple' -> Foo;
+    {x: 3} -> !OUT::write
+    'banana' -> !foo::bar
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}{x=banana}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void localComposerTypeStaysLocal() throws IOException {
     String program = """
     composer foo

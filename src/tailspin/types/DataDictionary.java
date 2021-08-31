@@ -20,6 +20,8 @@ import tailspin.matchers.UnitMatch;
 public class DataDictionary {
   /* @Nullable */
   private final DataDictionary callingDictionary;
+  /* @Nullable */
+  private final DataDictionary moduleDictionary;
 
   private static final Membrane stringMatch = new Membrane() {
     @Override
@@ -100,8 +102,10 @@ public class DataDictionary {
 
   public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
-  public DataDictionary(/*@Nullable*/ DataDictionary callingDictionary) {
+  public DataDictionary(/*@Nullable*/ DataDictionary callingDictionary,
+      DataDictionary moduleDictionary) {
     this.callingDictionary = callingDictionary;
+    this.moduleDictionary = moduleDictionary;
   }
 
   private static Membrane getDefaultTypeCriterion(String tag, Object data, DataDictionary dictionary) {
@@ -143,8 +147,11 @@ public class DataDictionary {
   }
 
   public Object checkDataDefinition(String key, Object data) {
-    if (callingDictionary != null && !dataDefinitions.containsKey(key)) {
+    if (callingDictionary != null && !isKeyDefined(key)) {
       return callingDictionary.checkDataDefinition(key, data);
+    }
+    if (moduleDictionary != null && !dataDefinitions.containsKey(key)) {
+      return moduleDictionary.checkDataDefinition(key, data);
     }
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
@@ -157,5 +164,11 @@ public class DataDictionary {
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + data + (data instanceof TaggedIdentifier t ? " with tag " + t.getTag() : ""));
     }
     return result;
+  }
+
+  private boolean isKeyDefined(String key) {
+    if (dataDefinitions.containsKey(key)) return true;
+    if (moduleDictionary != null) return moduleDictionary.isKeyDefined(key);
+    return false;
   }
 }

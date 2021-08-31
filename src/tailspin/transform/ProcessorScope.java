@@ -19,7 +19,7 @@ public class ProcessorScope extends Scope {
       DataDictionary callingDictionary) {
     this.parentScope = parentScope;
     currentTypestate = processorName;
-    localDictionary = new DataDictionary(callingDictionary);
+    localDictionary = new DataDictionary(callingDictionary, parentScope.getLocalDictionary());
   }
 
   public void addTypestate(String name, Scope stateScope) {

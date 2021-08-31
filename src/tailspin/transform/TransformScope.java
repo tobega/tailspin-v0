@@ -14,7 +14,7 @@ public class TransformScope extends NestedScope {
       DataDictionary callingDictionary) {
     super(parentScope);
     this.scopeContext = scopeContext;
-    localDictionary = new DataDictionary(callingDictionary);
+    localDictionary = new DataDictionary(callingDictionary, parentScope.getLocalDictionary());
   }
 
   @Override
