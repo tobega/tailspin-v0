@@ -471,11 +471,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public AnyOf visitMatcher(TailspinParser.MatcherContext ctx) {
-    return new AnyOf(ctx.Invert() != null, ctx.criterion().stream().map(this::visitCriterion).collect(Collectors.toList()));
+    return new AnyOf(ctx.Invert() != null, ctx.membrane().stream().map(this::visitMembrane).collect(Collectors.toList()));
   }
 
   @Override
-  public ValueMatcher visitCriterion(TailspinParser.CriterionContext ctx) {
+  public ValueMatcher visitMembrane(TailspinParser.MembraneContext ctx) {
     Membrane basicMembrane = ctx.typeMatch() == null ? null : (Membrane) visit(ctx.typeMatch());
     if (basicMembrane == null && ctx.literalMatch() != null) {
       basicMembrane = visitLiteralMatch(ctx.literalMatch());
@@ -521,9 +521,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
           : AlwaysFalse.INSTANCE;
       keyMatchers.put(key, matcher);
       if (implicitDataDefinitions != null) {
-        if (ctx.structureContentMatcher(i).matcher().criterion().size() != 1
-          || ctx.structureContentMatcher(i).matcher().criterion(0).typeMatch() == null
-          || !ctx.structureContentMatcher(i).matcher().criterion(0).typeMatch().getText().equals(key)) {
+        if (ctx.structureContentMatcher(i).matcher().membrane().size() != 1
+          || ctx.structureContentMatcher(i).matcher().membrane(0).typeMatch() == null
+          || !ctx.structureContentMatcher(i).matcher().membrane(0).typeMatch().getText().equals(key)) {
               implicitDataDefinitions.add(Map.entry(key, matcher));
         }
       }
@@ -1324,6 +1324,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Expression expression = (Expression) visit(ctx.literalComposition());
       Value literal = (expression instanceof Value) ? (Value) expression : Value.of(expression) ;
       compositionSpec = new SubComposerFactory.LiteralComposition(literal);
+    } else if (ctx.unit() != null) {
+      Unit unit = visitUnit(ctx.unit());
+      compositionSpec = new SubComposerFactory.MeasureComposition(unit);
     } else {
       throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());
     }

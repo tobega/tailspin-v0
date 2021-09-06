@@ -12,6 +12,7 @@ import tailspin.control.Value;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.RangeMatch;
+import tailspin.types.Unit;
 
 public class SubComposerFactory {
 
@@ -94,6 +95,9 @@ public class SubComposerFactory {
     }
     if (spec instanceof LiteralComposition) {
       return new LiteralSubComposer((String) ((LiteralComposition) spec).literal.getResults(null, scope));
+    }
+    if (spec instanceof MeasureComposition mc) {
+      return new MeasureSubComposer(mc.unit);
     }
     throw new UnsupportedOperationException(
         "Unknown composition spec " + spec.getClass().getSimpleName());
@@ -283,6 +287,15 @@ public class SubComposerFactory {
 
     public LiteralComposition(Value literal) {
       this.literal = literal;
+    }
+  }
+
+  public static class MeasureComposition implements CompositionSpec {
+
+    private final Unit unit;
+
+    public MeasureComposition(Unit unit) {
+      this.unit = unit;
     }
   }
 }
