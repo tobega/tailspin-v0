@@ -435,6 +435,7 @@ Other composition matchers are the ones defined in the composer as sub-patterns 
 
 There are also built-in composition matchers:
   - `<INT>` which parses an integer
+  - `<"u">` which parses an integer and assigns it as a [measure](#measures) with unit u. (`<"1">` parses a scalar)
   - `<WS>` for a sequence of whitespace characters.
 
 A composition matcher can have a [multiplier qualifier](#multipliers) after it to determine repetitions.
