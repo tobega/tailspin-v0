@@ -25,6 +25,11 @@ public class ProcessorMessage extends Reference {
   }
 
   @Override
+  public String toString() {
+    return reference + "::" + message;
+  }
+
+  @Override
   public Transform getValue(Object it, Scope scope) {
     Map<String, Object> resolvedParams = parameters.entrySet().stream()
         .map(e -> new AbstractMap.SimpleEntry<>(e.getKey(), e.getValue().getResults(it, scope)))
