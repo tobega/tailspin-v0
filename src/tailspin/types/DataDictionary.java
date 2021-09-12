@@ -31,7 +31,7 @@ public class DataDictionary {
 
     @Override
     public String toString() {
-      return "a string";
+      return "raw string";
     }
   };
 
@@ -43,9 +43,19 @@ public class DataDictionary {
 
     @Override
     public String toString() {
-      return "a number";
+      return "untyped number";
     }
   };
+
+  public static String formatErrorValue(Object value) {
+    if (value instanceof TaggedIdentifier t) {
+      return t.getTag() + ":" + t.getValue();
+    }
+    if (value instanceof Measure m && m.getUnit().equals(Unit.SCALAR)) {
+      return m.getValue() + "\"1\"";
+    }
+    return value.toString();
+  }
 
   private static class AutotypedArray extends ArrayMatch {
     private static class DiscoveredContent implements CollectionSegmentCriterion {
@@ -161,7 +171,7 @@ public class DataDictionary {
     }
     Object result = def.permeate(data, null, null);
     if (result == null) {
-      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + data + (data instanceof TaggedIdentifier t ? " with tag " + t.getTag() : ""));
+      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
     }
     return result;
   }

@@ -20,11 +20,12 @@ def TRACING: 0;
 
 // Currently no way to define processor types
 data taskList <>
+data identity <1..5>, destination <identity>
 
 processor Monitor
   @: {
-    queuePacketCount: 0,
-    holdCount: 0,
+    queuePacketCount: 0"1",
+    holdCount: 0"1",
     layout: 0
   };
   
@@ -110,13 +111,13 @@ processor Scheduler&{monitor:}
 
   // tasks must be created in priority order here
   source start
-    [1..2 -> {identity: $WORKER, kind: $WORK_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
+    [1..2 -> {identity: $WORKER, kind: $WORK_PACKET_KIND, datum: 0"1", data: [1..$DATA_SIZE -> 0]}]
     -> [$WORKER, 1000, $, $taskStateWaitingWithPacket] -> !createTask&{task: $WorkerTask}
 
-    [1..3 -> {identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
+    [1..3 -> {identity: $DEVICE_A, kind: $DEVICE_PACKET_KIND, datum: 0"1", data: [1..$DATA_SIZE -> 0]}]
     -> [$HANDLER_A, 2000, $, $taskStateWaitingWithPacket] -> !createTask&{task: $HandlerTask}
 
-    [1..3 -> {identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND, datum: 0, data: [1..$DATA_SIZE -> 0]}]
+    [1..3 -> {identity: $DEVICE_B, kind: $DEVICE_PACKET_KIND, datum: 0"1", data: [1..$DATA_SIZE -> 0]}]
     -> [$HANDLER_B, 3000, $, $taskStateWaitingWithPacket] -> !createTask&{task: $HandlerTask}
 
     [$DEVICE_A, 4000, [], $taskStateWaiting] -> !createTask&{task: $DeviceTask&{monitor: $monitor}}
@@ -174,7 +175,7 @@ processor HandlerTask
 end HandlerTask
 
 processor Idle
-  @: { control: [x01x] -> $(last-3..last), count: 10000};
+  @: { control: [x01x] -> $(last-3..last), count: 10000"1"};
   source decrementCount
     @Idle.count: $@Idle.count - 1;
     $@Idle.count !
@@ -203,7 +204,7 @@ processor WorkerTask
       @WorkerTask.destination: $@WorkerTask.destination -> \(<=$HANDLER_A> $HANDLER_B! <> $HANDLER_A!\);
       { kind: $.kind,
         identity: $@WorkerTask.destination,
-        datum: 0,
+        datum: 0"1",
         data: [ 1..$.data::length -> \(
           @WorkerTask.count: $@WorkerTask.count + 1 -> \(<..26> $! <> 1!\);
           65 + $@WorkerTask.count - 1 !

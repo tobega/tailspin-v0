@@ -18,7 +18,7 @@ templates permute
         $n - 1 -> derange -> !VOID
         $ -> swap -> !VOID\) -> !VOID
   end derange
-  @: { count: 0, v: [1..$]};
+  @: { count: 0"1", v: [1..$]};
   $ -> derange -> !VOID
   $@.count !
 end permute

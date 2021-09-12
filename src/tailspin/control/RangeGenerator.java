@@ -1,5 +1,7 @@
 package tailspin.control;
 
+import static tailspin.types.DataDictionary.formatErrorValue;
+
 import java.util.stream.LongStream;
 import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
@@ -72,17 +74,16 @@ public class RangeGenerator implements Expression {
     Object upperValue = bounds.upper();
     if (upperValue instanceof Measure m) {
       if (!m.getUnit().equals(unit))
-        throw new IllegalArgumentException("Range lower bound unit " + unit + " incompatible with upper bound " + m);
+        throw new IllegalArgumentException("Range lower bound " + formatErrorValue(lowerValue) + " incompatible with upper bound " + formatErrorValue(upperValue));
       upperValue = m.getValue();
     } else if (unit != null)
-      throw new IllegalArgumentException("Range lower bound unit " + unit + " incompatible with upper bound " + upperValue
-          + ((upperValue instanceof TaggedIdentifier t) ? " tagged as " + t.getTag() : ""));
+      throw new IllegalArgumentException("Range lower bound " + formatErrorValue(lowerValue) + " incompatible with upper bound " + formatErrorValue(upperValue));
     if (upperValue instanceof TaggedIdentifier t) {
       if (!t.getTag().equals(tag))
-        throw new IllegalArgumentException("Range lower bound tag " + tag + " incompatible with upper bound " + t.getTag() + ":" + t.getValue());
+        throw new IllegalArgumentException("Range lower bound " + formatErrorValue(lowerValue) + " incompatible with upper bound " + formatErrorValue(upperValue));
       upperValue = t.getValue();
     } else if (tag != null)
-      throw new IllegalArgumentException("Range lower bound tag " + tag + " incompatible with upper bound " + upperValue);
+      throw new IllegalArgumentException("Range lower bound " + formatErrorValue(lowerValue) + " incompatible with upper bound " + formatErrorValue(upperValue));
     long endBound = ((Number) upperValue).longValue();
     Long end = resolver.resolveUpperRangeLimit(upperBound.inclusive ? endBound
         : Math.floorDiv((endBound - 1 - startBound), increment) * increment + startBound);

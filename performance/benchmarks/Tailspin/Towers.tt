@@ -3,7 +3,7 @@ include 'harness'
 // Tailspin doesn't have nulls, which the java and javascript implementations rely on
 // So this is more Tailspin-like
 templates towers
-  @: {piles: [[$..0:-1 -> $], [], []], moves: 0};
+  @: {piles: [[$..0:-1 -> $], [], []], moves: 0"1"};
   sink pushDisk&{pile:}
     <$@towers.piles($pile)..> $@ ! // Actually throws, there is no $@
     <> ..|@towers.piles($pile): $;
@@ -19,12 +19,12 @@ templates towers
     def what: $;
     $.disks -> #
     <=1> $what.from -> !moveTopDisk&{to: $what.to}
-    <> def otherPile: 6 - $what.from - $what.to;
+    <> def otherPile: 6 - $what.from::raw - $what.to::raw;
       {disks: $ - 1, from: $what.from, to: $otherPile }  -> !moveDisks
       $what.from -> !moveTopDisk&{to: $what.to}
       {disks: $ - 1, from: $otherPile, to: $what.to }  -> !moveDisks
   end moveDisks
-  {disks: 13, from: 1, to: 2} -> !moveDisks
+  {disks: 13"1", from: 1, to: 2} -> !moveDisks
   $@.moves !
 end towers
 

@@ -16,6 +16,36 @@ a better-designed version of Richards with immutable packets.
 |[2020-11-30 jdk14 freezable structures](#2020-11-30)|Interpreted|626|108|275|449|898|61|785|785|177|133|525|
 |[2021-02-01 jdk15 relations and lenses](#2021-02-01)|Interpreted|782|109|315|551|796|63|757|642|162|194|570|
 |[2021-09-12 jdk16 simple autotyping](#2021-09-12)|Interpreted|910|73|390|613|1014|79|917|643|205|158|870|
+|[2021-09-12 jdk16 tagged identifiers](#2021-09-12b)|Interpreted|1265|136|305|613|847|47|1041|655|182|230|1001|
+
+## 2021-09-12b
+machine 3, tagged identifiers
+HotSpot jdk16 JVMCI
+
+|Benchmark|Mean runtime us|
+|---|---|
+Bounce      Java  |   12  
+Bounce      Tailspin |  15175  
+Json        Java   |    65  
+Json        Tailspin  |   8854  
+List        Java  |  23  
+List        Tailspin | 7022  
+Permute     Java  |   22  
+Permute     Tailspin  |  13489  
+Queens      Java   |  16  
+Queens      Tailspin | 13555  
+RadixSort   Java  |  113  
+RadixSort   Tailspin | 5319  
+Richards    Java  |  14  
+Richards    Tailspin |  14572  
+Richards2   Java  |   17  
+Richards2   Tailspin |  11138  
+Sieve       Java  |   17  
+Sieve       Tailspin  | 3094  
+Storage     Java |   50  
+Storage     Tailspin |  11514  
+Towers      Java | 19  
+Towers      Tailspin | 19012
 
 ## 2021-09-12
 machine 3, simple autotyping
