@@ -18,6 +18,9 @@ def DATA_SIZE: 4;
 
 def TRACING: 0;
 
+// Currently no way to define processor types
+data taskList <>
+
 processor Monitor
   @: {
     queuePacketCount: 0,

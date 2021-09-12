@@ -19,6 +19,9 @@ def DATA_SIZE: 4;
 
 def TRACING: 0;
 
+// Currently no way to define processor types
+data taskList <>, link <>, input <>, currentTask <>, deviceIn <>, workIn <>
+
 operator (packet appendTo queueHead)
   $NO_WORK -> !packet::setLink
   $queueHead -> #

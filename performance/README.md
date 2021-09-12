@@ -5,23 +5,53 @@ a better-designed version of Richards with immutable packets.
 
 |Date|Implementation|Bounce|Json|List|Permute|Queens|RadixSort|Richards|Richards2|Sieve|Storage|Towers|
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-|[2020-07-30 HotSpot jdk14 JVMCI](#2020-07-30)|Interpreted|839|136|291|526|833| |   | |140| |541|
-|[2020-07-31 HotSpot jdk14 JVMCI](#2020-07-31)|Interpreted|741|131|273|605|672| |   | |148| |524|
-|[2020-08-05 HotSpot jdk14 JVMCI](#2020-08-05)|Interpreted|686|162|259|530|784| |   | |160| |556|
-|[2020-11-11 HotSpot jdk14 JVMCI](#2020-11-11)|Interpreted|732|118|256|564|688| |   | |152| |586|
-|[2020-11-14 HotSpot jdk14 JVMCI](#2020-11-14)|Interpreted|746|120|252|561|755| |911| |163| |585|
-|[2020-11-16 HotSpot jdk14 JVMCI](#2020-11-16)|Interpreted|686|129|268|555|747| |798|642|150| |602|
-|[2020-11-28 HotSpot jdk14 JVMCI](#2020-11-28)|Interpreted|750|121|231|527|848| |806|628|164| |659|
-|[2020-11-29 HotSpot jdk14 JVMCI](#2020-11-29)|Interpreted|734|123|259|489|794|67|819|585|160|173|642|
-|[2020-11-30 HotSpot jdk14 JVMCI](#2020-11-30)|Interpreted|626|108|275|449|898|61|785|785|177|133|525|
-|[2021-02-01 HotSpot jdk15 JVMCI](#2021-02-01)|Interpreted|782|109|315|551|796|63|757|642|162|194|570|
+|[2020-07-30 jdk14 result iterator cleanup](#2020-07-30)|Interpreted|839|136|291|526|833| |   | |140| |541|
+|[2020-07-31 jdk14 bug fixes, result iterator cleanup](#2020-07-31)|Interpreted|741|131|273|605|672| |   | |148| |524|
+|[2020-08-05 jdk14 composer backtracking](#2020-08-05)|Interpreted|686|162|259|530|784| |   | |160| |556|
+|[2020-11-11 jdk14 regression test](#2020-11-11)|Interpreted|732|118|256|564|688| |   | |152| |586|
+|[2020-11-14 jdk14 Richards benchmark](#2020-11-14)|Interpreted|746|120|252|561|755| |911| |163| |585|
+|[2020-11-16 jdk14 Richards2 benchmark](#2020-11-16)|Interpreted|686|129|268|555|747| |798|642|150| |602|
+|[2020-11-28 jdk14 TailspinArray](#2020-11-28)|Interpreted|750|121|231|527|848| |806|628|164| |659|
+|[2020-11-29 jdk14 Storage+RadixSort benchmarks](#2020-11-29)|Interpreted|734|123|259|489|794|67|819|585|160|173|642|
+|[2020-11-30 jdk14 freezable structures](#2020-11-30)|Interpreted|626|108|275|449|898|61|785|785|177|133|525|
+|[2021-02-01 jdk15 relations and lenses](#2021-02-01)|Interpreted|782|109|315|551|796|63|757|642|162|194|570|
+|[2021-09-12 jdk16 simple autotyping](#2021-09-12)|Interpreted|910|73|390|613|1014|79|917|643|205|158|870|
+
+## 2021-09-12
+machine 3, simple autotyping
+HotSpot jdk16 JVMCI
+
+|Benchmark|Mean runtime us|
+|---|---|
+Bounce      Java  |    12  
+Bounce      Tailspin |  10921  
+Json        Java  |  104  
+Json        Tailspin  |   7571  
+List        Java   |    23  
+List        Tailspin |  8967  
+Permute     Java  |    21  
+Permute     Tailspin | 12865  
+Queens      Java  |   14  
+Queens      Tailspin |  14194  
+RadixSort   Java  |  83  
+RadixSort   Tailspin |  6531  
+Richards    Java  |   13  
+Richards    Tailspin | 11926  
+Richards2   Java |  17  
+Richards2   Tailspin |  10929  
+Sieve       Java  | 16  
+Sieve       Tailspin | 3282  
+Storage     Java  |   66  
+Storage     Tailspin | 10452  
+Towers      Java |   19  
+Towers      Tailspin | 16534
 
 ## 2021-02-01
 machine 3, relations and lenses
 HotSpot jdk15 JVMCI
 
 |Benchmark|Mean runtime us|
-|---|--:|
+|---|---|
 Bounce Java|12
 Bounce Tailspin|9379
 Json Java|74
@@ -50,7 +80,7 @@ machine 3, freezable tailspin data structures, not an obvious win
 HotSpot jdk14 JVMCI
 
 |Benchmark|Mean runtime us|
-|---|--:|
+|---|---|
 Bounce Java|14
 Bounce Tailspin|8765
 Json Java|74
@@ -79,7 +109,7 @@ machine 3, add benchmarks Storage and RadixSort for list performance
 HotSpot jdk14 JVMCI
 
 |Benchmark|Mean runtime us|
-|---|--:|
+|---|---|
 Bounce Java|12
 Bounce Tailspin|8804
 Json Java|62
@@ -108,7 +138,7 @@ machine 3, wrapped Lists in TailspinArray
 HotSpot jdk14 JVMCI
 
 |Benchmark|Mean runtime us|
-|---|--:|
+|---|---|
 Bounce Java|12
 Bounce Tailspin|8994
 Json Java|63
@@ -133,7 +163,7 @@ machine 3, added Richards2, a better-designed version
 HotSpot jdk14 JVMCI
 
 |Benchmark|Mean runtime us|
-|---|--:|
+|---|---|
 Bounce Java|14
 Bounce Tailspin|9607
 Json Java|65

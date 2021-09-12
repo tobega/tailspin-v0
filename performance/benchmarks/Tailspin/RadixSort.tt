@@ -29,9 +29,6 @@ templates radixsort&{base:}
 end radixsort
 
 templates fingerprint
-$ -> !OUT::write
-'
-' -> !OUT::write
   @:0;
   // Note: array is one-based
   $ -> \[i](@fingerprint: $@fingerprint + $i * $;\) -> !VOID
@@ -42,7 +39,7 @@ templates runAndVerify
   def random: $som/Random;
   [1..1000 -> $random::next - 32768] -> radixsort&{base: 16} -> fingerprint -> #
   <=6023830600> 1 !
-  <> 0 ! $ -> !OUT::write
+  <> 0 !
 end runAndVerify
 
 1 -> harness/run&{name: 'Storage', benchmark:runAndVerify} -> !VOID
