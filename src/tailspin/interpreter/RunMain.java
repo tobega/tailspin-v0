@@ -486,7 +486,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Condition visitCondition(TailspinParser.ConditionContext ctx) {
-    return new Condition(Value.of(visitValueChain(ctx.valueChain())), visitMatcher(ctx.matcher()));
+    List<Map.Entry<String, Membrane>> dataDefinitions = implicitDataDefinitions;
+    implicitDataDefinitions = null;
+    try {
+      return new Condition(Value.of(visitValueChain(ctx.valueChain())), visitMatcher(ctx.matcher()));
+    } finally{
+      implicitDataDefinitions = dataDefinitions;
+    }
   }
 
   @Override

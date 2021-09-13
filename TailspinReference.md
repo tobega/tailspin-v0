@@ -629,7 +629,7 @@ ended with a closing parenthesis, e.g. `<?($@ <=1>)>`. Several conditions can be
 Note that a condition will change the perspective of the _current value_ so that `$` will represent the value being matched by the closest enclosing matcher.
 
 ### Defined types
-It is possible to define a named criterion (a type definition), by the keyword "data" followed by an identifier and a [matcher](#matchers), e.g. `data _identifier_ <_condition_>`.
+It is possible to define a named criterion (a type definition), by the keyword "data" followed by an identifier and a [matcher](#matchers), e.g. `data _identifier_ <_matcher_>`.
 The named criterion can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`
 
 When a type definition contains a structure, each key will also be defined as a type. Note that it is an error
@@ -637,6 +637,13 @@ to define the same type twice. If you already have defined a type for a key, you
 ```
 data x <0..>
 data coordinate <{x: <x>, y: <0..>}>
+```
+
+If you wish to declare that a structure type can only contain a subset of values for a certain key, you can specify that
+in a [condition](#conditions), e.g.
+```
+data x <0..>
+data coordinate <{x: <x>, y: <0..>}?($ <{x: <1..9>})>
 ```
 
 Note that [types](#types) can also be [automatically defined](#autotyping). When you assign something to a key in a [structure](#structures)
