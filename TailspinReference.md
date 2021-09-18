@@ -630,7 +630,11 @@ Note that a condition will change the perspective of the _current value_ so that
 
 ### Defined types
 It is possible to define a named criterion (a type definition), by the keyword "data" followed by an identifier and a [matcher](#matchers), e.g. `data _identifier_ <_matcher_>`.
-The named criterion can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`
+The named criterion can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`.
+
+NOTE that definitions where the base matcher is for an untyped number or raw string will become definitions for [tagged identifiers](#tagged-identifiers),
+so defining e.g. `data true <=1>` and then trying to match `{foo: 1}` with `<{foo: <true>}>` will fail, because the 1 assigned to foo will get tagged as "foo",
+not "true". Tags are sticky so this will apply even if you try to match `$.foo`. The workaround is to either match `$.foo::raw` or to define `data foo <true|...>`.
 
 When a type definition contains a structure, each key will also be defined as a type. Note that it is an error
 to define the same type twice. If you already have defined a type for a key, you must reference that definition, e.g.
@@ -1090,6 +1094,10 @@ You can use the `::raw` message on a tagged identifier to get the base value wit
 
 If you want to create a value with a tag, you need to first assign it to the desired key and then retrieve the value.
 E.g. `(id:1234) -> $::value` and `{id:1234} -> $.id` will both attach the tag "id" to the number 1234.
+
+NOTE that [data definitions](#defined-types) can also correspond to tagged identifiers, if the base value is an untyped number or raw string,
+so defining e.g. `data true <=1>` and then trying to match `{foo: 1}` with `<{foo: <true>}>` will fail, because the 1 assigned to foo will get tagged as "foo",
+not "true". Since tags are sticky, this will apply even if you try to match `$.foo`. The workaround is to either match `$.foo::raw` or to define `data foo <true|...>`.
 
 ## Built-in messages
 All objects
