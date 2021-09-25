@@ -100,9 +100,8 @@ class JavaInvocation implements Transform {
       Parameter[] methodParameters = m.getParameters();
       for (int i = 0; i < methodParameters.length; i++) {
         Parameter p = methodParameters[i];
-        if (p.isVarArgs() && (params.get(i) instanceof List)) {
-          @SuppressWarnings("unchecked")
-          List<Object> list = (List<Object>) params.get(i);
+        if (p.isVarArgs() && (params.get(i) instanceof TailspinArray t)) {
+          List<Object> list = toList(t);
           for (Object param : list) {
             penalty += getPenalty(param, p.getType().getComponentType());
           }
@@ -119,8 +118,8 @@ class JavaInvocation implements Transform {
   }
 
   private static int getPenalty(Object param, Class<?> type) {
-    if (param instanceof JavaObject) {
-      return calculatePenalty((JavaObject) param, type);
+    if (param instanceof JavaObject j) {
+      return calculatePenalty(j, type);
     }
     if (param instanceof Processor && Object.class.isAssignableFrom(type)) return 0; // Will proxy
     if ((param instanceof Number) && numberTypePenalties.containsKey(type)) {
@@ -129,6 +128,28 @@ class JavaInvocation implements Transform {
       return  999;
     }
     return 0;
+  }
+
+  private static int calculatePenalty(JavaObject obj, Class<?> type) {
+    if (type.equals(float.class)) {
+      if (obj.getRealObject().getClass().equals(Float.class)) return 0;
+      if (obj.getRealObject().getClass().equals(Double.class)) return 2;
+      if (Number.class.isAssignableFrom(obj.getRealObject().getClass())) return 1;
+      return 999;
+    }
+    if (type.equals(double.class)) {
+      if (obj.getRealObject().getClass().equals(Double.class)) return 0;
+      if (Number.class.isAssignableFrom(obj.getRealObject().getClass())) return 1;
+      return 999;
+    }
+    int penalty = 0;
+    Class<?> cls = obj.getRealObject().getClass();
+    if (!type.isAssignableFrom(cls)) return 999;
+    while(!Object.class.equals(cls) && type.isAssignableFrom(cls.getSuperclass())) {
+      penalty++;
+      cls = cls.getSuperclass();
+    }
+    return penalty;
   }
 
   static Object[] getInvocationParameters(List<Object> params, Executable bestM) {
@@ -170,12 +191,12 @@ class JavaInvocation implements Transform {
   }
 
   private static Object toJavaType(Class<?> type, Object param) {
-    if (param instanceof JavaObject) {
-      param = ((JavaObject) param).getRealObject();
-    } else if (param instanceof TailspinArray) {
-      param = toList((TailspinArray) param);
-    } else if (param instanceof Processor) {
-      param = JavaProxy.of(type, (Processor) param);
+    if (param instanceof JavaObject j) {
+      param = j.getRealObject();
+    } else if (param instanceof TailspinArray a) {
+      param = toList(a);
+    } else if (param instanceof Processor p) {
+      param = JavaProxy.of(type, p);
     } else if (tsToJavaTypeConversions.containsKey(type)) {
       param = tsToJavaTypeConversions.get(type).apply(param);
     }
@@ -187,27 +208,4 @@ class JavaInvocation implements Transform {
     ResultIterator.forEach(param.deconstruct(), result::add);
     return result;
   }
-
-  private static int calculatePenalty(JavaObject obj, Class<?> type) {
-    if (type.equals(float.class)) {
-      if (obj.getRealObject().getClass().equals(Float.class)) return 0;
-      if (obj.getRealObject().getClass().equals(Double.class)) return 2;
-      if (Number.class.isAssignableFrom(obj.getRealObject().getClass())) return 1;
-      return 999;
-    }
-    if (type.equals(double.class)) {
-      if (obj.getRealObject().getClass().equals(Double.class)) return 0;
-      if (Number.class.isAssignableFrom(obj.getRealObject().getClass())) return 1;
-      return 999;
-    }
-    int penalty = 0;
-    Class<?> cls = obj.getRealObject().getClass();
-    if (!type.isAssignableFrom(cls)) return 999;
-    while(!Object.class.equals(cls) && type.isAssignableFrom(cls.getSuperclass())) {
-      penalty++;
-      cls = cls.getSuperclass();
-    }
-    return penalty;
-  }
-
 }

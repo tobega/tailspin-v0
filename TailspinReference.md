@@ -1138,7 +1138,9 @@ Relations
 * `$::count` returns the number of tuples in the relation.
 
 ## The Core System module
-The Core System module is provided by default to a main program and has no prefix. The module contains the following symbols:
+The Core System module is provided by default to a main program and has no prefix.
+When it is provided to another [module](#using-modules) it is referred to as `core-system/`
+The module contains the following symbols:
 
 A predefined symbol `SYS` can be used to access certain system-defined functions:
 * `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
@@ -1312,6 +1314,7 @@ end 'hello'
 ## Calling java code
 _NOTE:_ This is a temporary measure (for a few years) to allow using Tailspin for everything and allowing
 experimentation with tailspin API:s. Ideally tailspin [modules](#using-modules) will be created that encapsulate the java usage.
+See the [rock-paper-scissors server](https://github.com/tobega/rps-tailspin) for an example
 
 Note that from jdk16, internal modules in the jvm have been closed. If you need to access classes from these modules
 in Tailspin code, you need to open them with jvm options on the command line, e.g. `--add-opens=java.base/java.util=ALL-UNNAMED`
@@ -1327,7 +1330,10 @@ Java methods are called with a list/array of parameters as the current value, e.
 Void methods may be called as [sinks](#sinks) and methods without parameters may be called as [sources](#sources),
 e.g. `def map: $util/HashMap; ['foo', 2] -> !map::put`
 
-Integral values (byte, short, int, long) are automatically converted to tailspin integers (unless you specifically
+Note that most Tailspin values work like their java counterparts, but beware of [tagged values](#tagged-identifiers).
+You will need to extract the `::raw` value when calling java methods. Obviously you also need to do that for [measure values](#measures).
+
+Integral java values (byte, short, int, long) are automatically converted to tailspin integers (unless you specifically
 construct the value, e.g. `[5] -> lang/Byte::valueOf` which becomes a java Byte object)
 
 Java lists (java.util.List) and String instances are normally treated as tailspin arrays and strings. If you need a
@@ -1336,7 +1342,7 @@ java object version, call a constructor, as constructor results always give the 
 Other java objects are treated separately from tailspin objects and are [processors](#processors) that handle
 the instance methods on the object.
 
-Fields are currently not accessible, which makes using boolean values and enums a bit of a pain.
+Fields are currently not accessible, which makes using boolean constants and enums a bit of a pain.
 
 The null value is currently not representable in tailspin code.
 

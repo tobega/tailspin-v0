@@ -26,6 +26,34 @@ public class JavaModules {
   }
 
   @Test
+  void useTaggedNumber() throws Exception {
+    String program = "use 'java:java.lang' stand-alone\n"
+        + "{foo: -2} -> [$.foo::raw] -> lang/Math::abs -> $ + 1 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void useMeasure() throws Exception {
+    String program = "use 'java:java.lang' stand-alone\n"
+        + "-2\"m\" -> [$::raw] -> lang/Math::abs -> $ + 1 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void callBinaryStaticMethod() throws Exception {
     String program = "use 'java:java.lang' stand-alone\n"
         + "[-2, 5] -> lang/Math::max -> $ + 1 -> !OUT::write";
@@ -43,6 +71,20 @@ public class JavaModules {
   void stringParam() throws Exception {
     String program = "use 'java:java.lang' stand-alone\n"
         + "['255'] -> lang/Long::parseLong -> $ + 1 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("256", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void useTaggedString() throws Exception {
+    String program = "use 'java:java.lang' stand-alone\n"
+        + "{foo: '255'} -> [$.foo::raw] -> lang/Long::parseLong -> $ + 1 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -179,13 +221,14 @@ public class JavaModules {
 
   @Test
   void tailspinConsumer() throws Exception {
-    String program = "use 'java:java.util' stand-alone\n"
-        + "processor Consumer\n"
-        + "  sink accept\n"
-        + "    $ * 4 -> '$;,' -> !OUT::write\n"
-        + "  end accept\n"
-        + "end Consumer\n"
-        + "def list: [[1,2,3]] -> util/ArrayList; [$Consumer] -> list::forEach -> !OUT::write";
+    String program = """
+        use 'java:java.util' stand-alone
+        processor Consumer
+          sink accept
+            $ * 4 -> '$;,' -> !OUT::write
+          end accept
+        end Consumer
+        def list: [[1,2,3]] -> util/ArrayList; [$Consumer] -> list::forEach -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -226,13 +269,14 @@ public class JavaModules {
 
   @Test
   void tailspinConsumerGetsTailspinStrings() throws Exception {
-    String program = "use 'java:java.util' stand-alone\n"
-        + "processor Consumer\n"
-        + "  sink accept\n"
-        + "    [$...] -> !OUT::write\n"
-        + "  end accept\n"
-        + "end Consumer\n"
-        + "def list: [['abc']] -> util/ArrayList; [$Consumer] -> list::forEach -> !VOID";
+    String program = """
+        use 'java:java.util' stand-alone
+        processor Consumer
+          sink accept
+            [$...] -> !OUT::write
+          end accept
+        end Consumer
+        def list: [['abc']] -> util/ArrayList; [$Consumer] -> list::forEach -> !VOID""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -245,13 +289,14 @@ public class JavaModules {
 
   @Test
   void tailspinConsumerGetsConvertedInputObjects() throws Exception {
-    String program = "use 'java:java.util' stand-alone\n"
-        + "processor Consumer\n"
-        + "  sink accept\n"
-        + "    $::size -> !OUT::write\n"
-        + "  end accept\n"
-        + "end Consumer\n"
-        + "def list: [] -> util/ArrayList; [[] -> util/HashSet] -> list::add -> !VOID [$Consumer] -> list::forEach -> !VOID";
+    String program = """
+        use 'java:java.util' stand-alone
+        processor Consumer
+          sink accept
+            $::size -> !OUT::write
+          end accept
+        end Consumer
+        def list: [] -> util/ArrayList; [[] -> util/HashSet] -> list::add -> !VOID [$Consumer] -> list::forEach -> !VOID""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -306,8 +351,10 @@ public class JavaModules {
 
   @Test
   void tailspinListsContainTailspinObjects() throws Exception {
-    String program = "use 'java:java.util' stand-alone\n" + "use 'java:java.lang' stand-alone\n"
-        + "[['8.5'] -> lang/Double::valueOf] -> util/List::of -> $(1)::isNaN -> !OUT::write";
+    String program = """
+        use 'java:java.util' stand-alone
+        use 'java:java.lang' stand-alone
+        [['8.5'] -> lang/Double::valueOf] -> util/List::of -> $(1)::isNaN -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -320,14 +367,15 @@ public class JavaModules {
 
   @Test
   void tailspinMultiParameterFunctionGetsAList() throws Exception {
-    String program = "use 'java:java.util.stream' stand-alone\n"
-        + "processor BinaryOperator\n"
-        + "  templates applyAsLong\n"
-        + "    $(1) + $(2)!\n"
-        + "  end applyAsLong\n"
-        + "end BinaryOperator\n"
-        + "def stream: [[3,7,9]] -> stream/LongStream::of;\n"
-        + "[$BinaryOperator] -> stream::reduce -> $::getAsLong -> !OUT::write";
+    String program = """
+        use 'java:java.util.stream' stand-alone
+        processor BinaryOperator
+          templates applyAsLong
+            $(1) + $(2)!
+          end applyAsLong
+        end BinaryOperator
+        def stream: [[3,7,9]] -> stream/LongStream::of;
+        [$BinaryOperator] -> stream::reduce -> $::getAsLong -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -398,10 +446,10 @@ public class JavaModules {
 
   @Test
   void deconstructedJavaIterablesSupplyTailspinObjects() throws Exception {
-    String program = "use 'java:java.util' stand-alone\n"
-        + "use 'java:java.lang' stand-alone\n"
-        + "['ok' -> lang/StringBuilder, 'bye' -> lang/StringBuilder] -> util/Set::of"
-        + "  -> [$... -> $::reverse -> $::toString] -> \\(<[<='ko'>,<='eyb'> VOID]> 'ok'! \\) -> !OUT::write";
+    String program = """
+        use 'java:java.util' stand-alone
+        use 'java:java.lang' stand-alone
+        ['ok' -> lang/StringBuilder, 'bye' -> lang/StringBuilder] -> util/Set::of  -> [$... -> $::reverse -> $::toString] -> \\(<[<='ko'>,<='eyb'> VOID]> 'ok'! \\) -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -414,9 +462,10 @@ public class JavaModules {
 
   @Test
   void javaObjectEquality() throws Exception {
-    String program = "use 'java:java.math' stand-alone\n"
-        + "def five: 5 -> math/BigInteger::valueOf;\n"
-        + "5 -> math/BigInteger::valueOf -> \\(<=$five> $!\\) -> !OUT::write";
+    String program = """
+        use 'java:java.math' stand-alone
+        def five: 5 -> math/BigInteger::valueOf;
+        5 -> math/BigInteger::valueOf -> \\(<=$five> $!\\) -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -429,10 +478,11 @@ public class JavaModules {
 
   @Test
   void javaObjectRangeMatch() throws Exception {
-    String program = "use 'java:java.math' stand-alone\n"
-        + "def three: 3 -> math/BigInteger::valueOf;\n"
-        + "def five: 5 -> math/BigInteger::valueOf;\n"
-        + "4 -> math/BigInteger::valueOf -> \\(<$three..$five> $!\\) -> !OUT::write";
+    String program = """
+        use 'java:java.math' stand-alone
+        def three: 3 -> math/BigInteger::valueOf;
+        def five: 5 -> math/BigInteger::valueOf;
+        4 -> math/BigInteger::valueOf -> \\(<$three..$five> $!\\) -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -469,5 +519,66 @@ public class JavaModules {
     runner.run(input, output, List.of());
 
     assertEquals("3147", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void varargs() throws Exception {
+    String program = """
+        use 'java:java.lang' stand-alone
+        def format: '%s %s %d' -> lang/String;
+        [['give', 'me', 5]] -> format::formatted -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("give me 5", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void stringArray() throws Exception {
+    String program = "use 'java:java.util' stand-alone\n"
+        + "[[['bar', 'foo', 'qux']] -> util/ArrayList -> $::toArray, 'foo'] -> util/Arrays::binarySearch -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void stringList() throws Exception {
+    String program = "use 'java:java.util' stand-alone\n"
+        + "[['bar', 'foo', 'qux'], 'foo'] -> util/Collections::binarySearch -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedStringList() throws Exception {
+    String program = """
+        use 'java:java.util' stand-alone
+        {a: 'bar', b: 'foo', c: 'qux'} -> [[$.a::raw, $.b::raw, $.c::raw], 'foo'] -> util/Collections::binarySearch -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
   }
 }
