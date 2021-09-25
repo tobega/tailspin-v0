@@ -11,47 +11,69 @@ import tailspin.matchers.ArrayMatch;
 import tailspin.matchers.CollectionCriterion;
 import tailspin.matchers.CollectionCriterionFactory;
 import tailspin.matchers.CollectionSegmentCriterion;
+import tailspin.matchers.DefinedTag;
 import tailspin.matchers.MultipliedCollectionCriterion;
 import tailspin.matchers.RangeMatch;
 import tailspin.matchers.StructureMatch;
 import tailspin.matchers.UnitMatch;
 
 public class DataDictionary {
+  /* @Nullable */
+  private final DataDictionary callingDictionary;
+  /* @Nullable */
+  private final DataDictionary moduleDictionary;
 
-  private static final Criterion stringMatch = new Criterion() {
+  private static final Membrane stringMatch = new Membrane() {
     @Override
-    public boolean isMet(Object toMatch, Object it, Scope scope) {
-      return (toMatch instanceof String);
+    public Object permeate(Object toMatch, Object it, Scope scope) {
+      return (toMatch instanceof String) ? toMatch : null;
     }
 
     @Override
     public String toString() {
-      return "a string";
+      return "raw string";
     }
   };
 
-  private static final Criterion numberMatch = new Criterion() {
+  private static final Membrane numberMatch = new Membrane() {
     @Override
-    public boolean isMet(Object toMatch, Object it, Scope scope) {
-      return (toMatch instanceof Long);
+    public Object permeate(Object toMatch, Object it, Scope scope) {
+      return (toMatch instanceof Long) ? toMatch : null;
     }
 
     @Override
     public String toString() {
-      return "a number";
+      return "untyped number";
     }
   };
+
+  public static String formatErrorValue(Object value) {
+    if (value instanceof TaggedIdentifier t) {
+      return t.getTag() + ":" + t.getValue();
+    }
+    if (value instanceof Measure m && m.getUnit().equals(Unit.SCALAR)) {
+      return m.getValue() + "\"1\"";
+    }
+    return value.toString();
+  }
 
   private static class AutotypedArray extends ArrayMatch {
     private static class DiscoveredContent implements CollectionSegmentCriterion {
-      private Criterion contentCriterion;
+
+      private final DataDictionary dictionary;
+      private Membrane contentMembrane;
+
+      public DiscoveredContent(DataDictionary dictionary) {
+        this.dictionary = dictionary;
+      }
+
       @Override
       public int isMetAt(TailspinArray.Tail toMatch, Object it, Scope scope) {
         // This should never be called if Tail is empty
-        if (contentCriterion == null) {
-          contentCriterion = getDefaultTypeCriterion(toMatch.get(1));
+        if (contentMembrane == null) {
+          contentMembrane = getDefaultTypeCriterion(null, toMatch.get(1), dictionary);
           return 1;
-        } else if (contentCriterion.isMet(toMatch.get(1), null, null)) {
+        } else if (null != contentMembrane.permeate(toMatch.get(1), null, null)) {
           return 1;
         }
         return 0;
@@ -59,12 +81,17 @@ public class DataDictionary {
 
       @Override
       public String toString() {
-        return contentCriterion == null ? "??" : contentCriterion.toString();
+        return contentMembrane == null ? "??" : contentMembrane.toString();
       }
     }
 
     private static class AllTheSameContent implements CollectionCriterionFactory {
-      DiscoveredContent discoveredContent = new DiscoveredContent();
+      private final DiscoveredContent discoveredContent;
+
+      public AllTheSameContent(DataDictionary dictionary) {
+        discoveredContent = new DiscoveredContent(dictionary);
+      }
+
       @Override
       public CollectionCriterion newCriterion() {
         return new MultipliedCollectionCriterion(discoveredContent, RangeMatch.ANY_AMOUNT);
@@ -76,27 +103,30 @@ public class DataDictionary {
       }
     }
 
-    public AutotypedArray() {
-      super(null, List.of(new AllTheSameContent()), true);
+    public AutotypedArray(DataDictionary dictionary) {
+      super(null, List.of(new AllTheSameContent(dictionary)), true);
     }
   }
 
-  private static final Criterion exists = new AnyOf(false, List.of());
+  private static final Membrane exists = new AnyOf(false, List.of());
 
-  public final Map<String, Criterion> dataDefinitions = new HashMap<>();
+  public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
-  public DataDictionary() {
+  public DataDictionary(/*@Nullable*/ DataDictionary callingDictionary,
+      DataDictionary moduleDictionary) {
+    this.callingDictionary = callingDictionary;
+    this.moduleDictionary = moduleDictionary;
   }
 
-  private static Criterion getDefaultTypeCriterion(Object data) {
+  private static Membrane getDefaultTypeCriterion(String tag, Object data, DataDictionary dictionary) {
     if (data instanceof String) {
-      return stringMatch;
+      return tag == null ? stringMatch : new DefinedTag(tag, stringMatch, null);
     }
     if (data instanceof Long) {
-      return numberMatch;
+      return tag == null ? new UnitMatch(Unit.SCALAR) : new DefinedTag(tag, numberMatch, null);
     }
     if (data instanceof TailspinArray) {
-      return new AutotypedArray();
+      return new AutotypedArray(dictionary);
     }
     if (data instanceof Structure s) {
       return new StructureMatch(s.keySet().stream().collect(Collectors.toMap(Function.identity(), (k) -> exists)), false);
@@ -104,11 +134,14 @@ public class DataDictionary {
     if (data instanceof Measure m) {
       return new UnitMatch(m.getUnit());
     }
+    if (data instanceof TaggedIdentifier t) {
+      return dictionary.getDataDefinition(t.getTag());
+    }
     return null;
   }
 
-  public void createDataDefinition(String identifier, Criterion def) {
-    Criterion existingDef = dataDefinitions.get(identifier);
+  public void createDataDefinition(String identifier, Membrane def) {
+    Membrane existingDef = dataDefinitions.get(identifier);
     if (existingDef == null) {
       dataDefinitions.put(identifier, def);
     } else if (existingDef != def) {
@@ -116,24 +149,36 @@ public class DataDictionary {
     }
   }
 
-  public Criterion getDataDefinition(String identifier) {
+  public Membrane getDataDefinition(String identifier) {
+    if (callingDictionary != null && !dataDefinitions.containsKey(identifier)) {
+      return callingDictionary.getDataDefinition(identifier);
+    }
     return dataDefinitions.get(identifier);
   }
 
   public Object checkDataDefinition(String key, Object data) {
-    Criterion def = dataDefinitions.get(key);
+    if (callingDictionary != null && !isKeyDefined(key)) {
+      return callingDictionary.checkDataDefinition(key, data);
+    }
+    if (moduleDictionary != null && !dataDefinitions.containsKey(key)) {
+      return moduleDictionary.checkDataDefinition(key, data);
+    }
+    Membrane def = dataDefinitions.get(key);
     if (def == null) {
-      def = getDefaultTypeCriterion(data);
+      def = getDefaultTypeCriterion(key, data, this);
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
-    if (!def.isMet(data, null, null)) {
-      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + data);
+    Object result = def.permeate(data, null, null);
+    if (result == null) {
+      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
     }
-    return data;
+    return result;
   }
 
-  public boolean owns(String identifier) {
-    return dataDefinitions.containsKey(identifier);
+  private boolean isKeyDefined(String key) {
+    if (dataDefinitions.containsKey(key)) return true;
+    if (moduleDictionary != null) return moduleDictionary.isKeyDefined(key);
+    return false;
   }
 }

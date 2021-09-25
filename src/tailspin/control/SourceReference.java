@@ -21,8 +21,13 @@ public class SourceReference implements Expression {
       value = Reference.freeze(value);
     }
     if (value instanceof Transform) {
-      return ((Transform) value).getResults(null, Map.of());
+      return ((Transform) value).getResults(null, Map.of(), scope.getLocalDictionary());
     }
     return value;
+  }
+
+  @Override
+  public String toString() {
+    return "$" + reference;
   }
 }

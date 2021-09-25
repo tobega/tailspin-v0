@@ -6,19 +6,21 @@ import java.util.Map;
 import java.util.Objects;
 import tailspin.control.Expression;
 import tailspin.interpreter.Scope;
-import tailspin.matchers.DefinedCriterion;
+import tailspin.matchers.DefinedTag;
 import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.Memo;
 import tailspin.matchers.composer.SequenceSubComposer;
 import tailspin.matchers.composer.SubComposerFactory;
-import tailspin.types.Criterion;
+import tailspin.types.DataDictionary;
+import tailspin.types.Membrane;
 import tailspin.types.Structure;
+import tailspin.types.TaggedIdentifier;
 import tailspin.types.Transform;
 
 public class Composer implements Transform {
 
   private final Scope definingScope;
-  private final List<Map.Entry<String, Criterion>> localDatatypes;
+  private final List<Map.Entry<String, Membrane>> localDatatypes;
   private final Expression stateAssignment;
   private final List<CompositionSpec> specs;
   private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
@@ -26,7 +28,7 @@ public class Composer implements Transform {
   private String scopeName = "";
 
   public Composer(Scope definingScope, /* @Nullable */
-      List<Map.Entry<String, Criterion>> localDatatypes, Expression stateAssignment,
+      List<Map.Entry<String, Membrane>> localDatatypes, Expression stateAssignment,
       List<CompositionSpec> specs,
       SubComposerFactory subComposerFactory) {
     this.definingScope = definingScope;
@@ -37,12 +39,15 @@ public class Composer implements Transform {
   }
 
   @Override
-  public Object getResults(Object it, Map<String, Object> parameters) {
-    TransformScope scope = createTransformScope(parameters);
+  public Object getResults(Object it, Map<String, Object> parameters,
+      DataDictionary callingDictionary) {
+    TransformScope scope = createTransformScope(parameters, callingDictionary);
     if (stateAssignment != null) {
       stateAssignment.getResults(null, scope);
     }
-    String s = (String) Objects.requireNonNull(it);
+    Objects.requireNonNull(it);
+    if (it instanceof TaggedIdentifier t) it = t.getValue();
+    String s = (String) it;
     Memo memo = new Memo(0, null);
     SequenceSubComposer subComposer = new SequenceSubComposer(specs, scope, subComposerFactory::resolveSpec);
     memo = subComposer.nibble(s, memo);
@@ -55,10 +60,11 @@ public class Composer implements Transform {
     return subComposer.getValues();
   }
 
-  private TransformScope createTransformScope(Map<String, Object> parameters) {
-    TransformScope scope = new TransformScope(definingScope, scopeName);
-    localDatatypes.forEach(dataDef -> scope.localDictionary.createDataDefinition(dataDef.getKey(),
-        dataDef.getValue() == null ? null : new DefinedCriterion(dataDef.getValue(), scope)));
+  private TransformScope createTransformScope(Map<String, Object> parameters,
+      DataDictionary callingDictionary) {
+    TransformScope scope = new TransformScope(definingScope, scopeName, callingDictionary);
+    localDatatypes.forEach(dataDef -> scope.getLocalDictionary().createDataDefinition(dataDef.getKey(),
+        dataDef.getValue() == null ? null : new DefinedTag(dataDef.getKey(), dataDef.getValue(), scope)));
     int foundParameters = 0;
     for (ExpectedParameter expectedParameter : expectedParameters) {
       if (parameters.containsKey(expectedParameter.name)) {

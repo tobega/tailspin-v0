@@ -49,7 +49,7 @@ public class Grouping implements LensDimension {
               .map(
                   e -> {
                     Structure result = e.getKey().thawedCopy();
-                    e.getValue().forEach(a -> result.put(a.key(), scope.checkDataDefinition(a.key(), a.result())));
+                    e.getValue().forEach(a -> result.put(a.key(), scope.getLocalDictionary().checkDataDefinition(a.key(), a.result())));
                     return result;
                   })
               .collect(Collectors.toList()));
@@ -60,7 +60,7 @@ public class Grouping implements LensDimension {
               .map(
                   e -> {
                     Structure result = e.getKey().thawedCopy();
-                    e.getValue().forEach(a -> result.put(a.key(), scope.checkDataDefinition(a.key(), a.result())));
+                    e.getValue().forEach(a -> result.put(a.key(), scope.getLocalDictionary().checkDataDefinition(a.key(), a.result())));
                     return result;
                   })
               .collect(Collectors.toList()));

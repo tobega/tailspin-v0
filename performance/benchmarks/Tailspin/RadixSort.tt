@@ -15,7 +15,7 @@ templates radixsort&{base:}
       @radixsort.done: 0;
   end bucketize
   // Negatives get completed in wrong length-order, we need to collect by length and correct at the end
-  @: { done: 1, magnitude: 1, positives: [], negatives: [[]], buckets: [1..$base -> []]};
+  @: { done: 1, magnitude: 1"1", positives: [], negatives: [[]], buckets: [1..$base -> []]};
   $... -> !bucketize
   $@.done -> #
   when <=1> do
@@ -42,4 +42,4 @@ templates runAndVerify
   <> 0 !
 end runAndVerify
 
-1 -> harness/run&{name: 'Storage', benchmark:runAndVerify} -> !VOID
+1 -> harness/run&{name: 'RadixSort', benchmark:runAndVerify} -> !VOID

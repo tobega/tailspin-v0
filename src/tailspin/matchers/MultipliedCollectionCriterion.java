@@ -32,6 +32,6 @@ public class MultipliedCollectionCriterion implements CollectionCriterion {
    */
   @Override
   public boolean isSatisfied(Object it, Scope scope) {
-    return multiplier.isMet(count, it, scope);
+    return null != multiplier.permeate(count, it, scope);
   }
 }

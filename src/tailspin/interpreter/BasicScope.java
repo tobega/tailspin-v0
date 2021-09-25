@@ -4,12 +4,11 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import tailspin.types.Criterion;
 import tailspin.types.DataDictionary;
 
 public class BasicScope extends Scope {
 
-  final DataDictionary dataDictionary = new DataDictionary();
+  final DataDictionary dataDictionary = new DataDictionary(null, null);
   private final Path basePath;
 
   final Map<String, Object> definitions = new HashMap<>();
@@ -74,18 +73,8 @@ public class BasicScope extends Scope {
   }
 
   @Override
-  public void createDataDefinition(String identifier, Criterion def) {
-    dataDictionary.createDataDefinition(identifier, def);
-  }
-
-  @Override
-  public Criterion getDataDefinition(String identifier) {
-    return dataDictionary.getDataDefinition(identifier);
-  }
-
-  @Override
-  public Object checkDataDefinition(String key, Object data) {
-    return dataDictionary.checkDataDefinition(key, data);
+  public DataDictionary getLocalDictionary() {
+    return dataDictionary;
   }
 
   public void copyDefinitions(Map<String, Object> to) {

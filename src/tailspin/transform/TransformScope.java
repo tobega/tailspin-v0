@@ -2,18 +2,19 @@ package tailspin.transform;
 
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
 import tailspin.types.DataDictionary;
 
 public class TransformScope extends NestedScope {
   final String scopeContext;
   private Object state;
   private Templates templates;
-  final DataDictionary localDictionary = new DataDictionary();
+  private final DataDictionary localDictionary;
 
-  public TransformScope(Scope parentScope, String scopeContext) {
+  public TransformScope(Scope parentScope, String scopeContext,
+      DataDictionary callingDictionary) {
     super(parentScope);
     this.scopeContext = scopeContext;
+    localDictionary = new DataDictionary(callingDictionary, parentScope.getLocalDictionary());
   }
 
   @Override
@@ -35,30 +36,8 @@ public class TransformScope extends NestedScope {
   }
 
   @Override
-  public void createDataDefinition(String identifier, Criterion def) {
-    if (localDictionary.owns(identifier)) {
-      localDictionary.createDataDefinition(identifier, def);
-    } else {
-      super.createDataDefinition(identifier, def);
-    }
-  }
-
-  @Override
-  public Criterion getDataDefinition(String identifier) {
-    if (localDictionary.owns(identifier)) {
-      return localDictionary.getDataDefinition(identifier);
-    } else {
-      return super.getDataDefinition(identifier);
-    }
-  }
-
-  @Override
-  public Object checkDataDefinition(String key, Object data) {
-    if (localDictionary.owns(key)) {
-      return localDictionary.checkDataDefinition(key, data);
-    } else {
-      return super.checkDataDefinition(key, data);
-    }
+  public DataDictionary getLocalDictionary() {
+    return localDictionary;
   }
 
   public void setTemplates(Templates templates) {

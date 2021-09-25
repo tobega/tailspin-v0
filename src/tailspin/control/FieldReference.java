@@ -64,7 +64,7 @@ class FieldReference extends Reference {
       }
       collect(value, collector);
     } else {
-      value = scope.checkDataDefinition(fieldIdentifier, value);
+      value = scope.getLocalDictionary().checkDataDefinition(fieldIdentifier, value);
       Structure structure = (Structure) parent.getValue(it, scope);
       if (structure == null) {
         throw new IllegalStateException("Unknown structure " + parent);

@@ -22,9 +22,7 @@ end calculator
 ' -> !OUT::write
 
 // parse arithmetic expression into an AST and then evaluate
-data binaryExpression <{left: <>, op: <>, right: <>}>
-data left <binaryExpression|"1">
-data right <binaryExpression|"1">
+data binaryExpression <{left: <binaryExpression|"1">, op: <>, right: <binaryExpression|"1">}>
 
 templates variadicToBinary
   when <[](1)> do $(1) !

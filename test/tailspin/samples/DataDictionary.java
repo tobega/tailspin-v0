@@ -104,6 +104,36 @@ public class DataDictionary {
   }
 
   @Test
+  void noImplicitDefinitionInCondition() throws IOException {
+    String program = """
+    data coord <?($ <{x: <1..5>}>)>
+    {x: 6} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=6}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void conditionApplies() throws IOException {
+    String program = """
+    data coord <?($ <{x: <1..5>}>)>
+    {coord: {x: 6}} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void implicitlyRedefinedTermIsError() throws IOException {
     String program = """
     data x <1..5>
@@ -409,6 +439,30 @@ public class DataDictionary {
   }
 
   @Test
+  void localProcessorTypeAppliesInProcessorTemplates() throws IOException {
+    String program = """
+    processor Foo
+      data x local
+      {x: $} -> !OUT::write
+      sink bar
+        {x: $} -> !OUT::write
+      end bar
+    end Foo
+    def foo: 'apple' -> Foo;
+    {x: 3} -> !OUT::write
+    'banana' -> !foo::bar
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=apple}{x=3}{x=banana}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void localComposerTypeStaysLocal() throws IOException {
     String program = """
     composer foo
@@ -552,6 +606,22 @@ public class DataDictionary {
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypedArrayScalarsAndUntypedNumbersMix() throws IOException {
+    String program = """
+    {x: [1], y: [2"1"]} -> !OUT::write
+    {x: [3"1", 4], y: [5, 6"1"]} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=[1], y=[2]}{x=[3, 4], y=[5, 6]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

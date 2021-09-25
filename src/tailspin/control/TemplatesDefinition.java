@@ -7,23 +7,23 @@ import tailspin.interpreter.Scope;
 import tailspin.transform.ExpectedParameter;
 import tailspin.transform.MatchTemplate;
 import tailspin.transform.Templates;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 
 public class TemplatesDefinition {
 
   public interface TemplatesConstructor {
-    Templates create(String name, Scope definingScope, List<Map.Entry<String, Criterion>> localDatatypes,
+    Templates create(String name, Scope definingScope, List<Map.Entry<String, Membrane>> localDatatypes,
         /*@Nullable*/ Block block, List<MatchTemplate> matchTemplates);
   }
 
   private final String name;
-  private final List<Map.Entry<String, Criterion>> localDatatypes;
+  private final List<Map.Entry<String, Membrane>> localDatatypes;
   private final Block block;
   private final List<MatchTemplate> matchTemplates;
   private final TemplatesConstructor constructor;
   private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
 
-  public TemplatesDefinition(String name, List<Map.Entry<String, Criterion>> localDatatypes,
+  public TemplatesDefinition(String name, List<Map.Entry<String, Membrane>> localDatatypes,
       Block block, List<MatchTemplate> matchTemplates,
       TemplatesConstructor constructor) {
     this.name = name;

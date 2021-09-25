@@ -149,9 +149,9 @@ transform: To templates transform?
   | collectorChain transform?
 ;
 
-matcher: StartMatcher (Invert? criterion (Else criterion)*)? EndMatcher;
+matcher: StartMatcher (Invert? membrane (Else membrane)*)? EndMatcher;
 
-criterion: (literalMatch | typeMatch) condition* | condition+;
+membrane: (literalMatch | typeMatch) condition* | condition+;
 
 typeMatch: rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
@@ -255,7 +255,7 @@ structureMemberMatcher: (tokenMatcher|compositionKeyValue) compositionSkipRule*;
 
 tokenMatcher: StartMatcher Invert? compositionToken (Else compositionToken)* EndMatcher multiplier?;
 
-compositionToken: (literalComposition|localIdentifier|stringLiteral);
+compositionToken: (literalComposition|localIdentifier|stringLiteral| unit);
 
 literalComposition: Equal (sourceReference|stringLiteral);
 

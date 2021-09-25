@@ -5,17 +5,17 @@ import java.util.Map;
 import tailspin.interpreter.Scope;
 import tailspin.transform.ExpectedParameter;
 import tailspin.transform.ProcessorConstructor;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 
 public class ProcessorDefinition {
 
   private final String name;
-  private final List<Map.Entry<String, Criterion>> localDatatypes;
+  private final List<Map.Entry<String, Membrane>> localDatatypes;
   private final Block block;
   private final List<ExpectedParameter> expectedParameters;
   private final List<TypestateDefinition> typestates;
 
-  public ProcessorDefinition(String name, List<Map.Entry<String, Criterion>> localDatatypes,
+  public ProcessorDefinition(String name, List<Map.Entry<String, Membrane>> localDatatypes,
       Block block,
       List<ExpectedParameter> expectedParameters,
       List<TypestateDefinition> typestates) {

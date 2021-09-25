@@ -82,17 +82,20 @@ public class Modules {
     String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
     Path depFile = moduleDir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
-    String core = "processor Input\n"
-        + "@:$;\n"
-        + "source lines $@... ! end lines\n"
-        + "end Input\n"
-        + "def IN: ['a', 'b'] -> Input;";
+    String core = """
+        processor Input
+        @:$;
+        source lines $@... ! end lines
+        end Input
+        def IN: ['a', 'b'] -> Input;""";
     Path coreFile = moduleDir.resolve("core.tt");
     Files.writeString(coreFile, core, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     Path baseDir = Files.createDirectory(dir.resolve("wd"));
-    String program = "use 'module:dep' with\n"
-        + "core-system/ from 'module:core' with super inherited from core-system/ provided\n"
-        + "provided\n 1 -> !dep/quote";
+    String program = """
+        use 'module:dep' with
+        core-system/ from 'module:core' with super inherited from core-system/ provided
+        provided
+         1 -> !dep/quote""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -109,16 +112,19 @@ public class Modules {
     String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
     Path depFile = moduleDir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
-    String core = "processor Output\n"
-        + "sink write 'foo' -> !super/OUT::write end write\n"
-        + "end Output\n"
-        + "def OUT: $Output;";
+    String core = """
+        processor Output
+        sink write 'foo' -> !super/OUT::write end write
+        end Output
+        def OUT: $Output;""";
     Path coreFile = moduleDir.resolve("core.tt");
     Files.writeString(coreFile, core, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     Path baseDir = Files.createDirectory(dir.resolve("wd"));
-    String program = "use 'module:dep' with\n"
-        + "core-system/ from 'module:core' with super inherited from core-system/ provided\n"
-        + "provided\n 1 -> !dep/quote";
+    String program = """
+        use 'module:dep' with
+        core-system/ from 'module:core' with super inherited from core-system/ provided
+        provided
+         1 -> !dep/quote""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -152,18 +158,20 @@ public class Modules {
   @ExtendWith(TempDirectory.class)
   @Test
   void useIncludableModule(@TempDirectory.TempDir Path dir) throws Exception {
-    String dep = "def greeting: 'Salut';\n"
-        + "sink greet\n"
-        + "  '$greeting; $;' -> !OUT::write\n"
-        + "end greet";
+    String dep = """
+        def greeting: 'Salut';
+        sink greet
+          '$greeting; $;' -> !OUT::write
+        end greet""";
     Path depFile = dir.resolve("hi.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
-    String program = "use 'hi' with core-system/ inherited provided\n"
-        + "sink hello\n"
-        + "  $ -> !hi/greet\n"
-        + "end hello\n"
-
-        + "'John' -> !hello\n";
+    String program = """
+        use 'hi' with core-system/ inherited provided
+        sink hello
+          $ -> !hi/greet
+        end hello
+        'John' -> !hello
+        """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -177,23 +185,25 @@ public class Modules {
   @ExtendWith(TempDirectory.class)
   @Test
   void useModifiedImport(@TempDirectory.TempDir Path dir) throws Exception {
-    String dep = "def greeting: 'Hello';\n"
-        + "sink greet\n"
-        + "  '$greeting; $;' -> !OUT::write\n"
-        + "end greet";
+    String dep = """
+        def greeting: 'Hello';
+        sink greet
+          '$greeting; $;' -> !OUT::write
+        end greet""";
     Path depFile = dir.resolve("hi.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     String program =
-        "  use modified 'hi'\n"
-            + "  with core-system/ inherited\n"
-            + "  provided\n"
-            + "  def greeting: 'Goodbye';\n"
-            + "  end 'hi'\n"
-        + "sink hello\n"
-        + "  $ -> !hi/greet\n"
-        + "end hello\n"
-
-        + "'John' -> !hello\n";
+        """
+              use modified 'hi'
+              with core-system/ inherited
+              provided
+              def greeting: 'Goodbye';
+              end 'hi'
+            sink hello
+              $ -> !hi/greet
+            end hello
+            'John' -> !hello
+            """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -207,23 +217,25 @@ public class Modules {
   @ExtendWith(TempDirectory.class)
   @Test
   void useRenamedModifiedImport(@TempDirectory.TempDir Path dir) throws Exception {
-    String dep = "def greeting: 'Hello';\n"
-        + "sink greet\n"
-        + "  '$greeting; $;' -> !OUT::write\n"
-        + "end greet";
+    String dep = """
+        def greeting: 'Hello';
+        sink greet
+          '$greeting; $;' -> !OUT::write
+        end greet""";
     Path depFile = dir.resolve("hi2.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     String program =
-        "  use hi from modified 'hi2'\n"
-            + "  with core-system/ inherited\n"
-            + "  provided\n"
-            + "  def greeting: 'Goodbye';\n"
-            + "  end 'hi2'\n"
-        + "sink hello\n"
-        + "  $ -> !hi/greet\n"
-        + "end hello\n"
-
-        + "'John' -> !hello\n";
+        """
+              use hi from modified 'hi2'
+              with core-system/ inherited
+              provided
+              def greeting: 'Goodbye';
+              end 'hi2'
+            sink hello
+              $ -> !hi/greet
+            end hello
+            'John' -> !hello
+            """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -236,15 +248,16 @@ public class Modules {
 
   @Test
   void wrapCore() throws Exception {
-    String program = "use shadowed core-system/ with super inherited from core-system/ provided\n"
-        + "  processor ShadowOut\n"
-        + "    sink write\n"
-        + "      '-$;-' -> !super/OUT::write\n"
-        + "    end write\n"
-        + "  end ShadowOut\n"
-        + "  def OUT: $ShadowOut;\n"
-        + "end core-system/\n"
-        + "'Hello World' -> !OUT::write";
+    String program = """
+        use shadowed core-system/ with super inherited from core-system/ provided
+          processor ShadowOut
+            sink write
+              '-$;-' -> !super/OUT::write
+            end write
+          end ShadowOut
+          def OUT: $ShadowOut;
+        end core-system/
+        'Hello World' -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -258,26 +271,28 @@ public class Modules {
   @ExtendWith(TempDirectory.class)
   @Test
   void moduleInheritsWrappedCore(@TempDirectory.TempDir Path dir) throws Exception {
-    String dep = "def greeting: 'Salut';\n"
-        + "sink greet\n"
-        + "  '$greeting; $;' -> !OUT::write\n"
-        + "end greet";
+    String dep = """
+        def greeting: 'Salut';
+        sink greet
+          '$greeting; $;' -> !OUT::write
+        end greet""";
     Path depFile = dir.resolve("hi.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
-    String program = "use shadowed core-system/ with super inherited from core-system/ provided\n"
-        + "  processor ShadowOut\n"
-        + "    sink write\n"
-        + "      '-$;-' -> !super/OUT::write\n"
-        + "    end write\n"
-        + "  end ShadowOut\n"
-        + "  def OUT: $ShadowOut;\n"
-        + "end core-system/\n"
-        + "use 'hi' with core-system/ inherited provided\n"
-        + "sink hello\n"
-        + "  $ -> !hi/greet\n"
-        + "end hello\n"
-
-        + "'John' -> !hello\n";
+    String program = """
+        use shadowed core-system/ with super inherited from core-system/ provided
+          processor ShadowOut
+            sink write
+              '-$;-' -> !super/OUT::write
+            end write
+          end ShadowOut
+          def OUT: $ShadowOut;
+        end core-system/
+        use 'hi' with core-system/ inherited provided
+        sink hello
+          $ -> !hi/greet
+        end hello
+        'John' -> !hello
+        """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -347,5 +362,93 @@ public class Modules {
     runner.run(dir, input, output, List.of());
 
     assertEquals("10", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void dataDefinitionWorksInModuleTemplates(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        templates keyify
+          [$... -> (key:$)] !
+        end keyify
+    """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = """
+    use 'module:dep' stand-alone
+    data key <>
+    [1, 'a'] -> dep/keyify -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("[key=1, key=a]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void dataDefinitionWorksInModuleComposer(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        composer keyify
+          [<value>+]
+          rule value: <INT|'\\w+'> -> (key:$) (<WS>?)
+        end keyify
+    """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = """
+    use 'module:dep' stand-alone
+    data key <>
+    '1 a' -> dep/keyify -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("[key=1, key=a]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void dataDefinitionWorksInModuleProcessor(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        processor keyify
+          @: [$... -> (key:$)];
+          source get
+            $@keyify !
+          end get
+        end keyify
+    """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = """
+    use 'module:dep' stand-alone
+    data key <>
+    [1, 'a'] -> dep/keyify -> $::get -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("[key=1, key=a]", output.toString(StandardCharsets.UTF_8));
   }
 }

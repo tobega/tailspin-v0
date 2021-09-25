@@ -122,6 +122,8 @@ e.g. `The total price is $$ $ -> $ * $quantity;` or `$:1..3 -> #;`. Note that wh
 you can reference it directly, like `'$p::message;'` if the message does not require input, otherwise you need to use it as a transform,
 that is like `'$->p::message;'`. Note that we now reference the message expression without the $.
 
+NOTE: Raw strings will often become [tagged identifiers](#tagged-identifiers).
+
 ### Arithmetic expression
 The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference)
 (including a state deletion, see the [delete operator](#delete-operator).
@@ -136,6 +138,7 @@ Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 A value chain that yields a number can be used as an operand on either side of an operator, if it is enclosed in parentheses.
 
 NOTE: The example above shows the use of untyped numbers. Arithmetic is further restricted when numbers are typed as [measures](#measures), with a unit.
+When untyped numbers become [tagged identifiers](#tagged-identifiers) they cannot be used for arithmetic at all.
 
 _Current limitations_: Only integers are supported.
 
@@ -155,7 +158,8 @@ Arithmetic between a measure and untyped numbers will result in a measure of the
 There is a special unit, `"1"`, to define a scalar number. Scalars can be multiplied with other units, leaving the other unit unchanged on the result.
 
 * Comparing measures with a measure of the same unit works.
-* Comparing scalars and untyped numbers works.
+* Comparing scalars and untyped numbers works. Note that the resulting type will be what is in the matcher,
+  e.g. `<0..> // Here the value is untyped` and `<0"1"..> // Here the value is scalar`
 * Comparing a measure to a measure of different unit, or to an untyped number, is an error. If you need to do this, first type match on the unit, e.g. `<"m" ?($ <=3"m">)>`.
 
 When the resulting measure of arithmetic between measures cannot be inferred, you will need to
@@ -188,6 +192,7 @@ literal key-value pairs or expressions generating [streams](#streams) of key-val
 A literal key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
 
 NOTE: [Autotyping](#autotyping) and the [data dictionary](#data-dictionary) affects what things you can and cannot assign to a key.
+Raw strings or untyped numbers assigned to a key will become [tagged identifiers](#tagged-identifiers).
 
 An example of an expression generating a stream of key-value pairs is a [deconstruct](#deconstructor)
  of a [dereferenced](#dereference) structure value. But as a convenience, you can just include the structure-valued
@@ -430,6 +435,7 @@ Other composition matchers are the ones defined in the composer as sub-patterns 
 
 There are also built-in composition matchers:
   - `<INT>` which parses an integer
+  - `<"u">` which parses an integer and assigns it as a [measure](#measures) with unit u. (`<"1">` parses a scalar)
   - `<WS>` for a sequence of whitespace characters.
 
 A composition matcher can have a [multiplier qualifier](#multipliers) after it to determine repetitions.
@@ -501,7 +507,7 @@ Note that the lens passed as a parameter is then used simply by referencing its 
 The most common lenses are the ones used to access [array](#arrays) elements, where integer values project onto
 elements of the array. Single integers, `$(3)`, the values `first` and `last`, or integer expressions will access
 a single element of the array. Ranges and lists/arrays of integer values will project onto a new array consisting of
-the selected elements, e.g. `$(3..5)` or `$([3,1,2])`
+the selected elements, e.g. `$(3..5)` or `$([3,1,2])`. See the [array documentation](#arrays) for details.
 
 A key can be used to project onto a field of a [structure](#structures), e.g. `$(x:)`
 
@@ -536,6 +542,11 @@ while a projection is required to provide a value.
 A matcher is a criterion enclosed by angle brackets. A sequence of matchers is evaluated from the
 start to the end, where the first matcher that matches the _current value_ will have its block
 executed for that _current value_.
+
+Matchers are also used to [define datatypes](#defined-types)
+
+Note that some values, notably numbers and strings, can morph to match what is in the criterion, see [measures](#measures) and [tagged identifiers](#tagged-identifiers).
+
 * Empty criterion, `<>`, matches anything.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
@@ -544,8 +555,9 @@ executed for that _current value_.
   See the [measure](#measures) documentation for rules of how measures match equality and ranges.
 * You can use the name of a [defined data type](#defined-types) or an [autotyped](#autotyping) field to determine if a value matches that type.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
- the range operator on the side(s) where the bound is not included. E.g.
-  * `<2..5>` for "between 2 and 5 inclusive"
+ the range operator on the side(s) where the bound is not included. Note that the [type](#types) of the upper and lower bounds must match.
+ Examples of ranges:
+  * `<2..5>` for "between 2 and 5 inclusive" (or `<2"m"..5"m">` for a range of metres)
   * `<..3>` for "less than or equal to 3", or `<..~3>` for "less than 3"
   * `<10..>` for "greater than or equal to 10" , or `<10~..>` for "greater than 10"
   * A value dereference can be a bound, e.g. `<$min..$max>`
@@ -617,14 +629,25 @@ ended with a closing parenthesis, e.g. `<?($@ <=1>)>`. Several conditions can be
 Note that a condition will change the perspective of the _current value_ so that `$` will represent the value being matched by the closest enclosing matcher.
 
 ### Defined types
-It is possible to define a named criterion (a type definition), by the statement `data _identifier_ <_condition_>`.
-The named criterion can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`
+It is possible to define a named criterion (a type definition), by the keyword "data" followed by an identifier and a [matcher](#matchers), e.g. `data _identifier_ <_matcher_>`.
+The named criterion can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`.
+
+NOTE that definitions where the base matcher is for an untyped number or raw string will become definitions for [tagged identifiers](#tagged-identifiers),
+so defining e.g. `data true <=1>` and then trying to match `{foo: 1}` with `<{foo: <true>}>` will fail, because the 1 assigned to foo will get tagged as "foo",
+not "true". Tags are sticky so this will apply even if you try to match `$.foo`. The workaround is to either match `$.foo::raw` or to define `data foo <true|...>`.
 
 When a type definition contains a structure, each key will also be defined as a type. Note that it is an error
 to define the same type twice. If you already have defined a type for a key, you must reference that definition, e.g.
 ```
 data x <0..>
 data coordinate <{x: <x>, y: <0..>}>
+```
+
+If you wish to declare that a structure type can only contain a subset of values for a certain key, you can specify that
+in a [condition](#conditions), e.g.
+```
+data x <0..>
+data coordinate <{x: <x>, y: <0..>}?($ <{x: <1..9>})>
 ```
 
 Note that [types](#types) can also be [automatically defined](#autotyping). When you assign something to a key in a [structure](#structures)
@@ -713,10 +736,15 @@ Elements can also be selected counting from the end of the array by counting fro
  e.g. the last element of an array can be accessed by selector `last`, the second last element by `last-1` and so on.
 Of course, the selector may be any arithmetic expression.
 
+Note that selectors can be untyped numbers, [measures](#measures) or [tagged numbers](#tagged-identifiers)
+
 A new array can be created by selecting from an existing array by a [range literal](#range-literal), using keywords
 `first` and `last` if needed.
 E.g. `$(2..last-1:3)` would select every third element starting at the second element and ending on or before
 the second last element. As usual, you can leave out the increment which defaults to 1.
+
+Note that the type of the upper and lower bounds of a range selector must match, except that an untyped expression involving
+`first` or `last` will be coerced to match the type of the other bound.
 
 An array or integer for index can be obtained from a value [dereference](#dereference). The result must be an integer or a stream
 of integers, or a single array of integers.
@@ -984,6 +1012,9 @@ a type will automatically be assigned by [autotyping](#autotyping).
 Numbers in arithmetic expressions are in their bare state just untyped numbers, but they can be assigned a
 [unit of measure](#measures) which then defines their type as being of that measure.
 
+Untyped numbers and raw strings become [tagged identifiers](#tagged-identifiers) as soon as they interact with
+the [data dictionary](#data-dictionary)
+
 [Processor](#processors) instances are things that can carry state and they respond to messages. If an instance
 responds to the messages you need, all is good (this is known as duck-typing). A processor instance can change
 its type as a result of processing messages, if it's defined to do so, see [typestates](#typestates).
@@ -998,9 +1029,13 @@ followed by an [identifier](#identifiers) and a [matcher](#matchers).
 E.g. `data adress <{number: <1..>, street: <'.*'>, town: <'.*'>}>`
 
 The defined data type can be used as a [matcher](#matchers), e.g. `<adress>`, but is also expected to be the data type of any
-[keyed-value](#keyed-values) or member of a [structure](#structures) that has key 'adress'.
+[keyed-value](#keyed-values) or member of a [structure](#structures) that has key 'adress'. NOTE that if the base type
+of a defined type is a raw string or untyped number, the defined type will actually be a [tagged identifier](#tagged-identifiers).
+If a defined (or [autotyped](#autotyping)) type "foo" refers to a defined (or [autotyped](#autotyping)) [tagged identifier](#tagged-identifiers) called "bar",
+all values assigned as "foo"s will be tagged as "bar"s (all "foo"s are "bar"s).
 
-The data dictionary will also contain all [autotyped](#autotyping) definitions.
+The data dictionary will also contain all [autotyped](#autotyping) definitions. Note that for modules, all defined types stay in the defining scope of the module,
+while autotyping will affect the calling scope. These two scopes coincide for the outer module (program or test being run).
 
 There are also local data dictionaries to handle [local types](#local-types) that are valid only in a certain context, like
 the execution of [templates](#templates) or within a [processor](#processors)
@@ -1031,7 +1066,38 @@ as [local types](#local-types) if the autotyping rules don't do what you intende
 
 [Structures](#structures) and [arrays](#arrays) are currently only typed as structures and arrays respectively. In the future, this will become tighter.
 
+Raw strings and untyped numbers will be autotyped as [tagged identifiers](#tagged-identifiers).
+
 Other types are currently not autotyped.
+
+Note that autotyping will occur in the calling scope, even when calling code in other modules, unless the type is defined or local
+in the called module.
+
+### Tagged identifiers
+Untyped numbers and raw strings are far too general to count as proper types on their own (they are basic types or representational types).
+When untyped numbers or raw strings get assigned to a key, the [data dictionary](#data-dictionary) will convert them to
+tagged identifiers.
+
+Tagged identifiers can "morph" back and forth to raw strings or untyped numbers. When assignment to a [keyed value](#keyed-values) happens,
+the tag is added and will remain when the value is accessed. In [matching](#matchers), a tagged value will lose the tag
+when the matcher is for a raw value, e.g. `<0..> // here the value is an untyped number` or `<'.*'> // here the value is a raw string`.
+Similarly, a raw value can gain a tag in matching when matching the tag definition, e.g. `<myTag> // here the string or number is tagged as myTag`. Note that
+defined types will not have tags when their representation type is not a raw string or untyped number.
+
+Numeric tagged identifiers cannot be used in arithmetic, so if you intend to use a number in arithmetic,
+the recommendation is to give it a unit (or the scalar unit "1").
+
+Tagged identifiers do not mix with other tagged identifiers. Trying to assign or compare them with the wrong tag is an error.
+If you do need to compare in situations where there might be a tag mismatch, do a type check first, e.g. `<myTag ?($ <=$foo.myTag>)>` instead of just `<=$foo.myTag>`
+
+You can use the `::raw` message on a tagged identifier to get the base value without the tag, when you need to.
+
+If you want to create a value with a tag, you need to first assign it to the desired key and then retrieve the value.
+E.g. `(id:1234) -> $::value` and `{id:1234} -> $.id` will both attach the tag "id" to the number 1234.
+
+NOTE that [data definitions](#defined-types) can also correspond to tagged identifiers, if the base value is an untyped number or raw string,
+so defining e.g. `data true <=1>` and then trying to match `{foo: 1}` with `<{foo: <true>}>` will fail, because the 1 assigned to foo will get tagged as "foo",
+not "true". Since tags are sticky, this will apply even if you try to match `$.foo`. The workaround is to either match `$.foo::raw` or to define `data foo <true|...>`.
 
 ## Built-in messages
 All objects
@@ -1053,6 +1119,11 @@ Integer
 
 Measure
 * `$::raw` returns the magnitude of the measure without the unit.
+* `$::asBytes` returns the minimal [bytes value](#bytes) that can represent the integer in twos complement notation, 
+  if this measure is a scalar (unit "1") and an integer, otherwise error.
+
+Tagged identifier
+* `$::raw` returns the base value without the tag.
 
 Bytes
 * `$::inverse` returns a bytes value with all ones turned to zeroes and all zeroes turned to ones.
@@ -1067,7 +1138,9 @@ Relations
 * `$::count` returns the number of tuples in the relation.
 
 ## The Core System module
-The Core System module is provided by default to a main program and has no prefix. The module contains the following symbols:
+The Core System module is provided by default to a main program and has no prefix.
+When it is provided to another [module](#using-modules) it is referred to as `core-system/`
+The module contains the following symbols:
 
 A predefined symbol `SYS` can be used to access certain system-defined functions:
 * `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
@@ -1241,6 +1314,7 @@ end 'hello'
 ## Calling java code
 _NOTE:_ This is a temporary measure (for a few years) to allow using Tailspin for everything and allowing
 experimentation with tailspin API:s. Ideally tailspin [modules](#using-modules) will be created that encapsulate the java usage.
+See the [rock-paper-scissors server](https://github.com/tobega/rps-tailspin) for an example
 
 Note that from jdk16, internal modules in the jvm have been closed. If you need to access classes from these modules
 in Tailspin code, you need to open them with jvm options on the command line, e.g. `--add-opens=java.base/java.util=ALL-UNNAMED`
@@ -1256,7 +1330,10 @@ Java methods are called with a list/array of parameters as the current value, e.
 Void methods may be called as [sinks](#sinks) and methods without parameters may be called as [sources](#sources),
 e.g. `def map: $util/HashMap; ['foo', 2] -> !map::put`
 
-Integral values (byte, short, int, long) are automatically converted to tailspin integers (unless you specifically
+Note that most Tailspin values work like their java counterparts, but beware of [tagged values](#tagged-identifiers).
+You will need to extract the `::raw` value when calling java methods. Obviously you also need to do that for [measure values](#measures).
+
+Integral java values (byte, short, int, long) are automatically converted to tailspin integers (unless you specifically
 construct the value, e.g. `[5] -> lang/Byte::valueOf` which becomes a java Byte object)
 
 Java lists (java.util.List) and String instances are normally treated as tailspin arrays and strings. If you need a
@@ -1265,7 +1342,7 @@ java object version, call a constructor, as constructor results always give the 
 Other java objects are treated separately from tailspin objects and are [processors](#processors) that handle
 the instance methods on the object.
 
-Fields are currently not accessible, which makes using boolean values and enums a bit of a pain.
+Fields are currently not accessible, which makes using boolean constants and enums a bit of a pain.
 
 The null value is currently not representable in tailspin code.
 

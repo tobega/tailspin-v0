@@ -1,11 +1,11 @@
 package tailspin.matchers;
 
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.Measure;
 import tailspin.types.Unit;
 
-public class UnitMatch implements Criterion {
+public class UnitMatch implements Membrane {
   private final Unit unit;
 
   public UnitMatch(Unit unit) {
@@ -13,13 +13,14 @@ public class UnitMatch implements Criterion {
   }
 
   @Override
-  public boolean isMet(Object toMatch, Object it, Scope scope) {
-    return toMatch instanceof Measure m && unit.equals(m.getUnit())
-        || toMatch instanceof Number && unit.equals(Unit.SCALAR);
+  public Object permeate(Object toMatch, Object it, Scope scope) {
+    if (toMatch instanceof Measure m && unit.equals(m.getUnit())) return toMatch;
+    if (toMatch instanceof Long n && unit.equals(Unit.SCALAR)) return new Measure(n, Unit.SCALAR);
+    return null;
   }
 
   @Override
   public String toString() {
-    return unit.toString();
+    return unit.equals(Unit.SCALAR) ? "\"1\"" : unit.toString();
   }
 }

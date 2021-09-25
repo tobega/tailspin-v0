@@ -3,30 +3,30 @@ package tailspin.matchers;
 import java.util.List;
 import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 import tailspin.types.TailspinArray;
 
-public class ArrayMatch implements Criterion {
+public class ArrayMatch implements Membrane {
   // @Nullable
-  private final Criterion lengthCriterion;
+  private final Membrane lengthMembrane;
   private final List<CollectionCriterionFactory> contentMatcherFactories;
   private final boolean nothingElseAllowed;
 
-  public ArrayMatch(Criterion lengthCriterion,
+  public ArrayMatch(Membrane lengthMembrane,
       List<CollectionCriterionFactory> contentMatcherFactories, boolean nothingElseAllowed) {
-    this.lengthCriterion = lengthCriterion;
+    this.lengthMembrane = lengthMembrane;
     this.contentMatcherFactories = contentMatcherFactories;
     this.nothingElseAllowed = nothingElseAllowed;
   }
 
   @Override
-  public boolean isMet(Object toMatch, Object it, Scope scope) {
-    if (!(toMatch instanceof TailspinArray listToMatch)) return false;
-    if (lengthCriterion != null && !lengthCriterion.isMet((long) listToMatch.length(), it, scope)) {
-      return false;
+  public Object permeate(Object toMatch, Object it, Scope scope) {
+    if (!(toMatch instanceof TailspinArray listToMatch)) return null;
+    if (lengthMembrane != null && (null == lengthMembrane.permeate((long) listToMatch.length(), it, scope))) {
+      return null;
     }
     if (contentMatcherFactories.isEmpty()) {
-      return true;
+      return toMatch;
     }
     List<CollectionCriterion> criteria = contentMatcherFactories.stream()
         .map(CollectionCriterionFactory::newCriterion).collect(
@@ -42,16 +42,16 @@ public class ArrayMatch implements Criterion {
         }
       }
       if (nothingElseAllowed) {
-        return false;
+        return null;
       }
       tail = tail.tailFrom(2);
     }
-    return criteria.stream().allMatch(c -> c.isSatisfied(it, scope));
+    return criteria.stream().allMatch(c -> c.isSatisfied(it, scope)) ? toMatch : null;
   }
 
   @Override
   public String toString() {
     return "[" + contentMatcherFactories.stream().map(Object::toString).collect(Collectors.joining(",")) + (nothingElseAllowed ? "VOID" : "") + "]"
-        + (lengthCriterion != null ? "(" + lengthCriterion + ")" : "");
+        + (lengthMembrane != null ? "(" + lengthMembrane + ")" : "");
   }
 }

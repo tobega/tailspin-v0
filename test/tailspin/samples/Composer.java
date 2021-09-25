@@ -30,6 +30,40 @@ class Composer {
   }
 
   @Test
+  void composeScalarInt() throws IOException {
+    String program = """
+        composer int
+        <"1">
+        end int
+        '23' -> int -> \\(<=23> $!\\) -> $ + 12 -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("35", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeUnitInt() throws IOException {
+    String program = """
+        composer metres
+        <"m">
+        end metres
+        '23' -> metres -> \\(<=23"m"> $!\\) -> $ + 12"m" -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("35\"m\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void composeEqualsLiteral() throws IOException {
     String program = """
         composer eq
@@ -934,7 +968,7 @@ class Composer {
   void structureConverter() throws IOException {
     String program =
         """
-            templates mul $.a * $.b !
+            templates mul $.a::raw * $.b::raw !
             end mul
             composer numbers
             { a:<INT> (<WS>), b:<INT> } -> mul

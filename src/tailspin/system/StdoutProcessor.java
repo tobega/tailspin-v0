@@ -18,7 +18,7 @@ public class StdoutProcessor implements Processor {
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
-    return (it, params) -> {
+    return (it, params, callingDictionary) -> {
       if (message.equals("write")) {
         try {
           output.write(StringInterpolation.appendStringValue(new StringBuilder(), it)

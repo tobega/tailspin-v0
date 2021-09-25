@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import tailspin.transform.ExpectedParameter;
 import tailspin.interpreter.Scope;
 import tailspin.transform.Templates;
+import tailspin.types.DataDictionary;
 import tailspin.types.TailspinArray;
 
 public class ArrayTemplates implements Expression {
@@ -25,10 +26,11 @@ public class ArrayTemplates implements Expression {
     Templates templates = templatesDefinition.define(definingScope);
     templates.expectParameters(loopVariables.stream().map(ExpectedParameter::new)
         .collect(Collectors.toList()));
-    return runArrayTemplate(it, templates);
+    return runArrayTemplate(it, templates, definingScope.getLocalDictionary());
   }
 
-  private TailspinArray runArrayTemplate(Object oIt, Templates templates) {
+  private TailspinArray runArrayTemplate(Object oIt, Templates templates,
+      DataDictionary callingDictionary) {
     if (!(oIt instanceof TailspinArray)) {
       throw new UnsupportedOperationException("Cannot apply array templates to " + oIt.getClass());
     }
@@ -50,7 +52,7 @@ public class ArrayTemplates implements Expression {
           counters.put(loopVariables.get(i), (long) dimCounters[i]);
         }
         Object itemIt = dimLists[lastIdx].get(dimCounters[lastIdx]);
-        ResultIterator.forEach(templates.getResults(itemIt, counters), results[lastIdx]::append);
+        ResultIterator.forEach(templates.getResults(itemIt, counters, callingDictionary), results[lastIdx]::append);
       }
       int idx = lastIdx - 1;
       while (idx >= 0) {

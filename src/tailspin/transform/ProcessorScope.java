@@ -4,9 +4,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
 import tailspin.types.DataDictionary;
-import tailspin.types.Membrane;
 import tailspin.types.Transform;
 
 public class ProcessorScope extends Scope {
@@ -15,11 +13,13 @@ public class ProcessorScope extends Scope {
   private String currentTypestate;
   private Object state;
   private final Map<String, Scope> typestates = new HashMap<>();
-  final DataDictionary localDictionary = new DataDictionary();
+  private final DataDictionary localDictionary;
 
-  public ProcessorScope(Scope parentScope, String processorName) {
+  public ProcessorScope(Scope parentScope, String processorName,
+      DataDictionary callingDictionary) {
     this.parentScope = parentScope;
     currentTypestate = processorName;
+    localDictionary = new DataDictionary(callingDictionary, parentScope.getLocalDictionary());
   }
 
   public void addTypestate(String name, Scope stateScope) {
@@ -83,30 +83,8 @@ public class ProcessorScope extends Scope {
   }
 
   @Override
-  public void createDataDefinition(String identifier, Criterion def) {
-    if (localDictionary.owns(identifier)) {
-      localDictionary.createDataDefinition(identifier, def);
-    } else {
-      parentScope.createDataDefinition(identifier, def);
-    }
-  }
-
-  @Override
-  public Criterion getDataDefinition(String identifier) {
-    if (localDictionary.owns(identifier)) {
-      return localDictionary.getDataDefinition(identifier);
-    } else {
-      return parentScope.getDataDefinition(identifier);
-    }
-  }
-
-  @Override
-  public Object checkDataDefinition(String key, Object data) {
-    if (localDictionary.owns(key)) {
-      return localDictionary.checkDataDefinition(key, data);
-    } else {
-      return parentScope.checkDataDefinition(key, data);
-    }
+  public DataDictionary getLocalDictionary() {
+    return localDictionary;
   }
 
   public Transform resolveMessage(String message) {

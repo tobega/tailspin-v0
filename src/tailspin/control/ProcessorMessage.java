@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.KeyValue;
 import tailspin.types.Processor;
 import tailspin.types.TailspinArray;
@@ -21,6 +22,11 @@ public class ProcessorMessage extends Reference {
     this.reference = reference;
     this.message = message;
     this.parameters = parameters;
+  }
+
+  @Override
+  public String toString() {
+    return reference + "::" + message;
   }
 
   @Override
@@ -39,48 +45,48 @@ public class ProcessorMessage extends Reference {
     if (receiver instanceof Processor) {
       return  ((Processor) receiver).resolveMessage(message, resolvedParams);
     } else if (message.equals("hashCode")) {
-      if (receiver instanceof byte[]) return (it, parameters) -> Arrays.hashCode((byte[]) receiver);
-      return (it, params) -> ((Number) receiver.hashCode()).longValue();
+      if (receiver instanceof byte[]) return (it, parameters, callingDictionary) -> ((Number)Arrays.hashCode((byte[]) receiver)).longValue();
+      return (it, params, callingDictionary) -> ((Number) receiver.hashCode()).longValue();
     } else if (receiver instanceof Long) {
       if (message.equals("asBytes")) {
-        return (it, params) -> BigInteger.valueOf((Long) receiver).toByteArray();
+        return (it, params, callingDictionary) -> BigInteger.valueOf((Long) receiver).toByteArray();
       } else {
         throw new UnsupportedOperationException("Unknown number message " + message);
       }
     } else if (receiver instanceof String) {
       if (message.equals("asCodePoints")) {
-        return (it, params) -> TailspinArray.value(
+        return (it, params, callingDictionary) -> TailspinArray.value(
             ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList()));
       } if (message.equals("asUtf8Bytes")) {
-        return (it, params) -> ((String) receiver).getBytes(StandardCharsets.UTF_8);
+        return (it, params, callingDictionary) -> ((String) receiver).getBytes(StandardCharsets.UTF_8);
       } else {
         throw new UnsupportedOperationException("Unknown string message " + message);
       }
     } else if (receiver instanceof KeyValue) {
       if (message.equals("key")) {
-        return (it, params) -> ((KeyValue) receiver).getKey();
+        return (it, params, callingDictionary) -> ((KeyValue) receiver).getKey();
       } else if (message.equals("value")) {
-        return (it, params) -> ((KeyValue) receiver).getValue();
+        return (it, params, callingDictionary) -> ((KeyValue) receiver).getValue();
       } else {
         throw new UnsupportedOperationException("Unknown keyValue message " + message);
       }
     } else if (receiver instanceof byte[]) {
-      switch (message) {
-        case "inverse":
-          return (it, params) -> {
-            byte[] in = (byte[]) receiver;
-            byte[] result = new byte[in.length];
-            for (int i = 0; i < in.length; i++) {
-              result[i] = (byte) ~in[i];
-            }
-            return result;
-          };
-        case "length": return (it, parameters) -> ((byte[]) receiver).length;
-        case "asUtf8String": return (it, parameters) -> new String((byte[]) receiver, StandardCharsets.UTF_8);
-        case "asInteger": return (it, parameters) -> new BigInteger((byte[]) receiver).longValue();
-        case "shift": return new ByteShift(receiver, resolvedParams);
-        default: throw new UnsupportedOperationException("Unknown bytes message " + message);
-      }
+      return switch (message) {
+        case "inverse" -> (it, params, callingDictionary) -> {
+          byte[] in = (byte[]) receiver;
+          byte[] result = new byte[in.length];
+          for (int i = 0; i < in.length; i++) {
+            result[i] = (byte) ~in[i];
+          }
+          return result;
+        };
+        case "length" -> (it, parameters, callingDictionary) -> ((byte[]) receiver).length;
+        case "asUtf8String" -> (it, parameters, callingDictionary) -> new String((byte[]) receiver,
+            StandardCharsets.UTF_8);
+        case "asInteger" -> (it, parameters, callingDictionary) -> new BigInteger((byte[]) receiver).longValue();
+        case "shift" -> new ByteShift(receiver, resolvedParams);
+        default -> throw new UnsupportedOperationException("Unknown bytes message " + message);
+      };
     } else {
       throw new UnsupportedOperationException("Unimplemented message " + message + " on  processor type " + receiver.getClass().getSimpleName());
     }
@@ -112,7 +118,8 @@ public class ProcessorMessage extends Reference {
     }
 
     @Override
-    public Object getResults(Object it, Map<String, Object> parameters) {
+    public Object getResults(Object it, Map<String, Object> parameters,
+        DataDictionary callingDictionary) {
       long amount = (long) resolvedParams.get("left");
       if (amount == 0) return original;
       byte[] fill = (byte[]) resolvedParams.get("fill");

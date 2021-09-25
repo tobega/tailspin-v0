@@ -3,27 +3,28 @@ package tailspin.matchers;
 import java.util.List;
 import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
-import tailspin.types.Criterion;
+import tailspin.types.Membrane;
 
-public class AnyOf implements Criterion {
+public class AnyOf implements Membrane {
 
   final boolean invert;
-  final List<Criterion> alternativeCriteria;
+  final List<Membrane> alternativeCriteria;
 
-  public AnyOf(boolean invert, List<Criterion> alternativeCriteria) {
+  public AnyOf(boolean invert, List<Membrane> alternativeCriteria) {
     this.invert = invert;
     this.alternativeCriteria = alternativeCriteria;
   }
 
   @Override
-  public boolean isMet(Object toMatch, Object it, Scope scope) {
-    if (alternativeCriteria.isEmpty()) return true;
-    for (Criterion criterion : alternativeCriteria) {
-      if (criterion.isMet(toMatch, it, scope)) {
-        return !invert;
+  public Object permeate(Object toMatch, Object it, Scope scope) {
+    if (alternativeCriteria.isEmpty()) return toMatch;
+    for (Membrane membrane : alternativeCriteria) {
+      Object alternativeResult = membrane.permeate(toMatch, it, scope);
+      if (null != alternativeResult) {
+        return invert ? null : alternativeResult;
       }
     }
-    return invert;
+    return invert ? toMatch : null;
   }
 
   @Override

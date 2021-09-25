@@ -1,9 +1,10 @@
 package tailspin.types;
 
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.Objects;
 
-public class Measure extends Number implements Processor {
+public class Measure implements Processor {
 
   private final long value;
   private final Unit unit;
@@ -27,6 +28,21 @@ public class Measure extends Number implements Processor {
   }
 
   @Override
+  public Transform resolveMessage(String message, Map<String, Object> parameters) {
+    if (message.equals("hashCode")) {
+      return (it, params, callingDictionary) ->
+          ((Number) (unit.equals(Unit.SCALAR) ? ((Long) value).hashCode() : hashCode())).longValue();
+    } else if (message.equals("raw")) {
+      return (it, params, callingDictionary) -> value;
+    } else if (message.equals("asBytes") && unit.equals(Unit.SCALAR)) {
+      return (it, params, callingDictionary) -> BigInteger.valueOf(value).toByteArray();
+    } else {
+      throw new UnsupportedOperationException("Unknown measure message " + message);
+    }
+  }
+
+  // This is for use in relations
+  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;
@@ -41,38 +57,5 @@ public class Measure extends Number implements Processor {
   @Override
   public int hashCode() {
     return Objects.hash(value, unit);
-  }
-
-  @Override
-  public Transform resolveMessage(String message, Map<String, Object> parameters) {
-    if (message.equals("hashCode")) {
-      return (it, params) -> hashCode();
-    } else if (message.equals("raw")) {
-      return (it, params) -> value;
-    } else {
-      throw new UnsupportedOperationException("Unknown array message " + message);
-    }
-  }
-
-  // Below is only for array indexing
-  @Override
-  public int intValue() {
-    if (!unit.equals(Unit.SCALAR)) throw new IndexOutOfBoundsException("Cannot index by " + unit);
-    return (int) value;
-  }
-
-  @Override
-  public long longValue() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public float floatValue() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public double doubleValue() {
-    throw new UnsupportedOperationException();
   }
 }

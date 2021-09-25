@@ -21,6 +21,7 @@ def TRACING: 0;
 
 // Currently no way to define processor types
 data taskList <>, link <>, input <>, currentTask <>, deviceIn <>, workIn <>
+data identity <0..6>, destination <identity>, currentTaskIdentity <identity>
 
 operator (packet appendTo queueHead)
   $NO_WORK -> !packet::setLink
@@ -34,8 +35,8 @@ end appendTo
 processor Scheduler
   @: {
     layout: 0,
-    queuePacketCount: 0,
-    holdCount: 0,
+    queuePacketCount: 0"1",
+    holdCount: 0"1",
     taskTable: [1..$NUM_TYPES -> $NO_TASK],
     taskList: $NO_TASK,
     currentTask: $NO_TASK,
@@ -265,7 +266,7 @@ processor HandlerTaskDataRecord
 end HandlerTaskDataRecord
 
 processor IdleTaskDataRecord
-  @: { control: [x01x] -> $(last-3..last), count: 10000};
+  @: { control: [x01x] -> $(last-3..last), count: 10000"1"};
   source decrementCount
     @IdleTaskDataRecord.count: $@IdleTaskDataRecord.count - 1;
     $@IdleTaskDataRecord.count !
@@ -295,7 +296,7 @@ processor WorkerTaskDataRecord
 end WorkerTaskDataRecord
 
 processor Packet
-  @: { $..., datum: 0, data: [1..$DATA_SIZE -> 0] };
+  @: { $..., datum: 0"1", data: [1..$DATA_SIZE -> 0] };
   source getKind
     $@Packet.kind!
   end getKind

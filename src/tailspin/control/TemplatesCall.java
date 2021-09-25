@@ -17,6 +17,6 @@ public class TemplatesCall implements Expression {
     if (transform == null) {
       throw new IllegalStateException("Unknown templates " + templatesReference);
     }
-    return transform.getResults(it, Map.of());
+    return transform.getResults(it, Map.of(), blockScope.getLocalDictionary());
   }
 }

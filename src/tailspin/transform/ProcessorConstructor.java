@@ -12,25 +12,27 @@ import tailspin.control.ResultIterator;
 import tailspin.control.TypestateDefinition;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
-import tailspin.matchers.DefinedCriterion;
-import tailspin.types.Criterion;
+import tailspin.matchers.DefinedTag;
+import tailspin.types.DataDictionary;
+import tailspin.types.Membrane;
 import tailspin.types.ProcessorInstance;
 
 public class ProcessorConstructor extends Templates {
 
   private final List<TypestateDefinition> typestates;
 
-  public ProcessorConstructor(String name, Scope definingScope, List<Map.Entry<String, Criterion>> localDatatypes, Block block,
+  public ProcessorConstructor(String name, Scope definingScope, List<Map.Entry<String, Membrane>> localDatatypes, Block block,
       List<TypestateDefinition> typestates) {
     super(name, definingScope, localDatatypes, block, new ArrayList<>());
     this.typestates = typestates;
   }
 
   @Override
-  public Object getResults(Object it, Map<String, Object> parameters) {
-    ProcessorScope scope = new ProcessorScope(definingScope, name);
-    localDatatypes.forEach(dataDef -> scope.localDictionary.createDataDefinition(dataDef.getKey(),
-        dataDef.getValue() == null ? null : new DefinedCriterion(dataDef.getValue(), scope)));
+  public Object getResults(Object it, Map<String, Object> parameters,
+      DataDictionary callingDictionary) {
+    ProcessorScope scope = new ProcessorScope(definingScope, name, callingDictionary);
+    localDatatypes.forEach(dataDef -> scope.getLocalDictionary().createDataDefinition(dataDef.getKey(),
+        dataDef.getValue() == null ? null : new DefinedTag(dataDef.getKey(), dataDef.getValue(), scope)));
     Scope constructorScope = new NestedScope(scope);
     resolveParameters(expectedParameters, parameters, constructorScope, name);
     scope.addTypestate(name, constructorScope);

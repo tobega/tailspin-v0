@@ -1,5 +1,7 @@
 include 'harness'
 
+data r <"1">, c <"1">
+
 templates queens
   templates getRowColumn
     <?($@queens.freeRows($.r) <=0>)> 0 !

@@ -20,9 +20,9 @@ public class SingleValueArrayLens extends ArrayLens {
           .stream()
               .mapToInt(
                   i ->
-                      context.resolveIndex(((Number) i).intValue())
+                      context.resolveIndex(i)
                           .intValue());
     }
-    return context.resolveIndex(((Number) value).intValue());
+    return context.resolveIndex(value);
   }
 }
