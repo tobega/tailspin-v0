@@ -1608,6 +1608,25 @@ class Composer {
   }
 
   @Test
+  void rangeLiteralIsHeldTogetherAsTransform() throws IOException {
+    String program = """
+        def start: 96;
+        composer foo
+          <INT> -> $start..$
+        end foo
+
+        '98' -> foo -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("969798", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void collector() throws IOException {
     String program = """
         composer letters

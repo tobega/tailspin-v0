@@ -46,9 +46,9 @@ key: localIdentifier Colon;
 
 parameterDefinitions: And LeftBrace (key Comma?)+ RightBrace;
 
-source: sourceReference
+source: rangeLiteral
+  | sourceReference
   | stringLiteral
-  | rangeLiteral
   | arrayLiteral
   | relationLiteral
   | structureLiteral

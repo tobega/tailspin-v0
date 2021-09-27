@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.Disabled;
@@ -554,5 +555,21 @@ class Statements {
     runner.run(input, output, List.of());
 
     assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeLiteralIsHeldTogetherAsTransform() throws IOException {
+    String program = """
+        def start: 96;
+
+        98 -> $start..$ -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("969798", output.toString(StandardCharsets.UTF_8));
   }
 }

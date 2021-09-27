@@ -1487,14 +1487,14 @@ public class TailspinParser extends Parser {
 	}
 
 	public static class SourceContext extends ParserRuleContext {
+		public RangeLiteralContext rangeLiteral() {
+			return getRuleContext(RangeLiteralContext.class,0);
+		}
 		public SourceReferenceContext sourceReference() {
 			return getRuleContext(SourceReferenceContext.class,0);
 		}
 		public StringLiteralContext stringLiteral() {
 			return getRuleContext(StringLiteralContext.class,0);
-		}
-		public RangeLiteralContext rangeLiteral() {
-			return getRuleContext(RangeLiteralContext.class,0);
 		}
 		public ArrayLiteralContext arrayLiteral() {
 			return getRuleContext(ArrayLiteralContext.class,0);
@@ -1541,21 +1541,21 @@ public class TailspinParser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(414);
-				sourceReference();
+				rangeLiteral();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(415);
-				stringLiteral();
+				sourceReference();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(416);
-				rangeLiteral();
+				stringLiteral();
 				}
 				break;
 			case 4:
@@ -9630,8 +9630,8 @@ public class TailspinParser extends Parser {
 		"\2\u0196\u0198\5\"\22\2\u0197\u0199\7\30\2\2\u0198\u0197\3\2\2\2\u0198"+
 		"\u0199\3\2\2\2\u0199\u019b\3\2\2\2\u019a\u0196\3\2\2\2\u019b\u019c\3\2"+
 		"\2\2\u019c\u019a\3\2\2\2\u019c\u019d\3\2\2\2\u019d\u019e\3\2\2\2\u019e"+
-		"\u019f\7 \2\2\u019f%\3\2\2\2\u01a0\u01ae\5(\25\2\u01a1\u01ae\5\u0096L"+
-		"\2\u01a2\u01ae\5\u008aF\2\u01a3\u01ae\5<\37\2\u01a4\u01ae\5B\"\2\u01a5"+
+		"\u019f\7 \2\2\u019f%\3\2\2\2\u01a0\u01ae\5\u008aF\2\u01a1\u01ae\5(\25"+
+		"\2\u01a2\u01ae\5\u0096L\2\u01a3\u01ae\5<\37\2\u01a4\u01ae\5B\"\2\u01a5"+
 		"\u01ae\5@!\2\u01a6\u01ae\5D#\2\u01a7\u01a8\7\33\2\2\u01a8\u01a9\5N(\2"+
 		"\u01a9\u01aa\7\34\2\2\u01aa\u01ae\3\2\2\2\u01ab\u01ae\5\u00a0Q\2\u01ac"+
 		"\u01ae\5\u00acW\2\u01ad\u01a0\3\2\2\2\u01ad\u01a1\3\2\2\2\u01ad\u01a2"+
