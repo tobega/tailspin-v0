@@ -54,6 +54,9 @@ public class DataDictionary {
     if (value instanceof Measure m && m.getUnit().equals(Unit.SCALAR)) {
       return m.getValue() + "\"1\"";
     }
+    if (value instanceof TailspinArray a) {
+      return "[" + a.stream().map(DataDictionary::formatErrorValue).collect(Collectors.joining(", ")) + "]";
+    }
     return value.toString();
   }
 
