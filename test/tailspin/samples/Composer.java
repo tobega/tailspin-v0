@@ -1077,6 +1077,24 @@ class Composer {
   }
 
   @Test
+  void keyValueSubRuleFollowedBySkip() throws IOException {
+    String program = """
+        composer struct
+        { <keyValue> (<='foo'>) }
+        rule keyValue: <~WS>: (<WS>) <INT>
+        end struct
+        'x 5foo' -> struct -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{x=5}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void composedKeyWithLiteralValue() throws IOException {
     String program = """
         composer struct
