@@ -153,8 +153,11 @@ public class DataDictionary {
   }
 
   public Membrane getDataDefinition(String identifier) {
-    if (callingDictionary != null && !dataDefinitions.containsKey(identifier)) {
+    if (callingDictionary != null && !isKeyDefined(identifier)) {
       return callingDictionary.getDataDefinition(identifier);
+    }
+    if (moduleDictionary != null && !dataDefinitions.containsKey(identifier)) {
+      return moduleDictionary.getDataDefinition(identifier);
     }
     return dataDefinitions.get(identifier);
   }
