@@ -508,6 +508,28 @@ public class DataDictionary {
   }
 
   @Test
+  void localDefinedProcessorTypeDependsOnParameter() throws IOException {
+    String program = """
+    processor Foo&{high:}
+      data x <1..$high> local
+      sink bar
+        when <x> do $ -> !OUT::write
+      end bar
+    end Foo
+    def foo: $Foo&{high: 2};
+    0..4 -> !foo::bar
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("12", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void localComposerTypeStaysLocal() throws IOException {
     String program = """
     composer foo

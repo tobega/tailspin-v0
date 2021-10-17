@@ -632,6 +632,39 @@ class Processor {
   }
 
   @Test
+  void typestatesUseConstructorDefinitions() throws Exception {
+    String program =
+        """
+        processor Light
+          def greet: 'hello';
+            templates out
+              '$greet; darkness' !
+              @Dark: 1;
+            end out
+          state Dark
+            source shine
+              '$greet; sun' !
+              @Light: 1;
+            end shine
+          end Dark
+        end Light
+        
+        def light: $Light;
+        $light::out -> !OUT::write
+        ', ' -> !OUT::write
+        $light::shine -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("hello darkness, hello sun", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void typestatesDontLeakRootTemplates() throws Exception {
     String program =
         """

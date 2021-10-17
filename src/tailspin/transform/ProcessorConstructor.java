@@ -31,9 +31,9 @@ public class ProcessorConstructor extends Templates {
   public Object getResults(Object it, Map<String, Object> parameters,
       DataDictionary callingDictionary) {
     ProcessorScope scope = new ProcessorScope(definingScope, name, callingDictionary);
-    localDatatypes.forEach(dataDef -> scope.getLocalDictionary().createDataDefinition(dataDef.getKey(),
-        dataDef.getValue() == null ? null : new DefinedTag(dataDef.getKey(), dataDef.getValue(), scope)));
     Scope constructorScope = new NestedScope(scope);
+    localDatatypes.forEach(dataDef -> constructorScope.getLocalDictionary().createDataDefinition(dataDef.getKey(),
+        dataDef.getValue() == null ? null : new DefinedTag(dataDef.getKey(), dataDef.getValue(), constructorScope)));
     resolveParameters(expectedParameters, parameters, constructorScope, name);
     scope.addTypestate(name, constructorScope);
     for (TypestateDefinition typestate : typestates) {
