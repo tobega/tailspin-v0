@@ -1169,6 +1169,9 @@ The symbols (defined symbols, templates, processors, etc.) defined in the packag
 prepending the unsuffixed file name and a "/" to the symbol name, e.g. file dep.tt defines templates foo which can then
 be used as `dep/foo`. Note that the search path is ignored.
 
+If you want to use a different prefix to access the included symbols, use "from", e.g. `include pref from 'lib/dep'` will make
+the foo symbol available as `pref/foo` instead of `dep/foo`.
+
 *NOTE*: Files that may be included can alternatively be used as [modules](#using-modules), the difference then being that
 they do not automatically inherit the use of the modules from the main program.
 
