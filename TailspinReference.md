@@ -1145,6 +1145,7 @@ The module contains the following symbols:
 A predefined symbol `SYS` can be used to access certain system-defined functions:
 * `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
 * `$N -> SYS::randomInt` returns a random integer value between 0 and N-1 (inclusive)
+* `'foo' -> SYS::property` returns the environment property named foo
 
 `IN` accesses user data entered in the terminal (or data from the unix standard input pipe).
 * `$IN::readline` Gets the next line from the standard input, or nothing if the standard input is closed.

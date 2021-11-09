@@ -8,18 +8,15 @@ import java.util.Random;
 
 public class SystemProcessor implements Processor {
 
-  private Random random = new Random();
+  private final Random random = new Random();
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
-    return (it, params, callingDictionary) -> {
-      if (message.equals("nanoCount")) {
-        return System.nanoTime();
-      } else if (message.equals("randomInt")) {
-        return Math.abs(random.nextLong() % ((Number) it).longValue());
-      } else {
-        throw new UnsupportedOperationException("Unknown SYS message " + message);
-      }
+    return (it, params, callingDictionary) -> switch (message) {
+      case "nanoCount" -> System.nanoTime();
+      case "randomInt" -> Math.abs(random.nextLong() % ((Number) it).longValue());
+      case "property" -> System.getProperty(it.toString());
+      default -> throw new UnsupportedOperationException("Unknown SYS message " + message);
     };
   }
 }
