@@ -15,7 +15,7 @@ public class SystemProcessor implements Processor {
     return (it, params, callingDictionary) -> switch (message) {
       case "nanoCount" -> System.nanoTime();
       case "randomInt" -> Math.abs(random.nextLong() % ((Number) it).longValue());
-      case "property" -> System.getProperty(it.toString());
+      case "property" -> System.getenv(it.toString());
       default -> throw new UnsupportedOperationException("Unknown SYS message " + message);
     };
   }
