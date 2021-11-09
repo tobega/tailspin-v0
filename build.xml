@@ -23,6 +23,8 @@
                 <attribute name="Class-Path" value="lib/antlr-runtime-4.8.jar"/>
             </manifest>
             <fileset dir="${lang.dir}" />
+            <zipfileset src="lib/antlr-runtime-4.8.jar"
+              excludes="META-INF/*.SF" />
         </jar>
     </target>
 </project>
