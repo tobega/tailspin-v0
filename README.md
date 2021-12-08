@@ -5,7 +5,7 @@ many algorithms look exactly like the specification, for example, compare the
 [json parser](https://github.com/tobega/tailspin-v0/blob/master/samples/JSON.tt#L14)
 and the [json specification](https://www.json.org/json-en.html).
 
-For a quick introduction to Tailspin, see [snippets compared to javascript](https://tobega.blogspot.com/2021/05/learning-tailspin-by-comparing-to.html) or the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html).
+For a quick introduction to Tailspin, see [snippets compared to javascript](https://tobega.blogspot.com/2021/05/learning-tailspin-by-comparing-to.html) or the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html). Tailspin "functions" can return a stream of zero or more values, I've written about [how returning no value at all is quite powerful](https://tobega.blogspot.com/2021/05/the-power-of-nothing.html).
 
 The inspiration for Tailspincomes mostly from XSLT, but data structures are json-like. The main idea is to let your data flow through
 a series of transforms so it should be easy to specify that flow. Transform steps can be specified as a set of templates with
