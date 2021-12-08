@@ -113,4 +113,14 @@ public class Relation implements Processor {
     result.removeAll(right.contents);
     return new Relation(keys, result);
   }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(keys, contents);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return (obj instanceof Relation r) && Objects.equals(keys, r.keys) && Objects.equals(contents, r.contents);
+  }
 }
