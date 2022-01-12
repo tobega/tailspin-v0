@@ -15,7 +15,7 @@
 - Performance. Definitely need better data structures for lists and structures.
 - Error handling. Error path/exception path? VOID path? Need examples to play with.
 - Want prepend to array/structure. Syntax? ..< and ..> instead of ..| maybe or >> and << ? Does a stream get prepended
-  in reverse or as a chunk? 1..3 -> |..@: $; is probably the best prepend syntax
+  in reverse or as a chunk? 1..3 -> |..@: $; is probably the best prepend syntax. Currently you need to do @: [$, $@...];
 - Are lenses currently enough or do we need some kind of reflective access? E.g. field access like myStruct."$fieldName;"? Or just ($::key)?
 - Unlimited size arrays
 - Use composers as rules in other composers (and INT and WS should be top-level composers)
@@ -23,10 +23,37 @@
 - Conditions on array indices. Allow start at arbitrary value? Only specified units?
 
 #### Confusing
+* Program file does not execute in order (definitions and statements expected to form "main")
 * items with different field names just compare unequal. Perhaps should error? You can always type match first.
+* Index for state assignment is evaluated after the value is calculated (edge case for deletion), e.g.
+  ```
+  templates foo
+    @:[[1,2],[1,2]];
+    ..|@($@($;last)): ^@($;last);
+    $@ !
+  end foo
+  ```
+* range match cannot take a jump value
+* modified module cannot refer to own non-overridden methods directly, needs extra import:
+  ```
+  use modified 'app'
+  with super from modified 'app' 
+    def part: '';
+    def input: '';
+  end 'app' provided
+    def part: '';
+    def input: [[
+      '0,9 -> 5,9',
+      '8,0 -> 0,8'
+    ]... -> super/coords];
+  end 'app'
+  ```
 
 ### Exceptions
-Proposed syntax is
+Do we need them? Do we want them?
+Programmer errors should be uncatchable failures.
+Unexpected issues with resources, etc., could just give an error-return-value.
+If wanted, proposed syntax is
 ```
 $foos... -> try myTransform recover myInput ...block... end myInput -> ...
 ```
@@ -50,7 +77,7 @@ Syntax for creating exceptions and format for error objects TBD (just throw any 
 - When a definition refers to a mutable processor instances, and if another definition is produced from the processor, statements mutating state will not execute before the second definition.
 
 ## Bugs
-composer rule updates state when called in not-context (even more weird, 'bananas' counts 2 b, 9 a, 6 n and 3 s):
+* composer rule updates state when called in not-context (even more weird, 'bananas' counts 2 b, 9 a, 6 n and 3 s):
   ```
     operator (word count char)
     composer howMany
@@ -95,7 +122,7 @@ composer rule updates state when called in not-context (even more weird, 'banana
 ## Other thoughts
 - Use more words instead of symbols? YES, easier to scan and search. Even redundant words (to some limit).
 - How much meta-programming do we want to let loose? Should everything be assignable as data? In that case, what about serialization?
-  Currently processors are a little in-between: if we can pass processor instances in the chain, why not templates?
+  Currently processors are a little in-between: if we can pass processor instances in the chain, why not templates or lenses?
 - Different kinds of hand-over between transforms? E.g. '=>' for proceed in parallel.
 - Do we need some kind of exit statement to abandon a stream? e.g. "findFirst"/"findAny" Or do you have to code it as iterated matching?
 - Vector arithmetic?
