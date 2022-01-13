@@ -1053,6 +1053,9 @@ of local types, followed by the keyword 'local', e.g. `data max, min local` decl
 You can also define the type for some local types, if you want more control than [autotyping](#autotyping) gives.
 E.g. `data max <0..>, min local`
 
+NOTE: It is probably undesirable to emit autotyped tagged values for local tags.
+To avoid that, you should specify the type of the local value, perhaps just as "any", e.g. `data result <> local`
+
 ### Autotyping
 Fields in your [data structures](#structures) should have good names describing what they are.
 A type is also a description of what something is and you should have different types for different things.

@@ -48,6 +48,7 @@
     ]... -> super/coords];
   end 'app'
   ```
+* Local data tagged identifiers could escape to the outside. We should make that an error.
 
 ### Exceptions
 Do we need them? Do we want them?
