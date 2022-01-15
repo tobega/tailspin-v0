@@ -1,19 +1,21 @@
 package tailspin.interpreter;
 
+import java.nio.file.Path;
 import java.util.List;
 import tailspin.control.Value;
 
 public class ModuleModifier extends ModuleImport {
-  private final Module modifier;
+  private final ProgramModification modifier;
 
   public ModuleModifier(String prefix, List<DefinitionStatement> statements,
       Value includePath, List<ModuleProvider> providedDependencies) {
     super(prefix, includePath, providedDependencies);
-    modifier = new Module(statements, List.of());
+    modifier = new ProgramModification(statements);
   }
 
   @Override
-  void prepareScope(List<SymbolLibrary> resolvedModules, BasicScope depScope) {
-    modifier.resolveAll(depScope, resolvedModules);
+  Module getProgram(Path depPath) {
+    Module module = super.getProgram(depPath);
+    return new Module(modifier.overrideDefinitions(module.definitions), module.includedFiles);
   }
 }

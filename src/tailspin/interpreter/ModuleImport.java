@@ -20,7 +20,7 @@ class ModuleImport implements ModuleProvider {
     this.providedDependencies = providedDependencies;
   }
 
-  private Module getProgram(Path depPath) {
+  Module getProgram(Path depPath) {
     try {
       Tailspin dep = Tailspin.parse(Files.newInputStream(depPath));
       return new RunMain().visitProgram(dep.programDefinition).asModule();
@@ -54,13 +54,8 @@ class ModuleImport implements ModuleProvider {
     }
     List<SymbolLibrary> resolvedModules = Module.getModules(providedDependencies, inheritedModules, depPath.getParent());
     BasicScope depScope = new BasicScope(depPath.getParent());
-    prepareScope(resolvedModules, depScope);
     Module module = getProgram(depPath);
     module.resolveAll(depScope, resolvedModules);
     return new SymbolLibrary(dependencyPrefix, null, depScope, List.of());
-  }
-
-  void prepareScope(List<SymbolLibrary> resolvedModules, BasicScope depScope) {
-    // Nothing
   }
 }
