@@ -35,7 +35,7 @@ public class Lang {
       Tailspin dep = Tailspin.parse(Lang.class.getResourceAsStream("/lang.tt"));
       Program lang = new RunMain().visitProgram(dep.programDefinition);
       BasicScope langScope = new BasicScope(Path.of("-"));
-      lang.resolveAll(langScope, List.of());
+      lang.asModule().resolveAll(langScope, List.of());
       langScope.copyDefinitions(builtIns);
     } catch (IOException e) {
       throw new RuntimeException(e);
