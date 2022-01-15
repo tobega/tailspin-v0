@@ -33,7 +33,7 @@
   end foo
   ```
 * range match cannot take a jump value
-* modified module cannot refer to own non-overridden methods directly, needs extra import:
+* modified module cannot refer to own non-overridden methods directly, needs extra import (which is then non-virtual):
   ```
   use modified 'app'
   with super from modified 'app' 
