@@ -16,6 +16,6 @@ public class ModuleInheritance implements ModuleProvider {
   @Override
   public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, Path basePath) {
     BasicScope depScope = new BasicScope(basePath);
-    return new SymbolLibrary(prefix, inheritedModulePrefix, depScope, inheritedModules);
+    return new SymbolLibrary(prefix, inheritedModulePrefix, () -> depScope, inheritedModules);
   }
 }

@@ -17,7 +17,7 @@ public class Lang {
 
   private Lang() {}
 
-  public synchronized static Map<String, Object> getBuiltIns() {
+  private synchronized static Map<String, Object> getBuiltIns() {
     if (builtIns != null) {
       return builtIns;
     }

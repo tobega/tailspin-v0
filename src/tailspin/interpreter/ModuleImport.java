@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Supplier;
 import tailspin.Tailspin;
 import tailspin.control.Value;
 
@@ -53,9 +54,17 @@ class ModuleImport implements ModuleProvider {
       throw new IllegalArgumentException("Unable to resolve " + depPath);
     }
     List<SymbolLibrary> resolvedModules = Module.getModules(providedDependencies, inheritedModules, depPath.getParent());
-    BasicScope depScope = new BasicScope(depPath.getParent());
     Module module = getProgram(depPath);
-    module.resolveAll(depScope, resolvedModules);
-    return new SymbolLibrary(dependencyPrefix, null, depScope, List.of());
+    return new SymbolLibrary(dependencyPrefix, null, new Supplier<>() {
+      BasicScope depScope;
+      @Override
+      public BasicScope get() {
+        if (depScope == null) {
+          depScope = new BasicScope(depPath.getParent());
+          module.resolveAll(depScope, resolvedModules);
+        }
+        return depScope;
+      }
+    }, List.of());
   }
 }

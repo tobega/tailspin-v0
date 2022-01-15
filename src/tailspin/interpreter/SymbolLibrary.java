@@ -3,6 +3,7 @@ package tailspin.interpreter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import tailspin.interpreter.lang.Lang;
 
@@ -10,15 +11,15 @@ public class SymbolLibrary {
 
     final String prefix;
     private final String inheritedModulePrefix;
-    BasicScope depScope;
+    final Supplier<BasicScope> depScopeSupplier;
     private final Optional<SymbolLibrary> inheritedProvider;
 
     public SymbolLibrary(String prefix,
-        String inheritedModulePrefix, BasicScope depScope,
+        String inheritedModulePrefix, Supplier<BasicScope> depScopeSupplier,
         List<SymbolLibrary> inheritedProviders) {
         this.prefix = prefix;
         this.inheritedModulePrefix = inheritedModulePrefix;
-        this.depScope = depScope;
+        this.depScopeSupplier = depScopeSupplier;
         this.inheritedProvider = inheritedProviders.stream()
             .filter(s -> inheritedModulePrefix.equals(s.prefix)).findFirst();
     }
@@ -40,10 +41,10 @@ public class SymbolLibrary {
      */
     Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
         providedSymbols.stream()
-            .filter(depScope::hasDefinition)
-            .forEach(s -> scope.defineValue(prefix + s, depScope.resolveValue(s)));
+            .filter(s -> depScopeSupplier.get().hasDefinition(s))
+            .forEach(s -> scope.defineValue(prefix + s, depScopeSupplier.get().resolveValue(s)));
         return providedSymbols.stream()
-            .filter(s -> !depScope.hasDefinition(s))
+            .filter(s -> !depScopeSupplier.get().hasDefinition(s))
             .collect(Collectors.toSet());
     }
 
