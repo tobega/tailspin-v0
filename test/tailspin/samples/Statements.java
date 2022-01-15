@@ -572,4 +572,20 @@ class Statements {
 
     assertEquals("969798", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void programExecutesEverything() throws IOException {
+    String program = """
+        def foo: 96 -> \\('a' -> !OUT::write $!\\);
+
+        'b' -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ab", output.toString(StandardCharsets.UTF_8));
+  }
 }

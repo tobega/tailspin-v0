@@ -305,6 +305,40 @@ public class Modules {
 
   @ExtendWith(TempDirectory.class)
   @Test
+  void moduleInheritsConfiguredModule(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        def greeting: 'Salut';
+        sink greet
+          '$greeting; $;' -> !OUT::write
+        end greet""";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String other = """
+        sink greet
+          'Jolly $;' -> !hi/greet
+        end greet""";
+    Path otherFile = dir.resolve("pirate.tt");
+    Files.writeString(otherFile, other, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = """
+        use 'hi' with core-system/ inherited provided
+        use 'pirate' with hi inherited provided
+        sink hello
+          $ -> !pirate/greet
+        end hello
+        'Roger' -> !hello
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("Salut Jolly Roger", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
   void moduleWithoutCoreSystemUsesBuiltins(@TempDirectory.TempDir Path dir) throws Exception {
     String dep = "templates gauss 1..$ -> ..=Sum&{of: :()}! end gauss";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
@@ -450,5 +484,81 @@ public class Modules {
     runner.run(baseDir, input, output, List.of());
 
     assertEquals("[key=1, key=a]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void noStatementsOrUnusedDefinitionsRunInModule(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        source quote '"1"' ! end quote
+        def b: 'unused' -> \\($ -> !OUT::write $!\\);
+        'bad' -> !OUT::write""";
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = "use 'module:dep' with core-system/ inherited provided\n $dep/quote -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void noStatementsOrUnusedDefinitionsRunInIncludableModule(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        source quote '"1"' ! end quote
+        def b: 'unused' -> \\($ -> !OUT::write $!\\);
+        'bad' -> !OUT::write""";
+    Path depFile = dir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = "use 'dep' with core-system/ inherited provided\n $dep/quote -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void inheritedModuleWithSplitUsageRunsOnceInCorrectOrder(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        def a: 'a' -> \\($ -> !OUT::write $!\\);
+        def b: 'b' -> \\($ -> !OUT::write $!\\);
+        """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String other = """
+        def c: 'c$dep/a;c';
+        """;
+    Path otherFile = moduleDir.resolve("other.tt");
+    Files.writeString(otherFile, other, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = """
+        use 'module:dep' with core-system/ inherited provided
+        use 'module:other' with dep inherited provided
+        'p$dep/b;p' -> !OUT::write
+        'p$other/c;p' -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("abpbppcacp", output.toString(StandardCharsets.UTF_8));
   }
 }
