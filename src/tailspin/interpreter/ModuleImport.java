@@ -30,12 +30,11 @@ class ModuleImport implements ModuleProvider {
   }
 
   @Override
-  public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, BasicScope scope) {
-    String dependency = (String) specifier.getResults(null, scope);
+  public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, Path basePath) {
+    String dependency = (String) specifier.getResults(null, new BasicScope(basePath));
     if (dependency.startsWith("java:")) {
       return new JavaSymbolLibrary(dependency.substring("java:".length()));
     }
-    Path basePath = scope.basePath();
     if (dependency.startsWith("module:")) {
       dependency = dependency.substring("module:".length());
       String modulePath = System.getProperty("TAILSPIN_MODULES");
@@ -53,14 +52,15 @@ class ModuleImport implements ModuleProvider {
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to resolve " + depPath);
     }
-    Module module = getProgram(depPath);
+    List<SymbolLibrary> resolvedModules = Module.getModules(providedDependencies, inheritedModules, depPath.getParent());
     BasicScope depScope = new BasicScope(depPath.getParent());
-    module.resolveAll(depScope, getModulesAndPrepScope(inheritedModules, depScope));
+    prepareScope(resolvedModules, depScope);
+    Module module = getProgram(depPath);
+    module.resolveAll(depScope, resolvedModules);
     return new SymbolLibrary(dependencyPrefix, null, depScope, List.of());
   }
 
-  List<SymbolLibrary> getModulesAndPrepScope(List<SymbolLibrary> inheritedModules,
-      BasicScope depScope) {
-    return Module.getModules(providedDependencies, inheritedModules, depScope);
+  void prepareScope(List<SymbolLibrary> resolvedModules, BasicScope depScope) {
+    // Nothing
   }
 }

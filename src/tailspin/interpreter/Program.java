@@ -34,8 +34,10 @@ public class Program {
   }
 
   public void run(Path basePath, SymbolLibrary coreSystemProvider) {
+    List<SymbolLibrary> resolvedModules = Module.getModules(injectedModules, List.of(coreSystemProvider),
+        basePath);
     BasicScope scope = new BasicScope(basePath);
-    resolveRequiredSymbols(scope, Module.getModules(injectedModules, List.of(coreSystemProvider), scope));
+    resolveRequiredSymbols(scope, resolvedModules);
     statements.forEach(t -> t.getResults(scope));
   }
 
@@ -96,21 +98,21 @@ public class Program {
 
   private Object executeTest(TestStatement testStatement, Path basePath, SymbolLibrary coreSystemProvider) {
     BasicScope scope = new BasicScope(basePath);
-    List<SymbolLibrary> testModules = getMocksAndModules(testStatement.test.getInjectedModules(), coreSystemProvider, scope);
+    List<SymbolLibrary> testModules = getMocksAndModules(testStatement.test.getInjectedModules(), coreSystemProvider, basePath);
     new Module(testStatement.test.overrideDefinitions(getDefinitions()), includedFiles)
       .resolveSymbols(testStatement.requiredDefinitions, scope, testModules);
     return testStatement.test.getResults(null, scope);
   }
 
   public List<SymbolLibrary> getMocksAndModules(List<ModuleProvider> providedLibraries,
-      SymbolLibrary coreSystemProvider, BasicScope scope) {
+      SymbolLibrary coreSystemProvider, Path basePath) {
     List<SymbolLibrary> mocks = new ArrayList<>();
     mocks.add(coreSystemProvider);
     for (ModuleProvider provider : providedLibraries) {
-      SymbolLibrary provided = provider.installDependencies(Module.getModules(injectedModules, mocks, scope), scope);
+      SymbolLibrary provided = provider.installDependencies(Module.getModules(injectedModules, mocks, basePath), basePath);
       mocks.add(0, provided);
     }
-    mocks.addAll(Module.getModules(injectedModules, mocks, scope));
+    mocks.addAll(Module.getModules(injectedModules, mocks, basePath));
     return mocks;
   }
 }

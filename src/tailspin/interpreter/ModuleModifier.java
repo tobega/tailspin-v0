@@ -13,10 +13,7 @@ public class ModuleModifier extends ModuleImport {
   }
 
   @Override
-  List<SymbolLibrary> getModulesAndPrepScope(List<SymbolLibrary> inheritedModules,
-      BasicScope depScope) {
-    List<SymbolLibrary> providedModules = Module.getModules(providedDependencies, inheritedModules, depScope);
-    modifier.resolveAll(depScope, providedModules);
-    return providedModules;
+  void prepareScope(List<SymbolLibrary> resolvedModules, BasicScope depScope) {
+    modifier.resolveAll(depScope, resolvedModules);
   }
 }

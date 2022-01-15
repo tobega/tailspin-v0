@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -71,12 +72,12 @@ public class Module {
   }
 
   static List<SymbolLibrary> getModules(List<ModuleProvider> injectedModules,
-      List<SymbolLibrary> inheritedModules, BasicScope scope) {
+      List<SymbolLibrary> inheritedModules, Path basePath) {
     List<SymbolLibrary> libs = new ArrayList<>();
     for (ModuleProvider provider : injectedModules) {
       SymbolLibrary provided = provider.installDependencies(
           Stream.concat(libs.stream(), inheritedModules.stream()).collect(Collectors.toList()),
-          scope);
+          basePath);
       libs.add(0, provided);
     }
     return libs;

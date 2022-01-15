@@ -339,6 +339,41 @@ public class Modules {
 
   @ExtendWith(TempDirectory.class)
   @Test
+  void moduledependsOnModule(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        def greeting: 'Salut';
+        sink greet
+          '$greeting; $;' -> !OUT::write
+        end greet""";
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String other = """
+        sink greet
+          'Jolly $;' -> !hi/greet
+        end greet""";
+    Path otherFile = dir.resolve("pirate.tt");
+    Files.writeString(otherFile, other, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = """
+        use 'pirate' with
+          'hi' with core-system/ inherited provided
+        provided
+        sink hello
+          $ -> !pirate/greet
+        end hello
+        'Roger' -> !hello
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("Salut Jolly Roger", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
   void moduleWithoutCoreSystemUsesBuiltins(@TempDirectory.TempDir Path dir) throws Exception {
     String dep = "templates gauss 1..$ -> ..=Sum&{of: :()}! end gauss";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
