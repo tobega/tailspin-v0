@@ -314,16 +314,16 @@ public class Modules {
     Path depFile = dir.resolve("hi.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     String other = """
-        sink greet
+        sink hail
           'Jolly $;' -> !hi/greet
-        end greet""";
+        end hail""";
     Path otherFile = dir.resolve("pirate.tt");
     Files.writeString(otherFile, other, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     String program = """
         use 'hi' with core-system/ inherited provided
         use 'pirate' with hi inherited provided
         sink hello
-          $ -> !pirate/greet
+          $ -> !pirate/hail
         end hello
         'Roger' -> !hello
         """;

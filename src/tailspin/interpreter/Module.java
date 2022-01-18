@@ -25,6 +25,35 @@ public class Module {
     this.includedFiles = includedFiles;
   }
 
+  void registerSymbols(Set<String> internalSymbols,List<SymbolLibrary> providedDependencies) {
+    Map<String, Set<String>> definedSymbols = definitions.stream()
+        .filter(d -> (d.statement instanceof Definition))
+        .collect(Collectors
+            .toMap(d -> ((Definition) d.statement).getIdentifier(), d -> d.requiredDefinitions));
+    // We might be shadowing a module, so don't try to install what we don't define.
+    internalSymbols = internalSymbols.stream().filter(definedSymbols::containsKey)
+        .collect(Collectors.toSet());
+    Queue<String> neededDefinitions = new ArrayDeque<>(internalSymbols);
+    definitions.stream()
+        .filter(d -> (d.statement instanceof DataDefinition))
+        .forEach(d -> neededDefinitions.addAll(d.requiredDefinitions));
+    Set<String> transientDefinitions = new HashSet<>();
+    Set<String> externalDefinitions = new HashSet<>();
+    while (!neededDefinitions.isEmpty()) {
+      String def = neededDefinitions.poll();
+      if (!definedSymbols.containsKey(def)) {
+        externalDefinitions.add(def);
+        continue;
+      }
+      if (transientDefinitions.add(def)) {
+        neededDefinitions.addAll(definedSymbols.get(def));
+      }
+    }
+    for (SymbolLibrary lib : providedDependencies) {
+      externalDefinitions = lib.registerSymbols(externalDefinitions);
+    }
+  }
+
   void resolveSymbols(Set<String> internalSymbols, BasicScope scope,
       List<SymbolLibrary> providedDependencies) {
     Map<String, Set<String>> definedSymbols = definitions.stream()
@@ -63,12 +92,12 @@ public class Module {
         .forEach(d -> d.statement.getResults(null, scope));
   }
 
-  public void resolveAll(BasicScope scope, List<SymbolLibrary> providedDependencies) {
+  public void installAll(BasicScope scope) {
     resolveSymbols(
         definitions.stream()
             .filter(d -> (d.statement instanceof Definition))
             .map(d -> ((Definition) d.statement).getIdentifier()).collect(Collectors.toSet()),
-        scope, providedDependencies);
+        scope, List.of());
   }
 
   static List<SymbolLibrary> getModules(List<ModuleProvider> injectedModules,

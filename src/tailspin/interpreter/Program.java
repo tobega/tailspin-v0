@@ -72,6 +72,10 @@ public class Program {
     for (IncludedFile dependency : includedFiles) {
       externalDefinitions = dependency.installSymbols(externalDefinitions, scope, providedDependencies);
     }
+    Set<String> defsToInstall = new HashSet<>(externalDefinitions);
+    for (SymbolLibrary lib : providedDependencies) {
+      defsToInstall = lib.registerSymbols(defsToInstall);
+    }
     for (SymbolLibrary lib : providedDependencies) {
       externalDefinitions = lib.installSymbols(externalDefinitions, scope);
     }
@@ -99,8 +103,9 @@ public class Program {
   private Object executeTest(TestStatement testStatement, Path basePath, SymbolLibrary coreSystemProvider) {
     BasicScope scope = new BasicScope(basePath);
     List<SymbolLibrary> testModules = getMocksAndModules(testStatement.test.getInjectedModules(), coreSystemProvider, basePath);
-    new Module(testStatement.test.overrideDefinitions(getDefinitions()), includedFiles)
-      .resolveSymbols(testStatement.requiredDefinitions, scope, testModules);
+    Module module = new Module(testStatement.test.overrideDefinitions(getDefinitions()), includedFiles);
+    module.registerSymbols(testStatement.requiredDefinitions, testModules);
+    module.resolveSymbols(testStatement.requiredDefinitions, scope, testModules);
     return testStatement.test.getResults(null, scope);
   }
 
