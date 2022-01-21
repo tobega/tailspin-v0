@@ -3,9 +3,7 @@ package tailspin.interpreter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import tailspin.Tailspin;
 import tailspin.control.Value;
 
@@ -56,23 +54,6 @@ class ModuleImport implements ModuleProvider {
     }
     List<SymbolLibrary> resolvedModules = Module.getModules(providedDependencies, inheritedModules, depPath.getParent());
     Module module = getProgram(depPath);
-    return new SymbolLibrary(dependencyPrefix, null, new SymbolLibrary.Installer() {
-      private BasicScope depScope;
-      private final Set<String> requestedSymbols = new HashSet<>();
-      @Override
-      public BasicScope get() {
-        if (depScope == null) {
-          depScope = new BasicScope(depPath.getParent());
-          module.resolveSymbols(requestedSymbols, depScope, resolvedModules);
-        }
-        return depScope;
-      }
-
-      @Override
-      public void install(Set<String> registeredSymbols) {
-        module.registerSymbols(registeredSymbols, resolvedModules);
-        requestedSymbols.addAll(registeredSymbols);
-      }
-    }, List.of());
+    return new SymbolLibrary(dependencyPrefix, null, module.new Installer(depPath.getParent(), resolvedModules), List.of());
   }
 }

@@ -15,9 +15,36 @@ import tailspin.control.Definition;
 import tailspin.interpreter.lang.Lang;
 
 public class Module {
-
   protected final List<DefinitionStatement> definitions;
   protected final List<IncludedFile> includedFiles;
+
+  class Installer implements SymbolLibrary.Installer {
+    private BasicScope depScope;
+    private final Set<String> requestedSymbols = new HashSet<>();
+    private final Path basePath;
+    private final List<SymbolLibrary> providedDependencies;
+
+    Installer(Path basePath,
+        List<SymbolLibrary> providedDependencies) {
+      this.basePath = basePath;
+      this.providedDependencies = providedDependencies;
+    }
+
+    @Override
+    public BasicScope get() {
+      if (depScope == null) {
+        depScope = new BasicScope(basePath);
+        resolveSymbols(requestedSymbols, depScope, providedDependencies);
+      }
+      return depScope;
+    }
+
+    @Override
+    public void install(Set<String> registeredSymbols) {
+      registerSymbols(registeredSymbols, providedDependencies);
+      requestedSymbols.addAll(registeredSymbols);
+    }
+  }
 
   public Module(
       List<DefinitionStatement> definitions, List<IncludedFile> includedFiles) {

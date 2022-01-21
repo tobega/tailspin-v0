@@ -1,9 +1,7 @@
 package tailspin.interpreter;
 
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ModuleShadowing extends Module implements ModuleProvider {
   private final String prefix;
@@ -22,23 +20,6 @@ public class ModuleShadowing extends Module implements ModuleProvider {
   @Override
   public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, Path basePath) {
     List<SymbolLibrary> resolvedModules = getModules(providedDependencies, inheritedModules, basePath);
-    return new SymbolLibrary(prefix, inheritedModulePrefix, new SymbolLibrary.Installer() {
-      private BasicScope depScope;
-      private final Set<String> requestedSymbols = new HashSet<>();
-      @Override
-      public BasicScope get() {
-        if (depScope == null) {
-          depScope = new BasicScope(basePath);
-          resolveSymbols(requestedSymbols, depScope, resolvedModules);
-        }
-        return depScope;
-      }
-
-      @Override
-      public void install(Set<String> registeredSymbols) {
-        registerSymbols(registeredSymbols, resolvedModules);
-        requestedSymbols.addAll(registeredSymbols);
-      }
-    }, inheritedModules);
+    return new SymbolLibrary(prefix, inheritedModulePrefix, new Installer(basePath, resolvedModules), inheritedModules);
   }
 }
