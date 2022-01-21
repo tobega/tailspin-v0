@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,14 +15,70 @@ import tailspin.control.Definition;
 import tailspin.interpreter.lang.Lang;
 
 public class Module {
-
   protected final List<DefinitionStatement> definitions;
   protected final List<IncludedFile> includedFiles;
+
+  class Installer implements SymbolLibrary.Installer {
+    private BasicScope depScope;
+    private final Set<String> requestedSymbols = new HashSet<>();
+    private final Path basePath;
+    private final List<SymbolLibrary> providedDependencies;
+
+    Installer(Path basePath,
+        List<SymbolLibrary> providedDependencies) {
+      this.basePath = basePath;
+      this.providedDependencies = providedDependencies;
+    }
+
+    @Override
+    public BasicScope get() {
+      if (depScope == null) {
+        depScope = new BasicScope(basePath);
+        resolveSymbols(requestedSymbols, depScope, providedDependencies);
+      }
+      return depScope;
+    }
+
+    @Override
+    public void install(Set<String> registeredSymbols) {
+      registerSymbols(registeredSymbols, providedDependencies);
+      requestedSymbols.addAll(registeredSymbols);
+    }
+  }
 
   public Module(
       List<DefinitionStatement> definitions, List<IncludedFile> includedFiles) {
     this.definitions = definitions;
     this.includedFiles = includedFiles;
+  }
+
+  void registerSymbols(Set<String> internalSymbols,List<SymbolLibrary> providedDependencies) {
+    Map<String, Set<String>> definedSymbols = definitions.stream()
+        .filter(d -> (d.statement instanceof Definition))
+        .collect(Collectors
+            .toMap(d -> ((Definition) d.statement).getIdentifier(), d -> d.requiredDefinitions));
+    // We might be shadowing a module, so don't try to install what we don't define.
+    internalSymbols = internalSymbols.stream().filter(definedSymbols::containsKey)
+        .collect(Collectors.toSet());
+    Queue<String> neededDefinitions = new ArrayDeque<>(internalSymbols);
+    definitions.stream()
+        .filter(d -> (d.statement instanceof DataDefinition))
+        .forEach(d -> neededDefinitions.addAll(d.requiredDefinitions));
+    Set<String> transientDefinitions = new HashSet<>();
+    Set<String> externalDefinitions = new HashSet<>();
+    while (!neededDefinitions.isEmpty()) {
+      String def = neededDefinitions.poll();
+      if (!definedSymbols.containsKey(def)) {
+        externalDefinitions.add(def);
+        continue;
+      }
+      if (transientDefinitions.add(def)) {
+        neededDefinitions.addAll(definedSymbols.get(def));
+      }
+    }
+    for (SymbolLibrary lib : providedDependencies) {
+      externalDefinitions = lib.registerSymbols(externalDefinitions);
+    }
   }
 
   void resolveSymbols(Set<String> internalSymbols, BasicScope scope,
@@ -62,21 +119,21 @@ public class Module {
         .forEach(d -> d.statement.getResults(null, scope));
   }
 
-  public void resolveAll(BasicScope scope, List<SymbolLibrary> providedDependencies) {
+  public void installAll(BasicScope scope) {
     resolveSymbols(
         definitions.stream()
             .filter(d -> (d.statement instanceof Definition))
             .map(d -> ((Definition) d.statement).getIdentifier()).collect(Collectors.toSet()),
-        scope, providedDependencies);
+        scope, List.of());
   }
 
   static List<SymbolLibrary> getModules(List<ModuleProvider> injectedModules,
-      List<SymbolLibrary> inheritedModules, BasicScope scope) {
+      List<SymbolLibrary> inheritedModules, Path basePath) {
     List<SymbolLibrary> libs = new ArrayList<>();
     for (ModuleProvider provider : injectedModules) {
       SymbolLibrary provided = provider.installDependencies(
           Stream.concat(libs.stream(), inheritedModules.stream()).collect(Collectors.toList()),
-          scope);
+          basePath);
       libs.add(0, provided);
     }
     return libs;

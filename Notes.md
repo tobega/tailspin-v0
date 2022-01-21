@@ -23,7 +23,6 @@
 - Conditions on array indices. Allow start at arbitrary value? Only specified units?
 
 #### Confusing
-* Program file does not execute in order (definitions and statements expected to form "main")
 * items with different field names just compare unequal. Perhaps should error? You can always type match first.
 * Index for state assignment is evaluated after the value is calculated (edge case for deletion), e.g.
   ```
@@ -34,7 +33,7 @@
   end foo
   ```
 * range match cannot take a jump value
-* modified module cannot refer to own non-overridden methods directly, needs extra import:
+* modified module cannot refer to own non-overridden methods directly, needs extra import (which is then non-virtual):
   ```
   use modified 'app'
   with super from modified 'app' 
@@ -49,6 +48,7 @@
   end 'app'
   ```
 * Local data tagged identifiers could escape to the outside. We should make that an error.
+* Programs execute all statements, but when included or used as module, only the used definitions are executed.
 
 ### Exceptions
 Do we need them? Do we want them?

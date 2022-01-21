@@ -20,24 +20,21 @@ class ModuleImport implements ModuleProvider {
     this.providedDependencies = providedDependencies;
   }
 
-  private Program getProgram(Path depPath) {
+  Module getProgram(Path depPath) {
     try {
       Tailspin dep = Tailspin.parse(Files.newInputStream(depPath));
-      return new RunMain().visitProgram(dep.programDefinition);
+      return new RunMain().visitProgram(dep.programDefinition).asModule();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, BasicScope scope) {
-    String dependency = (String) specifier.getResults(null, scope);
+  public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, Path basePath) {
+    String dependency = (String) specifier.getResults(null, new BasicScope(basePath));
     if (dependency.startsWith("java:")) {
-      BasicScope depScope = new BasicScope(scope.basePath());
-      getModulesAndPrepScope(inheritedModules, depScope);
-      return new JavaSymbolLibrary(dependency.substring("java:".length()), depScope);
+      return new JavaSymbolLibrary(dependency.substring("java:".length()));
     }
-    Path basePath = scope.basePath();
     if (dependency.startsWith("module:")) {
       dependency = dependency.substring("module:".length());
       String modulePath = System.getProperty("TAILSPIN_MODULES");
@@ -55,14 +52,8 @@ class ModuleImport implements ModuleProvider {
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to resolve " + depPath);
     }
+    List<SymbolLibrary> resolvedModules = Module.getModules(providedDependencies, inheritedModules, depPath.getParent());
     Module module = getProgram(depPath);
-    BasicScope depScope = new BasicScope(depPath.getParent());
-    module.resolveAll(depScope, getModulesAndPrepScope(inheritedModules, depScope));
-    return new SymbolLibrary(dependencyPrefix, null, depScope, List.of());
-  }
-
-  List<SymbolLibrary> getModulesAndPrepScope(List<SymbolLibrary> inheritedModules,
-      BasicScope depScope) {
-    return Module.getModules(providedDependencies, inheritedModules, depScope);
+    return new SymbolLibrary(dependencyPrefix, null, module.new Installer(depPath.getParent(), resolvedModules), List.of());
   }
 }

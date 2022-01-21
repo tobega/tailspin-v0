@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import tailspin.Tailspin;
@@ -17,7 +16,7 @@ public class Lang {
 
   private Lang() {}
 
-  public synchronized static Map<String, Object> getBuiltIns() {
+  private synchronized static Map<String, Object> getBuiltIns() {
     if (builtIns != null) {
       return builtIns;
     }
@@ -35,7 +34,7 @@ public class Lang {
       Tailspin dep = Tailspin.parse(Lang.class.getResourceAsStream("/lang.tt"));
       Program lang = new RunMain().visitProgram(dep.programDefinition);
       BasicScope langScope = new BasicScope(Path.of("-"));
-      lang.resolveAll(langScope, List.of());
+      lang.asModule().installAll(langScope);
       langScope.copyDefinitions(builtIns);
     } catch (IOException e) {
       throw new RuntimeException(e);

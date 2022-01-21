@@ -1,9 +1,9 @@
 package tailspin.interpreter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import tailspin.control.Definition;
 
 public class ProgramModification {
@@ -15,15 +15,19 @@ public class ProgramModification {
   }
 
   public List<DefinitionStatement> overrideDefinitions(List<DefinitionStatement> programDefinitions) {
-    Map<String, DefinitionStatement> indexedDefinitions = definitions.stream()
+    Map<String, DefinitionStatement> indexedDefinitions = new HashMap<>();
+    definitions.stream()
         .filter(d -> d.statement instanceof Definition)
-        .collect(Collectors.toMap(d -> ((Definition) d.statement).getIdentifier(), Function.identity()));
-    return programDefinitions.stream().map(d -> {
+        .forEach(d -> indexedDefinitions.put(((Definition) d.statement).getIdentifier(), d));
+    List<DefinitionStatement> result = new ArrayList<>();
+    programDefinitions.forEach(d -> {
       if ((d.statement instanceof Definition def) && indexedDefinitions.containsKey(def.getIdentifier())) {
-        return indexedDefinitions.get(def.getIdentifier());
+        result.add(indexedDefinitions.remove(def.getIdentifier()));
       } else {
-        return d;
+        result.add(d);
       }
-    }).collect(Collectors.toList());
+    });
+    result.addAll(indexedDefinitions.values());
+    return result;
   }
 }

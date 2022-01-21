@@ -22,6 +22,6 @@ public class CoreSystemProvider {
         scope.defineValue("SYS", new SystemProcessor());
         scope.defineValue("IN", new StdinProcessor(new BufferedReader(new InputStreamReader(input))));
         scope.defineValue("OUT", new StdoutProcessor(output));
-        return new SymbolLibrary("", "", scope, List.of());
+        return new SymbolLibrary("", "", () -> scope, List.of());
     }
 }

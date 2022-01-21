@@ -137,8 +137,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         .collect(Collectors.toList());
     List<IncludedFile> includedFiles = ctx.inclusion().stream()
         .map(this::visitInclusion).collect(Collectors.toList());
-    List<TopLevelStatement> statements = new ArrayList<>();
-    List<DefinitionStatement> definitions = new ArrayList<>();
+    List<Statement> statements = new ArrayList<>();
     List<TestStatement> tests = new ArrayList<>();
     ctx.statement().forEach(s -> {
       dependencyCounters.push(new DependencyCounter());
@@ -147,12 +146,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       if (statement instanceof Test) {
         tests.add(new TestStatement((Test) statement, requiredDefinitions));
       } else if (statement instanceof Definition || statement instanceof DataDefinition) {
-        definitions.add(new DefinitionStatement(statement, requiredDefinitions));
+        statements.add(new DefinitionStatement(statement, requiredDefinitions));
       } else {
         statements.add(new TopLevelStatement(statement, requiredDefinitions));
       }
     });
-    return new Program(statements, definitions, tests, includedFiles, modules);
+    return new Program(statements, tests, includedFiles, modules);
   }
 
   @Override

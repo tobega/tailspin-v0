@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.nio.file.Path;
 import java.util.List;
 
 public class ModuleShadowing extends Module implements ModuleProvider {
@@ -17,9 +18,8 @@ public class ModuleShadowing extends Module implements ModuleProvider {
   }
 
   @Override
-  public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, BasicScope scope) {
-    BasicScope depScope = new BasicScope(scope.basePath());
-    resolveAll(depScope, getModules(providedDependencies, inheritedModules, scope));
-    return new SymbolLibrary(prefix, inheritedModulePrefix, depScope, inheritedModules);
+  public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, Path basePath) {
+    List<SymbolLibrary> resolvedModules = getModules(providedDependencies, inheritedModules, basePath);
+    return new SymbolLibrary(prefix, inheritedModulePrefix, new Installer(basePath, resolvedModules), inheritedModules);
   }
 }

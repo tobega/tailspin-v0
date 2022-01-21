@@ -20,10 +20,10 @@ class IncludedFile {
     this.specifier = specifier;
   }
 
-  private Program getProgram(Path depPath) {
+  private Module getProgram(Path depPath) {
     try {
       Tailspin dep = Tailspin.parse(Files.newInputStream(depPath));
-      return new RunMain().visitProgram(dep.programDefinition);
+      return new RunMain().visitProgram(dep.programDefinition).asModule();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
