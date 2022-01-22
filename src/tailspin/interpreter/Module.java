@@ -40,9 +40,17 @@ public class Module {
     }
 
     @Override
-    public void install(Set<String> registeredSymbols) {
-      registerSymbols(registeredSymbols, providedDependencies);
-      requestedSymbols.addAll(registeredSymbols);
+    public Set<String> install(Set<String> registeredSymbols) {
+      // We might be shadowing a module, so don't try to register what we don't define.
+      Set<String> internalSymbols = new HashSet<>();
+      for (DefinitionStatement ds : definitions) {
+        if (ds.statement instanceof Definition d && registeredSymbols.contains(d.getIdentifier())) {
+          internalSymbols.add(d.getIdentifier());
+        }
+      }
+      registerSymbols(internalSymbols, providedDependencies);
+      requestedSymbols.addAll(internalSymbols);
+      return registeredSymbols.stream().filter(s -> !internalSymbols.contains(s)).collect(Collectors.toSet());
     }
   }
 
@@ -57,9 +65,6 @@ public class Module {
         .filter(d -> (d.statement instanceof Definition))
         .collect(Collectors
             .toMap(d -> ((Definition) d.statement).getIdentifier(), d -> d.requiredDefinitions));
-    // We might be shadowing a module, so don't try to install what we don't define.
-    internalSymbols = internalSymbols.stream().filter(definedSymbols::containsKey)
-        .collect(Collectors.toSet());
     Queue<String> neededDefinitions = new ArrayDeque<>(internalSymbols);
     definitions.stream()
         .filter(d -> (d.statement instanceof DataDefinition))

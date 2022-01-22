@@ -9,7 +9,9 @@ import tailspin.interpreter.lang.Lang;
 public class SymbolLibrary {
     public interface Installer {
         BasicScope get();
-        default void install(Set<String> registeredSymbols){}
+        default Set<String> install(Set<String> registeredSymbols){
+            return registeredSymbols;
+        }
     }
 
     final String prefix;
@@ -45,8 +47,8 @@ public class SymbolLibrary {
      */
     Set<String> registerSymbols(Set<String> requiredSymbols) {
         Set<String> providedSymbols = getProvidedSymbols(requiredSymbols);
-        if  (depScopeInstaller != null) depScopeInstaller.install(providedSymbols);
-        inheritedProvider.ifPresent(lib -> lib.registerSymbols(providedSymbols.stream().map(s -> inheritedModulePrefix + s).collect(Collectors.toSet())));
+        Set<String> inheritedSymbols = depScopeInstaller == null ? Set.of() : depScopeInstaller.install(providedSymbols);
+        inheritedProvider.ifPresent(lib -> lib.registerSymbols(inheritedSymbols.stream().map(s -> inheritedModulePrefix + s).collect(Collectors.toSet())));
         return getUnprovidedSymbols(requiredSymbols);
     }
 

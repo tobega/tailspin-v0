@@ -559,8 +559,39 @@ public class Testing {
             sink greet
               'Hello, $;' -> !OUT::write
             end greet
-          end hi  '$hi/greeting; John' -> !hello
+          end hi
+          '$hi/greeting; John' -> !hello
           assert $OUT::next <='Hello, Hello John'> 'Wrote greeting'
+        end 'hello'""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(dir, input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void shadowedDefinitionDoesNotExecuteButNonShadowedSymbolsAreProvided(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        def greeting: 'Good day' -> \\($! $ -> !OUT::write \\);
+        def adieu: 'Goodbye';
+        """;
+    Path depFile = dir.resolve("hi.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = """
+        use 'hi' with core-system/ inherited provided
+        templates hello
+          '$hi/greeting; $;, $hi/adieu;!' !
+        end hello
+        test 'hello'
+          use shadowed hi
+            def greeting: 'Hi';
+          end hi
+          assert 'John' -> hello <='Hi John, Goodbye!'> 'is shadowed'
         end 'hello'""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

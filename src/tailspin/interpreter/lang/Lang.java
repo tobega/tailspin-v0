@@ -53,6 +53,7 @@ public class Lang {
       }
     }
     remaining = unresolved;
-    if (!remaining.isEmpty()) throw new IllegalStateException("Some symbols not provided: " + remaining);
+    if (!remaining.isEmpty())
+      throw new IllegalStateException("Some symbols not provided: " + remaining);
   }
 }
