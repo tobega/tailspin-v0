@@ -789,6 +789,32 @@ public class Testing {
   }
 
   @Test
+  void modificationOfOuterProgramDependsOnPreviousTestDefinition() throws Exception {
+    String program = """
+        def one: 1;
+        def two: $one + 1;
+        def three: $two + 1;
+        def four: $three + 1;
+        test 'A modifying test'
+        modify program
+        def eleven: 11;
+        def two: $one + $eleven;
+        def four: $three + 31;
+        end program
+        assert $four <=44> 'messy stuff'
+        end 'A modifying test'
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void dataDefinitionInTestAppliesToOuterTemplates() throws Exception {
     String program = """
         templates keyify

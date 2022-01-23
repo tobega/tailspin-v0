@@ -15,19 +15,28 @@ public class ProgramModification {
   }
 
   public List<DefinitionStatement> overrideDefinitions(List<DefinitionStatement> programDefinitions) {
-    Map<String, DefinitionStatement> indexedDefinitions = new HashMap<>();
-    definitions.stream()
-        .filter(d -> d.statement instanceof Definition)
-        .forEach(d -> indexedDefinitions.put(((Definition) d.statement).getIdentifier(), d));
+    Map<String, Integer> indexedDefinitions = new HashMap<>();
+    for (int i = 0; i < definitions.size(); i++) {
+      if (definitions.get(i).statement instanceof Definition d) {
+        indexedDefinitions.put(d.getIdentifier(), i);
+      }
+    }
     List<DefinitionStatement> result = new ArrayList<>();
-    programDefinitions.forEach(d -> {
+    int addedTo = 0;
+    for (DefinitionStatement d : programDefinitions) {
       if ((d.statement instanceof Definition def) && indexedDefinitions.containsKey(def.getIdentifier())) {
-        result.add(indexedDefinitions.remove(def.getIdentifier()));
+        int addUntil = indexedDefinitions.get(def.getIdentifier());
+        if (addUntil >= addedTo) {
+          result.addAll(definitions.subList(addedTo, addUntil+1));
+          addedTo = addUntil+1;
+        }
       } else {
         result.add(d);
       }
-    });
-    result.addAll(indexedDefinitions.values());
+    }
+    if (definitions.size() > addedTo) {
+      result.addAll(definitions.subList(addedTo, definitions.size()));
+    }
     return result;
   }
 }
