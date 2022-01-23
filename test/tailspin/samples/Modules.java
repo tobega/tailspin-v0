@@ -566,7 +566,7 @@ public class Modules {
 
   @ExtendWith(TempDirectory.class)
   @Test
-  void inheritedModuleWithSplitUsageRunsOnceInCorrectOrder(@TempDirectory.TempDir Path dir) throws Exception {
+  void inheritedModuleWithDualUsageRunsOnceInCorrectOrder(@TempDirectory.TempDir Path dir) throws Exception {
     String dep = """
         def a: 'a' -> \\($ -> !OUT::write $!\\);
         def b: 'b' -> \\($ -> !OUT::write $!\\);
@@ -576,7 +576,7 @@ public class Modules {
     Path depFile = moduleDir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     String other = """
-        def c: 'c$dep/a;c';
+        def c: 'c$dep/b;c';
         """;
     Path otherFile = moduleDir.resolve("other.tt");
     Files.writeString(otherFile, other, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
@@ -584,8 +584,9 @@ public class Modules {
     String program = """
         use 'module:dep' with core-system/ inherited provided
         use 'module:other' with dep inherited provided
-        'p$dep/b;p' -> !OUT::write
         'p$other/c;p' -> !OUT::write
+        'p$dep/a;p' -> !OUT::write
+        'p$dep/b;p' -> !OUT::write
         """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -594,6 +595,50 @@ public class Modules {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(baseDir, input, output, List.of());
 
-    assertEquals("abpbppcacp", output.toString(StandardCharsets.UTF_8));
+    assertEquals("abpcbcppappbp", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void moduleWithDifferentDepIsSeparatelyLoaded(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        def b: 'b' -> \\($ -> !OUT::write $!\\);
+        """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String common = """
+        def c: 'c$dep/b;c' -> \\($ -> !OUT::write $!\\);
+        """;
+    Path commonFile = moduleDir.resolve("common.tt");
+    Files.writeString(commonFile, common, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String other = """
+        def val: 'v$common/c;v';
+        """;
+    Path otherFile = moduleDir.resolve("other.tt");
+    Files.writeString(otherFile, other, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = """
+        use 'module:dep' with core-system/ inherited provided
+        use 'module:common' with dep inherited core-system/ inherited provided
+        use 'module:other' with
+          'module:common' with
+            shadowed dep with core-system/ inherited provided def b: 'B'; end dep
+            core-system/ inherited
+          provided
+        provided
+        'p$common/c;p' -> !OUT::write
+        '$other/val;' -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    // I suppose the order may vary here
+    assertEquals("cBcbcbcpcbcpvcBcv", output.toString(StandardCharsets.UTF_8));
   }
 }

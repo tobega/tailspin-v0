@@ -22,7 +22,8 @@ public class Module {
     private BasicScope depScope;
     private final Set<String> requestedSymbols = new HashSet<>();
     private final Path basePath;
-    private final List<SymbolLibrary> providedDependencies;
+    private Set<String> externalSymbols = new HashSet<>();
+    private List<SymbolLibrary> providedDependencies;
 
     Installer(Path basePath,
         List<SymbolLibrary> providedDependencies) {
@@ -33,6 +34,9 @@ public class Module {
     @Override
     public BasicScope get() {
       if (depScope == null) {
+        for (SymbolLibrary lib : providedDependencies) {
+          externalSymbols = lib.registerSymbols(externalSymbols);
+        }
         depScope = new BasicScope(basePath);
         resolveSymbols(requestedSymbols, depScope, providedDependencies);
       }
@@ -40,9 +44,22 @@ public class Module {
     }
 
     @Override
-    public void install(Set<String> registeredSymbols) {
-      registerSymbols(registeredSymbols, providedDependencies);
-      requestedSymbols.addAll(registeredSymbols);
+    public Set<String> install(Set<String> registeredSymbols) {
+      // We might be shadowing a module, so don't try to register what we don't define.
+      Set<String> internalSymbols = new HashSet<>();
+      for (DefinitionStatement ds : definitions) {
+        if (ds.statement instanceof Definition d && registeredSymbols.contains(d.getIdentifier())) {
+          internalSymbols.add(d.getIdentifier());
+        }
+      }
+      externalSymbols.addAll(registerSymbols(internalSymbols));
+      requestedSymbols.addAll(internalSymbols);
+      return registeredSymbols.stream().filter(s -> !internalSymbols.contains(s)).collect(Collectors.toSet());
+    }
+
+    @Override
+    public void injectMocks(List<SymbolLibrary> mocks) {
+      providedDependencies = mocks;
     }
   }
 
@@ -52,14 +69,11 @@ public class Module {
     this.includedFiles = includedFiles;
   }
 
-  void registerSymbols(Set<String> internalSymbols,List<SymbolLibrary> providedDependencies) {
+  Set<String> registerSymbols(Set<String> internalSymbols) {
     Map<String, Set<String>> definedSymbols = definitions.stream()
         .filter(d -> (d.statement instanceof Definition))
         .collect(Collectors
             .toMap(d -> ((Definition) d.statement).getIdentifier(), d -> d.requiredDefinitions));
-    // We might be shadowing a module, so don't try to install what we don't define.
-    internalSymbols = internalSymbols.stream().filter(definedSymbols::containsKey)
-        .collect(Collectors.toSet());
     Queue<String> neededDefinitions = new ArrayDeque<>(internalSymbols);
     definitions.stream()
         .filter(d -> (d.statement instanceof DataDefinition))
@@ -76,9 +90,7 @@ public class Module {
         neededDefinitions.addAll(definedSymbols.get(def));
       }
     }
-    for (SymbolLibrary lib : providedDependencies) {
-      externalDefinitions = lib.registerSymbols(externalDefinitions);
-    }
+    return externalDefinitions;
   }
 
   void resolveSymbols(Set<String> internalSymbols, BasicScope scope,

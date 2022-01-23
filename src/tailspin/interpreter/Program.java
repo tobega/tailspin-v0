@@ -104,20 +104,26 @@ public class Program {
     BasicScope scope = new BasicScope(basePath);
     List<SymbolLibrary> testModules = getMocksAndModules(testStatement.test.getInjectedModules(), coreSystemProvider, basePath);
     Module module = new Module(testStatement.test.overrideDefinitions(getDefinitions()), includedFiles);
-    module.registerSymbols(testStatement.requiredDefinitions, testModules);
+    Set<String> externalDefinitions = module.registerSymbols(testStatement.requiredDefinitions);
+    for (SymbolLibrary lib : testModules) {
+      externalDefinitions = lib.registerSymbols(externalDefinitions);
+    }
     module.resolveSymbols(testStatement.requiredDefinitions, scope, testModules);
     return testStatement.test.getResults(null, scope);
   }
 
   public List<SymbolLibrary> getMocksAndModules(List<ModuleProvider> providedLibraries,
       SymbolLibrary coreSystemProvider, Path basePath) {
-    List<SymbolLibrary> mocks = new ArrayList<>();
-    mocks.add(coreSystemProvider);
+    List<SymbolLibrary> programLibs = Module.getModules(injectedModules, List.of(coreSystemProvider), basePath);
+    List<SymbolLibrary> mocks = new ArrayList<>(programLibs);
     for (ModuleProvider provider : providedLibraries) {
-      SymbolLibrary provided = provider.installDependencies(Module.getModules(injectedModules, mocks, basePath), basePath);
+      SymbolLibrary provided = provider.installDependencies(mocks, basePath);
       mocks.add(0, provided);
     }
-    mocks.addAll(Module.getModules(injectedModules, mocks, basePath));
+    for (SymbolLibrary lib : programLibs) {
+      lib.injectMocks(mocks);
+    }
+    mocks.addAll(programLibs);
     return mocks;
   }
 }
