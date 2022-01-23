@@ -22,7 +22,8 @@ public class Module {
     private BasicScope depScope;
     private final Set<String> requestedSymbols = new HashSet<>();
     private final Path basePath;
-    private final List<SymbolLibrary> providedDependencies;
+    private Set<String> externalSymbols = new HashSet<>();
+    private List<SymbolLibrary> providedDependencies;
 
     Installer(Path basePath,
         List<SymbolLibrary> providedDependencies) {
@@ -33,6 +34,9 @@ public class Module {
     @Override
     public BasicScope get() {
       if (depScope == null) {
+        for (SymbolLibrary lib : providedDependencies) {
+          externalSymbols = lib.registerSymbols(externalSymbols);
+        }
         depScope = new BasicScope(basePath);
         resolveSymbols(requestedSymbols, depScope, providedDependencies);
       }
@@ -48,9 +52,14 @@ public class Module {
           internalSymbols.add(d.getIdentifier());
         }
       }
-      registerSymbols(internalSymbols, providedDependencies);
+      externalSymbols.addAll(registerSymbols(internalSymbols));
       requestedSymbols.addAll(internalSymbols);
       return registeredSymbols.stream().filter(s -> !internalSymbols.contains(s)).collect(Collectors.toSet());
+    }
+
+    @Override
+    public void injectMocks(List<SymbolLibrary> mocks) {
+      providedDependencies = mocks;
     }
   }
 
@@ -60,7 +69,7 @@ public class Module {
     this.includedFiles = includedFiles;
   }
 
-  void registerSymbols(Set<String> internalSymbols,List<SymbolLibrary> providedDependencies) {
+  Set<String> registerSymbols(Set<String> internalSymbols) {
     Map<String, Set<String>> definedSymbols = definitions.stream()
         .filter(d -> (d.statement instanceof Definition))
         .collect(Collectors
@@ -81,9 +90,7 @@ public class Module {
         neededDefinitions.addAll(definedSymbols.get(def));
       }
     }
-    for (SymbolLibrary lib : providedDependencies) {
-      externalDefinitions = lib.registerSymbols(externalDefinitions);
-    }
+    return externalDefinitions;
   }
 
   void resolveSymbols(Set<String> internalSymbols, BasicScope scope,

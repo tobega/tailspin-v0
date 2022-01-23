@@ -854,4 +854,46 @@ public class Testing {
 
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void inheritedModuleWithSplitUsageRunsOnce(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        def a: 'a' -> \\($ -> !OUT::write $!\\);
+        def b: 'b' -> \\($ -> !OUT::write $!\\);
+        """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String other = """
+        def c: 'c$dep/a;c';
+        """;
+    Path otherFile = moduleDir.resolve("other.tt");
+    Files.writeString(otherFile, other, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = """
+        use 'module:dep' with core-system/ inherited provided
+        use 'module:other' with dep inherited provided
+        def pa: 'p$dep/a;p';
+        def pb: 'p$dep/b;p';
+        def po: 'p$other/c;p';
+        
+        test 'multiuse'
+          use shadowed dep
+            def b: 'B';
+          end dep
+          assert $pa <='pap'> ''
+          assert $pb <='pBp'> ''
+          assert $po <='pcacp'> ''
+        end 'multiuse'
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.runTests(input, output, List.of());
+
+    assertEquals("aPass", output.toString(StandardCharsets.UTF_8));
+  }
 }

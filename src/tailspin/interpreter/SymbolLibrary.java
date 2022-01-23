@@ -12,6 +12,10 @@ public class SymbolLibrary {
         default Set<String> install(Set<String> registeredSymbols){
             return registeredSymbols;
         }
+
+        default void injectMocks(List<SymbolLibrary> mocks) {
+            // Do nothing
+        }
     }
 
     final String prefix;
@@ -27,6 +31,11 @@ public class SymbolLibrary {
         this.depScopeInstaller = depScopeInstaller;
         this.inheritedProvider = inheritedProviders.stream()
             .filter(s -> inheritedModulePrefix.equals(s.prefix)).findFirst();
+    }
+
+    /** Allows to replace the provided dependencies in the installer */
+    public void injectMocks(List<SymbolLibrary> mocks) {
+        depScopeInstaller.injectMocks(mocks);
     }
 
     /**
