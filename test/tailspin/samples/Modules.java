@@ -641,4 +641,33 @@ public class Modules {
     // I suppose the order may vary here
     assertEquals("cBcbcbcpcbcpvcBcv", output.toString(StandardCharsets.UTF_8));
   }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void modifiedModuleInheritsAndOverridesVirtually(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        def foo: 2 -> \\($ -> !OUT::write $!\\);
+        def a: 'a' -> \\($ -> !OUT::write $!\\);
+        def b: '$a;b' -> \\($ -> !OUT::write $!\\);
+        """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = """
+        use modified 'module:dep' with core-system/ inherited provided
+          def a: '$foo;A';
+        end 'module:dep'
+        'p$dep/b;p' -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("22Abp2Abp", output.toString(StandardCharsets.UTF_8));
+  }
 }

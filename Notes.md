@@ -21,6 +21,7 @@
 - Use composers as rules in other composers (and INT and WS should be top-level composers)
 - Projection just copying all fields or all fields except some
 - Conditions on array indices. Allow start at arbitrary value? Only specified units?
+- Allow module modification to be exported from (defined in) a separate file
 
 #### Confusing
 * items with different field names just compare unequal. Perhaps should error? You can always type match first.
@@ -33,20 +34,6 @@
   end foo
   ```
 * range match cannot take a jump value
-* modified module cannot refer to own non-overridden methods directly, needs extra import (which is then non-virtual):
-  ```
-  use modified 'app'
-  with super from modified 'app' 
-    def part: '';
-    def input: '';
-  end 'app' provided
-    def part: '';
-    def input: [[
-      '0,9 -> 5,9',
-      '8,0 -> 0,8'
-    ]... -> super/coords];
-  end 'app'
-  ```
 * Local data tagged identifiers could escape to the outside. We should make that an error.
 * Programs execute all statements, but when included or used as module, only the used definitions are executed.
 
