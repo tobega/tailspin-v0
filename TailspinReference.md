@@ -655,7 +655,8 @@ or a [keyed value](#keyed-values), a type with the same name as the key will be 
 
 ## Mutable state
 This section concerns mutable state that exists for the time of an invocation of a templates, for more permanent
-mutable state, see [Processors](#processors).
+mutable state, see [Processors](#processors). NOTE that when the mutable state or part of it gets referenced or emitted,
+it is an immutable snapshot copy that is used.
 
 A [templates](#templates) object has modifiable local temporary state, valid for the processing of one input value,
 which can be modified by the special identifier `@`, set as `@: _value chain_;` and dereferenced as `$@`. Optionally, or to access
@@ -906,7 +907,8 @@ The processor object itself can be obtained and passed around as a value by dere
 To interact with the defined templates/sources/sinks of processors, you send [messages](#messages) to them.
 
 Internally in the processor, state is accessed like the [local state of templates](#mutable-state), but with the processor name.
-The processor state is, however, permanent as long as the processor object is retained.
+The processor state is, however, permanent as long as the processor object is retained. NOTE that when the mutable state or part of it gets referenced or emitted,
+it is an immutable snapshot copy that is used.
 
 A processor definition looks similar to a templates object but the definition starts with the word `processor` instead.
 Also, there are no match templates. The initial block is used to define state and values for the processor instance
