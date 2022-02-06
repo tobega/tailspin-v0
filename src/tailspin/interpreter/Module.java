@@ -86,8 +86,8 @@ public class Module {
         neededDefinitions.addAll(definedSymbols.get(def));
       }
     }
-    for (IncludedFile dependency : includedFiles) {
-      externalDefinitions = dependency.installSymbols(externalDefinitions, scope, providedDependencies);
+    for (SymbolLibrary dependency : getIncludedFiles(scope, providedDependencies)) {
+      externalDefinitions = dependency.installSymbols(externalDefinitions, scope);
     }
     for (SymbolLibrary lib : providedDependencies) {
       externalDefinitions = lib.installSymbols(externalDefinitions, scope);
@@ -97,6 +97,16 @@ public class Module {
     definitions.stream()
         .filter(d -> (d.statement instanceof DataDefinition) || transientDefinitions.contains(((Definition) d.statement).getIdentifier()))
         .forEach(d -> d.statement.getResults(null, scope));
+  }
+
+  private List<SymbolLibrary> openedIncludedFiles;
+  private List<SymbolLibrary> getIncludedFiles(BasicScope scope,
+      List<SymbolLibrary> providedDependencies) {
+    if (openedIncludedFiles == null) {
+      openedIncludedFiles = includedFiles.stream()
+          .map(i -> i.open(scope, providedDependencies)).collect(Collectors.toList());
+    }
+    return openedIncludedFiles;
   }
 
   public void installAll(BasicScope scope) {

@@ -69,8 +69,9 @@ public class Program {
         neededDefinitions.addAll(definedSymbols.get(def));
       }
     }
-    for (IncludedFile dependency : includedFiles) {
-      externalDefinitions = dependency.installSymbols(externalDefinitions, scope, providedDependencies);
+    for (SymbolLibrary dependency : includedFiles.stream()
+        .map(i -> i.open(scope, providedDependencies)).toList()) {
+      externalDefinitions = dependency.installSymbols(externalDefinitions, scope);
     }
     for (SymbolLibrary lib : providedDependencies) {
       externalDefinitions = lib.installSymbols(externalDefinitions, scope);

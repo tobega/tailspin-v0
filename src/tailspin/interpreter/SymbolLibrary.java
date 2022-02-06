@@ -26,7 +26,7 @@ public class SymbolLibrary {
         this.inheritedModulePrefix = inheritedModulePrefix;
         this.depScopeInstaller = depScopeInstaller;
         this.inheritedProvider = inheritedProviders.stream()
-            .filter(s -> inheritedModulePrefix.equals(s.prefix)).findFirst();
+            .filter(s -> s.prefix.equals(inheritedModulePrefix)).findFirst();
     }
 
     /** Allows to replace the provided dependencies in the installer */
