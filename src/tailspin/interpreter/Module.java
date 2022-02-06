@@ -19,53 +19,34 @@ public class Module {
   protected final List<IncludedFile> includedFiles;
 
   class Installer implements SymbolLibrary.Installer {
-    private BasicScope depScope;
-    private final Set<String> requestedSymbols = new HashSet<>();
+    private final BasicScope depScope;
     private final String prefix;
-    private final Path basePath;
-    private Set<String> externalSymbols = new HashSet<>();
     private List<SymbolLibrary> providedDependencies;
 
     Installer(String prefix, Path basePath,
         List<SymbolLibrary> providedDependencies) {
       this.prefix = prefix;
-      this.basePath = basePath;
+      depScope = new BasicScope(basePath);
       this.providedDependencies = providedDependencies;
-    }
-
-    private BasicScope get() {
-      if (depScope == null) {
-        for (SymbolLibrary lib : providedDependencies) {
-          externalSymbols = lib.registerSymbols(externalSymbols);
-        }
-        depScope = new BasicScope(basePath);
-        Module.this.resolveSymbols(requestedSymbols, depScope, providedDependencies);
-      }
-      return depScope;
     }
 
     @Override
     public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
-      providedSymbols.stream()
-          .filter(s -> get().hasDefinition(s))
-          .forEach(s -> scope.defineValue(prefix + s, get().resolveValue(s)));
-      return providedSymbols.stream()
-          .filter(s -> !get().hasDefinition(s))
-          .collect(Collectors.toSet());
-    }
-
-    @Override
-    public Set<String> install(Set<String> registeredSymbols) {
       // We might be shadowing a module, so don't try to register what we don't define.
       Set<String> internalSymbols = new HashSet<>();
       for (DefinitionStatement ds : definitions) {
-        if (ds.statement instanceof Definition d && registeredSymbols.contains(d.getIdentifier())) {
+        if (ds.statement instanceof Definition d && providedSymbols.contains(d.getIdentifier())) {
           internalSymbols.add(d.getIdentifier());
         }
       }
-      externalSymbols.addAll(registerSymbols(internalSymbols));
-      requestedSymbols.addAll(internalSymbols);
-      return registeredSymbols.stream().filter(s -> !internalSymbols.contains(s)).collect(Collectors.toSet());
+      if (internalSymbols.isEmpty()) return providedSymbols;
+      Module.this.resolveSymbols(internalSymbols, depScope, providedDependencies);
+      providedSymbols.stream()
+          .filter(depScope::hasDefinition)
+          .forEach(s -> scope.defineValue(prefix + s, depScope.resolveValue(s)));
+      return providedSymbols.stream()
+          .filter(s -> !depScope.hasDefinition(s))
+          .collect(Collectors.toSet());
     }
 
     @Override
@@ -78,30 +59,6 @@ public class Module {
       List<DefinitionStatement> definitions, List<IncludedFile> includedFiles) {
     this.definitions = definitions;
     this.includedFiles = includedFiles;
-  }
-
-  Set<String> registerSymbols(Set<String> internalSymbols) {
-    Map<String, Set<String>> definedSymbols = definitions.stream()
-        .filter(d -> (d.statement instanceof Definition))
-        .collect(Collectors
-            .toMap(d -> ((Definition) d.statement).getIdentifier(), d -> d.requiredDefinitions));
-    Queue<String> neededDefinitions = new ArrayDeque<>(internalSymbols);
-    definitions.stream()
-        .filter(d -> (d.statement instanceof DataDefinition))
-        .forEach(d -> neededDefinitions.addAll(d.requiredDefinitions));
-    Set<String> transientDefinitions = new HashSet<>();
-    Set<String> externalDefinitions = new HashSet<>();
-    while (!neededDefinitions.isEmpty()) {
-      String def = neededDefinitions.poll();
-      if (!definedSymbols.containsKey(def)) {
-        externalDefinitions.add(def);
-        continue;
-      }
-      if (transientDefinitions.add(def)) {
-        neededDefinitions.addAll(definedSymbols.get(def));
-      }
-    }
-    return externalDefinitions;
   }
 
   void resolveSymbols(Set<String> internalSymbols, BasicScope scope,

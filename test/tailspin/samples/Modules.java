@@ -566,7 +566,7 @@ public class Modules {
 
   @ExtendWith(TempDirectory.class)
   @Test
-  void inheritedModuleWithDualUsageRunsOnceInCorrectOrder(@TempDirectory.TempDir Path dir) throws Exception {
+  void inheritedModuleWithDualUsageRunsOnceInRequestedOrder(@TempDirectory.TempDir Path dir) throws Exception {
     String dep = """
         def a: 'a' -> \\($ -> !OUT::write $!\\);
         def b: 'b' -> \\($ -> !OUT::write $!\\);
@@ -595,7 +595,7 @@ public class Modules {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(baseDir, input, output, List.of());
 
-    assertEquals("abpcbcppappbp", output.toString(StandardCharsets.UTF_8));
+    assertEquals("bapcbcppappbp", output.toString(StandardCharsets.UTF_8));
   }
 
   @ExtendWith(TempDirectory.class)

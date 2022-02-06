@@ -9,10 +9,6 @@ import tailspin.interpreter.lang.Lang;
 public class SymbolLibrary {
     public interface Installer {
         Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope);
-        default Set<String> install(Set<String> registeredSymbols){
-            return registeredSymbols;
-        }
-
         default void injectMocks(List<SymbolLibrary> mocks) {
             // Do nothing
         }
@@ -46,18 +42,6 @@ public class SymbolLibrary {
         Set<String> providedSymbols = getProvidedSymbols(requiredSymbols);
         Set<String> inheritedSymbols = depScopeInstaller.resolveSymbols(providedSymbols, scope);
         inheritSymbols(inheritedSymbols, scope);
-        return getUnprovidedSymbols(requiredSymbols);
-    }
-
-    /**
-     * Registers the symbols matching the prefix of this provider for resolution and returns the
-     * symbols that will need to be resolved by another module.
-     * @throws IllegalStateException if an expected symbol is not provided
-     */
-    Set<String> registerSymbols(Set<String> requiredSymbols) {
-        Set<String> providedSymbols = getProvidedSymbols(requiredSymbols);
-        Set<String> inheritedSymbols = depScopeInstaller == null ? Set.of() : depScopeInstaller.install(providedSymbols);
-        inheritedProvider.ifPresent(lib -> lib.registerSymbols(inheritedSymbols.stream().map(s -> inheritedModulePrefix + s).collect(Collectors.toSet())));
         return getUnprovidedSymbols(requiredSymbols);
     }
 
