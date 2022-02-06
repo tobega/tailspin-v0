@@ -20,6 +20,6 @@ public class ModuleShadowing extends Module implements ModuleProvider {
   @Override
   public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, Path basePath) {
     List<SymbolLibrary> resolvedModules = getModules(providedDependencies, inheritedModules, basePath);
-    return new SymbolLibrary(prefix, inheritedModulePrefix, new Installer(basePath, resolvedModules), inheritedModules);
+    return new SymbolLibrary(prefix, inheritedModulePrefix, new Installer(prefix, basePath, resolvedModules), inheritedModules);
   }
 }

@@ -33,7 +33,7 @@ class ModuleImport implements ModuleProvider {
   public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, Path basePath) {
     String dependency = (String) specifier.getResults(null, new BasicScope(basePath));
     if (dependency.startsWith("java:")) {
-      return new JavaSymbolLibrary(dependency.substring("java:".length()));
+      return JavaSymbolLibrary.create(dependency.substring("java:".length()));
     }
     if (dependency.startsWith("module:")) {
       dependency = dependency.substring("module:".length());
@@ -54,6 +54,6 @@ class ModuleImport implements ModuleProvider {
     }
     List<SymbolLibrary> resolvedModules = Module.getModules(providedDependencies, inheritedModules, depPath.getParent());
     Module module = getProgram(depPath);
-    return new SymbolLibrary(dependencyPrefix, null, module.new Installer(depPath.getParent(), resolvedModules), List.of());
+    return new SymbolLibrary(dependencyPrefix, null, module.new Installer(dependencyPrefix, depPath.getParent(), resolvedModules), List.of());
   }
 }

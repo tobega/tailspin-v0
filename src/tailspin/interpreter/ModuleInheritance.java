@@ -2,6 +2,7 @@ package tailspin.interpreter;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 public class ModuleInheritance implements ModuleProvider {
 
@@ -15,7 +16,11 @@ public class ModuleInheritance implements ModuleProvider {
 
   @Override
   public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, Path basePath) {
-    BasicScope depScope = new BasicScope(basePath);
-    return new SymbolLibrary(prefix, inheritedModulePrefix, () -> depScope, inheritedModules);
+    return new SymbolLibrary(prefix, inheritedModulePrefix, new SymbolLibrary.Installer() {
+      @Override
+      public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
+        return providedSymbols;
+      }
+    }, inheritedModules);
   }
 }

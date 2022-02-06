@@ -8,7 +8,7 @@ import tailspin.interpreter.lang.Lang;
 
 public class SymbolLibrary {
     public interface Installer {
-        BasicScope get();
+        Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope);
         default Set<String> install(Set<String> registeredSymbols){
             return registeredSymbols;
         }
@@ -44,7 +44,7 @@ public class SymbolLibrary {
      */
     Set<String> installSymbols(Set<String> requiredSymbols, BasicScope scope) {
         Set<String> providedSymbols = getProvidedSymbols(requiredSymbols);
-        Set<String> inheritedSymbols = resolveSymbols(providedSymbols, scope);
+        Set<String> inheritedSymbols = depScopeInstaller.resolveSymbols(providedSymbols, scope);
         inheritSymbols(inheritedSymbols, scope);
         return getUnprovidedSymbols(requiredSymbols);
     }
@@ -59,19 +59,6 @@ public class SymbolLibrary {
         Set<String> inheritedSymbols = depScopeInstaller == null ? Set.of() : depScopeInstaller.install(providedSymbols);
         inheritedProvider.ifPresent(lib -> lib.registerSymbols(inheritedSymbols.stream().map(s -> inheritedModulePrefix + s).collect(Collectors.toSet())));
         return getUnprovidedSymbols(requiredSymbols);
-    }
-
-    /**
-     * Resolves the symbols provided by this module, returning any which are to be installed
-     * from inherited modules.
-     */
-    Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
-        providedSymbols.stream()
-            .filter(s -> depScopeInstaller.get().hasDefinition(s))
-            .forEach(s -> scope.defineValue(prefix + s, depScopeInstaller.get().resolveValue(s)));
-        return providedSymbols.stream()
-            .filter(s -> !depScopeInstaller.get().hasDefinition(s))
-            .collect(Collectors.toSet());
     }
 
     private void inheritSymbols(Set<String> inheritedSymbols, BasicScope scope) {

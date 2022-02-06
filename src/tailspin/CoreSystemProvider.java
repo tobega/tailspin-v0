@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import tailspin.interpreter.BasicScope;
 import tailspin.interpreter.SymbolLibrary;
 import tailspin.system.StdinProcessor;
@@ -22,6 +24,16 @@ public class CoreSystemProvider {
         scope.defineValue("SYS", new SystemProcessor());
         scope.defineValue("IN", new StdinProcessor(new BufferedReader(new InputStreamReader(input))));
         scope.defineValue("OUT", new StdoutProcessor(output));
-        return new SymbolLibrary("", "", () -> scope, List.of());
+        return new SymbolLibrary("", "", new SymbolLibrary.Installer() {
+            @Override
+            public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope into) {
+                providedSymbols.stream()
+                    .filter(scope::hasDefinition)
+                    .forEach(s -> into.defineValue(s, scope.resolveValue(s)));
+                return providedSymbols.stream()
+                    .filter(s -> !scope.hasDefinition(s))
+                    .collect(Collectors.toSet());
+            }
+        }, List.of());
     }
 }

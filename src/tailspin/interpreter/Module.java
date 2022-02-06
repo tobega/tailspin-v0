@@ -21,26 +21,37 @@ public class Module {
   class Installer implements SymbolLibrary.Installer {
     private BasicScope depScope;
     private final Set<String> requestedSymbols = new HashSet<>();
+    private final String prefix;
     private final Path basePath;
     private Set<String> externalSymbols = new HashSet<>();
     private List<SymbolLibrary> providedDependencies;
 
-    Installer(Path basePath,
+    Installer(String prefix, Path basePath,
         List<SymbolLibrary> providedDependencies) {
+      this.prefix = prefix;
       this.basePath = basePath;
       this.providedDependencies = providedDependencies;
     }
 
-    @Override
-    public BasicScope get() {
+    private BasicScope get() {
       if (depScope == null) {
         for (SymbolLibrary lib : providedDependencies) {
           externalSymbols = lib.registerSymbols(externalSymbols);
         }
         depScope = new BasicScope(basePath);
-        resolveSymbols(requestedSymbols, depScope, providedDependencies);
+        Module.this.resolveSymbols(requestedSymbols, depScope, providedDependencies);
       }
       return depScope;
+    }
+
+    @Override
+    public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
+      providedSymbols.stream()
+          .filter(s -> get().hasDefinition(s))
+          .forEach(s -> scope.defineValue(prefix + s, get().resolveValue(s)));
+      return providedSymbols.stream()
+          .filter(s -> !get().hasDefinition(s))
+          .collect(Collectors.toSet());
     }
 
     @Override
