@@ -25,6 +25,7 @@ public class ProgramModification {
     int addedTo = 0;
     for (DefinitionStatement d : programDefinitions) {
       if ((d.statement instanceof Definition def) && indexedDefinitions.containsKey(def.getIdentifier())) {
+        result.add(new DefinitionStatement(def.rename("*" + def.getIdentifier()), d.getRequiredDefinitions()));
         int addUntil = indexedDefinitions.get(def.getIdentifier());
         if (addUntil >= addedTo) {
           result.addAll(definitions.subList(addedTo, addUntil+1));

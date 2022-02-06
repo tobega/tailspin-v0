@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import tailspin.interpreter.lang.Lang;
 
 public class SymbolLibrary {
@@ -56,11 +57,14 @@ public class SymbolLibrary {
     }
 
     private Set<String> getProvidedSymbols(Set<String> requiredSymbols) {
+        Stream<String> symbolStream = requiredSymbols.stream();
         if (prefix.isEmpty()) {
-            return requiredSymbols.stream().filter(s -> !s.contains("/")).collect(Collectors.toSet());
+            symbolStream = symbolStream.filter(s -> !s.contains("/"));
+        } else {
+            symbolStream = symbolStream.filter(s -> s.startsWith(prefix))
+                .map(s -> s.substring(prefix.length()));
         }
-        return requiredSymbols.stream().filter(s -> s.startsWith(prefix))
-            .map(s -> s.substring(prefix.length())).collect(Collectors.toSet());
+        return symbolStream.filter(s -> !s.startsWith("*")).collect(Collectors.toSet());
     }
 
     private Set<String> getUnprovidedSymbols(Set<String> requiredSymbols) {

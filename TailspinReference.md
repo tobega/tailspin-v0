@@ -1246,6 +1246,7 @@ Usages from within the original module will still use the original definition. A
 is only used by the shadowing code.
 
 Modifications to an imported library (by `modified`), however, will replace those symbols also internally in the module.
+To access an overridden original symbol from your modification code, prefix with '*', e.g. `def a: 'changed $*a;';`
 
 Each provided module that is not inherited may need its own [module provision](#module-provision) statement for the modules it needs.
 

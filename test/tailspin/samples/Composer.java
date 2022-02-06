@@ -232,7 +232,8 @@ class Composer {
   void composeMultilineSequence() throws IOException {
     String program = """
         composer words
-        <word>*rule word: <~WS> (<WS>?)
+        <word>*
+        rule word: <~WS> (<WS>?)
         end words
         'one two
 

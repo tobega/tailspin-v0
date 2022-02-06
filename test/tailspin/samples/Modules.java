@@ -93,7 +93,7 @@ public class Modules {
     Path baseDir = Files.createDirectory(dir.resolve("wd"));
     String program = """
         use 'module:dep' with
-        core-system/ from 'module:core' with super inherited from core-system/ provided
+        core-system/ from 'module:core' stand-alone
         provided
          1 -> !dep/quote""";
     Tailspin runner =
@@ -669,5 +669,57 @@ public class Modules {
     runner.run(baseDir, input, output, List.of());
 
     assertEquals("22Abp2Abp", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void moduleModificationCanAccessOverriddenDefinition(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        def a: 'a' -> \\($ -> !OUT::write $!\\);
+        """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = """
+        use modified 'module:dep' with core-system/ inherited provided
+          def a: '$*a;A';
+        end 'module:dep'
+        'p$dep/a;p' -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("apaAp", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ExtendWith(TempDirectory.class)
+  @Test
+  void noSneakyAccessToOverriddenDefinition(@TempDirectory.TempDir Path dir) throws Exception {
+    String dep = """
+        def a: 'a' -> \\($ -> !OUT::write $!\\);
+        """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = """
+        use modified 'module:dep' with core-system/ inherited provided
+          def a: '$*a;A';
+        end 'module:dep'
+        'p$dep/*a;p' -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(baseDir, input, output, List.of()));
   }
 }

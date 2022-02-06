@@ -20,4 +20,8 @@ public class Definition implements Expression {
   public String getIdentifier() {
     return identifier;
   }
+
+  public Definition rename(String newIdentifier) {
+    return new Definition(newIdentifier, value);
+  }
 }
