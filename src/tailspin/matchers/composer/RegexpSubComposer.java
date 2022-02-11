@@ -21,7 +21,7 @@ class RegexpSubComposer implements SubComposer {
     matcher.useTransparentBounds(true).useAnchoringBounds(false).region(memo.pos, s.length());
     if (matcher.lookingAt()) {
       latestValue = matcher.group();
-      return new Memo(matcher.end(), memo);
+      return memo.next(matcher.end());
     }
     return memo;
   }

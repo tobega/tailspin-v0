@@ -12,14 +12,14 @@ public class InvertSubComposer implements SubComposer {
   public Memo nibble(String sIn, Memo memo) {
     String s = sIn.substring(memo.pos);
     result = new StringBuilder();
-    for (subComposer.nibble(sIn, new Memo(sIn.length() - s.length(), null));
+    for (subComposer.nibble(sIn, Memo.root(sIn.length() - s.length()));
         !s.isEmpty() && !subComposer.isSatisfied();
-        subComposer.nibble(sIn, new Memo(sIn.length() - s.length(), null))) {
+        subComposer.nibble(sIn, Memo.root(sIn.length() - s.length()))) {
       result.append(s.charAt(0));
       s = s.substring(1);
     }
     if (result.length() > 0) {
-      return new Memo(sIn.length() - s.length(), memo);
+      return memo.next(sIn.length() - s.length());
     } else {
       return memo;
     }

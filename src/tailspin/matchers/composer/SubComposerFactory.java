@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import tailspin.control.ChainStage;
 import tailspin.control.Expression;
 import tailspin.control.Value;
-import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.RangeMatch;
 import tailspin.types.Unit;
@@ -35,7 +34,7 @@ public class SubComposerFactory {
     if (spec instanceof NamedComposition namedSpec) {
       String name = namedSpec.namedPattern;
       if (definedSequences.containsKey(name)) {
-        return new ScopedSequenceSubComposer(definedSequences.get(name), scope);
+        return new RuleSubComposer(name, definedSequences.get(name), scope, this::resolveSpec);
       }
       if (!namedPatterns.containsKey(name)) {
         throw new IllegalArgumentException("Unknown composition rule " + name);
@@ -106,40 +105,6 @@ public class SubComposerFactory {
   List<SubComposer> resolveSpecs(List<CompositionSpec> specs, Scope scope) {
     return specs.stream().map(spec -> resolveSpec(spec, scope)).collect(
         Collectors.toList());
-  }
-
-  private class ScopedSequenceSubComposer implements SubComposer {
-
-    private final List<CompositionSpec> compositionSpecs;
-    private final Scope scope;
-    SequenceSubComposer sequenceSubComposer;
-
-    ScopedSequenceSubComposer(List<CompositionSpec> compositionSpecs, Scope scope) {
-      this.compositionSpecs = compositionSpecs;
-      this.scope = scope;
-    }
-
-    @Override
-    public Memo nibble(String s, Memo memo) {
-      sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope),
-          SubComposerFactory.this::resolveSpec);
-      return sequenceSubComposer.nibble(s, memo);
-    }
-
-    @Override
-    public Memo backtrack(String s, Memo memo) {
-      return sequenceSubComposer.backtrack(s, memo);
-    }
-
-    @Override
-    public Object getValues() {
-      return sequenceSubComposer.getValues();
-    }
-
-    @Override
-    public boolean isSatisfied() {
-      return sequenceSubComposer.isSatisfied();
-    }
   }
 
   public static class NamedComposition implements CompositionSpec {

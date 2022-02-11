@@ -14,7 +14,7 @@ public class LiteralSubComposer implements SubComposer {
     matchedValue = false;
     if (s.substring(memo.pos).startsWith(literal)) {
       matchedValue = true;
-      memo = new Memo(memo.pos + literal.length(), memo);
+      memo = memo.next(memo.pos + literal.length());
     }
     return memo;
   }

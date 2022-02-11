@@ -905,6 +905,148 @@ class Composer {
   }
 
   @Test
+  void leftRecurse() throws IOException {
+    String program = """
+        composer recurse
+        <addition>
+        rule addition: [<addition|INT> (<'[+]'>) <INT>]
+        end recurse
+        '1+2+3+4' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[[1, 2], 3], 4]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void leftRecurseBacktrackOne() throws IOException {
+    String program = """
+        composer recurse
+        [<addition> (<'[+]'>) <INT>]
+        rule addition: [<addition|INT> (<'[+]'>) <INT>]
+        end recurse
+        '1+2+3+4' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[[1, 2], 3], 4]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void leftRecurseBacktrackTwo() throws IOException {
+    String program = """
+        composer recurse
+        [<addition> (<'[+]'>) <INT> (<'[+]'>) <INT>]
+        rule addition: [<addition|INT> (<'[+]'>) <INT>]
+        end recurse
+        '1+2+3+4' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[1, 2], 3, 4]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void leftRecursedRuleIsRevisitedInNonRecursedPosition() throws IOException {
+    String program = """
+        composer recurse
+  (<WS>?) <addition> (<WS>?)
+  rule addition: [<addition|INT> (<'[+-]'>) <INT|parentheses>]
+  rule parentheses: (<'\\('> <WS>?) <addition|INT> (<WS>? <'\\)'>)
+        end recurse
+        '1+(2+3)' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[1, [2, 3]]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void leftRecursedRuleBacktracking() throws IOException {
+    String program = """
+        data binaryExpression <{left: <binaryExpression|"1">, op: <>, right: <binaryExpression|"1">}>
+        
+        composer recurse
+  <addition|multiplication|term>
+  rule addition: {left: <addition|multiplication|term> op: <'[+-]'> right: <multiplication|term>}
+  rule multiplication: { left: <multiplication|term>  op: <'[*/]'> right: <term> }
+  rule term: <INT|parentheses>
+  rule parentheses: (<'\\('>) <addition|multiplication|term> (<'\\)'>)
+        end recurse
+        '100+(3+4)' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{left=100, op=+, right={left=3, op=+, right=4}}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void leftRecursedRuleIsNotSatisfied() throws IOException {
+    String program = """
+        data binaryExpression <{left: <binaryExpression|"1">, op: <>, right: <binaryExpression|"1">}>
+        
+        composer recurse
+  <addition|term>
+  rule addition: {left: <addition|term> op: <'[+-]'> right: <term>}
+  rule term: <INT|parentheses>
+  rule parentheses: (<'\\('>) <addition|term> (<'\\)'>)
+        end recurse
+        '(5 +3)' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{composerFailed=(5 +3)}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void leftRecursedRuleFails() throws IOException {
+    String program = """
+        data binaryExpression <{left: <binaryExpression|"1">, op: <>, right: <binaryExpression|"1">}>
+        
+        composer recurse
+  <addition|multiplication|term>
+  rule addition: {left: <addition|multiplication|term> op: <'[+-]'> right: <multiplication|term>}
+  rule multiplication: { left: <multiplication|term>  op: <'[*/]'> right: <term> }
+  rule term: <INT|parentheses>
+  rule parentheses: (<'\\('>) <addition|multiplication|term> (<'\\)'>)
+        end recurse
+        '(100-5*(2+3*4)+2)/2' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{left={left={left=100, op=-, right={left=5, op=*, right={left=2, op=+, right={left=3, op=*, right=4}}}}, op=+, right=2}, op=/, right=2}",
+        output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void converter() throws IOException {
     String program =
         """

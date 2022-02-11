@@ -1,6 +1,5 @@
 # Notes
 ## Things to add/improve
-- left-recursion in composers
 - Standard library.
     - Should definitely include relvars as DB-interface (see The Third Manifesto). API vs impl?
     - networking

@@ -19,13 +19,22 @@ public class ChoiceSubComposer implements SubComposer {
   }
 
   private Memo tryNext(String s, Memo memo) {
+    String caughtLeftRecursion = null;
     for (choice++; choice < optionComposers.size(); choice++) {
       SubComposer subComposer = optionComposers.get(choice);
-      memo = subComposer.nibble(s, memo);
+      try {
+        memo = subComposer.nibble(s, memo);
+      } catch (LeftRecursionException l) {
+        caughtLeftRecursion = l.getRecursedRuleName();
+        continue;
+      }
       if (subComposer.isSatisfied()) {
         value = subComposer.getValues();
         break;
       }
+    }
+    if (caughtLeftRecursion != null) {
+      memo.caughtLeftRecursion = caughtLeftRecursion;
     }
     return memo;
   }

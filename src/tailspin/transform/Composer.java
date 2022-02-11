@@ -48,7 +48,7 @@ public class Composer implements Transform {
     Objects.requireNonNull(it);
     if (it instanceof TaggedIdentifier t) it = t.getValue();
     String s = (String) it;
-    Memo memo = new Memo(0, null);
+    Memo memo = Memo.root(0);
     SequenceSubComposer subComposer = new SequenceSubComposer(specs, scope, subComposerFactory::resolveSpec);
     memo = subComposer.nibble(s, memo);
     while (subComposer.isSatisfied() && memo.pos < s.length()) {
