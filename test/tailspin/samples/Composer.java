@@ -923,6 +923,24 @@ class Composer {
   }
 
   @Test
+  void leftRecurseAfterBacktrack() throws IOException {
+    String program = """
+        composer recurse
+        <addition>
+        rule addition: [<INT|addition> (<'[+]'>) <INT>]
+        end recurse
+        '1+2+3+4' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[[1, 2], 3], 4]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void leftRecurseBacktrackOne() throws IOException {
     String program = """
         composer recurse
@@ -1020,6 +1038,44 @@ class Composer {
     runner.run(input, output, List.of());
 
     assertEquals("{composerFailed=(5 +3)}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deepLeftRecursion() throws IOException {
+    String program = """
+        composer recurse
+          <term>
+          rule term: [<power|'.'>]
+          rule power: <term> (<='^'>) <'.'>
+        end recurse
+        '2^3^4' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[[2], 3], 4]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void deepLeftRecursionAfterBacktrack() throws IOException {
+    String program = """
+        composer recurse
+          <term>
+          rule term: [<'.'|power>]
+          rule power: <term> (<='^'>) <'.'>
+        end recurse
+        '2^3^4' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[[2],3],4]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

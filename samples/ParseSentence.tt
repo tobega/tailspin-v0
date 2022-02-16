@@ -1,0 +1,17 @@
+composer sentence
+  <s>
+  rule s: [<npvp|spp>]
+  rule npvp: <np> <vp>
+  rule spp: <s> <pp>
+  rule np: <noun|detnoun|nppp>
+  rule detnoun: <det> <noun>
+  rule nppp: <np> <pp>
+  rule pp: <prep> <np>
+  rule vp: <verb> <np>
+  rule det: det:<='a'|='t'>
+  rule noun: noun:<='i'|='m'|='p'|='b'>
+  rule verb: verb:<='s'>
+  rule prep: prep:<='n'|='w'>
+end sentence
+
+'isamntpwab' -> sentence -> !OUT::write

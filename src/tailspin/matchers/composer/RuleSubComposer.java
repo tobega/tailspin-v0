@@ -37,6 +37,17 @@ class RuleSubComposer implements SubComposer {
     sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope),
         resolver);
     Memo result = sequenceSubComposer.nibble(s, memo);
+    result = resolveLeftRecursion(s, result);
+    if (!result.namedRulesStack.isEmpty()
+        && !name.equals(result.namedRulesStack.remove(result.namedRulesStack.size() - 1))) {
+      throw new AssertionError("left recursion detection mismatch");
+    }
+    if (precedingLeftRecursion != null) result.caughtLeftRecursion = precedingLeftRecursion;
+    return result;
+  }
+
+  private Memo resolveLeftRecursion(String s, Memo result) {
+    Memo memo = result;
     while (name.equals(result.caughtLeftRecursion) && sequenceSubComposer.isSatisfied()){
       memo = result;
       memo.leftRecursionResult = sequenceSubComposer;
@@ -51,17 +62,11 @@ class RuleSubComposer implements SubComposer {
       memo.caughtLeftRecursion = null;
       result = memo;
     }
-    if (!result.namedRulesStack.isEmpty()
-        && !name.equals(result.namedRulesStack.remove(result.namedRulesStack.size() - 1))) {
-      throw new AssertionError("left recursion detection mismatch");
-    }
-    result.caughtLeftRecursion = precedingLeftRecursion;
     return result;
   }
 
   @Override
   public Memo backtrack(String s, Memo memo) {
-    Memo old = memo;
     if (name.equals(memo.caughtLeftRecursion)) {
       memo = memo.previous;
       sequenceSubComposer = memo.leftRecursionResult;

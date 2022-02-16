@@ -25,8 +25,12 @@ public class ChoiceSubComposer implements SubComposer {
       try {
         memo = subComposer.nibble(s, memo);
       } catch (LeftRecursionException l) {
-        caughtLeftRecursion = l.getRecursedRuleName();
-        continue;
+        if (l.getRecursedRuleName().equals(memo.namedRulesStack.get(memo.namedRulesStack.size()-1))) {
+          caughtLeftRecursion = l.getRecursedRuleName();
+          continue;
+        }
+        memo.namedRulesStack.remove(memo.namedRulesStack.size()-1);
+        throw l;
       }
       if (subComposer.isSatisfied()) {
         value = subComposer.getValues();
