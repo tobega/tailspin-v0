@@ -1,3 +1,4 @@
+// This example does not work, it is a tough case from https://web.archive.org/web/20110527032954/http://acl.ldc.upenn.edu/W/W07/W07-2215.pdf
 composer sentence
   <s>
   rule s: [<npvp|spp>]

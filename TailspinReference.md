@@ -447,8 +447,10 @@ but captures it as `val`. This value may be output later as `$val`. Values captu
 it is captured before entering the sub-pattern. Values captured in named sub-patterns are only visible to later matchers in the same sub-pattern.
 
 Several choices can be specified for a composition matcher, separated by a pipe "|", e.g. `<INT|point|'x[0-9]'>`. These are tried in order from left to right.
-Note that a negation by tilde inside the angle bracket negates the whole bracket, so it would match characters until any one of the listed choices would match,
-e.g. `<~WS|INT>` would match everything up until the next whitespace or number is encountered.
+- Negation by tilde inside the angle bracket negates the whole bracket, so it would match characters until any one of the listed choices would match,
+  e.g. `<~WS|INT>` would match everything up until the next whitespace or number is encountered.
+- Left recursion is supported, but only choices specified after the detected left recursion will be tried for resolving the left recursed part,
+  e.g. `rule term: <'.'|term>` will fail, but `rule term: <term|'.'>` or `rule term: <'.'|term|'.'>` will work
 
 A composition matcher (or a composed array or structure) can be sent through a series of [transforms](#transforms) to convert the parsed value, e.g.
 ```

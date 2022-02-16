@@ -74,6 +74,7 @@ class RuleSubComposer implements SubComposer {
       memo.caughtLeftRecursion = null;
     } else {
       memo = sequenceSubComposer.backtrack(s, memo);
+      memo = resolveLeftRecursion(s, memo);
     }
     if (!memo.namedRulesStack.isEmpty()
         && name.equals(memo.namedRulesStack.get(memo.namedRulesStack.size() - 1))) {

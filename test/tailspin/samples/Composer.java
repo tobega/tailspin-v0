@@ -927,7 +927,7 @@ class Composer {
     String program = """
         composer recurse
         <addition>
-        rule addition: [<INT|addition> (<'[+]'>) <INT>]
+        rule addition: [<INT|addition|INT> (<'[+]'>) <INT>]
         end recurse
         '1+2+3+4' -> recurse -> !OUT::write""";
     Tailspin runner =
@@ -1064,7 +1064,7 @@ class Composer {
     String program = """
         composer recurse
           <term>
-          rule term: [<'.'|power>]
+          rule term: [<'.'|power|'.'>]
           rule power: <term> (<='^'>) <'.'>
         end recurse
         '2^3^4' -> recurse -> !OUT::write""";
@@ -1075,7 +1075,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[[[2],3],4]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[[[2], 3], 4]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
