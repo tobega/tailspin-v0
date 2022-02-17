@@ -1,12 +1,40 @@
 // This example does not work, it is a tough case from https://web.archive.org/web/20110527032954/http://acl.ldc.upenn.edu/W/W07/W07-2215.pdf
-composer sentence
-  <s>
-  rule s: [<npvp|spp>]
+composer toughsentence
+  [<s>]
+  rule s: <npvp|spp>
   rule npvp: <np> <vp>
   rule spp: <s> <pp>
   rule np: <noun|detnoun|nppp>
   rule detnoun: <det> <noun>
   rule nppp: <np> <pp>
+  rule pp: <prep> <np>
+  rule vp: <verb> <np>
+  rule det: det:<='a'|='t'>
+  rule noun: noun:<='i'|='m'|='p'|='b'>
+  rule verb: verb:<='s'>
+  rule prep: prep:<='n'|='w'>
+end toughsentence
+
+// Unravelling the recursion makes it clearer and it works.
+composer asentence
+  [<s>]
+  rule s: <npvp> <pp>*
+  rule npvp: <np> <vp>
+  rule np: <noun|detnoun> <pp>*
+  rule detnoun: <det> <noun>
+  rule pp: <prep> <np>
+  rule vp: <verb> <np>
+  rule det: det:<='a'|='t'>
+  rule noun: noun:<='i'|='m'|='p'|='b'>
+  rule verb: verb:<='s'>
+  rule prep: prep:<='n'|='w'>
+end asentence
+
+// This can be simplified further, removing some rules.
+composer sentence
+  [<s>]
+  rule s: <np> <vp> <pp>*
+  rule np: <det>? <noun> <pp>*
   rule pp: <prep> <np>
   rule vp: <verb> <np>
   rule det: det:<='a'|='t'>
