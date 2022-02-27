@@ -1,4 +1,5 @@
 // This example does not work, it is a tough case from https://web.archive.org/web/20110527032954/http://acl.ldc.upenn.edu/W/W07/W07-2215.pdf
+// Only options after the left recursed rule can become left recursed values
 composer toughsentence
   [<s>]
   rule s: <npvp|spp>
@@ -14,6 +15,23 @@ composer toughsentence
   rule verb: verb:<='s'>
   rule prep: prep:<='n'|='w'>
 end toughsentence
+
+// Reordering so that left recursions are the first choice works
+composer oksentence
+  [<s>]
+  rule s: <spp|npvp>
+  rule npvp: <np> <vp>
+  rule spp: <s> <pp>
+  rule np: <nppp|noun|detnoun>
+  rule detnoun: <det> <noun>
+  rule nppp: <np> <pp>
+  rule pp: <prep> <np>
+  rule vp: <verb> <np>
+  rule det: det:<='a'|='t'>
+  rule noun: noun:<='i'|='m'|='p'|='b'>
+  rule verb: verb:<='s'>
+  rule prep: prep:<='n'|='w'>
+end oksentence
 
 // Unravelling the recursion makes it clearer and it works.
 composer asentence
@@ -43,4 +61,4 @@ composer sentence
   rule prep: prep:<='n'|='w'>
 end sentence
 
-'isamntpwab' -> sentence -> !OUT::write
+'isamntpwab' -> oksentence -> !OUT::write

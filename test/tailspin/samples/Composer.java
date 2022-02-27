@@ -1103,6 +1103,38 @@ class Composer {
   }
 
   @Test
+  void complexLeftRecursedRule() throws IOException {
+    String program = """
+        data binaryExpression <{left: <binaryExpression|"1">, op: <>, right: <binaryExpression|"1">}>
+        
+        composer sentence
+          [<s>]
+          rule s: <spp|npvp>
+          rule npvp: <np> <vp>
+          rule spp: <s> <pp>
+          rule np: <nppp|noun|detnoun>
+          rule detnoun: <det> <noun>
+          rule nppp: <np> <pp>
+          rule pp: <prep> <np>
+          rule vp: <verb> <np>
+          rule det: det:<='a'|='t'>
+          rule noun: noun:<='i'|='m'|='p'|='b'>
+          rule verb: verb:<='s'>
+          rule prep: prep:<='n'|='w'>
+        end sentence
+        'isamntpwab' -> sentence -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[noun=i, verb=s, det=a, noun=m, prep=n, det=t, noun=p, prep=w, det=a, noun=b]",
+        output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void converter() throws IOException {
     String program =
         """

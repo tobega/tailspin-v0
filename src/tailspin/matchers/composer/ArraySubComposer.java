@@ -6,6 +6,7 @@ import tailspin.types.TailspinArray;
 
 public class ArraySubComposer implements SubComposer {
   private final SequenceSubComposer items;
+  private TailspinArray result;
 
   ArraySubComposer(SequenceSubComposer items) {
     this.items = items;
@@ -13,18 +14,22 @@ public class ArraySubComposer implements SubComposer {
 
   @Override
   public Memo nibble(String s, Memo memo) {
+    result = null;
     return items.nibble(s, memo);
   }
 
   @Override
   public Memo backtrack(String s, Memo memo) {
+    result = null;
     return items.backtrack(s, memo);
   }
 
   @Override
   public TailspinArray getValues() {
-    TailspinArray result = TailspinArray.value(new ArrayList<>());
-    ResultIterator.forEach(items.getValues(), result::append);
+    if (result == null) {
+      result = TailspinArray.value(new ArrayList<>());
+      ResultIterator.forEach(items.getValues(), result::append);
+    }
     return result;
   }
 

@@ -22,6 +22,7 @@ public class Memo {
   }
 
   public Memo next(int pos) {
+    namedRulesStack.clear();
     return new Memo(pos, this, caughtLeftRecursion, leftRecursionResult);
   }
 

@@ -48,38 +48,47 @@ class RuleSubComposer implements SubComposer {
 
   private Memo resolveLeftRecursion(String s, Memo result) {
     Memo memo = result;
-    while (name.equals(result.caughtLeftRecursion) && sequenceSubComposer.isSatisfied()){
-      memo = result;
-      memo.leftRecursionResult = sequenceSubComposer;
-      memo.namedRulesStack.add(name);
-      sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope),
-          resolver);
-      result = sequenceSubComposer.nibble(s, memo);
+    try {
+      while (name.equals(result.caughtLeftRecursion) && sequenceSubComposer.isSatisfied()){
+        memo = result;
+        memo.leftRecursionResult = sequenceSubComposer;
+        memo.namedRulesStack.add(name);
+        sequenceSubComposer = new SequenceSubComposer(compositionSpecs, new NestedScope(scope),
+            resolver);
+        result = sequenceSubComposer.nibble(s, memo);
+      }
+    } catch (PoppedLeftRecursionException e){
+      memo = unravelLeftRecursion(e);
     }
-    if (name.equals(memo.caughtLeftRecursion)) {
-      if (memo.leftRecursionResult != null) sequenceSubComposer = memo.leftRecursionResult;
-      memo.leftRecursionResult = null;
-      memo.caughtLeftRecursion = null;
-      result = memo;
+    return memo;
+  }
+
+  private Memo unravelLeftRecursion(PoppedLeftRecursionException e) {
+    Memo memo = e.getMemo();
+    sequenceSubComposer = memo.leftRecursionResult;
+    memo.leftRecursionResult = null;
+    memo.caughtLeftRecursion = null;
+    while (!memo.namedRulesStack.isEmpty() && !name.equals(memo.namedRulesStack.get(memo.namedRulesStack.size() - 1))) {
+      memo.namedRulesStack.remove(memo.namedRulesStack.size() - 1);
     }
-    return result;
+    return memo;
   }
 
   @Override
   public Memo backtrack(String s, Memo memo) {
     if (name.equals(memo.caughtLeftRecursion)) {
-      memo = memo.previous;
-      sequenceSubComposer = memo.leftRecursionResult;
-      memo.leftRecursionResult = null;
-      memo.caughtLeftRecursion = null;
+      throw new PoppedLeftRecursionException(memo.previous);
     } else {
-      memo = sequenceSubComposer.backtrack(s, memo);
+      try {
+        memo = sequenceSubComposer.backtrack(s, memo);
+      } catch (PoppedLeftRecursionException e){
+        memo = unravelLeftRecursion(e);
+      }
       memo = resolveLeftRecursion(s, memo);
     }
     if (!memo.namedRulesStack.isEmpty()
-        && name.equals(memo.namedRulesStack.get(memo.namedRulesStack.size() - 1))) {
-      // TODO: Seems that sometimes this element is missing. Is that a sign of a deep error?
-      memo.namedRulesStack.remove(memo.namedRulesStack.size() - 1);
+        && !name.equals(memo.namedRulesStack.remove(memo.namedRulesStack.size() - 1))) {
+      throw new AssertionError("left recursion detection mismatch");
     }
     return memo;
   }

@@ -61,6 +61,6 @@ public class SequenceSubComposer implements SubComposer {
 
   @Override
   public boolean isSatisfied() {
-    return  value != null;
+    return  value != null && !value.isEmpty() && value.stream().allMatch(SubComposer::isSatisfied);
   }
 }
