@@ -1091,6 +1091,11 @@ when the matcher is for a raw value, e.g. `<0..> // here the value is an untyped
 Similarly, a raw value can gain a tag in matching when matching the tag definition, e.g. `<myTag> // here the string or number is tagged as myTag`. Note that
 defined types will not have tags when their representation type is not a raw string or untyped number.
 
+Note that in type-checking [data declarations](#data-dictionary), a tagged value will not have its tag stripped,
+so `data myTag <'.*'>` will not allow assignment of other tagged values to myTag, even if any tagged string value
+will match `<'.*'>`. Since matchers match in precedence order from left to right, assigning a yourTag value to myTag
+will fail even if you have declared `data myTag <'.*'|yourTag>`. Instead, you need to declare `data myTag <yourTag|'.*'>`
+
 Numeric tagged identifiers cannot be used in arithmetic, so if you intend to use a number in arithmetic,
 the recommendation is to give it a unit (or the scalar unit "1").
 
