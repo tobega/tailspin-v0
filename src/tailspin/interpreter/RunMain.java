@@ -68,6 +68,7 @@ import tailspin.matchers.CollectionCriterionFactory;
 import tailspin.matchers.CollectionSegmentCriterion;
 import tailspin.matchers.Condition;
 import tailspin.matchers.Equality;
+import tailspin.matchers.KeyValueMatch;
 import tailspin.matchers.MultipliedCollectionCriterionFactory;
 import tailspin.matchers.OnceOnlyCollectionCriterionFactory;
 import tailspin.matchers.OneElementMatch;
@@ -534,6 +535,15 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       }
     }
     return new StructureMatch(keyMatchers, ctx.Void() == null);
+  }
+
+  @Override
+  public Membrane visitKeyValueMatch(TailspinParser.KeyValueMatchContext ctx) {
+    Object keyMatch = ctx.key() != null
+        ? ctx.key().localIdentifier().getText()
+        : new RegexpMatch(visitStringLiteral(ctx.stringLiteral()));
+    return new KeyValueMatch(keyMatch,
+        visitMatcher(ctx.structureContentMatcher().matcher()));
   }
 
   @Override

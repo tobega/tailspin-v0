@@ -570,6 +570,10 @@ Note that some values, notably numbers and strings, can morph to match what is i
   Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
   `<''>` matches the empty string, `<'.*'>` matches any string, `<'.+'>` any non-empty string.
   For comparing strings for simple equality, see "Equality" above.
+* If either of several criteria is acceptable, just list the acceptable criteria inside the angle brackets separated by `|` as a logical "or".
+  The criteria are tried in order, stopping after the first true criterion. E.g. `<='apple'|='orange'>` will be true for both 'apple' and 'orange'.
+* Inverse match, to match the opposite of a criterion, just put a tilde inside the angle bracket, e.g. `<~=5>`
+  Note that inverse is applied to the entire expression within the angle brackets so `<~='apple'|='orange'>` will be false for both 'apple' and 'orange'.
 * Structure match is similar to a [structure literal](#structure-literal), surrounded by braces,
   lists keys of fields that need to exist for the matcher to match, with a matcher for the value of the field, e.g.
   * `<{}>` matches any structure, but not numbers, strings or arrays
@@ -579,10 +583,8 @@ Note that some values, notably numbers and strings, can morph to match what is i
   * `<{a: VOID}>` matches any structure that does not have a field `a`
   * At the end of the structure matcher, just before the `}`, the symbol `VOID` may be written to assert that the structure has no unmatched fields.
     e.g. `{a: <> VOID}` matches a structure that only has an `a` field and no other fields.
-* If either of several criteria is acceptable, just list the acceptable criteria inside the angle brackets separated by `|` as a logical "or".
-  The criteria are tried in order, stopping after the first true criterion. E.g. `<='apple'|='orange'>` will be true for both 'apple' and 'orange'.
-* Inverse match, to match the opposite of a criterion, just put a tilde inside the angle bracket, e.g. `<~=5>`
-  Note that inverse is applied to the entire expression within the angle brackets so `<~='apple'|='orange'>` will be false for both 'apple' and 'orange'.
+* Keyed value match is like a [keyed value](#keyed-values), except that the key may be given as a _regular expression_ (see above) and the value is given as a matcher.
+  e.g. `<(size:<1..5>)>` matches a keyed value with key `size` and value between 1 and 5, while `<('s.*':<>)>` matches any keyed value where the key starts with `s`.
 * Array match, given as `<[]>` matches if the _current value_ is an array.
   * A match can also be restricted to arrays
   of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`.
