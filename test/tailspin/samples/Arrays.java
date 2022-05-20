@@ -770,6 +770,23 @@ class Arrays {
   }
 
   @Test
+  void structureDereferenceAfterRange() throws IOException {
+    String program = """
+        [{namn: 'Kalle', kontaktinfo: { telefon: 12345"m", epost: 'kalle@gmail.com'}},
+        {namn: 'Sara', kontaktinfo: { telefon: 56789"m", epost: 'sara@hotmail.com'}}]
+        -> $(1..2;namn:) -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[Kalle, Sara]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void projectionArray() throws IOException {
     String program =
         "[{a: 1\"m\", b:5\"m\"}, {a:2\"m\", b:2\"m\"}] -> $({a:, b:, d: §.a+§.b}) -> !OUT::write";

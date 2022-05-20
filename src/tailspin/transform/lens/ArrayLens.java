@@ -70,7 +70,7 @@ public abstract class ArrayLens implements LensDimension {
   private Object retrieve(LensOperation operation, Object dimensionResult) {
     if (dimensionResult instanceof Stream) {
       @SuppressWarnings("unchecked")
-      Stream<TailspinArray> results = (Stream<TailspinArray>) dimensionResult;
+      Stream<Object> results = (Stream<Object>) dimensionResult;
       return TailspinArray.value(results
           .map(operation::invoke)
           .collect(Collectors.toList()));
