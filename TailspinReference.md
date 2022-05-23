@@ -10,7 +10,7 @@ should have been used instead. This is deliberate in order to free the mind of p
     1. [Side effects](#side-effects)
     1. [Command-line arguments](#command-line-arguments)
 1. [Sources](#sources)
-    1. [String](#string-literal)
+    1. [Text String](#string-literal)
     1. [Arithmetic expression](#arithmetic-expression)
     1. [Numbers with units of measure](#measures)
     1. [Range](#range-literal)
@@ -86,7 +86,7 @@ _Future_: all unicode alphabets should be allowed.
 
 ### Side effects
 The current specification is that each step of a _value chain_ is executed
-for all of the values of a stream of current values, `$`, before the next step is evaluated. This may change.
+for all of the values of a stream of current values, `$`, before the next step is evaluated.
 
 ### Command line arguments
 Command line arguments are available as a list of strings in the predefined value ARGS, accessible as `$ARGS`.
@@ -122,7 +122,9 @@ e.g. `The total price is $$ $ -> $ * $quantity;` or `$:1..3 -> #;`. Note that wh
 you can reference it directly, like `'$p::message;'` if the message does not require input, otherwise you need to use it as a transform,
 that is like `'$->p::message;'`. Note that we now reference the message expression without the $.
 
-NOTE: Raw strings will often become [tagged identifiers](#tagged-identifiers).
+NOTE: Working with raw untyped strings is often a programming error waiting to happen, so while you can get away with it in simple programs,
+Tailspin will often nudge you to treat them as [tagged identifiers](#tagged-identifiers). To tag a string literal, write the tag as an [identifier](#identifiers)
+inside parentheses before the string literal, e.g. `(name) 'John'` will tag `'John'` as representing a name.
 
 ### Arithmetic expression
 The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference)
@@ -137,8 +139,12 @@ Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 
 A value chain that yields a number can be used as an operand on either side of an operator, if it is enclosed in parentheses.
 
-NOTE: The example above shows the use of untyped numbers. Arithmetic is further restricted when numbers are typed as [measures](#measures), with a unit.
-When untyped numbers become [tagged identifiers](#tagged-identifiers) they cannot be used for arithmetic at all.
+NOTE: The example above shows the use of untyped numbers. While you can use untyped numbers for simple programs,
+Tailspin will nudge you to specify what kind of a number it is. It can either be a [measure](#measures), with a unit,
+which forces you to take care when doing arithmetic with different units, or it can be a [tagged identifiers](#tagged-identifiers)
+that cannot be used for arithmetic at all. To create a measure, append a unit in quotes after the number or parenthesized expression, e.g. `5"m"`.
+To create a tagged identifier, write the tag as an [identifier](#identifiers) inside parentheses
+before the number or parenthesized expression, e.g. `(PLU) 4310` tags the number as being a PLU code.
 
 _Current limitations_: Only integers are supported.
 
@@ -153,17 +159,14 @@ The unit may contain one slash ('/') separating a numerator and a denominator. T
 a product of alphabetic symbols, each with an optional positive integer power.
 The symbols of a product should be separated with a space, e.g. `3"N m/s2"`.
 
-Arithmetic between a measure and untyped numbers will result in a measure of the same unit.
-
-There is a special unit, `"1"`, to define a scalar number. Scalars can be multiplied with other units, leaving the other unit unchanged on the result.
+There is a special unit, `"1"`, to define a scalar number. Scalars or untyped numbers can be multiplied with other units, leaving the other unit unchanged on the result.
 
 * Comparing measures with a measure of the same unit works.
-* Comparing scalars and untyped numbers works. Note that the resulting type will be what is in the matcher,
-  e.g. `<0..> // Here the value is untyped` and `<0"1"..> // Here the value is scalar`
 * Comparing a measure to a measure of different unit, or to an untyped number, is an error. If you need to do this, first type match on the unit, e.g. `<"m" ?($ <=3"m">)>`.
 
 When the resulting measure of arithmetic between measures cannot be inferred, you will need to
-parenthesize the expression and provide the new measure, e.g. `(4"J" + 3 "N m")"J"`
+parenthesize the expression and provide the new measure, e.g. `(4"J" + 3 "N m")"J"`, otherwise the program ends with an error.
+NOTE: currently no automatic inference of units is done, except for adding same units.
 
 The message `::raw` can be used on a measure to get the magnitude without the unit.
 
@@ -172,6 +175,8 @@ A range literal produces a [stream](#streams) of numbers. They are specified by 
 an optional increment, e.g. `1..10` will give the numbers 1 to 10 inclusive and `10..1:-1` does the same but backwards.
 To exclude the bounds, add a tilde between the numeric bound and the range operator `..`, so `1~..5:2` will give `3 5`,
 while `1..~5:2` will give `1 3`.
+
+Note that the bounds of the range must be the same type of number, same unit for [measures](#measures) or same tag for [tagged identifiers](#tagged-identifiers).
 
 ### Array literal
 An array literal produces an [array](#arrays) or list of values. It starts with a left bracket followed by
@@ -209,9 +214,9 @@ For example: `{token: ' ', by 1..3 -> (x:$), by 1..3 -> (y:$)}` will generate a 
 with all combinations of x and y, all with space for token. 
 
 ### Relation literal
-A relation literal produces a [relation](#relations) value. It starts with a left brace and a left bracket, followed
+A relation literal produces a [relation](#relations) value. It starts with a left brace and a vertical bar, followed
 by [structure literals](#structure-literal) or expressions generating [streams](#streams) of [structures](#structures),
-separated by commas, and ens with a right bracket and a right brace. All structures must have the same set of keys to
+separated by commas, and ends with a vertical bar and a right brace. All structures must have the same set of keys to
 form a valid relation. E.g. `{|{x: 1, y: 1}, {x: 2, y: 3}|}`
 
 ### Bytes literal
@@ -243,7 +248,8 @@ A symbol may not change its value in the same scope, but it may be shadowed in a
 Note that templates have a modifiable state value that can be dereferenced, see [mutable state](#mutable-state)
 
 ### Defined sources
-Sometimes you would like to just output a value from a [processor](#processors) or perform some complex operation without needing any particular input.
+Sometimes you would like to just like to create a (stream of) value(s) by some algorithm
+or output a value from a [processor](#processors) or perform some complex operation without needing any particular input.
 In such a case you can define a source, which is very much like a [defined template](#defined-templates) except that
 the declaration starts with the word `source` instead.
 
@@ -384,8 +390,8 @@ You can specify [parameters](#parameters) to modify/control certain aspects of t
 #### Inline templates
 Templates can be defined inline by just wrapping a templates body as follows:
 Start with a backslash '\' (or lambda if you squint)
-followed by an optional identifier and an opening paranthesis,
-with the backslash-identifier sequence repeated before the closing parenthesisat the end,
+followed by an optional identifier and an opening parenthesis,
+with the backslash-identifier sequence repeated before the closing parenthesis at the end,
 e.g. `$ -> \(<0> 'zero'!\)` or `$ -> \onlyZero(<0> 'zero'! \onlyZero)`. The example will output `zero` if `$` was `0` (but will not output anything at all otherwise).
 
 Of course, the identifier, if one is given, acts as a name for [templates state](#mutable-state),
@@ -427,6 +433,7 @@ end line
 ```
 
 Composition matchers can be string literals containing regexp patterns [(currently) according to java Pattern](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/regex/Pattern.html).
+To make the resulting text value into a [tagged identifier](#tagged-identifiers), prepend the tag, e.g. `<(city)'\w+'>` to tag the word as a city.
 
 A matcher can be an equals sign followed by a string literal, source reference or state deletion that gives a string result.
 This will match the string value exactly.
@@ -434,7 +441,7 @@ This will match the string value exactly.
 Other composition matchers are the ones defined in the composer as sub-patterns (rules).
 
 There are also built-in composition matchers:
-  - `<INT>` which parses an integer
+  - `<INT>` which parses an integer. To parse an integer as a [tagged identifier](#tagged-identifiers), prepend the tag, e.g. `<(product_id)INT>` to tag as a product_id.
   - `<"u">` which parses an integer and assigns it as a [measure](#measures) with unit u. (`<"1">` parses a scalar)
   - `<WS>` for a sequence of whitespace characters.
 
@@ -559,7 +566,7 @@ Note that some values, notably numbers and strings, can morph to match what is i
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
  the range operator on the side(s) where the bound is not included. Note that the [type](#types) of the upper and lower bounds must match.
  Examples of ranges:
-  * `<2..5>` for "between 2 and 5 inclusive" (or `<2"m"..5"m">` for a range of metres)
+  * `<2..5>` for "between 2 and 5 inclusive" (or `<2"m"..5"m">` for a range of metres or `<(id)2..(id)5>` for a range of id:s)
   * `<..3>` for "less than or equal to 3", or `<..~3>` for "less than 3"
   * `<10..>` for "greater than or equal to 10" , or `<10~..>` for "greater than 10"
   * A value dereference can be a bound, e.g. `<$min..$max>`
@@ -1000,7 +1007,7 @@ When using states, it is probably best to define all of them explicitly, but if 
 be used as a state, with the same name as the processor. In that case, the templates in the "constructor" section get exposed as messages.
 
 ## Types
-Tailspin takes a practical approach to types, making it easy to use, yet trying to get the necessary support for
+Tailspin takes a practical approach to types, making them easy to use, yet trying to be "helpfully annoying" to get the necessary support for
 program correctness that a good type system can provide. The ideal is for types to be analyzed at compile time (or in static analysis),
 but it's better to get runtime type errors than unnoticed incorrect results.
 
@@ -1019,7 +1026,7 @@ Numbers in arithmetic expressions are in their bare state just untyped numbers, 
 [unit of measure](#measures) which then defines their type as being of that measure.
 
 Untyped numbers and raw strings become [tagged identifiers](#tagged-identifiers) as soon as they interact with
-the [data dictionary](#data-dictionary)
+the [data dictionary](#data-dictionary), by becoming assigned to a key or by being explicitly tagged.
 
 [Processor](#processors) instances are things that can carry state and they respond to messages. If an instance
 responds to the messages you need, all is good (this is known as duck-typing). A processor instance can change
@@ -1059,21 +1066,22 @@ of local types, followed by the keyword 'local', e.g. `data max, min local` decl
 You can also define the type for some local types, if you want more control than [autotyping](#autotyping) gives.
 E.g. `data max <0..>, min local`
 
-NOTE: It is probably undesirable to emit autotyped tagged values for local tags.
-To avoid that, you should specify the type of the local value, perhaps just as "any", e.g. `data result <> local`
+NOTE: It is probably undesirable to emit tagged values for local tags.
+To avoid that, you should probably make sure to remove the tags by `::raw` before emitting them.
 
 ### Autotyping
 Fields in your [data structures](#structures) should have good names describing what they are.
 A type is also a description of what something is and you should have different types for different things.
 
-Autotyping helps you by making sure every field you use in a data structure is added to the [data dictionary](#data-dictionary)
+Autotyping is helpfully annoying by making sure every field you use in a data structure is added to the [data dictionary](#data-dictionary)
 with an inferred type so that you don't make mistakes by assigning values of different types to the same field.
 You can, of course, always declare the type in the [data dictionary](#data-dictionary) yourself, or declare them
 as [local types](#local-types) if the autotyping rules don't do what you intended.
 
 [Measures](#measures) (including scalars) will be autotyped as such.
 
-[Structures](#structures) and [arrays](#arrays) are currently only typed as structures and arrays respectively. In the future, this will become tighter.
+[Structures](#structures) are currently conservatively autotyped as having the exact fields in the first instance encountered.
+[Arrays](#arrays) are currently conservatively autotyped to consist of all the same kind of element.
 
 Raw strings and untyped numbers will be autotyped as [tagged identifiers](#tagged-identifiers).
 
@@ -1087,16 +1095,11 @@ Untyped numbers and raw strings are far too general to count as proper types on 
 When untyped numbers or raw strings get assigned to a key, the [data dictionary](#data-dictionary) will convert them to
 tagged identifiers.
 
-Tagged identifiers can "morph" back and forth to raw strings or untyped numbers. When assignment to a [keyed value](#keyed-values) happens,
-the tag is added and will remain when the value is accessed. In [matching](#matchers), a tagged value will lose the tag
-when the matcher is for a raw value, e.g. `<0..> // here the value is an untyped number` or `<'.*'> // here the value is a raw string`.
-Similarly, a raw value can gain a tag in matching when matching the tag definition, e.g. `<myTag> // here the string or number is tagged as myTag`. Note that
-defined types will not have tags when their representation type is not a raw string or untyped number.
-
-Note that in type-checking [data declarations](#data-dictionary), a tagged value will not have its tag stripped,
-so `data myTag <'.*'>` will not allow assignment of other tagged values to myTag, even if any tagged string value
-will match `<'.*'>`. Since matchers match in precedence order from left to right, assigning a yourTag value to myTag
-will fail even if you have declared `data myTag <'.*'|yourTag>`. Instead, you need to declare `data myTag <yourTag|'.*'>`
+When assignment to a [keyed value](#keyed-values) happens, or a string or number is tagged inline, the tag is added and will remain when the value is accessed.
+So either `{city: 'London'}` or `(city) 'London'` will tag the string 'London' as a city and add an [autotyped](#autotyping) city entry to the data dictionary if it doesn't exist,
+or check the string ('London' in this case) to verify that it complies with the type/tag definition already in the data dictionary.
+The definition and restrictions applied can be as complex as you like if you [define the tag type yourself](#defined-types).
+Note that defined types will not have tags when their representation type is not a raw string or untyped number.
 
 Numeric tagged identifiers cannot be used in arithmetic, so if you intend to use a number in arithmetic,
 the recommendation is to give it a unit (or the scalar unit "1").
@@ -1105,13 +1108,6 @@ Tagged identifiers do not mix with other tagged identifiers. Trying to assign or
 If you do need to compare in situations where there might be a tag mismatch, do a type check first, e.g. `<myTag ?($ <=$foo.myTag>)>` instead of just `<=$foo.myTag>`
 
 You can use the `::raw` message on a tagged identifier to get the base value without the tag, when you need to.
-
-If you want to create a value with a tag, you need to first assign it to the desired key and then retrieve the value.
-E.g. `(id:1234) -> $::value` and `{id:1234} -> $.id` will both attach the tag "id" to the number 1234.
-
-NOTE that [data definitions](#defined-types) can also correspond to tagged identifiers, if the base value is an untyped number or raw string,
-so defining e.g. `data true <=1>` and then trying to match `{foo: 1}` with `<{foo: <true>}>` will fail, because the 1 assigned to foo will get tagged as "foo",
-not "true". Since tags are sticky, this will apply even if you try to match `$.foo`. The workaround is to either match `$.foo::raw` or to define `data foo <true|...>`.
 
 ## Built-in messages
 All objects
