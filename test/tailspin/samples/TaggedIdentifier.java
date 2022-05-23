@@ -41,6 +41,32 @@ public class TaggedIdentifier {
   }
 
   @Test
+  void inlineTaggedStringSameNameWorks() throws Exception {
+    String program = "{city: 'London'} -> { city: (city) 'Madrid' } -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{city=Madrid}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void inlineTaggedStringOtherNameFails() {
+    String program = "{city: 'London'} -> { city: (boy) 'John' } -> !OUT::write";
+    assertThrows(Exception.class, () -> {
+      Tailspin runner =
+          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      runner.run(input, output, List.of());
+    });
+  }
+
+  @Test
   void definedStringSameNameWorks() throws Exception {
     String program = "data city <'.*'> {id: 1234, city: 'London'} -> { city: $.city } -> !OUT::write";
     Tailspin runner =

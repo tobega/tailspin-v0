@@ -832,8 +832,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
+  public String visitTag(TailspinParser.TagContext ctx) {
+    return ctx == null ? null : ctx.localIdentifier().getText();
+  }
+
+  @Override
   public Value visitStringLiteral(TailspinParser.StringLiteralContext ctx) {
-    return new StringLiteral(ctx.stringContent().stream()
+    return new StringLiteral(visitTag(ctx.tag()), ctx.stringContent().stream()
         .map(this::visitStringContent)
         .collect(Collectors.toList()));
   }

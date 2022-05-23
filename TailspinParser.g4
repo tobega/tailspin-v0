@@ -190,7 +190,9 @@ measureDenominator: Slash measureProduct;
 
 nonZeroInteger: additiveOperator? PositiveInteger;
 
-stringLiteral: START_STRING stringContent* END_STRING;
+tag: LeftParen localIdentifier RightParen;
+
+stringLiteral: tag? START_STRING stringContent* END_STRING;
 
 stringContent: stringInterpolate | STRING_TEXT;
 
