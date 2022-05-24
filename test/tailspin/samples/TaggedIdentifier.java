@@ -67,6 +67,53 @@ public class TaggedIdentifier {
   }
 
   @Test
+  void inlineTaggedStringValid() throws Exception {
+    String program = """
+      data city <'[A-Z].*'>
+      (city) 'Madrid' -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("Madrid", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void inlineTaggedStringNotValidThrows() {
+    String program = """
+      data city <'[A-Z].*'>
+      (city) 'madrid' -> !OUT::write
+    """;
+    assertThrows(Exception.class, () -> {
+      Tailspin runner =
+          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      runner.run(input, output, List.of());
+    });
+  }
+
+  @Test
+  void inlineTaggedStringIsAutotyped() {
+    String program = """
+      (city) 'madrid' -> {city: 123} -> !OUT::write
+    """;
+    assertThrows(Exception.class, () -> {
+      Tailspin runner =
+          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      runner.run(input, output, List.of());
+    });
+  }
+
+  @Test
   void definedStringSameNameWorks() throws Exception {
     String program = "data city <'.*'> {id: 1234, city: 'London'} -> { city: $.city } -> !OUT::write";
     Tailspin runner =
