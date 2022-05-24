@@ -252,6 +252,79 @@ public class TaggedIdentifier {
   }
 
   @Test
+  void inlineTaggedNumberSameNameWorks() throws Exception {
+    String program = "{id: 1234} -> { id: (id) 9876 } -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{id=9876}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void inlineTaggedNumberOtherNameFails() {
+    String program = "{id: 1234} -> { id: (qty) 9876 } -> !OUT::write";
+    assertThrows(Exception.class, () -> {
+      Tailspin runner =
+          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      runner.run(input, output, List.of());
+    });
+  }
+
+  @Test
+  void inlineTaggedNumberValid() throws Exception {
+    String program = """
+      data roll <1..6>
+      (roll) 5 -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void inlineTaggedNumberNotValidThrows() {
+    String program = """
+      data roll <1..6>
+      (roll) 7 -> !OUT::write
+    """;
+    assertThrows(Exception.class, () -> {
+      Tailspin runner =
+          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      runner.run(input, output, List.of());
+    });
+  }
+
+  @Test
+  void inlineTaggedNumberIsAutotyped() {
+    String program = """
+      (id) 1234 -> {id: 'abc'} -> !OUT::write
+    """;
+    assertThrows(Exception.class, () -> {
+      Tailspin runner =
+          Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+      ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
+      runner.run(input, output, List.of());
+    });
+  }
+
+  @Test
   void dereferencedTaggedNumberSameNameWorks() throws Exception {
     String program = "{id: 1234, city: 'London'} -> $.id -> { id: $ } -> !OUT::write";
     Tailspin runner =

@@ -203,7 +203,7 @@ characterCode: StartCharacterCode arithmeticValue EndStringInterpolate;
 interpolateEvaluate: StartStringInterpolate (anyIdentifier? reference Message? parameterValues? | Colon source)
   transform? (To TemplateMatch)? EndStringInterpolate;
 
-arithmeticValue: arithmeticExpression;
+arithmeticValue: tag? arithmeticExpression;
 
 arithmeticExpression: integerLiteral
   | LeftParen arithmeticExpression RightParen unit?

@@ -913,7 +913,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Value visitArithmeticValue(TailspinParser.ArithmeticValueContext ctx) {
-    return new ArithmeticValue(visitArithmeticExpression(ctx.arithmeticExpression()));
+    return new ArithmeticValue(visitTag(ctx.tag()), visitArithmeticExpression(ctx.arithmeticExpression()));
   }
 
   @Override
