@@ -127,19 +127,11 @@ public class RangeMatch implements Membrane {
         throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
       }
     }
-    else if (lhs instanceof Measure m && rhs instanceof Long) {
-      if (m.getUnit().equals(Unit.SCALAR)) {
-        lhs = m.getValue();
-        toMatch = m.getValue();
-      } else
-        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+    else if (lhs instanceof Measure && rhs instanceof Long) {
+      throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
     }
-    else if (lhs instanceof Long ll && rhs instanceof Measure m) {
-      if (m.getUnit().equals(Unit.SCALAR)) {
-        rhs = m.getValue();
-        toMatch = new Measure(ll, Unit.SCALAR);
-      } else
-        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+    else if (lhs instanceof Long && rhs instanceof Measure) {
+      throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
     }
 
     boolean matches = false;

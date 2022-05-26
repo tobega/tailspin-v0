@@ -75,21 +75,41 @@ public class Units {
   }
 
   @Test
-  void addUntypedWorks() throws IOException {
+  void addUntypedDoesNotWork() throws IOException {
     String program = "4\"m\" + 3 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7\"m\"", output.toString(StandardCharsets.UTF_8));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
-  void subtractUntypedWorks() throws IOException {
+  void untypedAddMeasureDoesNotWork() throws IOException {
+    String program = "3 + 4\"m\" -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void subtractUntypedDoesNotWork() throws IOException {
     String program = "4\"m\" - 3 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void multiplyUntypedWorks() throws IOException {
+    String program = "4\"m\" * 3 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -97,12 +117,12 @@ public class Units {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("1\"m\"", output.toString(StandardCharsets.UTF_8));
+    assertEquals("12\"m\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void multiplyUntypedWorks() throws IOException {
-    String program = "4\"m\" * 3 -> !OUT::write";
+  void untypedMultiplyMeasureWorks() throws IOException {
+    String program = "3 * 4\"m\" -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -206,7 +226,7 @@ public class Units {
   void provideUnitForTerm() throws IOException {
     String program = """
     templates foo 7! end foo
-    ('ok' -> foo)"J" + 1 -> !OUT::write
+    ('ok' -> foo)"J" + 1"J" -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -246,33 +266,14 @@ public class Units {
   }
 
   @Test
-  void scalarEqualsUntyped() throws IOException {
+  void scalarComparedToUntypedIsError() throws IOException {
     String program = "4\"1\" -> \\(<=2> 'never'! <=4> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void scalarHashCodeEqualsUntypedHashCode() throws IOException {
-    String program = """
-    def two: 2 -> $::hashCode;
-    def four: 4 -> $::hashCode;
-    4"1" -> $::hashCode -> \\(<=$two> 'never'! <=$four> 'yes'! <> 'no'!\\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -292,19 +293,6 @@ public class Units {
   }
 
   @Test
-  void scalarBecomesUntypedWhenEqualsUntyped() throws IOException {
-    String program = "4\"1\" -> \\(<=2> 'never'! <=4> $ + 3\"m\" ! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7\"m\"", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void measureInUntypedRangeIsError() throws IOException {
     String program = "4\"J\" -> \\(<0..2> 'never'! <3..5> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
@@ -313,32 +301,6 @@ public class Units {
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void scalarInUntypedRange() throws IOException {
-    String program = "4\"1\" -> \\(<0..2> 'never'! <3..5> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void scalarInUntypedRangeBecomesUntyped() throws IOException {
-    String program = "4\"1\" -> \\(<0..2> 'never'! <3..5> $ + 3\"m\" ! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7\"m\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -353,21 +315,8 @@ public class Units {
   }
 
   @Test
-  void untypedDoesEqualScalar() throws IOException {
+  void untypedComparedToScalarIsError() throws IOException {
     String program = "4 -> \\(<=2\"1\"> 'never'! <=4\"1\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void untypedBecomesScalarAfterEquals() throws IOException {
-    String program = "4 -> \\(<=2\"1\"> 'never'! <=4\"1\"> $ + 3\"m\" ! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -490,60 +439,6 @@ public class Units {
   }
 
   @Test
-  void noLowerBoundScalarUpperBoundWorks() throws IOException {
-    String program =
-        "4 -> \\(<..5\"1\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void noUpperBoundScalarLowerBoundWorks() throws IOException {
-    String program =
-        "4 -> \\(<3\"1\"..> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void untypedInMeasureRangeOfScalar() throws IOException {
-    String program =
-        "4 -> \\(<0\"1\"..2\"1\"> 'never'! <3\"1\"..5\"1\"> 'yes'! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void untypedBecomesScalarInMeasureRangeOfScalar() throws IOException {
-    String program =
-        "4 -> \\(<0\"1\"..2\"1\"> 'never'! <3\"1\"..5\"1\"> $ + 3\"m\" ! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
   void unitAsTypeComparison() throws IOException {
     String program =
         "4\"J\" -> \\(<\"m\"> 'never'! <\"J\"> 'yes'! <> 'no'!\\) -> !OUT::write";
@@ -572,7 +467,7 @@ public class Units {
   }
 
   @Test
-  void untypedIsScalarType() throws IOException {
+  void untypedIsNotScalarType() throws IOException {
     String program =
         "4 -> \\(<\"m\"> 'never'! <\"1\"> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
@@ -582,19 +477,7 @@ public class Units {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void untypedBecomesScalarTypeWhenTested() throws IOException {
-    String program =
-        "4 -> \\(<\"m\"> 'never'! <\"1\"> $ + 3\"m\" ! <> 'no'!\\) -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertEquals("no", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -676,7 +559,7 @@ public class Units {
   @Test
   void unitInState() throws IOException {
     String program =
-        "4\"J\" -> \\(@: $; $@ + 1 ! \\) -> !OUT::write";
+        "4\"J\" -> \\(@: $; $@ + 1\"J\" ! \\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -697,7 +580,7 @@ public class Units {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("1337", output.toString(StandardCharsets.UTF_8));
+    assertEquals("1337\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -721,7 +604,7 @@ public class Units {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("7", output.toString(StandardCharsets.UTF_8));
+    assertEquals("7\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

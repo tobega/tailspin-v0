@@ -30,8 +30,7 @@ public class Measure implements Processor {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("hashCode")) {
-      return (it, params, callingDictionary) ->
-          ((Number) (unit.equals(Unit.SCALAR) ? ((Long) value).hashCode() : hashCode())).longValue();
+      return (it, params, callingDictionary) -> ((Number) hashCode()).longValue();
     } else if (message.equals("raw")) {
       return (it, params, callingDictionary) -> value;
     } else if (message.equals("asBytes") && unit.equals(Unit.SCALAR)) {

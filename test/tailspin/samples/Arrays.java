@@ -813,7 +813,7 @@ class Arrays {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{x=1, ys=5}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{x=1, ys=5\"1\"}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

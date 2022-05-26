@@ -1,7 +1,8 @@
 processor Sum&{of:}
-  @:0;
+  @:{};
   sink accumulate
-    @Sum: $@Sum + $(of);
+    when <?($@Sum <={}>)> do @Sum: $(of);
+    otherwise @Sum: $@Sum + $(of);
   end accumulate
   source result
     $@Sum !

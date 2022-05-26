@@ -234,7 +234,7 @@ class Numbers {
 
   @Test
   void dereferenceField() throws IOException {
-    String program = "def a: {x:5\"1\"};\n $a.x + 2 -> !OUT::write";
+    String program = "def a: {x:5\"1\"};\n $a.x + 2\"1\" -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -242,7 +242,7 @@ class Numbers {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("7", output.toString(StandardCharsets.UTF_8));
+    assertEquals("7\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

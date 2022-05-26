@@ -676,22 +676,6 @@ public class DataDictionary {
   }
 
   @Test
-  void autotypedArrayScalarsAndUntypedNumbersMix() throws IOException {
-    String program = """
-    {x: [1], y: [2"1"]} -> !OUT::write
-    {x: [3"1", 4], y: [5, 6"1"]} -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{x=[1], y=[2]}{x=[3, 4], y=[5, 6]}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void autotypedStructureTermCorrectValue() throws IOException {
     String program = """
     {x: {fruit: 'apple'}} -> !OUT::write

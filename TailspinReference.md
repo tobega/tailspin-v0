@@ -141,7 +141,7 @@ A value chain that yields a number can be used as an operand on either side of a
 
 NOTE: The example above shows the use of untyped numbers. While you can use untyped numbers for simple programs,
 Tailspin will nudge you to specify what kind of a number it is. It can either be a [measure](#measures), with a unit,
-which forces you to take care when doing arithmetic with different units, or it can be a [tagged identifiers](#tagged-identifiers)
+which forces you to take care when doing arithmetic with different units, or it can be a [tagged identifier](#tagged-identifiers)
 that cannot be used for arithmetic at all. To create a measure, append a unit in quotes after the number or parenthesized expression, e.g. `5"m"`.
 To create a tagged identifier, write the tag as an [identifier](#identifiers) inside parentheses
 before the number or parenthesized expression, e.g. `(PLU) 4310` tags the number as being a PLU code.
@@ -462,7 +462,7 @@ Several choices can be specified for a composition matcher, separated by a pipe 
 A composition matcher (or a composed array or structure) can be sent through a series of [transforms](#transforms) to convert the parsed value, e.g.
 ```
 templates minutes
-  $.h * 60 + $.m !
+  ($.h * 60)"m" + $.m !
 end minutes
 composer time
   { h: <hour>, (<' and '>) m: <minute> } -> minutes
@@ -471,7 +471,7 @@ composer time
 end time
 'one hour and 13 minutes' -> time -> stdout
 ```
-will print "73"
+will print `73"m"`
 
 A composer can have [state](#mutable-state) that can be set initially as the first statement before the main pattern. It can be updated in skip compositions,
 optionally with a value stream from a matcher. It can be accessed in the usual way.
@@ -554,7 +554,7 @@ executed for that _current value_.
 
 Matchers are also used to [define datatypes](#defined-types)
 
-Note that some values, notably numbers and strings, can morph to match what is in the criterion, see [measures](#measures) and [tagged identifiers](#tagged-identifiers).
+See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for specific matching considerations.
 
 * Empty criterion, `<>`, matches anything.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;

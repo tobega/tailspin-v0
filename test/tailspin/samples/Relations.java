@@ -170,7 +170,7 @@ public class Relations {
   @Test
   void extend() throws IOException {
     String program =
-        "{|{x: 1\"1\", y: 2\"1\"}, {x:2\"1\", y: 3\"1\"}|} -> $({x:, y:, z: 1 + §.y}) -> !OUT::write";
+        "{|{x: 1\"1\", y: 2\"1\"}, {x:2\"1\", y: 3\"1\"}|} -> $({x:, y:, z: 1\"1\" + §.y}) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -181,9 +181,9 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1, y=2, z=3}"));
-    assertTrue(result.contains("{x=2, y=3, z=4}"));
-    assertEquals(36, result.length());
+    assertTrue(result.contains("{x=1\"1\", y=2\"1\", z=3\"1\"}"));
+    assertTrue(result.contains("{x=2\"1\", y=3\"1\", z=4\"1\"}"));
+    assertEquals(54, result.length());
   }
 
   @Test

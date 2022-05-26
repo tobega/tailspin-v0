@@ -126,7 +126,7 @@ public class DataDictionary {
       return tag == null ? stringMatch : new DefinedTag(tag, stringMatch, null);
     }
     if (data instanceof Long) {
-      return tag == null ? new UnitMatch(Unit.SCALAR) : new DefinedTag(tag, numberMatch, null);
+      return tag == null ? numberMatch : new DefinedTag(tag, numberMatch, null);
     }
     if (data instanceof TailspinArray) {
       return new AutotypedArray(dictionary);

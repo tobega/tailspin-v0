@@ -334,7 +334,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=5, d=6}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a=1\"1\", b=5\"1\", d=6\"1\"}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

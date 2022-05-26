@@ -1067,7 +1067,7 @@ class Templates {
             templates bar&{baz:}
               $ + $a(baz) !
             end bar
-            1 -> bar&{baz: :(2; foo:)} -> !OUT::write""";
+            1"1" -> bar&{baz: :(2; foo:)} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1075,7 +1075,7 @@ class Templates {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("8", output.toString(StandardCharsets.UTF_8));
+    assertEquals("8\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
