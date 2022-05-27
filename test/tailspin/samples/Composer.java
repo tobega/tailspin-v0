@@ -33,7 +33,7 @@ class Composer {
   void composeScalarInt() throws IOException {
     String program = """
         composer int
-        <"1">
+        <INT"1">
         end int
         '23' -> int -> \\(<=23"1"> $!\\) -> $ + 12"1" -> !OUT::write""";
     Tailspin runner =
@@ -50,7 +50,7 @@ class Composer {
   void composeUnitInt() throws IOException {
     String program = """
         composer metres
-        <"m">
+        <INT "m">
         end metres
         '23' -> metres -> \\(<=23"m"> $!\\) -> $ + 12"m" -> !OUT::write""";
     Tailspin runner =
@@ -1004,7 +1004,7 @@ class Composer {
           <addition|multiplication|term>
           rule addition: {left: <addition|multiplication|term> op: <'[+-]'> right: <multiplication|term>}
           rule multiplication: { left: <multiplication|term>  op: <'[*/]'> right: <term> }
-          rule term: <"1"|parentheses>
+          rule term: <INT"1"|parentheses>
           rule parentheses: (<'\\('>) <addition|multiplication|term> (<'\\)'>)
         end recurse
         '100+(3+4)' -> recurse -> !OUT::write""";
@@ -1087,7 +1087,7 @@ class Composer {
           <addition|multiplication|term>
           rule addition: {left: <addition|multiplication|term> op: <'[+-]'> right: <multiplication|term>}
           rule multiplication: { left: <multiplication|term>  op: <'[*/]'> right: <term> }
-          rule term: <"1"|parentheses>
+          rule term: <INT"1"|parentheses>
           rule parentheses: (<'\\('>) <addition|multiplication|term> (<'\\)'>)
         end recurse
         '(100-5*(2+3*4)+2)/2' -> recurse -> !OUT::write""";

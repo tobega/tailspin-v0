@@ -96,7 +96,7 @@ public class SubComposerFactory {
       return new LiteralSubComposer((String) ((LiteralComposition) spec).literal.getResults(null, scope));
     }
     if (spec instanceof MeasureComposition mc) {
-      return new MeasureSubComposer(mc.unit);
+      return new MeasureSubComposer(resolveSpec(mc.compositionSpec, scope), mc.unit);
     }
     throw new UnsupportedOperationException(
         "Unknown composition spec " + spec.getClass().getSimpleName());
@@ -257,9 +257,11 @@ public class SubComposerFactory {
 
   public static class MeasureComposition implements CompositionSpec {
 
+    private final CompositionSpec compositionSpec;
     private final Unit unit;
 
-    public MeasureComposition(Unit unit) {
+    public MeasureComposition(CompositionSpec compositionSpec, Unit unit) {
+      this.compositionSpec = compositionSpec;
       this.unit = unit;
     }
   }

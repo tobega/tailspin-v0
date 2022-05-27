@@ -1344,11 +1344,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Expression expression = (Expression) visit(ctx.literalComposition());
       Value literal = (expression instanceof Value) ? (Value) expression : Value.of(expression) ;
       compositionSpec = new SubComposerFactory.LiteralComposition(literal);
-    } else if (ctx.unit() != null) {
-      Unit unit = visitUnit(ctx.unit());
-      compositionSpec = new SubComposerFactory.MeasureComposition(unit);
     } else {
       throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());
+    }
+    if (ctx.unit() != null) {
+      Unit unit = visitUnit(ctx.unit());
+      compositionSpec = new SubComposerFactory.MeasureComposition(compositionSpec, unit);
     }
     return compositionSpec;
   }

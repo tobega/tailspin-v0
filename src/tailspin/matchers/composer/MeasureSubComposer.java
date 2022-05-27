@@ -1,20 +1,34 @@
 package tailspin.matchers.composer;
 
-import java.util.regex.Pattern;
 import tailspin.types.Measure;
 import tailspin.types.Unit;
 
-public class MeasureSubComposer extends RegexpSubComposer {
-  private static final Pattern NUMBER = Pattern.compile("[+-]?(0|[1-9][0-9]*)");
+public class MeasureSubComposer implements SubComposer {
+  private final SubComposer number;
   private final Unit unit;
 
-  public MeasureSubComposer(Unit unit) {
-    super(NUMBER, Long::valueOf);
+  public MeasureSubComposer(SubComposer number, Unit unit) {
+    this.number = number;
     this.unit = unit;
   }
 
   @Override
+  public Memo nibble(String s, Memo memo) {
+    return number.nibble(s, memo);
+  }
+
+  @Override
+  public Memo backtrack(String s, Memo memo) {
+    return number.backtrack(s, memo);
+  }
+
+  @Override
   public Object getValues() {
-    return new Measure((Long) super.getValues(), unit);
+    return new Measure((Long) number.getValues(), unit);
+  }
+
+  @Override
+  public boolean isSatisfied() {
+    return number.isSatisfied();
   }
 }

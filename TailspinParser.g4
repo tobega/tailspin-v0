@@ -258,7 +258,7 @@ structureMemberMatcher: (tokenMatcher|compositionKeyValue) compositionSkipRule*;
 
 tokenMatcher: StartMatcher Invert? compositionToken (Else compositionToken)* EndMatcher multiplier?;
 
-compositionToken: (literalComposition|localIdentifier|stringLiteral| unit);
+compositionToken: (literalComposition|localIdentifier|stringLiteral) unit?;
 
 literalComposition: Equal (sourceReference|stringLiteral);
 

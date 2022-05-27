@@ -442,8 +442,9 @@ Other composition matchers are the ones defined in the composer as sub-patterns 
 
 There are also built-in composition matchers:
   - `<INT>` which parses an integer. To parse an integer as a [tagged identifier](#tagged-identifiers), prepend the tag, e.g. `<(product_id)INT>` to tag as a product_id.
-  - `<"u">` which parses an integer and assigns it as a [measure](#measures) with unit u. (`<"1">` parses a scalar)
   - `<WS>` for a sequence of whitespace characters.
+
+You can add a unit, e.g. `<INT "u">` which parses an integer (in this case) and assigns it as a [measure](#measures) with unit u. (`<"1">` parses a scalar)
 
 A composition matcher can have a [multiplier qualifier](#multipliers) after it to determine repetitions.
 
