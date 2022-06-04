@@ -19,13 +19,39 @@ public class TagSubComposer implements SubComposer {
 
   @Override
   public Memo nibble(String s, Memo memo) {
-    return subComposer.nibble(s, memo);
+    value = null;
+    Memo original = memo;
+    memo = subComposer.nibble(s, memo);
+    trySetValue();
+    return value == null ? original : memo;
+  }
+
+  private void trySetValue() {
+    if (subComposer.isSatisfied()) {
+      try {
+        Object parsed = subComposer.getValues();
+        if (!(parsed instanceof Long) && !(parsed instanceof String)) {
+          throw new IllegalStateException("Cannot assign tag " + tag + " to value " + parsed.toString());
+        }
+        parsed = localDictionary.checkDataDefinition(tag, parsed);
+        if (parsed instanceof TaggedIdentifier t && tag.equals(t.getTag())) {
+          value = t;
+        }
+      } catch (IllegalArgumentException e) {
+        // Ignore
+      }
+    }
   }
 
   @Override
   public Memo backtrack(String s, Memo memo) {
     value = null;
-    return subComposer.backtrack(s, memo);
+    while (value == null) {
+      memo = subComposer.backtrack(s, memo);
+      if (!subComposer.isSatisfied()) return memo;
+      trySetValue();
+    }
+    return memo;
   }
 
   @Override
@@ -35,21 +61,6 @@ public class TagSubComposer implements SubComposer {
 
   @Override
   public boolean isSatisfied() {
-    if (value != null) return true;
-    if (!subComposer.isSatisfied()) return false;
-    try {
-      Object parsed = subComposer.getValues();
-      if (!(parsed instanceof Long) && !(parsed instanceof String)) {
-        throw new IllegalStateException("Cannot assign tag " + tag + " to value " + parsed.toString());
-      }
-      parsed = localDictionary.checkDataDefinition(tag, parsed);
-      if (parsed instanceof TaggedIdentifier t && tag.equals(t.getTag())) {
-        value = t;
-        return true;
-      }
-      return false;
-    } catch (IllegalArgumentException e) {
-      return false;
-    }
+    return value != null;
   }
 }

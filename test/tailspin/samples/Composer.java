@@ -787,6 +787,42 @@ class Composer {
   }
 
   @Test
+  void buildStructureCorrectTypeWorks() throws IOException {
+    String program = """
+        data roll <1..6>
+        composer die
+          { roll: <INT> }
+        end die
+        '4' -> die -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{roll=4}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void buildStructureIncorrectTypeFails() throws IOException {
+    String program = """
+        data roll <1..6>
+        composer die
+          { roll: <INT> }
+        end die
+        '8' -> die -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{composerFailed=8}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void buildArrayOfKeyValues() throws IOException {
     String program = """
         composer coords

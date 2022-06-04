@@ -418,6 +418,11 @@ A composer takes a string and composes it into other objects according to the sp
 A pattern consists of a sequence of result-constructing symbols and composition matchers. Sequences may be put in
 parentheses to indicate that they should not be output.
 
+Result construction is done similarly to building [structures](#structure-literal), [arrays](#array-literal)
+or [keyed values](#keyed-values) (NOTE that keyed values should not be put inside parentheses in composers, that would ignore them),
+but you can substitute composition matchers in place of keys or values. Note, though, that any values assigned to keys must match
+the type of the key (see [autotyping](#autotyping)) , otherwise the composer will [fail](#composer-failure).
+
 The composer definition starts with `composer _identifier_` and ends with `end _identifier_`. A composer can
 also be modified by [parameters](#parameters).
 
@@ -444,13 +449,13 @@ There are also built-in composition matchers:
   - `<INT>` which parses an integer. To parse an integer as a [tagged identifier](#tagged-identifiers), prepend the tag, e.g. `<(product_id)INT>` to tag as a product_id.
   - `<WS>` for a sequence of whitespace characters.
 
-You can add a unit, e.g. `<INT "u">` which parses an integer (in this case) and assigns it as a [measure](#measures) with unit u. (`<"1">` parses a scalar)
+You can add a unit, e.g. `<INT "u">` which parses an integer (in this case) and assigns it as a [measure](#measures) with unit u. (`<INT "1">` parses a scalar)
 
 A composition matcher can have a [multiplier qualifier](#multipliers) after it to determine repetitions.
 
 A composition matcher can be negated by a tilde just inside the bracket, e.g. `<~WS>`, which will match everything up until the next matching pattern.
 
-A skipped value may be captured by prefixing the matcher with `def _identifier_:` and ending the capturing expression with a semi-colon (';'), e.g. `(def val: <INT>;)` will not output the parsed integer at that location
+A skipped value (that is, in parentheses) may be captured by prefixing the matcher with `def _identifier_:` and ending the capturing expression with a semi-colon (';'), e.g. `(def val: <INT>;)` will not output the parsed integer at that location
 but captures it as `val`. This value may be output later as `$val`. Values captured at the top level may be visible to named sub-patterns if
 it is captured before entering the sub-pattern. Values captured in named sub-patterns are only visible to later matchers in the same sub-pattern.
 
@@ -477,6 +482,7 @@ will print `73"m"`
 A composer can have [state](#mutable-state) that can be set initially as the first statement before the main pattern. It can be updated in skip compositions,
 optionally with a value stream from a matcher. It can be accessed in the usual way.
 
+#### Composer failure
 A composer must match the whole string, otherwise it will return a structure with a `composerFailed` element
 containing the input string. It will backtrack and try other options, but performance-wise it is
 better if matchers are made so that backtracking never needs happen (by a prefix-free grammar).

@@ -62,7 +62,7 @@ public class SubComposerFactory {
     }
     if (spec instanceof KeyValueComposition keyValueSpec) {
       return new KeyValueSubComposer(resolveSpec(keyValueSpec.key, scope),
-          new SequenceSubComposer(keyValueSpec.valueMatch, scope, this::resolveSpec), scope);
+          new SequenceSubComposer(keyValueSpec.valueMatch, scope, this::resolveSpec), scope.getLocalDictionary());
     }
     if (spec instanceof MultiplierComposition) {
       return new MultiplierSubComposer(
