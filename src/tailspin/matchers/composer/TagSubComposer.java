@@ -1,34 +1,55 @@
 package tailspin.matchers.composer;
 
+import tailspin.types.DataDictionary;
 import tailspin.types.TaggedIdentifier;
 
 public class TagSubComposer implements SubComposer {
 
+  private final DataDictionary localDictionary;
   private final String tag;
-  private final SubComposer value;
+  private final SubComposer subComposer;
 
-  public TagSubComposer(String tag, SubComposer value) {
+  private TaggedIdentifier value;
+
+  public TagSubComposer(DataDictionary localDictionary, String tag, SubComposer subComposer) {
+    this.localDictionary = localDictionary;
     this.tag = tag;
-    this.value = value;
+    this.subComposer = subComposer;
   }
 
   @Override
   public Memo nibble(String s, Memo memo) {
-    return value.nibble(s, memo);
+    return subComposer.nibble(s, memo);
   }
 
   @Override
   public Memo backtrack(String s, Memo memo) {
-    return value.backtrack(s, memo);
+    value = null;
+    return subComposer.backtrack(s, memo);
   }
 
   @Override
   public Object getValues() {
-    return new TaggedIdentifier(tag, value.getValues());
+    return value;
   }
 
   @Override
   public boolean isSatisfied() {
-    return value.isSatisfied();
+    if (value != null) return true;
+    if (!subComposer.isSatisfied()) return false;
+    try {
+      Object parsed = subComposer.getValues();
+      if (!(parsed instanceof Long) && !(parsed instanceof String)) {
+        throw new IllegalStateException("Cannot assign tag " + tag + " to value " + parsed.toString());
+      }
+      parsed = localDictionary.checkDataDefinition(tag, parsed);
+      if (parsed instanceof TaggedIdentifier t && tag.equals(t.getTag())) {
+        value = t;
+        return true;
+      }
+      return false;
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
   }
 }

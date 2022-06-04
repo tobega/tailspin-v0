@@ -94,6 +94,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
+
   @Test
   void composeTaggedString() throws IOException {
     String program = """
@@ -164,6 +165,76 @@ class Composer {
         <(id) INT"m">
         end tag
         '23' -> tag -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composeValidTaggedString() throws IOException {
+    String program = """
+      data id <'[A-Z].*'>
+      composer tag
+        <(id) '.*'>
+      end tag
+      'ABC' -> tag -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ABC", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeNotValidTaggedStringFails() throws IOException {
+    String program = """
+      data id <'[A-Z].*'>
+      composer tag
+        <(id) '.*'>
+      end tag
+      'abc' -> tag -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{composerFailed=abc}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeTaggedStringAutotypesCorrectAssignmentWorks() throws IOException {
+    String program = """
+        composer tag
+          <(id) '.*'>
+        end tag
+        'abc' -> tag -> !OUT::write
+        {id: 'def'} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("abc{id=def}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeTaggedStringAutotypesIncorrectAssignmentThrows() throws IOException {
+    String program = """
+        composer tag
+          <(id) '.*'>
+        end tag
+        'abc' -> tag -> !OUT::write
+        {id: 5} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

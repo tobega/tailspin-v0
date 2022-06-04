@@ -99,7 +99,7 @@ public class SubComposerFactory {
       return new MeasureSubComposer(resolveSpec(mc.compositionSpec, scope), mc.unit);
     }
     if (spec instanceof TagComposition tc) {
-      return new TagSubComposer(tc.tag, resolveSpec(tc.compositionSpec, scope));
+      return new TagSubComposer(scope.getLocalDictionary(), tc.tag, resolveSpec(tc.compositionSpec, scope));
     }
     throw new UnsupportedOperationException(
         "Unknown composition spec " + spec.getClass().getSimpleName());
