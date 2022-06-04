@@ -9,8 +9,12 @@ public class TaggedIdentifier implements Processor {
   private final Object value;
 
   public TaggedIdentifier(String tag, Object value) {
-    this.tag = tag;
-    this.value = value;
+    if (value instanceof String || value instanceof Long) {
+      this.tag = tag;
+      this.value = value;
+    } else {
+      throw new IllegalArgumentException("Cannot assign value " + value.toString() + " to tag " + tag);
+    }
   }
 
   @Override

@@ -1348,8 +1348,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());
     }
     if (ctx.unit() != null) {
+      if (ctx.tag() != null) throw new IllegalArgumentException("Cannot have both tag and unit");
       Unit unit = visitUnit(ctx.unit());
       compositionSpec = new SubComposerFactory.MeasureComposition(compositionSpec, unit);
+    }
+    if (ctx.tag() != null) {
+      String tag = visitTag(ctx.tag());
+      compositionSpec = new SubComposerFactory.TagComposition(tag, compositionSpec);
     }
     return compositionSpec;
   }

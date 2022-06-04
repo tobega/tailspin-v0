@@ -64,6 +64,115 @@ class Composer {
   }
 
   @Test
+  void composeTaggedInt() throws IOException {
+    String program = """
+        composer tag
+        <(id) INT>
+        end tag
+        {id: 5, '23' -> tag -> (id: $)} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{id=23}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeTaggedIntWrongAssignmentFails() throws IOException {
+    String program = """
+        composer tag
+        <(foo) INT>
+        end tag
+        {id: 5, '23' -> tag -> (id: $)} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+  @Test
+  void composeTaggedString() throws IOException {
+    String program = """
+        composer tag
+        <(id) '.*'>
+        end tag
+        {id: 'def', 'abc' -> tag -> (id: $)} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{id=abc}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeTaggedStringWrongAssignmentFails() throws IOException {
+    String program = """
+        composer tag
+        <(foo) INT>
+        end tag
+        {id: 'def', 'abc' -> tag -> (id: $)} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composeTaggedIntArithmeticFails() throws IOException {
+    String program = """
+        composer tag
+        <(id) INT>
+        end tag
+        '23' -> tag -> $ + 1 -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composeTaggedStructureFails() throws IOException {
+    String program = """
+        composer tag
+        <(id) struct>
+        rule struct: { id: <'.*'>}
+        end tag
+        '23' -> tag -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composeTaggedIntWithMeasureFails() throws IOException {
+    String program = """
+        composer tag
+        <(id) INT"m">
+        end tag
+        '23' -> tag -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void composeEqualsLiteral() throws IOException {
     String program = """
         composer eq

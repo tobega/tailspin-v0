@@ -226,6 +226,20 @@ public class TaggedIdentifier {
   }
 
   @Test
+  void tagDefinedToOtherTagAutotypesAndFailsAssignmentToDifferentField() throws Exception {
+    String program = """
+      data city <'.*'>, destination <city>
+      {name: 'John', destination: 'Paris'} -> { name: $.destination } -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void taggedNumberSameNameWorks() throws Exception {
     String program = "{id: 1234, city: 'London'} -> { id: $.id } -> !OUT::write";
     Tailspin runner =
@@ -386,6 +400,20 @@ public class TaggedIdentifier {
   void autotypedFieldIsNonArithmeticTaggedIdentifier() throws IOException {
     String program = """
      {x: 1} -> $.x + 3 -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+
+  @Test
+  void autotypedMeasureCannotBeAssignedUntypedNumber() throws IOException {
+    String program = """
+     {x: 1"m"} -> {x: 3} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
