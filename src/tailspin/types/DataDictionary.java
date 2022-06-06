@@ -26,6 +26,7 @@ public class DataDictionary {
   private static final Membrane stringMatch = new Membrane() {
     @Override
     public Object permeate(Object toMatch, Object it, Scope scope) {
+      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
       return (toMatch instanceof String) ? toMatch : null;
     }
 
@@ -38,6 +39,7 @@ public class DataDictionary {
   private static final Membrane numberMatch = new Membrane() {
     @Override
     public Object permeate(Object toMatch, Object it, Scope scope) {
+      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
       return (toMatch instanceof Long) ? toMatch : null;
     }
 

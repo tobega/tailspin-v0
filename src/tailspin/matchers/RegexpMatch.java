@@ -15,9 +15,23 @@ public class RegexpMatch implements Membrane {
 
   @Override
   public Object permeate(Object toMatch, Object it, Scope scope) {
-    if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
-    if (!(toMatch instanceof String stringToMatch)) return null;
-    String pattern = (String) patternValue.getResults(it, scope);
+    Object value  = patternValue.getResults(it, scope);
+    String tag = null;
+    String pattern;
+    if (value instanceof TaggedIdentifier t) {
+      tag = t.getTag();
+      pattern = (String) t.getValue();
+    } else {
+      pattern = (String) value;
+    }
+    String stringToMatch;
+    if (tag == null && toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
+    if (toMatch instanceof TaggedIdentifier t) {
+      if (t.getTag().equals(tag) && t.getValue() instanceof String s) stringToMatch = s;
+      else throw new IllegalArgumentException("Attempt to match (" + t.getTag() + ") with " + (tag == null ? "raw string" : tag));
+    } else if (toMatch instanceof String s) {
+      stringToMatch = s;
+    } else return null;
     Pattern compiled =
         Pattern.compile(
             "\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ + Pattern.DOTALL);

@@ -22,15 +22,15 @@ public class ArrayMatch implements Membrane {
   @Override
   public Object permeate(Object toMatch, Object it, Scope scope) {
     if (!(toMatch instanceof TailspinArray listToMatch)) return null;
-    if (lengthMembrane != null && (null == lengthMembrane.permeate((long) listToMatch.length(), it, scope))) {
+    if (lengthMembrane != null && (null == lengthMembrane.permeate((long) listToMatch.length(), it, scope
+    ))) {
       return null;
     }
     if (contentMatcherFactories.isEmpty()) {
       return toMatch;
     }
     List<CollectionCriterion> criteria = contentMatcherFactories.stream()
-        .map(CollectionCriterionFactory::newCriterion).collect(
-            Collectors.toList());
+        .map(CollectionCriterionFactory::newCriterion).toList();
     TailspinArray.Tail tail = listToMatch.tailFrom(1);
     nextElement:
     while(!tail.isEmpty()) {

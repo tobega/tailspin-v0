@@ -946,4 +946,51 @@ public class DataDictionary {
 
     assertEquals("{x=5}{x=1}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void sumTypeAutotypesAsSelf() throws IOException {
+    String program = """
+    data foo <1..5>
+    data x <1..5 | foo>
+    {x: 3} -> {foo: $.x} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void sumTypeAutotypesAsSelfIfPossible() throws IOException {
+    String program = """
+    data foo <1..5>
+    data x <foo | 1..5>
+    {x: 3} -> {foo: $.x} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void sumTypeAutotypesAsOtherIfNoSelf() throws IOException {
+    String program = """
+    data foo <1..5>
+    data x <foo>
+    {x: 3} -> {foo: $.x} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{foo=3}", output.toString(StandardCharsets.UTF_8));
+  }
 }

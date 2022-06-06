@@ -18,19 +18,15 @@ public class DefinedTag implements Membrane {
 
   @Override
   public Object permeate(Object toMatch, Object it, Scope scope) {
-    Object result = baseType.permeate(toMatch, null, definingScope);
-    if (toMatch instanceof TaggedIdentifier t) {
-      if (result instanceof TaggedIdentifier) {
-        return result;
-      }
-      if (!tag.equals(t.getTag()))
-        return null;
-      if (result == null && baseType.permeate(t.getValue(), null, definingScope) == null)
-        return null;
-      return toMatch;
+    if (toMatch instanceof String || toMatch instanceof Long) {
+      TaggedIdentifier taggedMatch = new TaggedIdentifier(tag, toMatch);
+      Object result = permeate(taggedMatch, it, scope);
+      if (result != null) return taggedMatch;
     }
+    Object result = baseType.permeate(toMatch, null, definingScope);
     if (result instanceof String || result instanceof Long) {
-      result = new TaggedIdentifier(tag, result);
+      if (toMatch instanceof TaggedIdentifier t) return t.getTag().equals(tag) ? toMatch : null;
+      throw new AssertionError("Something went wrong");
     }
     return result;
   }

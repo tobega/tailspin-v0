@@ -1108,6 +1108,9 @@ or check the string ('London' in this case) to verify that it complies with the 
 The definition and restrictions applied can be as complex as you like if you [define the tag type yourself](#defined-types).
 Note that defined types will not have tags when their representation type is not a raw string or untyped number.
 
+When the key being assigned to is a [defined type](#defined-types), the raw string will first try to add the key as a tag. If that doesn't work,
+the options are tried in order of definition, again trying the tag for that type first.
+
 Numeric tagged identifiers cannot be used in arithmetic, so if you intend to use a number in arithmetic,
 the recommendation is to give it a unit (or the scalar unit "1").
 
