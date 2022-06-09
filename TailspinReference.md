@@ -447,9 +447,8 @@ Other composition matchers are the ones defined in the composer as sub-patterns 
 
 There are also built-in composition matchers:
   - `<INT>` which parses an integer. To parse an integer as a [tagged identifier](#tagged-identifiers), prepend the tag, e.g. `<(product_id)INT>` to tag as a product_id.
+    To parse an integer as a [measure](#measures) you can add a unit, e.g. `<INT "u">`, which creates a measure with unit "u". `<INT "1">` parses a scalar.
   - `<WS>` for a sequence of whitespace characters.
-
-You can add a unit, e.g. `<INT "u">` which parses an integer (in this case) and assigns it as a [measure](#measures) with unit u. (`<INT "1">` parses a scalar)
 
 A composition matcher can have a [multiplier qualifier](#multipliers) after it to determine repetitions.
 
@@ -566,12 +565,14 @@ See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for
 * Empty criterion, `<>`, matches anything.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
+  Note that equality must have correct [tagging](#tagged-identifiers), or both must be raw values, to match. The tag is inferred in a key-value context.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
+  Note that a raw string or number will become a [tagged identifier](#tagged-identifiers) in the do block of the type-matcher.
 * Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`. An untyped number will match the special scalar unit `"1"`.
   See the [measure](#measures) documentation for rules of how measures match equality and ranges.
 * You can use the name of a [defined data type](#defined-types) or an [autotyped](#autotyping) field to determine if a value matches that type.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
- the range operator on the side(s) where the bound is not included. Note that the [type](#types) of the upper and lower bounds must match.
+ the range operator on the side(s) where the bound is not included. Note that the [type](#types) of the upper and lower bounds must match, and also match with the compared value.
  Examples of ranges:
   * `<2..5>` for "between 2 and 5 inclusive" (or `<2"m"..5"m">` for a range of metres or `<(id)2..(id)5>` for a range of id:s)
   * `<..3>` for "less than or equal to 3", or `<..~3>` for "less than 3"
@@ -1023,7 +1024,7 @@ data like [arrays](#arrays) and [structures](#structures) is that if it has the 
 fine if there is more (this is called structural typing). There are ways to declare that excess elements are not allowed
 if you need to, or that an element must not exist.
 
-One thing to note is that a key of a [key-value pair](#keyed-values), which is also the name of an element in a
+One thing to note is that a key of a [key-value pair](#keyed-values), which is also the name of a field in a
 [structure](#structures), is expected to be connected to a value of the same type wherever it is used, i.e. keys form a
 [data dictionary](#data-dictionary). When you do a join on [relations](#relations), values with the same name will
 be joined together in a "natural join". If you don't specify a type in the [data dictionary](#data-dictionary),
@@ -1051,8 +1052,9 @@ E.g. `data adress <{number: <1..>, street: <'.*'>, town: <'.*'>}>`
 The defined data type can be used as a [matcher](#matchers), e.g. `<adress>`, but is also expected to be the data type of any
 [keyed-value](#keyed-values) or member of a [structure](#structures) that has key 'adress'. NOTE that if the base type
 of a defined type is a raw string or untyped number, the defined type will actually be a [tagged identifier](#tagged-identifiers).
-If a defined (or [autotyped](#autotyping)) type "foo" refers to a defined (or [autotyped](#autotyping)) [tagged identifier](#tagged-identifiers) called "bar",
+If a defined (or [autotyped](#autotyping)) type "foo" refers only to a defined (or [autotyped](#autotyping)) [tagged identifier](#tagged-identifiers) called "bar",
 all values assigned as "foo"s will be tagged as "bar"s (all "foo"s are "bar"s).
+Of course, it is possible to have union types so that a "foo" could be a "bar" or something else.
 
 The data dictionary will also contain all [autotyped](#autotyping) definitions. Note that for modules, all defined types stay in the defining scope of the module,
 while autotyping will affect the calling scope. These two scopes coincide for the outer module (program or test being run).
@@ -1106,7 +1108,7 @@ When assignment to a [keyed value](#keyed-values) happens, or a string or number
 So either `{city: 'London'}` or `(city) 'London'` will tag the string 'London' as a city and add an [autotyped](#autotyping) city entry to the data dictionary if it doesn't exist,
 or check the string ('London' in this case) to verify that it complies with the type/tag definition already in the data dictionary.
 The definition and restrictions applied can be as complex as you like if you [define the tag type yourself](#defined-types).
-Note that defined types will not have tags when their representation type is not a raw string or untyped number.
+Note that defined types will only have tags when their representation type is a raw string or untyped number.
 
 When the key being assigned to is a [defined type](#defined-types), the raw string will first try to add the key as a tag. If that doesn't work,
 the options are tried in order of definition, again trying the tag for that type first.
@@ -1114,8 +1116,11 @@ the options are tried in order of definition, again trying the tag for that type
 Numeric tagged identifiers cannot be used in arithmetic, so if you intend to use a number in arithmetic,
 the recommendation is to give it a unit (or the scalar unit "1").
 
-Tagged identifiers do not mix with other tagged identifiers. Trying to assign or compare them with the wrong tag is an error.
-If you do need to compare in situations where there might be a tag mismatch, do a type check first, e.g. `<myTag ?($ <=$foo.myTag>)>` instead of just `<=$foo.myTag>`
+When tagged identifiers are compared with other tagged identifiers, the tags must also match for the comparison to become true.
+In the context of matching a [keyed value](#keyed-values), matching a field of a [structure](#structures) or [defining a type](#defined-types),
+the tag may be omitted from the matcher if it is the same as the key or type, that is `<{foo: <'a.*'>}>` is equivalent to  `<{foo: <(foo) 'a.*'>}>`,
+`<(foo: <'a.*'>)>` is equivalent to  `<(foo: <(foo) 'a.*'>)>` and `data foo <'a.*'>` is equivalent to `data foo <(foo) 'a.*'>`.
+Tagged identifiers cannot be compared with raw strings or numbers, that will cause an error to be thrown.
 
 You can use the `::raw` message on a tagged identifier to get the base value without the tag, when you need to.
 

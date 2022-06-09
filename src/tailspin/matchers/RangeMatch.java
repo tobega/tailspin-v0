@@ -58,8 +58,8 @@ public class RangeMatch implements Membrane {
 
   @Override
   public String toString() {
-    return (lowerBound == null ? "" : lowerBound.value + (lowerBound.inclusive ? "~" : "")) + ".."
-        + (upperBound == null ? "" : (upperBound.inclusive ? "~" : "") + upperBound.value);
+    return (lowerBound == null ? "" : lowerBound.value + (lowerBound.inclusive ? "" : "~")) + ".."
+        + (upperBound == null ? "" : (upperBound.inclusive ? "" : "~") + upperBound.value);
   }
 
   public enum Comparison {
