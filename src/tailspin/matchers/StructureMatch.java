@@ -16,7 +16,7 @@ public class StructureMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
     if (!(toMatch instanceof Structure structureToMatch)) return null;
     for (Map.Entry<String, Membrane> keyMatch : keyConditions.entrySet()) {
       if (!structureToMatch.containsKey(keyMatch.getKey())) {
@@ -26,7 +26,7 @@ public class StructureMatch implements Membrane {
         return null;
       }
       Object valueToMatch = structureToMatch.get(keyMatch.getKey());
-      if ((null == keyMatch.getValue().permeate(valueToMatch, it, scope))) {
+      if ((null == keyMatch.getValue().permeate(valueToMatch, it, scope, keyMatch.getKey()))) {
         return null;
       }
     }

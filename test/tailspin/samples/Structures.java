@@ -274,7 +274,7 @@ class Structures {
 
   @Test
   void keywordAsKey() throws IOException {
-    String program = "{mod: 1} -> $.mod -> \\(<=1> 'yes'!\\) -> !OUT::write";
+    String program = "{mod: 1} -> $.mod -> \\(<=(mod) 1> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

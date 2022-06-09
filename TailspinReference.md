@@ -598,8 +598,8 @@ See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for
   * `<{a: VOID}>` matches any structure that does not have a field `a`
   * At the end of the structure matcher, just before the `}`, the symbol `VOID` may be written to assert that the structure has no unmatched fields.
     e.g. `{a: <> VOID}` matches a structure that only has an `a` field and no other fields.
-* Keyed value match is like a [keyed value](#keyed-values), except that the key may be given as a _regular expression_ (see above) and the value is given as a matcher.
-  e.g. `<(size:<1..5>)>` matches a keyed value with key `size` and value between 1 and 5, while `<('s.*':<>)>` matches any keyed value where the key starts with `s`.
+* Keyed value match is like a [keyed value](#keyed-values).
+  e.g. `<(size:<1..5>)>` matches a keyed value with key `size` and value between 1 and 5.
 * Array match, given as `<[]>` matches if the _current value_ is an array.
   * A match can also be restricted to arrays
   of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`.
@@ -1121,6 +1121,10 @@ In the context of matching a [keyed value](#keyed-values), matching a field of a
 the tag may be omitted from the matcher if it is the same as the key or type, that is `<{foo: <'a.*'>}>` is equivalent to  `<{foo: <(foo) 'a.*'>}>`,
 `<(foo: <'a.*'>)>` is equivalent to  `<(foo: <(foo) 'a.*'>)>` and `data foo <'a.*'>` is equivalent to `data foo <(foo) 'a.*'>`.
 Tagged identifiers cannot be compared with raw strings or numbers, that will cause an error to be thrown.
+
+Note that you need to provide the correct tag, not an alias. For example, if "foo" is defined as a "bar", e.g. `data foo <bar>`, the tag will be "bar", not "foo",
+so `$.foo -> \(<(foo) '.*'> 'yes'!\)` will not match, you need to do  `$.foo -> \(<(bar) '.*'> 'yes'!\)`.
+Similarly, `{foo: (foo) 'value'}` will not work, you need to write `{foo: (bar) 'value'}` (or just `{foo: 'value'}` of course).
 
 You can use the `::raw` message on a tagged identifier to get the base value without the tag, when you need to.
 

@@ -16,10 +16,10 @@ public class AnyOf implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
     if (alternativeCriteria.isEmpty()) return toMatch;
     for (Membrane membrane : alternativeCriteria) {
-      Object alternativeResult = membrane.permeate(toMatch, it, scope);
+      Object alternativeResult = membrane.permeate(toMatch, it, scope, contextTag);
       if (null != alternativeResult) {
         return invert ? null : alternativeResult;
       }

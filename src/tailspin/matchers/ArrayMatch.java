@@ -20,10 +20,10 @@ public class ArrayMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
     if (!(toMatch instanceof TailspinArray listToMatch)) return null;
-    if (lengthMembrane != null && (null == lengthMembrane.permeate((long) listToMatch.length(), it, scope
-    ))) {
+    if (lengthMembrane != null && (null == lengthMembrane.permeate((long) listToMatch.length(), it, scope,
+        contextTag))) {
       return null;
     }
     if (contentMatcherFactories.isEmpty()) {

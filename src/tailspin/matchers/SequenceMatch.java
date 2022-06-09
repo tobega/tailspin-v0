@@ -18,7 +18,7 @@ public class SequenceMatch implements CollectionSegmentCriterion {
   public int isMetAt(TailspinArray.Tail tail, Object it, Scope scope) {
     for (int i = 0; i < sequence.size(); i++) {
       if (i >= tail.length()) return 0;
-      if (null == sequence.get(i).permeate(tail.get(i+1), it, scope)) return 0;
+      if (null == sequence.get(i).permeate(tail.get(i+1), it, scope, null)) return 0;
     }
     return sequence.size();
   }

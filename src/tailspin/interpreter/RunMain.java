@@ -514,7 +514,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Membrane visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
-    return new RegexpMatch(visitStringLiteral(ctx.stringLiteral()));
+    return new RegexpMatch(visitTag(ctx.stringLiteral().tag()), new StringLiteral(null, collectStringContent(ctx.stringLiteral())));
   }
 
   @Override
@@ -539,9 +539,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Membrane visitKeyValueMatch(TailspinParser.KeyValueMatchContext ctx) {
-    Object keyMatch = ctx.key() != null
-        ? ctx.key().localIdentifier().getText()
-        : new RegexpMatch(visitStringLiteral(ctx.stringLiteral()));
+    String keyMatch = ctx.key().localIdentifier().getText();
     return new KeyValueMatch(keyMatch,
         visitMatcher(ctx.structureContentMatcher().matcher()));
   }
@@ -838,9 +836,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Value visitStringLiteral(TailspinParser.StringLiteralContext ctx) {
-    return new StringLiteral(visitTag(ctx.tag()), ctx.stringContent().stream()
+    return new StringLiteral(visitTag(ctx.tag()), collectStringContent(ctx));
+  }
+
+  private List<Value> collectStringContent(TailspinParser.StringLiteralContext ctx) {
+    return ctx.stringContent().stream()
         .map(this::visitStringContent)
-        .collect(Collectors.toList()));
+        .collect(Collectors.toList());
   }
 
   @Override

@@ -29,14 +29,15 @@ public class RangeMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
     Unit unit = null;
     String tag = null;
     if (lowerBound != null) {
       Object low = lowerBound.value.getResults(it, scope);
       if (low instanceof Measure m) unit = m.getUnit();
       if (low instanceof TaggedIdentifier t) tag = t.getTag();
-      toMatch = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low);
+      toMatch = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low,
+          contextTag);
       if (toMatch == null) return null;
     }
     if (upperBound != null) {
@@ -51,7 +52,8 @@ public class RangeMatch implements Membrane {
           throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + t.getTag() + ":" + t.getValue());
       } else if (tag != null)
         throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + high);
-      toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high);
+      toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high,
+          contextTag);
     }
     return toMatch;
   }
@@ -93,7 +95,7 @@ public class RangeMatch implements Membrane {
     public abstract boolean isValid(int comparison);
   }
 
-  public static Object compare(Object toMatch, Comparison comparison, Object rhs) {
+  public static Object compare(Object toMatch, Comparison comparison, Object rhs, String contextTag) {
     Object lhs = toMatch;
     if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
       if (l.getTag().equals(r.getTag())) {
@@ -104,20 +106,12 @@ public class RangeMatch implements Membrane {
       }
     }
     else if (lhs instanceof TaggedIdentifier l) {
-      if (rhs instanceof Measure) {
-        throw new IllegalArgumentException("Cannot compare " + l.getTag() + ":" + l.getValue() + " with " + rhs);
-      }
+      if (!l.getTag().equals(contextTag) || rhs instanceof Measure)
+        throw new IllegalArgumentException("Cannot compare (" + l.getTag() + ") " + l.getValue() + " with " + rhs);
       lhs = l.getValue();
-      toMatch = l.getValue();
     }
     else if (rhs instanceof TaggedIdentifier r) {
-      if (lhs instanceof Measure) {
-        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + r.getTag() + ":" + r.getValue());
-      }
-      rhs = r.getValue();
-      if (lhs instanceof Long || lhs instanceof String) {
-        toMatch = new TaggedIdentifier(r.getTag(), lhs);
-      }
+      throw new IllegalArgumentException("Cannot compare " + lhs + " with (" + r.getTag() + ") " + r.getValue());
     }
     else if (lhs instanceof Measure l && rhs instanceof Measure r) {
       if (l.getUnit().equals(r.getUnit())) {
