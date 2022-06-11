@@ -37,12 +37,8 @@ class KeyValueSubComposer implements SubComposer {
   }
   private void trySetValue() {
     if (valueComposer.isSatisfied()) {
-      try {
-        Object parsed = valueComposer.getValues();
-        value = dictionary.checkDataDefinition(key, parsed);
-      } catch (IllegalArgumentException e) {
-        // Ignore
-      }
+      Object parsed = valueComposer.getValues();
+      value = dictionary.checkDataDefinition(key, parsed);
     }
   }
 

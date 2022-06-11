@@ -421,7 +421,7 @@ parentheses to indicate that they should not be output.
 Result construction is done similarly to building [structures](#structure-literal), [arrays](#array-literal)
 or [keyed values](#keyed-values) (NOTE that keyed values should not be put inside parentheses in composers, that would ignore them),
 but you can substitute composition matchers in place of keys or values. Note, though, that any values assigned to keys must match
-the type of the key (see [autotyping](#autotyping)) , otherwise the composer will [fail](#composer-failure).
+the type of the key (see [autotyping](#autotyping)), otherwise an error is thrown.
 
 The composer definition starts with `composer _identifier_` and ends with `end _identifier_`. A composer can
 also be modified by [parameters](#parameters).

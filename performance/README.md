@@ -17,11 +17,11 @@ a better-designed version of Richards with immutable packets.
 | [2021-02-01 jdk15 relations and lenses](#2021-02-01)               |Interpreted| 782    | 109  | 315  | 551     | 796    | 63        | 757      | 642       | 162   | 194     | 570    |
 | [2021-09-12 jdk16 simple autotyping](#2021-09-12)                  |Interpreted| 910    | 73   | 390  | 613     | 1014   | 79        | 917      | 643       | 205   | 158     | 870    |
 | [2021-09-12 jdk16 tagged identifiers](#2021-09-12b)                |Interpreted| 1265   | 136  | 305  | 613     | 847    | 47        | 1041     | 655       | 182   | 230     | 1001   |
-| [2022-06-11 jdk17 baseline, no sudo](#2022-06-11)                  |Interpreted| 1207   | 148  | 432  | 1085    | 986    | 166       | 1069     | 811       | 757   | 192     | 978    |
+| [2022-06-11 jdk18 baseline, no sudo](#2022-06-11)                  |Interpreted| 1207   | 148  | 432  | 1085    | 986    | 166       | 1069     | 811       | 757   | 192     | 978    |
 
 ## 2022-06-11
 machine 3, baseline, no sudo
-openjdk17
+openjdk18
 
 |Benchmark|Mean runtime us|
 |---|---|

@@ -28,17 +28,13 @@ public class TagSubComposer implements SubComposer {
 
   private void trySetValue() {
     if (subComposer.isSatisfied()) {
-      try {
-        Object parsed = subComposer.getValues();
-        if (!(parsed instanceof Long) && !(parsed instanceof String)) {
-          throw new IllegalStateException("Cannot assign tag " + tag + " to value " + parsed.toString());
-        }
-        parsed = localDictionary.checkDataDefinition(tag, parsed);
-        if (parsed instanceof TaggedIdentifier t && tag.equals(t.getTag())) {
-          value = t;
-        }
-      } catch (IllegalArgumentException e) {
-        // Ignore
+      Object parsed = subComposer.getValues();
+      if (!(parsed instanceof Long) && !(parsed instanceof String)) {
+        throw new IllegalStateException("Cannot assign tag " + tag + " to value " + parsed.toString());
+      }
+      parsed = localDictionary.checkDataDefinition(tag, parsed);
+      if (parsed instanceof TaggedIdentifier t && tag.equals(t.getTag())) {
+        value = t;
       }
     }
   }

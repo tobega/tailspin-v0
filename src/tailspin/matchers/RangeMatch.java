@@ -117,7 +117,7 @@ public class RangeMatch implements Membrane {
         lhs = l.getValue();
         rhs = r.getValue();
       } else {
-        throw new IllegalArgumentException("Cannot compare " + l.getTag() + ":" + l.getValue() + " with " + r.getTag() + ":" + r.getValue());
+        throw new IllegalArgumentException("Cannot compare (" + l.getTag() + ") " + l.getValue() + " with (" + r.getTag() + ") " + r.getValue());
       }
     }
     else if (lhs instanceof TaggedIdentifier l) {

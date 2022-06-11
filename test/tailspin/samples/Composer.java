@@ -192,7 +192,7 @@ class Composer {
   }
 
   @Test
-  void composeNotValidTaggedStringFails() throws IOException {
+  void composeNotValidTaggedStringIsError() throws IOException {
     String program = """
       data id <'[A-Z].*'>
       composer tag
@@ -204,9 +204,7 @@ class Composer {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{composerFailed=abc}", output.toString(StandardCharsets.UTF_8));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -817,9 +815,7 @@ class Composer {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("{composerFailed=8}", output.toString(StandardCharsets.UTF_8));
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -1242,7 +1238,7 @@ class Composer {
         composer recurse
   <addition|term>
   rule addition: {left: <addition|term> op: <'[+-]'> right: <term>}
-  rule term: <INT|parentheses>
+  rule term: <INT"1"|parentheses>
   rule parentheses: (<'\\('>) <addition|term> (<'\\)'>)
         end recurse
         '(5 +3)' -> recurse -> !OUT::write""";
