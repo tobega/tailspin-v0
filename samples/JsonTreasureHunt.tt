@@ -1,13 +1,13 @@
 include 'JSON'
 
 templates findAllTreasurePaths
-  when <='dailyprogrammer'> do [] !
+  when <''?($::raw <='dailyprogrammer'>)> do [] !
   when <[]> do $ -> \[i]($ -> findAllTreasurePaths -> [$i - 1, $...] ! \)... !
   when <{}> do $... -> \(def key: $::key; $::value -> findAllTreasurePaths -> [$key, $...] ! \)!
 end findAllTreasurePaths
 
 templates findFirstTreasurePath
-  when <='dailyprogrammer'> do [] !
+  when <''?($::raw <='dailyprogrammer'>)> do [] !
   when <[]> do
     def list: $;
     [0] -> \(

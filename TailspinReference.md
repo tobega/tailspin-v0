@@ -563,16 +563,21 @@ Matchers are also used to [define datatypes](#defined-types)
 See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for specific matching considerations.
 
 * Empty criterion, `<>`, matches anything.
+* Basic type matches: `<{}>` matches any [structure](#structures), `<[]>` matches any [array](#arrays), `<''>` matches any [raw or tagged](#tagged-identifiers) string value,
+  `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures). To match empty structures or arrays, use equality.
+* Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
+  Note that a raw string or number will become a [tagged identifier](#tagged-identifiers) in the do block of the type-matcher.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
   Note that equality must have correct [tagging](#tagged-identifiers), or both must be raw values, to match. The tag is inferred in a key-value context.
-* Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
-  Note that a raw string or number will become a [tagged identifier](#tagged-identifiers) in the do block of the type-matcher.
+  If you need to compare mixed tagged and raw values, use a type match and the "raw" message in a condition, e.g. `<'' ?($::raw <='apple'>)>`
 * Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`. An untyped number will match the special scalar unit `"1"`.
   See the [measure](#measures) documentation for rules of how measures match equality and ranges.
 * You can use the name of a [defined data type](#defined-types) or an [autotyped](#autotyping) field to determine if a value matches that type.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
  the range operator on the side(s) where the bound is not included. Note that the [type](#types) of the upper and lower bounds must match, and also match with the compared value.
+ Note that `<..>` is a type match for a numeric quantity, [tagged or raw](#tagged-identifiers), or a [measure](#measures).
+ If you need to compare mixed raw and tagged values, use a type match and the "raw" message in a condition, e.g. `<.. ?($::raw <$min::raw..$max::raw>)>`
  Examples of ranges:
   * `<2..5>` for "between 2 and 5 inclusive" (or `<2"m"..5"m">` for a range of metres or `<(id)2..(id)5>` for a range of id:s)
   * `<..3>` for "less than or equal to 3", or `<..~3>` for "less than 3"
@@ -583,7 +588,9 @@ See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for
 * Regular expression match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
   For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
   Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
-  `<''>` matches the empty string, `<'.*'>` matches any string, `<'.+'>` any non-empty string.
+  Note that `<''>` is a type match, not a regular expression, and so matches any raw or tagged string.
+  You need to use `<=''>` to match the empty raw string, while `<'.*'>` matches any raw string, `<'.+'>` any non-empty raw string.
+  To match [tagged strings](#tagged-identifiers), supply the tag before the regular expression, e.g. `<(city) 'L.*'>`.
   For comparing strings for simple equality, see "Equality" above.
 * If either of several criteria is acceptable, just list the acceptable criteria inside the angle brackets separated by `|` as a logical "or".
   The criteria are tried in order, stopping after the first true criterion. E.g. `<='apple'|='orange'>` will be true for both 'apple' and 'orange'.
@@ -1142,9 +1149,11 @@ Keyed values
 Strings
 * `$::asCodePoints` returns an array of Unicode code points corresponding to the string.
 * `$::asUtf8Bytes` returns the string encoded as utf8 [bytes](#bytes)
+* `$::raw` just passes the value through, but is useful to ensure that this is a raw value
 
 Integer
 * `$::asBytes` returns the minimal [bytes value](#bytes) that can represent the integer in twos complement notation.
+* `$::raw` just passes the value through, but is useful to ensure that this is a raw value
 
 Measure
 * `$::raw` returns the magnitude of the measure without the unit.

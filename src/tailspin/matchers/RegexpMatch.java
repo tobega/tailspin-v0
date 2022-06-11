@@ -8,6 +8,19 @@ import tailspin.types.TaggedIdentifier;
 
 public class RegexpMatch implements Membrane {
 
+  public static final Membrane stringType = new Membrane() {
+    @Override
+    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
+      return (toMatch instanceof String) ? toMatch : null;
+    }
+
+    @Override
+    public String toString() {
+      return "string type";
+    }
+  };
+
   private final String tag;
   private final Value patternValue;
 

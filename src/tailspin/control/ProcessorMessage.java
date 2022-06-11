@@ -50,6 +50,8 @@ public class ProcessorMessage extends Reference {
     } else if (receiver instanceof Long) {
       if (message.equals("asBytes")) {
         return (it, params, callingDictionary) -> BigInteger.valueOf((Long) receiver).toByteArray();
+      } else if (message.equals("raw")) {
+        return (it, params, callingDictionary) -> receiver;
       } else {
         throw new UnsupportedOperationException("Unknown number message " + message);
       }
@@ -59,6 +61,8 @@ public class ProcessorMessage extends Reference {
             ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList()));
       } if (message.equals("asUtf8Bytes")) {
         return (it, params, callingDictionary) -> ((String) receiver).getBytes(StandardCharsets.UTF_8);
+      } else if (message.equals("raw")) {
+        return (it, params, callingDictionary) -> receiver;
       } else {
         throw new UnsupportedOperationException("Unknown string message " + message);
       }

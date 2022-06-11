@@ -10,6 +10,21 @@ import tailspin.types.TaggedIdentifier;
 import tailspin.types.Unit;
 
 public class RangeMatch implements Membrane {
+
+  public static final Membrane numberType = new Membrane() {
+    @Override
+    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+      if (toMatch instanceof Measure m) toMatch = m.getValue();
+      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
+      return (toMatch instanceof Long) ? toMatch : null;
+    }
+
+    @Override
+    public String toString() {
+      return "numeric type";
+    }
+  };
+
   public static final RangeMatch AT_MOST_ONE = new RangeMatch(
       new Bound(new IntegerConstant(0, null), true),
       new Bound(new IntegerConstant(1, null), true));

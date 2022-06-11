@@ -153,7 +153,8 @@ matcher: StartMatcher (Invert? membrane (Else membrane)*)? EndMatcher;
 
 membrane: (literalMatch | typeMatch) condition* | condition+;
 
-typeMatch: rangeBounds                       # rangeMatch
+typeMatch: START_STRING END_STRING    # stringTypeMatch
+  | rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
   | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch

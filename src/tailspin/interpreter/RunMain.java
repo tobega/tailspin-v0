@@ -120,8 +120,8 @@ import tailspin.transform.lens.MultiValueArrayLens;
 import tailspin.transform.lens.Projection;
 import tailspin.transform.lens.RangeArrayLens;
 import tailspin.transform.lens.SingleValueArrayLens;
-import tailspin.types.Membrane;
 import tailspin.types.KeyValue;
+import tailspin.types.Membrane;
 import tailspin.types.Unit;
 
 public class RunMain extends TailspinParserBaseVisitor<Object> {
@@ -506,10 +506,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public RangeMatch visitRangeBounds(TailspinParser.RangeBoundsContext ctx) {
+  public Membrane visitRangeBounds(TailspinParser.RangeBoundsContext ctx) {
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
+    if (lowerBound == null && upperBound == null) return RangeMatch.numberType;
     return new RangeMatch(lowerBound, upperBound);
+  }
+
+  @Override
+  public Membrane visitStringTypeMatch(TailspinParser.StringTypeMatchContext ctx) {
+    return RegexpMatch.stringType;
   }
 
   @Override

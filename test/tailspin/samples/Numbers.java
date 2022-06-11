@@ -435,4 +435,32 @@ class Numbers {
 
     assertEquals("0081", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void acceptsRawMessage() throws IOException {
+    String program = "129 -> $::raw -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("129", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void matchesNumberType() throws IOException {
+    String program = """
+      ['abc', (foo) 'bar', 56, (id) 78, {name: 'JD'}, ['xyz'], 89"m"]... -> \\(<..> $! \\) -> !OUT::write
+      """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("567889", output.toString(StandardCharsets.UTF_8));
+  }
 }
