@@ -42,7 +42,7 @@ public class TaggedIdentifier {
 
   @Test
   void inlineTaggedStringSameNameWorks() throws Exception {
-    String program = "{city: 'London'} -> { city: (city) 'Madrid' } -> !OUT::write";
+    String program = "{city: 'London'} -> { city: city´ 'Madrid' } -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -70,7 +70,7 @@ public class TaggedIdentifier {
   void inlineTaggedStringValid() throws Exception {
     String program = """
       data city <'[A-Z].*'>
-      (city) 'Madrid' -> !OUT::write
+      city´ 'Madrid' -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -267,7 +267,7 @@ public class TaggedIdentifier {
 
   @Test
   void inlineTaggedNumberSameNameWorks() throws Exception {
-    String program = "{id: 1234} -> { id: (id) 9876 } -> !OUT::write";
+    String program = "{id: 1234} -> { id: id´ 9876 } -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -295,7 +295,7 @@ public class TaggedIdentifier {
   void inlineTaggedNumberValid() throws Exception {
     String program = """
       data roll <1..6>
-      (roll) 5 -> !OUT::write
+      roll´ 5 -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -710,7 +710,7 @@ public class TaggedIdentifier {
     String program = """
     def foo: {city: 'London'};
     'London' -> \\(
-      <=(city) 'L.*'> 'yes'!
+      <=city´ 'L.*'> 'yes'!
       <> 'no'!
     \\) -> !OUT::write
     """;
@@ -983,7 +983,7 @@ public class TaggedIdentifier {
   void rangeMatchWithNoLowerBoundWorks() throws Exception {
     String program = """
     def foo: {city: 2, id: 8};
-    (id) 5 -> \\(
+    id´ 5 -> \\(
       <..$foo.id> 'yes' !
     \\) -> !OUT::write
     """;
@@ -1001,7 +1001,7 @@ public class TaggedIdentifier {
   void rangeMatchWithNoUpperBoundWorks() throws Exception {
     String program = """
     def foo: {city: 2, id: 8};
-    (city) 5 -> \\(
+    city´ 5 -> \\(
       <$foo.city..> 'yes' !
     \\) -> !OUT::write
     """;
@@ -1155,9 +1155,9 @@ public class TaggedIdentifier {
     String program = """
       data bar <'.*'>
       data foo <bar|baz>
-      {foo: (baz) 'ab'} -> $.foo -> \\(
-        when <bar ?($ <=(bar) 'ab'>)> do 'no'!
-        when <baz ?($ <=(baz) 'ab'>)> do 'yes'!
+      {foo: baz´ 'ab'} -> $.foo -> \\(
+        when <bar ?($ <=bar´ 'ab'>)> do 'no'!
+        when <baz ?($ <=baz´ 'ab'>)> do 'yes'!
       \\) -> !OUT::write
     """;
     Tailspin runner =
@@ -1206,7 +1206,7 @@ public class TaggedIdentifier {
   void comparisonOutOfTagContextMustBeTagged() throws IOException {
     String program = """
       {foo: 'ab'} -> $.foo -> \\(
-        when <(foo) 'a.+'> do 'yes'!
+        when <foo´ 'a.+'> do 'yes'!
       \\) -> !OUT::write
     """;
     Tailspin runner =
@@ -1223,7 +1223,7 @@ public class TaggedIdentifier {
   void tagTypeOfComparisonIsNotAppliedToRegexPattern() throws IOException {
     String program = """
       data bar <'\\d'>, foo <bar>
-      (bar) '8' -> \\(<(bar) '\\d'> 'yes'! \\) -> !OUT::write""";
+      bar´ '8' -> \\(<bar´ '\\d'> 'yes'! \\) -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1238,7 +1238,7 @@ public class TaggedIdentifier {
   void comparisonOutOfTagContextMustBeTaggedCorrectly() throws IOException {
     String program = """
       data bar <'\\d'>, foo <bar>
-      (bar) '8' -> \\(<(foo) '\\d'> 'no'! <> 'yes'!\\) -> !OUT::write""";
+      bar´ '8' -> \\(<foo´ '\\d'> 'no'! <> 'yes'!\\) -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1285,7 +1285,7 @@ public class TaggedIdentifier {
   void equalityOutOfTagContextMustBeTagged() throws IOException {
     String program = """
       {foo: 'ab'} -> $.foo -> \\(
-        when <=(foo) 'ab'> do 'yes'!
+        when <=foo´ 'ab'> do 'yes'!
       \\) -> !OUT::write
     """;
     Tailspin runner =
@@ -1334,7 +1334,7 @@ public class TaggedIdentifier {
   void rangeOutOfTagContextMustBeTagged() throws IOException {
     String program = """
       {foo: 'ab'} -> $.foo -> \\(
-        when <(foo) 'aa'..(foo) 'ac'> do 'yes'!
+        when <foo´ 'aa'..foo´ 'ac'> do 'yes'!
       \\) -> !OUT::write
     """;
     Tailspin runner =
@@ -1345,5 +1345,65 @@ public class TaggedIdentifier {
     runner.run(input, output, List.of());
 
     assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void correctExplicitTagWorks() throws IOException {
+    String program = """
+      data foo <bar>, bar <'.*'>
+      {foo: bar´ 'value'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{foo=value}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void wrongExplicitTagIsError() throws IOException {
+    String program = """
+      data foo <bar>, bar <'.*'>
+      {foo: foo´ 'value'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void correctExplicitTagNumberWorks() throws IOException {
+    String program = """
+      data foo <bar>, bar <1..9>
+      {foo: bar´ 5} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{foo=5}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void wrongExplicitTagNumberIsError() throws IOException {
+    String program = """
+      data foo <bar>, bar <1..9>
+      {foo: foo´ 5} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 }

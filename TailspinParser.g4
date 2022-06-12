@@ -191,7 +191,7 @@ measureDenominator: Slash measureProduct;
 
 nonZeroInteger: additiveOperator? PositiveInteger;
 
-tag: LeftParen localIdentifier RightParen;
+tag: localIdentifier Tick;
 
 stringLiteral: tag? START_STRING stringContent* END_STRING;
 

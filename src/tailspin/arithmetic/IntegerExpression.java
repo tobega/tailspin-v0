@@ -23,8 +23,8 @@ public class IntegerExpression implements Value {
     if (value instanceof Long n) {
       return isNegative ? -n : n;
     }
-    throw new ArithmeticException("Not a number " + value
-        + (value instanceof TaggedIdentifier t ? " tagged as " + t.getTag() : ""));
+    throw new ArithmeticException("Cannot do arithmetic on " + value
+        + (value instanceof TaggedIdentifier t ? t.getTag() + "´ ": "") + value + " in " + this);
   }
 
   @Override

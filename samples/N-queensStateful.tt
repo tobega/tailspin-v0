@@ -2,16 +2,16 @@ templates queens
   def n: $;
   templates getRowColumn
     when <?($@queens.freeRows($.r) <=0>)> do 0 !
-    when <?($@queens.freeMaxs($.r + $.c) <=0>)> do 0 !
-    when <?($@queens.freeMins($.c - $.r + $n) <=0>)> do 0 !
+    when <?($@queens.freeMaxs($.r::raw + $.c::raw) <=0>)> do 0 !
+    when <?($@queens.freeMins($.c::raw - $.r::raw + $n) <=0>)> do 0 !
     otherwise 1!
   end getRowColumn
 
   sink setRowColumn
     def p: $;
-    @queens.freeRows($p.r): $p.val;
-    @queens.freeMaxs($p.c + $p.r): $p.val;
-    @queens.freeMins($p.c - $p.r + $n): $p.val;
+    @queens.freeRows($p.r): $p.val::raw;
+    @queens.freeMaxs($p.c::raw + $p.r::raw): $p.val::raw;
+    @queens.freeMins($p.c::raw - $p.r::raw + $n): $p.val::raw;
   end setRowColumn
 
   templates placeQueen

@@ -3,6 +3,7 @@ package tailspin.arithmetic;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
+import tailspin.types.TaggedIdentifier;
 import tailspin.types.Unit;
 
 public class ArithmeticValue implements Value {
@@ -21,7 +22,13 @@ public class ArithmeticValue implements Value {
     if (result instanceof Measure m && m.getUnit().equals(Unit.UNKNOWN)) {
       throw new ArithmeticException("Cannot infer unit of measure for expression " + value);
     }
-    return tag == null ? result : scope.getLocalDictionary().checkDataDefinition(tag, result);
+    if (tag == null) return result;
+    Object tagged = scope.getLocalDictionary().checkDataDefinition(tag, result);
+    if (tagged instanceof TaggedIdentifier t) {
+      if (t.getTag().equals(tag)) return tagged;
+      throw new IllegalArgumentException("Tag " + tag + " does not match " + t.getTag() + "´" + t.getValue());
+    }
+    throw new IllegalArgumentException("Bad tag " + tag + " for " + result);
   }
 
   @Override

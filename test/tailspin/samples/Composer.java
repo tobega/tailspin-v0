@@ -67,7 +67,7 @@ class Composer {
   void composeTaggedInt() throws IOException {
     String program = """
         composer tag
-        <(id) INT>
+        <id´ INT>
         end tag
         {id: 5, '23' -> tag -> (id: $)} -> !OUT::write""";
     Tailspin runner =
@@ -84,7 +84,7 @@ class Composer {
   void composeTaggedIntWrongAssignmentFails() throws IOException {
     String program = """
         composer tag
-        <(foo) INT>
+        <foo´ INT>
         end tag
         {id: 5, '23' -> tag -> (id: $)} -> !OUT::write""";
     Tailspin runner =
@@ -99,7 +99,7 @@ class Composer {
   void composeTaggedString() throws IOException {
     String program = """
         composer tag
-        <(id) '.*'>
+        <id´ '.*'>
         end tag
         {id: 'def', 'abc' -> tag -> (id: $)} -> !OUT::write""";
     Tailspin runner =
@@ -116,7 +116,7 @@ class Composer {
   void composeTaggedStringWrongAssignmentFails() throws IOException {
     String program = """
         composer tag
-        <(foo) INT>
+        <foo´ INT>
         end tag
         {id: 'def', 'abc' -> tag -> (id: $)} -> !OUT::write""";
     Tailspin runner =
@@ -131,7 +131,7 @@ class Composer {
   void composeTaggedIntArithmeticFails() throws IOException {
     String program = """
         composer tag
-        <(id) INT>
+        <id´ INT>
         end tag
         '23' -> tag -> $ + 1 -> !OUT::write""";
     Tailspin runner =
@@ -146,7 +146,7 @@ class Composer {
   void composeTaggedStructureFails() throws IOException {
     String program = """
         composer tag
-        <(id) struct>
+        <id´ struct>
         rule struct: { id: <'.*'>}
         end tag
         '23' -> tag -> !OUT::write""";
@@ -162,7 +162,7 @@ class Composer {
   void composeTaggedIntWithMeasureFails() throws IOException {
     String program = """
         composer tag
-        <(id) INT"m">
+        <id´ INT"m">
         end tag
         '23' -> tag -> !OUT::write""";
     Tailspin runner =
@@ -178,7 +178,7 @@ class Composer {
     String program = """
       data id <'[A-Z].*'>
       composer tag
-        <(id) '.*'>
+        <id´ '.*'>
       end tag
       'ABC' -> tag -> !OUT::write""";
     Tailspin runner =
@@ -196,7 +196,7 @@ class Composer {
     String program = """
       data id <'[A-Z].*'>
       composer tag
-        <(id) '.*'>
+        <id´ '.*'>
       end tag
       'abc' -> tag -> !OUT::write""";
     Tailspin runner =
@@ -211,7 +211,7 @@ class Composer {
   void composeTaggedStringAutotypesCorrectAssignmentWorks() throws IOException {
     String program = """
         composer tag
-          <(id) '.*'>
+          <id´ '.*'>
         end tag
         'abc' -> tag -> !OUT::write
         {id: 'def'} -> !OUT::write""";
@@ -229,7 +229,7 @@ class Composer {
   void composeTaggedStringAutotypesIncorrectAssignmentThrows() throws IOException {
     String program = """
         composer tag
-          <(id) '.*'>
+          <id´ '.*'>
         end tag
         'abc' -> tag -> !OUT::write
         {id: 5} -> !OUT::write""";

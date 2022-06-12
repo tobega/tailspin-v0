@@ -63,9 +63,9 @@ templates printJson
     '[$(1) -> printJson;$(2..last)... -> ', $ -> printJson;';]' !
   when <{}> do
     [ $... ] -> '{$(1) -> printKeyValue;$(2..last)... -> ', $ -> printKeyValue;';}' !
-  when <..0|0..> do
+  when <..> do
     '$;'!
-  when <'.*'> do
+  when <''> do
     [ $... -> encodeChars ] -> '"$...;"' !
   otherwise 'WTF!' !
   // Other types do not yet exist in Tailspin

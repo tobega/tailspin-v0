@@ -51,7 +51,7 @@ public class DataDictionary {
 
   public static String formatErrorValue(Object value) {
     if (value instanceof TaggedIdentifier t) {
-      return t.getTag() + ":" + t.getValue();
+      return t.getTag() + "´" + t.getValue();
     }
     if (value instanceof Measure m && m.getUnit().equals(Unit.SCALAR)) {
       return m.getValue() + "\"1\"";

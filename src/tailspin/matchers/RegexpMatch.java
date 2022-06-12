@@ -35,7 +35,7 @@ public class RegexpMatch implements Membrane {
 
     String stringToMatch;
     if (tag == null && toMatch instanceof TaggedIdentifier t) {
-      if (contextTag == null) throw new IllegalArgumentException("Cannot compare (" + t.getTag() + ") " + t.getValue() + " with raw string pattern " + pattern);
+      if (contextTag == null) throw new IllegalArgumentException("Cannot compare " + t.getTag() + "´ " + t.getValue() + " with raw string pattern " + pattern);
       if (!t.getTag().equals(contextTag)) return null;
       toMatch = t.getValue();
     }

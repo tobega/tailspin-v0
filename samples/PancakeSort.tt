@@ -7,7 +7,7 @@ templates pancakeSort
     when <2..> do
       @pancakeSort.stack(1..$): $@pancakeSort.stack($..1:-1)...;
       '$@pancakeSort.stack;$#10;' -> !OUT::write
-      @pancakeSort.flips: $@pancakeSort.flips + 1;
+      @pancakeSort.flips: $@pancakeSort.flips + 1"1";
   end flip
   sink fixTop
     @: 1;

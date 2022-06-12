@@ -452,7 +452,7 @@ class Numbers {
   @Test
   void matchesNumberType() throws IOException {
     String program = """
-      ['abc', (foo) 'bar', 56, (id) 78, {name: 'JD'}, ['xyz'], 89"m"]... -> \\(<..> $! \\) -> !OUT::write
+      ['abc', foo´ 'bar', 56, id´ 78, {name: 'JD'}, ['xyz'], 89"m"]... -> \\(<..> $! \\) -> !OUT::write
       """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

@@ -4,10 +4,10 @@ templates sayWords
   def i: $;
   templates maybeSay
     def word: $.word;
-    $i mod $.mod -> \(<=0> $word !\) !
+    $i mod $.mod -> \(<=0"1"> $word !\) !
   end maybeSay
   $input.words... -> maybeSay !
 end sayWords
 
-[ 1"1"..$input.N -> '$->sayWords;' ] -> \[i](<''> $i ! <> $ !\) -> '$;
+[ 1"1"..$input.N -> '$->sayWords;' ] -> \[i](<=''> $i ! <> $ !\) -> '$;
 ' -> !OUT::write
