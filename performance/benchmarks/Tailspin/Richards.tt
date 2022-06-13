@@ -2,26 +2,26 @@
 
 include 'harness'
 
-def NO_TASK: {};
-def NO_WORK: {};
-def IDLER: 1;
-def WORKER: 2;
-def HANDLER_A: 3;
-def HANDLER_B: 4;
-def DEVICE_A: 5;
-def DEVICE_B: 6;
-def NUM_TYPES: 6;
-
-def DEVICE_PACKET_KIND: 0;
-def WORK_PACKET_KIND: 1;
-
-def DATA_SIZE: 4;
-
-def TRACING: 0;
-
 // Currently no way to define processor types
 data taskList <>, link <>, input <>, currentTask <>, deviceIn <>, workIn <>
 data identity <0..6>, destination <identity>, currentTaskIdentity <identity>
+
+def NO_TASK: {};
+def NO_WORK: {};
+def IDLER: identity´1;
+def WORKER: identity´2;
+def HANDLER_A: identity´3;
+def HANDLER_B: identity´4;
+def DEVICE_A: identity´5;
+def DEVICE_B: identity´6;
+def NUM_TYPES: 6;
+
+def DEVICE_PACKET_KIND: kind´0;
+def WORK_PACKET_KIND: kind´1;
+
+def DATA_SIZE: 4"1";
+
+def TRACING: 0;
 
 operator (packet appendTo queueHead)
   $NO_WORK -> !packet::setLink
@@ -67,7 +67,7 @@ processor Scheduler
     when <=$NO_TASK> do $NO_TASK !
     otherwise
       def t: $;
-      @Scheduler.queuePacketCount: $@Scheduler.queuePacketCount + 1;
+      @Scheduler.queuePacketCount: $@Scheduler.queuePacketCount + 1"1";
       $NO_WORK -> !packet::setLink
       $@Scheduler.currentTaskIdentity -> !packet::setIdentity
       $packet -> t::addInputAndGetPriority -> \(
@@ -77,7 +77,7 @@ processor Scheduler
   end queuePacket
 
   source holdSelf
-    @Scheduler.holdCount: $@Scheduler.holdCount + 1;
+    @Scheduler.holdCount: $@Scheduler.holdCount + 1"1";
     1 -> !@Scheduler.currentTask::setTaskHolding
     $@Scheduler.currentTask::getLink!
   end holdSelf
@@ -138,8 +138,8 @@ processor Scheduler
                 otherwise
                   def devicePacket: $;
                   $::getLink -> !dataRecord::setDeviceIn
-                  $workPacket::getData&{i: $count} -> !devicePacket::setDatum
-                  $count + 1 -> !workPacket::setDatum
+                  ($workPacket::getData&{i: $count})"1" -> !devicePacket::setDatum
+                  $count + 1"1" -> !workPacket::setDatum
                   $devicePacket -> queuePacket !
               \) !
           \) !
@@ -152,7 +152,7 @@ processor Scheduler
     templates idlerFunction
       def dataRecord: $(2);
       $dataRecord::decrementCount -> \(
-        when <=0> do $holdSelf!
+        when <=0"1"> do $holdSelf!
         otherwise
           ($dataRecord::getControl and [x01x]) -> $(last) -> \(
             when <=[x00x]> do
@@ -178,11 +178,11 @@ processor Scheduler
         otherwise
           $data::getDestination -> \(<=$HANDLER_A> $HANDLER_B! <> $HANDLER_A!\) -> !data::setDestination
           $data::getDestination -> !work::setIdentity
-          0 -> !work::setDatum
-          0..~$DATA_SIZE -> \(
+          0"1" -> !work::setDatum
+          0"1"..~$DATA_SIZE -> \(
             def i: $;
-            $data::getCount + 1 -> \(<..26> $! <> 1!\) -> !data::setCount
-            65 + $data::getCount - 1 -> !work::setData&{i: $i}
+            $data::getCount + 1"1" -> \(<..26"1"> $! <> 1"1"!\) -> !data::setCount
+            65"1" + $data::getCount - 1"1" -> !work::setData&{i: $i}
           \) -> !VOID
           $work -> queuePacket !
       \) !
@@ -225,7 +225,7 @@ processor Scheduler
     [$DEVICE_B, 5000, $NO_WORK, $taskStateWaiting] -> !createDevice
 
     [$schedule] -> #
-    <?($@Scheduler.queuePacketCount <=23246>)?($@Scheduler.holdCount <=9297>)>
+    <?($@Scheduler.queuePacketCount <=23246"1">)?($@Scheduler.holdCount <=9297"1">)>
       1 !
     otherwise
       0 !
@@ -268,7 +268,7 @@ end HandlerTaskDataRecord
 processor IdleTaskDataRecord
   @: { control: [x01x] -> $(last-3..last), count: 10000"1"};
   source decrementCount
-    @IdleTaskDataRecord.count: $@IdleTaskDataRecord.count - 1;
+    @IdleTaskDataRecord.count: $@IdleTaskDataRecord.count - 1"1";
     $@IdleTaskDataRecord.count !
   end decrementCount
   source getControl
@@ -280,7 +280,7 @@ processor IdleTaskDataRecord
 end IdleTaskDataRecord
 
 processor WorkerTaskDataRecord
-  @: {destination: $HANDLER_A, count: 0};
+  @: {destination: $HANDLER_A, count: 0"1"};
   source getCount
     $@WorkerTaskDataRecord.count!
   end getCount
@@ -296,7 +296,7 @@ processor WorkerTaskDataRecord
 end WorkerTaskDataRecord
 
 processor Packet
-  @: { $..., datum: 0"1", data: [1..$DATA_SIZE -> 0] };
+  @: { $..., datum: 0"1", data: [1"1"..$DATA_SIZE -> 0] };
   source getKind
     $@Packet.kind!
   end getKind
@@ -313,10 +313,10 @@ processor Packet
     @Packet.datum: $;
   end setDatum
   source getData&{i:}
-    $@Packet.data($i+1)!
+    $@Packet.data($i::raw+1)!
   end getData
   sink setData&{i:}
-    @Packet.data($i+1): $;
+    @Packet.data($i::raw+1): $;
   end setData
   source getIdentity
     $@Packet.identity!
@@ -363,15 +363,15 @@ processor TaskControlBlock&{link:, data:, function:}
 
   source isTaskHoldingOrWaiting
     $@TaskControlBlock.taskHolding -> #
-    <=1> 1 !
-    <?($@TaskControlBlock.packetPending <=0>)?($@TaskControlBlock.taskWaiting <=1>)> 1!
+    <=taskHolding´1> 1 !
+    <?($@TaskControlBlock.packetPending <=packetPending´0>)?($@TaskControlBlock.taskWaiting <=taskWaiting´1>)> 1!
     <> 0!
   end isTaskHoldingOrWaiting
 
   source isWaitingWithPacket
     $@TaskControlBlock.taskHolding -> #
-    <=1> 0 !
-    <?($@TaskControlBlock.packetPending <=1>)?($@TaskControlBlock.taskWaiting <=1>)> 1!
+    <=taskHolding´1> 0 !
+    <?($@TaskControlBlock.packetPending <=packetPending´1>)?($@TaskControlBlock.taskWaiting <=taskWaiting´1>)> 1!
     <> 0!
   end isWaitingWithPacket
 

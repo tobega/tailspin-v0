@@ -1,44 +1,42 @@
 include 'harness'
 
-data r <"1">, c <"1">
-
 templates queens
   templates getRowColumn
     <?($@queens.freeRows($.r) <=0>)> 0 !
-    <?($@queens.freeMaxs($.r + $.c) <=0>)> 0 !
-    <?($@queens.freeMins($.c - $.r + 8) <=0>)> 0 !
+    <?($@queens.freeMaxs($.r::raw + $.c::raw) <=0>)> 0 !
+    <?($@queens.freeMins($.c::raw - $.r::raw + 8) <=0>)> 0 !
     <> 1!
   end getRowColumn
 
   templates setRowColumn
     def p: $;
-    @queens.freeRows($p.r): $p.val;
-    @queens.freeMaxs($p.c + $p.r): $p.val;
-    @queens.freeMins($p.c - $p.r + 8): $p.val;
+    @queens.freeRows($p.r): $p.val::raw;
+    @queens.freeMaxs($p.c::raw + $p.r::raw): $p.val::raw;
+    @queens.freeMins($p.c::raw - $p.r::raw + 8): $p.val::raw;
   end setRowColumn
 
   templates placeQueen
     def c: $;
-    1 -> #
-    <=-1> 1! // Use -1 to signal successful completion
-    <=9> 0 !
+    r´1 -> #
+    <=r´-1> 1! // Use -1 to signal successful completion
+    <=r´9> 0 !
     <?({r: $, c: $c} -> getRowColumn <=1>)>
       def r: $;
       @queens.queenRows($r): $c;
       {r: $, c: $c, val: 0} -> setRowColumn -> !VOID
-      $c -> \(<=8> -1!
-        <?($c + 1 -> placeQueen <=1>)> -1!
+      $c -> \(<=c´8> r´-1!
+        <?(c´($c::raw + 1) -> placeQueen <=1>)> r´-1!
         <>
           {r: $r, c: $c, val: 1} -> setRowColumn -> !VOID
-          $r + 1 !\) -> #
-    <> $ + 1 -> #
+          r´($r::raw + 1) !\) -> #
+    <> r´($::raw + 1) -> #
   end placeQueen
 
   @: { freeRows: [1..8 -> 1],
     freeMaxs: [1..16 -> 1],
     freeMins: [1..16 -> 1],
-    queenRows: [1..8 -> -1] };
-  1 -> placeQueen !
+    queenRows: [1..8 -> c´-1] };
+  c´1 -> placeQueen !
 end queens
 
 templates runAndVerify

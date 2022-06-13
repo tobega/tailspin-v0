@@ -3,7 +3,7 @@ include 'harness'
 // I don't know what this benchmark really is supposed to calculate, but it sure does a lot of swaps
 templates permute
   templates derange
-    @permute.count: $@permute.count + 1;
+    @permute.count: $@permute.count + 1"1";
     $ -> #
     <1..>
       def n: $;
@@ -20,7 +20,7 @@ templates permute
   end derange
   @: { count: 0"1", v: [1..$]};
   $ -> derange -> !VOID
-  $@.count !
+  $@.count::raw !
 end permute
 
 templates runAndVerify
