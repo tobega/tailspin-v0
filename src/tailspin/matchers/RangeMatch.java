@@ -121,8 +121,10 @@ public class RangeMatch implements Membrane {
       }
     }
     else if (lhs instanceof TaggedIdentifier l) {
-      if (!l.getTag().equals(contextTag) || rhs instanceof Measure)
+      if (contextTag != null && !l.getTag().equals(contextTag)) return null; // type match shouldn't throw
+      if (!l.getTag().equals(contextTag) || rhs instanceof Measure) {
         throw new IllegalArgumentException("Cannot compare " + l.getTag() + "´ " + l.getValue() + " with " + rhs);
+      }
       lhs = l.getValue();
     }
     else if (rhs instanceof TaggedIdentifier r) {

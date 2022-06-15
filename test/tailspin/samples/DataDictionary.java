@@ -993,4 +993,53 @@ public class DataDictionary {
 
     assertEquals("{foo=3}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void typeTestOfTaggedRangeOnOtherTagWorks() throws IOException {
+    String program = """
+    data foo <1..5>
+    bar´4 -> \\(<foo> $! <> 'ok'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void typeTestOfEnumOnOtherTagWorks() throws IOException {
+    String program = """
+    data flag <=1>
+    bar´4 -> \\(<flag> $! <> 'ok'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void typeTestOfTaggedAliasOnOtherTagWorks() throws IOException {
+    String program = """
+    data foo <..>
+    data bar <foo>
+    qaz´4 -> \\(<bar> $! <> 'ok'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
 }
