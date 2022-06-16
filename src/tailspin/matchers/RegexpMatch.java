@@ -3,6 +3,7 @@ package tailspin.matchers;
 import java.util.regex.Pattern;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.Membrane;
 import tailspin.types.TaggedIdentifier;
 
@@ -35,7 +36,8 @@ public class RegexpMatch implements Membrane {
 
     String stringToMatch;
     if (tag == null && toMatch instanceof TaggedIdentifier t) {
-      if (contextTag == null) throw new IllegalArgumentException("Cannot compare " + t.getTag() + "´ " + t.getValue() + " with raw string pattern " + pattern);
+      if (contextTag == null) throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(t)
+          + " with raw string pattern " + pattern);
       if (!t.getTag().equals(contextTag)) return null;
       toMatch = t.getValue();
     }

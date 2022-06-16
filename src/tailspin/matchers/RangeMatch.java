@@ -4,6 +4,7 @@ import tailspin.arithmetic.IntegerConstant;
 import tailspin.control.Bound;
 import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
+import tailspin.types.DataDictionary;
 import tailspin.types.Membrane;
 import tailspin.types.Measure;
 import tailspin.types.TaggedIdentifier;
@@ -64,7 +65,7 @@ public class RangeMatch implements Membrane {
         throw new IllegalArgumentException("Match lower bound unit " + unit + " incompatible with upper bound " + high);
       if (high instanceof TaggedIdentifier t && lowerBound != null) {
         if (!t.getTag().equals(tag))
-          throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + t.getTag() + ":" + t.getValue());
+          throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + DataDictionary.formatErrorValue(t));
       } else if (tag != null)
         throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + high);
       toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high,
@@ -117,32 +118,32 @@ public class RangeMatch implements Membrane {
         lhs = l.getValue();
         rhs = r.getValue();
       } else {
-        throw new IllegalArgumentException("Cannot compare " + l.getTag() + "´ " + l.getValue() + " with " + r.getTag() + "´ " + r.getValue());
+        throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(l) + " with " + DataDictionary.formatErrorValue(r));
       }
     }
     else if (lhs instanceof TaggedIdentifier l) {
       if (contextTag != null && !l.getTag().equals(contextTag)) return null; // type match shouldn't throw
       if (!l.getTag().equals(contextTag) || rhs instanceof Measure) {
-        throw new IllegalArgumentException("Cannot compare " + l.getTag() + "´ " + l.getValue() + " with " + rhs);
+        throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(l) + " with " + DataDictionary.formatErrorValue(rhs));
       }
       lhs = l.getValue();
     }
     else if (rhs instanceof TaggedIdentifier r) {
-      throw new IllegalArgumentException("Cannot compare " + lhs + " with " + r.getTag() + "´ " + r.getValue());
+      throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(lhs) + " with " + DataDictionary.formatErrorValue(r));
     }
     else if (lhs instanceof Measure l && rhs instanceof Measure r) {
       if (l.getUnit().equals(r.getUnit())) {
         lhs = l.getValue();
         rhs = r.getValue();
       } else {
-        throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+        throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(lhs) + " with " + DataDictionary.formatErrorValue(rhs));
       }
     }
     else if (lhs instanceof Measure && rhs instanceof Long) {
-      throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+      throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(lhs) + " with " + DataDictionary.formatErrorValue(rhs));
     }
     else if (lhs instanceof Long && rhs instanceof Measure) {
-      throw new IllegalArgumentException("Cannot compare " + lhs + " with " + rhs);
+      throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(lhs) + " with " + DataDictionary.formatErrorValue(rhs));
     }
 
     boolean matches = false;

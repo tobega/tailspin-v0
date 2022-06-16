@@ -2,6 +2,7 @@ package tailspin.arithmetic;
 
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.Measure;
 import tailspin.types.TaggedIdentifier;
 import tailspin.types.Unit;
@@ -26,7 +27,7 @@ public class ArithmeticValue implements Value {
     Object tagged = scope.getLocalDictionary().checkDataDefinition(tag, result);
     if (tagged instanceof TaggedIdentifier t) {
       if (t.getTag().equals(tag)) return tagged;
-      throw new IllegalArgumentException("Tag " + tag + " does not match " + t.getTag() + "´" + t.getValue());
+      throw new IllegalArgumentException("Tag " + tag + " does not match " + DataDictionary.formatErrorValue(t));
     }
     throw new IllegalArgumentException("Bad tag " + tag + " for " + result);
   }

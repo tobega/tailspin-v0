@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.TaggedIdentifier;
 
 public class StringLiteral implements Value {
@@ -26,7 +27,7 @@ public class StringLiteral implements Value {
     Object result = scope.getLocalDictionary().checkDataDefinition(tag, value);
     if (result instanceof TaggedIdentifier t) {
       if (t.getTag().equals(tag)) return result;
-      throw new IllegalArgumentException("Assigned tag " + tag + " does not match " + t.getTag() + "´" + t.getValue());
+      throw new IllegalArgumentException("Assigned tag " + tag + " does not match " + DataDictionary.formatErrorValue(t));
     }
     throw new IllegalArgumentException("Bad tag " + tag + " assigned for " + value);
   }
