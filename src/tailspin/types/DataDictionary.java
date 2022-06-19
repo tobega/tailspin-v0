@@ -164,12 +164,12 @@ public class DataDictionary {
     return dataDefinitions.get(identifier);
   }
 
-  public Object checkDataDefinition(String key, Object data) {
+  public Object checkDataDefinition(String key, Object data, Scope scope) {
     if (callingDictionary != null && !isKeyDefined(key)) {
-      return callingDictionary.checkDataDefinition(key, data);
+      return callingDictionary.checkDataDefinition(key, data, scope);
     }
     if (moduleDictionary != null && !dataDefinitions.containsKey(key)) {
-      return moduleDictionary.checkDataDefinition(key, data);
+      return moduleDictionary.checkDataDefinition(key, data, scope);
     }
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
@@ -177,7 +177,7 @@ public class DataDictionary {
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
-    Object result = def.permeate(data, null, null, null);
+    Object result = def.permeate(data, null, scope, null);
     if (result == null) {
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
     }

@@ -32,7 +32,7 @@ public class TagSubComposer implements SubComposer {
       if (!(parsed instanceof Long) && !(parsed instanceof String)) {
         throw new IllegalStateException("Cannot assign tag " + tag + " to value " + parsed.toString());
       }
-      parsed = localDictionary.checkDataDefinition(tag, parsed);
+      parsed = localDictionary.checkDataDefinition(tag, parsed, null);
       if (parsed instanceof TaggedIdentifier t && tag.equals(t.getTag())) {
         value = t;
       }

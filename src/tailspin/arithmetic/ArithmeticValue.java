@@ -24,7 +24,7 @@ public class ArithmeticValue implements Value {
       throw new ArithmeticException("Cannot infer unit of measure for expression " + value);
     }
     if (tag == null) return result;
-    Object tagged = scope.getLocalDictionary().checkDataDefinition(tag, result);
+    Object tagged = scope.getLocalDictionary().checkDataDefinition(tag, result, scope);
     if (tagged instanceof TaggedIdentifier t) {
       if (t.getTag().equals(tag)) return tagged;
       throw new IllegalArgumentException("Tag " + tag + " does not match " + DataDictionary.formatErrorValue(t));

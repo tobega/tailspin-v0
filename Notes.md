@@ -23,6 +23,7 @@
 - Allow module modification to be exported from (defined in) a separate file
 - Typestates processor should be able to virtually dispatch to current state ('this' keyword?)
 - Composer failures should contain better error information. Partial parsing?
+- Strings should not be comparable in a range match, they should always be compared according to explicit collators.
 
 #### Confusing
 * items with different field names just compare unequal. Perhaps should error? You can always type match first.

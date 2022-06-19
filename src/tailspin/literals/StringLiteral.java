@@ -24,7 +24,7 @@ public class StringLiteral implements Value {
         .map(Object::toString)
         .collect(Collectors.joining());
     if (tag == null) return value;
-    Object result = scope.getLocalDictionary().checkDataDefinition(tag, value);
+    Object result = scope.getLocalDictionary().checkDataDefinition(tag, value, scope);
     if (result instanceof TaggedIdentifier t) {
       if (t.getTag().equals(tag)) return result;
       throw new IllegalArgumentException("Assigned tag " + tag + " does not match " + DataDictionary.formatErrorValue(t));

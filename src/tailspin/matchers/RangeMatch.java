@@ -53,7 +53,7 @@ public class RangeMatch implements Membrane {
       if (low instanceof Measure m) unit = m.getUnit();
       if (low instanceof TaggedIdentifier t) tag = t.getTag();
       toMatch = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low,
-          contextTag);
+          contextTag, scope);
       if (toMatch == null) return null;
     }
     if (upperBound != null) {
@@ -69,7 +69,7 @@ public class RangeMatch implements Membrane {
       } else if (tag != null)
         throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + high);
       toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high,
-          contextTag);
+          contextTag, scope);
     }
     return toMatch;
   }
@@ -111,12 +111,14 @@ public class RangeMatch implements Membrane {
     public abstract boolean isValid(int comparison);
   }
 
-  public static Object compare(Object toMatch, Comparison comparison, Object rhs, String contextTag) {
+  public static Object compare(Object toMatch, Comparison comparison, Object rhs, String contextTag, Scope scope) {
     Object lhs = toMatch;
     if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
       if (l.getTag().equals(r.getTag())) {
         lhs = l.getValue();
         rhs = r.getValue();
+      } else if(scope.getLocalDictionary().checkDataDefinition(r.getTag(), l, scope) != null) {
+        return null;
       } else {
         throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(l) + " with " + DataDictionary.formatErrorValue(r));
       }

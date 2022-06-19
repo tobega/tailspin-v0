@@ -14,6 +14,9 @@ a series of transforms so it should be easy to specify that flow. Transform step
 pattern-matching determining which template to apply. Output is generally specified as literals with interpolation of values.
 For more info see the [language reference documentation](TailspinReference.md).
 
+Tailspin aims to let you process your data as easily and flexibly as possible, while at the same time trying to help/coerce you to "do the right thing"
+without introducing lots of boilerplate. Tailspin will error if it seems you may have made a programming error.
+
 Despite the grounding in business data processing, Tailspin turns out to be fun to use and has been
 used for the [adventofcode](https://adventofcode.com/) events of [2018](https://github.com/tobega/aoc2018), [2019](https://github.com/tobega/aoc2019)
 and  [2020](https://github.com/tobega/aoc2020)
