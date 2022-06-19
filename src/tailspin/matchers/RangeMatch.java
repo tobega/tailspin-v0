@@ -117,6 +117,10 @@ public class RangeMatch implements Membrane {
       if (l.getTag().equals(r.getTag())) {
         lhs = l.getValue();
         rhs = r.getValue();
+      } else if(contextTag != null) { // type of toMatch should be fine in tag context
+        if(scope.getLocalDictionary().checkDataDefinition(contextTag, r, scope) == null)
+          throw new IllegalArgumentException("Value " + DataDictionary.formatErrorValue(rhs) + " not valid for tag " + contextTag);
+        return null;
       } else if(scope.getLocalDictionary().checkDataDefinition(r.getTag(), l, scope) != null) {
         return null;
       } else {
