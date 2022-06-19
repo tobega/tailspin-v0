@@ -124,7 +124,13 @@ public class RangeMatch implements Membrane {
       }
     }
     else if (lhs instanceof TaggedIdentifier l) {
-      if (contextTag != null && !l.getTag().equals(contextTag)) return null; // type match shouldn't throw
+      if (contextTag != null && !l.getTag().equals(contextTag)) {
+        Object checkedRhs = scope.getLocalDictionary().checkDataDefinition(contextTag, rhs, scope);
+        if (checkedRhs == null || (checkedRhs instanceof TaggedIdentifier r && !r.getTag().equals(contextTag))) {
+          throw new IllegalArgumentException("Value " + DataDictionary.formatErrorValue(rhs) + " not valid for tag " + contextTag);
+        }
+        return null; // type match shouldn't throw
+      }
       if (!l.getTag().equals(contextTag) || rhs instanceof Measure) {
         throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(l) + " with " + DataDictionary.formatErrorValue(rhs));
       }

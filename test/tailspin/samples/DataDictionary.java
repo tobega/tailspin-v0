@@ -1059,4 +1059,36 @@ public class DataDictionary {
 
     assertEquals("ok", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void testRawValueOnlyValidAsTaggedThrows() throws IOException {
+    String program = """
+    data type <='E'|='G'>
+    data content <type|='.'>
+    {content: 'E'} -> \\(<{content: <='E'>}> 'no way'! <> 'nah'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void testTaggedValueWithCorrectTag() throws IOException {
+    String program = """
+    data type <='E'|='G'>
+    data content <type|='.'>
+    {content: 'E'} -> \\(<{content: <=type´'E'>}> 'ok'! <> 'nope'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
 }
