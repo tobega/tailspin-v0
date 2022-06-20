@@ -8,7 +8,7 @@ templates pancakeQuick
     when <2..> do
       @pancakeQuick.stack(1..$): $@pancakeQuick.stack($..1:-1)...;
 //      '$@pancakeQuick.stack;$#10;' -> !OUT::write
-      @pancakeQuick.flips: $@pancakeQuick.flips + 1;
+      @pancakeQuick.flips: $@pancakeQuick.flips + 1"1";
   end flip
 
   sink order&{cmp:}
@@ -17,9 +17,9 @@ templates pancakeQuick
     $ - 1 -> #
 
     when <=0 ?($@ <{break: <>}>)> do
-      $@.break -> !order&{cmp: -$cmp}
+      $@.break::raw -> !order&{cmp: -$cmp}
       $n -> !flip
-      $n - $@.break -> !order&{cmp: $cmp}
+      $n - $@.break::raw -> !order&{cmp: $cmp}
     
     when <=0> do
       $n - 1 -> \(<2..> $ !\) -> !order&{cmp: $cmp}
@@ -42,7 +42,7 @@ templates pancakeQuick
       ?($@pancakeQuick.stack($) <$@pancakeQuick.stack($n)..>)
     > do
       $ -> !flip
-      ^@.break -> #
+      ^@.break -> $::raw -> #
 
     when <?($@ <{break: VOID}>)
       ?($cmp <=1>)
@@ -60,7 +60,7 @@ templates pancakeQuick
       $ - 1 -> #
 
     otherwise
-      ..|@: (break: ($)"1");
+      ..|@: (break: $);
       $ - 1 -> #
   end order
   $::length -> !order&{cmp: 1}

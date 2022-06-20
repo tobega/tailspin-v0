@@ -5,8 +5,8 @@ processor Ball&{random:}
   @: {
     x: ($random::next mod 500)"x",
     y: ($random::next mod 500)"y",
-    xVel: ($random::next mod 300)"x" - 150,
-    yVel: ($random::next mod 300)"y" - 150
+    xVel: ($random::next mod 300)"x" - 150"x",
+    yVel: ($random::next mod 300)"y" - 150"y"
   };
   source bounce
     def xLimit: 500"x";

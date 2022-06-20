@@ -49,7 +49,7 @@ processor EinsteinSolver
       def numbers: [$temp({ES_temp__:})... -> $.ES_temp__];
       $numbers... -> \(
         def aNumber: $;
-        def bNumbers: [$bMinusA... -> $ + $aNumber];
+        def bNumbers: [$bMinusA... -> ($ + $aNumber)"1"];
         def new: ($temp matching {| {$a, ES_temp__: $aNumber} |});
         @: ($new union (($temp notMatching {| $a |}) notMatching {| {ES_temp__: $aNumber} |}));
         $numbers... -> \(<~ ?($bNumbers <[<=$>]>)> $! \) -> @: ($@ notMatching {| {$b, ES_temp__: $} |});

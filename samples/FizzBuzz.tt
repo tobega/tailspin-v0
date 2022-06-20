@@ -8,5 +8,5 @@ templates buzz
   when <=0> do 'Buzz' !
 end buzz
 
-[ 1..100 -> '$->fizz;$->buzz;' ] -> \[i](when <''> do $i ! otherwise $ !\)... -> '$;
+[ 1..100 -> '$->fizz;$->buzz;' ] -> \[i](when <=''> do $i ! otherwise $ !\)... -> '$;
 ' -> !OUT::write

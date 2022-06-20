@@ -97,8 +97,11 @@ public class ArithmeticOperation implements Value {
       }
       if (right instanceof Measure m) {
         rvalue = m.getValue();
-        if (unit == null
-            || (worksOnSameUnit && unit.equals(m.getUnit()))
+        if (unit == null) {
+          if (!unchangedByScalar) unit = Unit.UNKNOWN;
+          else unit = m.getUnit();
+        }
+        else if (worksOnSameUnit && unit.equals(m.getUnit())
             || (unchangedByScalar && unit.equals(Unit.SCALAR))
         ) {
           unit = m.getUnit();
@@ -107,6 +110,7 @@ public class ArithmeticOperation implements Value {
         }
       } else {
         rvalue = (long) right;
+        if (unit != null && !unchangedByScalar) unit = Unit.UNKNOWN;
       }
       long result = apply(lvalue, rvalue);
       return unit == null ? result : new Measure(result, unit);

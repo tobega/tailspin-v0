@@ -2,7 +2,7 @@
 // https://www.reddit.com/r/dailyprogrammer/comments/n94io8/20210510_challenge_389_easy_the_monty_hall_problem/
 
 templates one
-  1 !
+  door´ 1 !
 end one
 
 templates randomChoice
@@ -22,7 +22,7 @@ templates switch
 end switch
 
 templates maybeTwo
-  when <{switch: <=2>}> do 2 !
+  when <{switch: <=door´2>}> do door´ 2 !
   otherwise $.keep !
 end maybeTwo
 
@@ -54,12 +54,12 @@ end Gina
 
 source simulate&{first:, second:, counter:}
   sink play
-    def winner: 3 -> SYS::randomInt -> $ + 1;
+    def winner: 3 -> SYS::randomInt -> door´($ + 1);
     templates presentAlternative
-      when <=$winner> do [1..3 -> \(when <~=$winner> do $ !\)] -> randomChoice !
+      when <=$winner> do [door´1..door´3 -> \(when <~=$winner> do $ !\)] -> randomChoice !
       otherwise $winner !
     end presentAlternative
-    [1..3] -> first -> {keep: $, switch: $ -> presentAlternative} -> second -> #
+    [door´1..door´3] -> first -> {keep: $, switch: $ -> presentAlternative} -> second -> #
     when <=$winner> do 1 -> !counter::add
     otherwise 0 -> !counter::add
   end play

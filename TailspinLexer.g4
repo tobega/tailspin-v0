@@ -77,6 +77,8 @@ Quote: '"';
 
 Lambda: '\\';
 
+Tick: '´';
+
 StartTemplatesDefinition: 'templates';
 
 StartSourceDefinition: 'source';

@@ -13,9 +13,8 @@ public class UnitMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
     if (toMatch instanceof Measure m && unit.equals(m.getUnit())) return toMatch;
-    if (toMatch instanceof Long n && unit.equals(Unit.SCALAR)) return new Measure(n, Unit.SCALAR);
     return null;
   }
 

@@ -4,7 +4,6 @@ import tailspin.interpreter.Scope;
 import tailspin.transform.Lens;
 import tailspin.types.Freezable;
 import tailspin.types.KeyValue;
-import tailspin.types.Measure;
 import tailspin.types.Processor;
 import tailspin.types.Structure;
 import tailspin.types.TailspinArray;
@@ -50,7 +49,7 @@ public abstract class Reference implements Value {
     return itReference;
   }
 
-  private static Reference itReference = new Reference() {
+  private static final Reference itReference = new Reference() {
     @Override
     public Object getValue(Object it, Scope scope) {
       if (it instanceof ReflexiveIt) it = ((ReflexiveIt) it).it;
@@ -77,7 +76,7 @@ public abstract class Reference implements Value {
 
     @Override
     public String toString() {
-      return "$";
+      return "";
     }
   };
 
@@ -85,7 +84,7 @@ public abstract class Reference implements Value {
     return reflexiveReference;
   }
 
-  private static Reference reflexiveReference = new Reference() {
+  private static final Reference reflexiveReference = new Reference() {
     @Override
     public Object getValue(Object it, Scope scope) {
       if (!(it instanceof ReflexiveIt)) {
@@ -152,7 +151,7 @@ public abstract class Reference implements Value {
 
     @Override
     public String toString() {
-      return "$" + identifier;
+      return identifier;
     }
   }
 

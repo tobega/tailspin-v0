@@ -464,10 +464,11 @@ class Strings {
   @Test
   void keepCombiningMarksOnCharacter() throws Exception {
     String program =
-        "templates reverse\n"
-            + "  '$ -> [ $... ] -> $(last..first:-1)...;' !\n"
-            + "end reverse\n"
-            + "'as⃝df̅' -> reverse -> !OUT::write";
+        """
+            templates reverse
+              '$ -> [ $... ] -> $(last..first:-1)...;' !
+            end reverse
+            'as⃝df̅' -> reverse -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -507,10 +508,11 @@ class Strings {
   @Test
   void interpolateState() throws Exception {
     String program =
-        "templates foo\n"
-            + "  @: 5; '$@;'!\n"
-            + "end foo\n"
-            + "1 -> foo -> !OUT::write";
+        """
+            templates foo
+              @: 5; '$@;'!
+            end foo
+            1 -> foo -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -524,10 +526,11 @@ class Strings {
   @Test
   void interpolateNamedState() throws Exception {
     String program =
-        "templates foo\n"
-            + "  @: 5; '$@foo;'!\n"
-            + "end foo\n"
-            + "1 -> foo -> !OUT::write";
+        """
+            templates foo
+              @: 5; '$@foo;'!
+            end foo
+            1 -> foo -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -588,5 +591,33 @@ class Strings {
     runner.run(input, output, List.of());
 
     assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void acceptsRawMessage() throws IOException {
+    String program = "'abc' -> $::raw -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("abc", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void matchesStringType() throws IOException {
+    String program = """
+      ['abc', foo´ 'bar', 56, id´ 78, {name: 'JD'}, ['xyz'], 89"m"]... -> \\(<''> $! \\) -> !OUT::write
+      """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("abcbar", output.toString(StandardCharsets.UTF_8));
   }
 }

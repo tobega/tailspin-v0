@@ -4,24 +4,54 @@ Progress measured in how many times slower than Java, from the latest runs. The 
 a better-designed version of Richards with immutable packets.
 
 | Date                                                               |Implementation| Bounce | Json | List | Permute | Queens | RadixSort | Richards | Richards2 | Sieve | Storage | Towers |
-|--------------------------------------------------------------------|---|--------|------|------|---------|--------|-----------|----------|-----------|-------|---------|--------|
-| [2020-07-30 jdk14 result iterator cleanup](#2020-07-30)            |Interpreted| 839    | 136  | 291  | 526     | 833    |           |          |           | 140   |         | 541    |
-| [2020-07-31 jdk14 bug fixes, result iterator cleanup](#2020-07-31) |Interpreted| 741    | 131  | 273  | 605     | 672    |           |          |           | 148   |         | 524    |
-| [2020-08-05 jdk14 composer backtracking](#2020-08-05)              |Interpreted| 686    | 162  | 259  | 530     | 784    |           |          |           | 160   |         | 556    |
-| [2020-11-11 jdk14 regression test](#2020-11-11)                    |Interpreted| 732    | 118  | 256  | 564     | 688    |           |          |           | 152   |         | 586    |
-| [2020-11-14 jdk14 Richards benchmark](#2020-11-14)                 |Interpreted| 746    | 120  | 252  | 561     | 755    |           | 911      |           | 163   |         | 585    |
-| [2020-11-16 jdk14 Richards2 benchmark](#2020-11-16)                |Interpreted| 686    | 129  | 268  | 555     | 747    |           | 798      | 642       | 150   |         | 602    |
-| [2020-11-28 jdk14 TailspinArray](#2020-11-28)                      |Interpreted| 750    | 121  | 231  | 527     | 848    |           | 806      | 628       | 164   |         | 659    |
-| [2020-11-29 jdk14 Storage+RadixSort benchmarks](#2020-11-29)       |Interpreted| 734    | 123  | 259  | 489     | 794    | 67        | 819      | 585       | 160   | 173     | 642    |
-| [2020-11-30 jdk14 freezable structures](#2020-11-30)               |Interpreted| 626    | 108  | 275  | 449     | 898    | 61        | 785      | 785       | 177   | 133     | 525    |
-| [2021-02-01 jdk15 relations and lenses](#2021-02-01)               |Interpreted| 782    | 109  | 315  | 551     | 796    | 63        | 757      | 642       | 162   | 194     | 570    |
-| [2021-09-12 jdk16 simple autotyping](#2021-09-12)                  |Interpreted| 910    | 73   | 390  | 613     | 1014   | 79        | 917      | 643       | 205   | 158     | 870    |
-| [2021-09-12 jdk16 tagged identifiers](#2021-09-12b)                |Interpreted| 1265   | 136  | 305  | 613     | 847    | 47        | 1041     | 655       | 182   | 230     | 1001   |
-| [2022-06-11 jdk17 baseline, no sudo](#2022-06-11)                  |Interpreted| 1207   | 148  | 432  | 1085    | 986    | 166       | 1069     | 811       | 757   | 192     | 978    |
+|--------------------------------------------------------------------|---|--------|------|------|---------|--|------|---|-----------|-------|---------|--------|
+| [2020-07-30 jdk14 result iterator cleanup](#2020-07-30)            |Interpreted| 839    | 136  | 291  | 526     | 833 |      |   |           | 140   |         | 541    |
+| [2020-07-31 jdk14 bug fixes, result iterator cleanup](#2020-07-31) |Interpreted| 741    | 131  | 273  | 605     | 672 |      |   |           | 148   |         | 524    |
+| [2020-08-05 jdk14 composer backtracking](#2020-08-05)              |Interpreted| 686    | 162  | 259  | 530     | 784 |      |   |           | 160   |         | 556    |
+| [2020-11-11 jdk14 regression test](#2020-11-11)                    |Interpreted| 732    | 118  | 256  | 564     | 688 |      |   |           | 152   |         | 586    |
+| [2020-11-14 jdk14 Richards benchmark](#2020-11-14)                 |Interpreted| 746    | 120  | 252  | 561     | 755 |      | 911 |           | 163   |         | 585    |
+| [2020-11-16 jdk14 Richards2 benchmark](#2020-11-16)                |Interpreted| 686    | 129  | 268  | 555     | 747 |      | 798 | 642       | 150   |         | 602    |
+| [2020-11-28 jdk14 TailspinArray](#2020-11-28)                      |Interpreted| 750    | 121  | 231  | 527     | 848 |      | 806 | 628       | 164   |         | 659    |
+| [2020-11-29 jdk14 Storage+RadixSort benchmarks](#2020-11-29)       |Interpreted| 734    | 123  | 259  | 489     | 794 | 67   | 819 | 585       | 160   | 173     | 642    |
+| [2020-11-30 jdk14 freezable structures](#2020-11-30)               |Interpreted| 626    | 108  | 275  | 449     | 898 | 61   | 785 | 785       | 177   | 133     | 525    |
+| [2021-02-01 jdk15 relations and lenses](#2021-02-01)               |Interpreted| 782    | 109  | 315  | 551     | 796 | 63   | 757 | 642       | 162   | 194     | 570    |
+| [2021-09-12 jdk16 simple autotyping](#2021-09-12)                  |Interpreted| 910    | 73   | 390  | 613     | 1014 | 79   | 917 | 643       | 205   | 158     | 870    |
+| [2021-09-12 jdk16 tagged identifiers](#2021-09-12b)                |Interpreted| 1265   | 136  | 305  | 613     | 847 | 47   | 1041 | 655       | 182   | 230     | 1001   |
+| [2022-06-11 jdk18 baseline, no sudo](#2022-06-11)                  |Interpreted| 1207   | 148  | 432  | 1085    | 986 | 166  | 1069 | 811       | 757   | 192     | 978    |
+| [2022-06-12 jdk18 stricter typing](#2022-06-12)                    |Interpreted|1283|116|468|904|1227|166|1127|893|807|208|823|
+
+## 2022-06-12
+machine 3, stricter typing
+openjdk18
+
+|Benchmark|Mean runtime us|
+|---|---|
+|Bounce Java|14|
+|Bounce Tailspin|17959|
+|Json Java|78|
+|Json Tailspin|9042|
+|List Java|23|
+|List Tailspin|10766|
+|Permute Java|23|
+|Permute Tailspin|20786|
+|Queens Java|21|
+|Queens Tailspin|25766|
+|RadixSort Java|58|
+|RadixSort Tailspin|9645|
+|Richards Java|15|
+|Richards Tailspin|16904|
+|Richards2 Java|16|
+|Richards2 Tailspin|14284|
+|Sieve Java|8|
+|Sieve Tailspin|6454|
+|Storage Java|93|
+|Storage Tailspin|19367|
+|Towers Java|25|
+|Towers Tailspin|20570|
 
 ## 2022-06-11
 machine 3, baseline, no sudo
-openjdk17
+openjdk18
 
 |Benchmark|Mean runtime us|
 |---|---|

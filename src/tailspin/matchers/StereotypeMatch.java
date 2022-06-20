@@ -12,9 +12,9 @@ public class StereotypeMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
     Membrane stereotype = scope.getLocalDictionary().getDataDefinition(identifier);
-    return stereotype.permeate(toMatch, null, null);
+    return stereotype.permeate(toMatch, null, null, contextTag);
   }
 
   @Override

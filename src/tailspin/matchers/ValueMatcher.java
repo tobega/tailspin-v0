@@ -16,8 +16,9 @@ public class ValueMatcher implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
-    Object baseValue = basicMembrane == null ? toMatch : basicMembrane.permeate(toMatch, it, scope);
+  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+    Object baseValue = basicMembrane == null ? toMatch : basicMembrane.permeate(toMatch, it, scope,
+        contextTag);
     if (baseValue == null) {
       return null;
     }

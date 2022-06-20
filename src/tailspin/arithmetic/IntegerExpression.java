@@ -2,8 +2,8 @@ package tailspin.arithmetic;
 
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.Measure;
-import tailspin.types.TaggedIdentifier;
 
 public class IntegerExpression implements Value {
   private final boolean isNegative;
@@ -23,8 +23,7 @@ public class IntegerExpression implements Value {
     if (value instanceof Long n) {
       return isNegative ? -n : n;
     }
-    throw new ArithmeticException("Not a number " + value
-        + (value instanceof TaggedIdentifier t ? " tagged as " + t.getTag() : ""));
+    throw new ArithmeticException("Cannot do arithmetic on " + DataDictionary.formatErrorValue(value) + " in " + this);
   }
 
   @Override

@@ -3,21 +3,50 @@ package tailspin.matchers;
 import java.util.regex.Pattern;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.Membrane;
 import tailspin.types.TaggedIdentifier;
 
 public class RegexpMatch implements Membrane {
+
+  public static final Membrane stringType = new Membrane() {
+    @Override
+    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
+      return (toMatch instanceof String) ? toMatch : null;
+    }
+
+    @Override
+    public String toString() {
+      return "string type";
+    }
+  };
+
+  private final String tag;
   private final Value patternValue;
 
-  public RegexpMatch(Value patternValue) {
+  public RegexpMatch(String tag, Value patternValue) {
+    this.tag = tag;
     this.patternValue = patternValue;
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
-    if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
-    if (!(toMatch instanceof String stringToMatch)) return null;
+  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
     String pattern = (String) patternValue.getResults(it, scope);
+
+    String stringToMatch;
+    if (tag == null && toMatch instanceof TaggedIdentifier t) {
+      if (contextTag == null) throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(t)
+          + " with raw string pattern " + pattern);
+      if (!t.getTag().equals(contextTag)) return null;
+      toMatch = t.getValue();
+    }
+    if (toMatch instanceof TaggedIdentifier t) {
+      if (t.getTag().equals(tag) && t.getValue() instanceof String s) stringToMatch = s;
+      else return null;
+    } else if (toMatch instanceof String s) {
+      stringToMatch = s;
+    } else return null;
     Pattern compiled =
         Pattern.compile(
             "\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ + Pattern.DOTALL);

@@ -2,25 +2,25 @@
 
 include 'harness'
 
+// Currently no way to define processor types
+data taskList <>
+data identity <1..5>, destination <identity>
+
 def NO_TASK: {};
 def NO_WORK: {};
-def WORKER: 1;
-def HANDLER_A: 2;
-def HANDLER_B: 3;
-def DEVICE_A: 4;
-def DEVICE_B: 5;
+def WORKER: identity´1;
+def HANDLER_A: identity´2;
+def HANDLER_B: identity´3;
+def DEVICE_A: identity´4;
+def DEVICE_B: identity´5;
 def NUM_TYPES: 5;
 
-def DEVICE_PACKET_KIND: 0;
-def WORK_PACKET_KIND: 1;
+def DEVICE_PACKET_KIND: kind´0;
+def WORK_PACKET_KIND: kind´1;
 
 def DATA_SIZE: 4;
 
 def TRACING: 0;
-
-// Currently no way to define processor types
-data taskList <>
-data identity <1..5>, destination <identity>
 
 processor Monitor
   @: {
@@ -75,7 +75,7 @@ processor Scheduler&{monitor:}
     when <=$NO_TASK> do $NO_TASK !
     otherwise
       def t: $;
-      1 -> !monitor::incrementQueuePacketCount
+      1"1" -> !monitor::incrementQueuePacketCount
       {$packet..., identity:$currentId} -> !t::addInput
       $t!
   end queuePacket
@@ -158,15 +158,15 @@ processor HandlerTask
       when <=0> do 1 -> !markWaiting
       otherwise
         $@HandlerTask.workIn(1).datum -> \(
-          when <$DATA_SIZE..> do
+          when <($DATA_SIZE)"1"..> do
             ^@HandlerTask.workIn(1) !
           otherwise
             def count: $;
             $@HandlerTask.deviceIn::length -> \(
               when <=0> do 1 -> !markWaiting
               otherwise
-                @HandlerTask.deviceIn(1).datum: $@HandlerTask.workIn(1).data($count+1);
-                @HandlerTask.workIn(1).datum: $count + 1;
+                @HandlerTask.deviceIn(1).datum: ($@HandlerTask.workIn(1).data($count+1"1"))"1";
+                @HandlerTask.workIn(1).datum: $count + 1"1";
                 ^@HandlerTask.deviceIn(1) !
             \) !
         \) !
@@ -177,12 +177,12 @@ end HandlerTask
 processor Idle
   @: { control: [x01x] -> $(last-3..last), count: 10000"1"};
   source decrementCount
-    @Idle.count: $@Idle.count - 1;
+    @Idle.count: $@Idle.count - 1"1";
     $@Idle.count !
   end decrementCount
   templates getNextTask
     $decrementCount -> \(
-      when <1..> do
+      when <1"1"..> do
         ($@Idle.control and [x01x]) -> $(last) -> \(
           when <=[x00x]> do
             @Idle.control: $@Idle.control -> $::shift&{left:-1, fill: $(0)};
@@ -197,7 +197,7 @@ processor Idle
 end Idle
 
 processor WorkerTask
-  @: {destination: $HANDLER_A, count: 0};
+  @: {destination: $HANDLER_A, count: 0"1"};
   templates function&{holdSelf:, markWaiting:}
     when <=$NO_WORK> do 1 -> !markWaiting
     otherwise
@@ -206,8 +206,8 @@ processor WorkerTask
         identity: $@WorkerTask.destination,
         datum: 0"1",
         data: [ 1..$.data::length -> \(
-          @WorkerTask.count: $@WorkerTask.count + 1 -> \(<..26> $! <> 1!\);
-          65 + $@WorkerTask.count - 1 !
+          @WorkerTask.count: $@WorkerTask.count + 1"1" -> \(<..26"1"> $! <> 1"1"!\);
+          65 + $@WorkerTask.count::raw - 1 !
         \)]
        } !
   end function
@@ -238,7 +238,7 @@ processor TaskControlBlock&{monitor:, link:, task:}
   end getIdentity
 
   sink setTaskHolding
-    $ -> !monitor::incrementHoldCount
+    ($::raw)"1" -> !monitor::incrementHoldCount
     @TaskControlBlock.taskHolding: $;
   end setTaskHolding
 
@@ -248,15 +248,15 @@ processor TaskControlBlock&{monitor:, link:, task:}
 
   source isTaskHoldingOrWaiting
     $@TaskControlBlock.taskHolding -> #
-    <=1> 1 !
-    <?($@TaskControlBlock.packetPending <=0>)?($@TaskControlBlock.taskWaiting <=1>)> 1!
+    <=taskHolding´1> 1 !
+    <?($@TaskControlBlock.packetPending <=packetPending´0>)?($@TaskControlBlock.taskWaiting <=taskWaiting´1>)> 1!
     <> 0!
   end isTaskHoldingOrWaiting
 
   source isWaitingWithPacket
     $@TaskControlBlock.taskHolding -> #
-    <=1> 0 !
-    <?($@TaskControlBlock.packetPending <=1>)?($@TaskControlBlock.taskWaiting <=1>)> 1!
+    <=taskHolding´1> 0 !
+    <?($@TaskControlBlock.packetPending <=packetPending´1>)?($@TaskControlBlock.taskWaiting <=taskWaiting´1>)> 1!
     <> 0!
   end isWaitingWithPacket
 
@@ -293,7 +293,7 @@ templates run
   def monitor: $Monitor;
   $Scheduler&{monitor: $monitor} -> $::start -> !VOID
   $monitor::getStats -> #
-  <{queuePacketCount: <=23246>, holdCount: <=9296>}>
+  <{queuePacketCount: <=23246"1">, holdCount: <=9296"1">}>
     1 !
   otherwise
     0 !

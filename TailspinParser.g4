@@ -153,13 +153,14 @@ matcher: StartMatcher (Invert? membrane (Else membrane)*)? EndMatcher;
 
 membrane: (literalMatch | typeMatch) condition* | condition+;
 
-typeMatch: rangeBounds                       # rangeMatch
+typeMatch: START_STRING END_STRING    # stringTypeMatch
+  | rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
   | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
   | (localIdentifier|externalIdentifier) # stereotypeMatch
   | unit # unitMatch
-  | LeftParen (key|stringLiteral Colon) structureContentMatcher RightParen # keyValueMatch
+  | LeftParen key structureContentMatcher RightParen # keyValueMatch
 ;
 
 structureContentMatcher: matcher | Void;
@@ -190,7 +191,9 @@ measureDenominator: Slash measureProduct;
 
 nonZeroInteger: additiveOperator? PositiveInteger;
 
-stringLiteral: START_STRING stringContent* END_STRING;
+tag: localIdentifier Tick;
+
+stringLiteral: tag? START_STRING stringContent* END_STRING;
 
 stringContent: stringInterpolate | STRING_TEXT;
 
@@ -201,7 +204,7 @@ characterCode: StartCharacterCode arithmeticValue EndStringInterpolate;
 interpolateEvaluate: StartStringInterpolate (anyIdentifier? reference Message? parameterValues? | Colon source)
   transform? (To TemplateMatch)? EndStringInterpolate;
 
-arithmeticValue: arithmeticExpression;
+arithmeticValue: tag? arithmeticExpression;
 
 arithmeticExpression: integerLiteral
   | LeftParen arithmeticExpression RightParen unit?
@@ -256,7 +259,7 @@ structureMemberMatcher: (tokenMatcher|compositionKeyValue) compositionSkipRule*;
 
 tokenMatcher: StartMatcher Invert? compositionToken (Else compositionToken)* EndMatcher multiplier?;
 
-compositionToken: (literalComposition|localIdentifier|stringLiteral| unit);
+compositionToken: tag? (literalComposition|localIdentifier|stringLiteral) unit?;
 
 literalComposition: Equal (sourceReference|stringLiteral);
 

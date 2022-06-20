@@ -34,7 +34,7 @@ end doScan
 templates exactScanMatch
   [($digits matching {|{code: $}|}) ...] -> #
   when <=[]> do '?' !
-  otherwise $(1).digit !
+  otherwise $(1).digit::raw !
 end exactScanMatch
 
 templates scanOCR

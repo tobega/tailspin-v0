@@ -62,7 +62,7 @@ public class SubComposerFactory {
     }
     if (spec instanceof KeyValueComposition keyValueSpec) {
       return new KeyValueSubComposer(resolveSpec(keyValueSpec.key, scope),
-          new SequenceSubComposer(keyValueSpec.valueMatch, scope, this::resolveSpec), scope);
+          new SequenceSubComposer(keyValueSpec.valueMatch, scope, this::resolveSpec), scope.getLocalDictionary());
     }
     if (spec instanceof MultiplierComposition) {
       return new MultiplierSubComposer(
@@ -92,11 +92,14 @@ public class SubComposerFactory {
       return new StateAssignmentSubComposer(value, stateSpec.stateAssignment,
           stateSpec.stateContext, scope);
     }
-    if (spec instanceof LiteralComposition) {
-      return new LiteralSubComposer((String) ((LiteralComposition) spec).literal.getResults(null, scope));
+    if (spec instanceof LiteralComposition lc) {
+      return new LiteralSubComposer((String) lc.literal.getResults(null, scope));
     }
     if (spec instanceof MeasureComposition mc) {
-      return new MeasureSubComposer(mc.unit);
+      return new MeasureSubComposer(resolveSpec(mc.compositionSpec, scope), mc.unit);
+    }
+    if (spec instanceof TagComposition tc) {
+      return new TagSubComposer(scope.getLocalDictionary(), tc.tag, resolveSpec(tc.compositionSpec, scope));
     }
     throw new UnsupportedOperationException(
         "Unknown composition spec " + spec.getClass().getSimpleName());
@@ -257,10 +260,23 @@ public class SubComposerFactory {
 
   public static class MeasureComposition implements CompositionSpec {
 
+    private final CompositionSpec compositionSpec;
     private final Unit unit;
 
-    public MeasureComposition(Unit unit) {
+    public MeasureComposition(CompositionSpec compositionSpec, Unit unit) {
+      this.compositionSpec = compositionSpec;
       this.unit = unit;
+    }
+  }
+
+  public static class TagComposition implements CompositionSpec {
+
+    private final String tag;
+    private final CompositionSpec compositionSpec;
+
+    public TagComposition(String tag, CompositionSpec compositionSpec) {
+      this.tag = tag;
+      this.compositionSpec = compositionSpec;
     }
   }
 }

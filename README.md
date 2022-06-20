@@ -9,10 +9,13 @@ Tailspin has a rather different-looking syntax, tl;dr; @ is mutable state, $ is 
 of steps separated by -> where each step creates the next current value as input to the next step, and anything inside angle brackets (<>) is a match expression.
 For a quick introduction to Tailspin, see [snippets compared to javascript](https://tobega.blogspot.com/2021/05/learning-tailspin-by-comparing-to.html) or the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html). Tailspin "functions" can return a stream of zero or more values, I've written about [how returning no value at all is quite powerful](https://tobega.blogspot.com/2021/05/the-power-of-nothing.html).
 
-The inspiration for Tailspincomes mostly from XSLT, but data structures are json-like. The main idea is to let your data flow through
+The inspiration for Tailspin comes mostly from XSLT, but data structures are json-like. The main idea is to let your data flow through
 a series of transforms so it should be easy to specify that flow. Transform steps can be specified as a set of templates with
 pattern-matching determining which template to apply. Output is generally specified as literals with interpolation of values.
 For more info see the [language reference documentation](TailspinReference.md).
+
+Tailspin aims to let you process your data as easily and flexibly as possible, while at the same time trying to help/coerce you to "do the right thing"
+without introducing lots of boilerplate. Tailspin will error if it seems you may have made a programming error.
 
 Despite the grounding in business data processing, Tailspin turns out to be fun to use and has been
 used for the [adventofcode](https://adventofcode.com/) events of [2018](https://github.com/tobega/aoc2018), [2019](https://github.com/tobega/aoc2019)

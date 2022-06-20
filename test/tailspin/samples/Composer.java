@@ -33,9 +33,9 @@ class Composer {
   void composeScalarInt() throws IOException {
     String program = """
         composer int
-        <"1">
+        <INT"1">
         end int
-        '23' -> int -> \\(<=23> $!\\) -> $ + 12 -> !OUT::write""";
+        '23' -> int -> \\(<=23"1"> $!\\) -> $ + 12"1" -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -43,14 +43,14 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("35", output.toString(StandardCharsets.UTF_8));
+    assertEquals("35\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
   void composeUnitInt() throws IOException {
     String program = """
         composer metres
-        <"m">
+        <INT "m">
         end metres
         '23' -> metres -> \\(<=23"m"> $!\\) -> $ + 12"m" -> !OUT::write""";
     Tailspin runner =
@@ -61,6 +61,184 @@ class Composer {
     runner.run(input, output, List.of());
 
     assertEquals("35\"m\"", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeTaggedInt() throws IOException {
+    String program = """
+        composer tag
+        <id´ INT>
+        end tag
+        {id: 5, '23' -> tag -> (id: $)} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{id=23}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeTaggedIntWrongAssignmentFails() throws IOException {
+    String program = """
+        composer tag
+        <foo´ INT>
+        end tag
+        {id: 5, '23' -> tag -> (id: $)} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composeTaggedString() throws IOException {
+    String program = """
+        composer tag
+        <id´ '.*'>
+        end tag
+        {id: 'def', 'abc' -> tag -> (id: $)} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{id=abc}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeTaggedStringWrongAssignmentFails() throws IOException {
+    String program = """
+        composer tag
+        <foo´ INT>
+        end tag
+        {id: 'def', 'abc' -> tag -> (id: $)} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composeTaggedIntArithmeticFails() throws IOException {
+    String program = """
+        composer tag
+        <id´ INT>
+        end tag
+        '23' -> tag -> $ + 1 -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composeTaggedStructureFails() throws IOException {
+    String program = """
+        composer tag
+        <id´ struct>
+        rule struct: { id: <'.*'>}
+        end tag
+        '23' -> tag -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composeTaggedIntWithMeasureFails() throws IOException {
+    String program = """
+        composer tag
+        <id´ INT"m">
+        end tag
+        '23' -> tag -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composeValidTaggedString() throws IOException {
+    String program = """
+      data id <'[A-Z].*'>
+      composer tag
+        <id´ '.*'>
+      end tag
+      'ABC' -> tag -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ABC", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeNotValidTaggedStringIsError() throws IOException {
+    String program = """
+      data id <'[A-Z].*'>
+      composer tag
+        <id´ '.*'>
+      end tag
+      'abc' -> tag -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void composeTaggedStringAutotypesCorrectAssignmentWorks() throws IOException {
+    String program = """
+        composer tag
+          <id´ '.*'>
+        end tag
+        'abc' -> tag -> !OUT::write
+        {id: 'def'} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("abc{id=def}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeTaggedStringAutotypesIncorrectAssignmentThrows() throws IOException {
+    String program = """
+        composer tag
+          <id´ '.*'>
+        end tag
+        'abc' -> tag -> !OUT::write
+        {id: 5} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -607,6 +785,40 @@ class Composer {
   }
 
   @Test
+  void buildStructureCorrectTypeWorks() throws IOException {
+    String program = """
+        data roll <1..6>
+        composer die
+          { roll: <INT> }
+        end die
+        '4' -> die -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{roll=4}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void buildStructureIncorrectTypeFails() throws IOException {
+    String program = """
+        data roll <1..6>
+        composer die
+          { roll: <INT> }
+        end die
+        '8' -> die -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void buildArrayOfKeyValues() throws IOException {
     String program = """
         composer coords
@@ -1001,11 +1213,11 @@ class Composer {
         data binaryExpression <{left: <binaryExpression|"1">, op: <>, right: <binaryExpression|"1">}>
         
         composer recurse
-  <addition|multiplication|term>
-  rule addition: {left: <addition|multiplication|term> op: <'[+-]'> right: <multiplication|term>}
-  rule multiplication: { left: <multiplication|term>  op: <'[*/]'> right: <term> }
-  rule term: <INT|parentheses>
-  rule parentheses: (<'\\('>) <addition|multiplication|term> (<'\\)'>)
+          <addition|multiplication|term>
+          rule addition: {left: <addition|multiplication|term> op: <'[+-]'> right: <multiplication|term>}
+          rule multiplication: { left: <multiplication|term>  op: <'[*/]'> right: <term> }
+          rule term: <INT"1"|parentheses>
+          rule parentheses: (<'\\('>) <addition|multiplication|term> (<'\\)'>)
         end recurse
         '100+(3+4)' -> recurse -> !OUT::write""";
     Tailspin runner =
@@ -1015,7 +1227,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{left=100, op=+, right={left=3, op=+, right=4}}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{left=100\"1\", op=+, right={left=3\"1\", op=+, right=4\"1\"}}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1026,7 +1238,7 @@ class Composer {
         composer recurse
   <addition|term>
   rule addition: {left: <addition|term> op: <'[+-]'> right: <term>}
-  rule term: <INT|parentheses>
+  rule term: <INT"1"|parentheses>
   rule parentheses: (<'\\('>) <addition|term> (<'\\)'>)
         end recurse
         '(5 +3)' -> recurse -> !OUT::write""";
@@ -1084,11 +1296,11 @@ class Composer {
         data binaryExpression <{left: <binaryExpression|"1">, op: <>, right: <binaryExpression|"1">}>
         
         composer recurse
-  <addition|multiplication|term>
-  rule addition: {left: <addition|multiplication|term> op: <'[+-]'> right: <multiplication|term>}
-  rule multiplication: { left: <multiplication|term>  op: <'[*/]'> right: <term> }
-  rule term: <INT|parentheses>
-  rule parentheses: (<'\\('>) <addition|multiplication|term> (<'\\)'>)
+          <addition|multiplication|term>
+          rule addition: {left: <addition|multiplication|term> op: <'[+-]'> right: <multiplication|term>}
+          rule multiplication: { left: <multiplication|term>  op: <'[*/]'> right: <term> }
+          rule term: <INT"1"|parentheses>
+          rule parentheses: (<'\\('>) <addition|multiplication|term> (<'\\)'>)
         end recurse
         '(100-5*(2+3*4)+2)/2' -> recurse -> !OUT::write""";
     Tailspin runner =
@@ -1098,7 +1310,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{left={left={left=100, op=-, right={left=5, op=*, right={left=2, op=+, right={left=3, op=*, right=4}}}}, op=+, right=2}, op=/, right=2}",
+    assertEquals("{left={left={left=100\"1\", op=-, right={left=5\"1\", op=*, right={left=2\"1\", op=+, right={left=3\"1\", op=*, right=4\"1\"}}}}, op=+, right=2\"1\"}, op=/, right=2\"1\"}",
         output.toString(StandardCharsets.UTF_8));
   }
 
@@ -1745,7 +1957,7 @@ class Composer {
             def digits: [(M:1000"1"), (CM:900"1"), (D:500"1"), (CD:400"1"), (C:100"1"), (XC:90"1"), (L:50"1"), (XL:40"1"), (X:10"1"), (IX:9"1"), (V:5"1"), (IV:4"1"), (I:1"1")];
             composer decodeRoman
               @: 1;
-              [ <digit>* ] -> \\(@: 0; $... -> @: $@ + $; $@ !\\)
+              [ <digit>* ] -> \\(@: 0"1"; $... -> @: $@ + $; $@ !\\)
               rule digit: <value>* (@: $@ + 1;)
               rule value: <'$digits($@)::key;'> -> $digits($@)::value
             end decodeRoman
@@ -1759,7 +1971,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("2008", output.toString(StandardCharsets.UTF_8));
+    assertEquals("2008\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

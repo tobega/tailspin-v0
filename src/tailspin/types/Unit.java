@@ -11,12 +11,7 @@ import java.util.stream.Stream;
 public class Unit {
   public static final Unit UNKNOWN = new Unit("");
 
-  public static final Unit SCALAR = new Unit("1") {
-    @Override
-    public String toString() {
-      return "";
-    }
-  };
+  public static final Unit SCALAR = new Unit("1");
 
   private static final Pattern POWER = Pattern.compile("\\A(\\D+)(\\d*)");
 

@@ -120,8 +120,8 @@ import tailspin.transform.lens.MultiValueArrayLens;
 import tailspin.transform.lens.Projection;
 import tailspin.transform.lens.RangeArrayLens;
 import tailspin.transform.lens.SingleValueArrayLens;
-import tailspin.types.Membrane;
 import tailspin.types.KeyValue;
+import tailspin.types.Membrane;
 import tailspin.types.Unit;
 
 public class RunMain extends TailspinParserBaseVisitor<Object> {
@@ -506,15 +506,21 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public RangeMatch visitRangeBounds(TailspinParser.RangeBoundsContext ctx) {
+  public Membrane visitRangeBounds(TailspinParser.RangeBoundsContext ctx) {
     Bound lowerBound = ctx.lowerBound() != null ? visitLowerBound(ctx.lowerBound()) : null;
     Bound upperBound = ctx.upperBound() != null ? visitUpperBound(ctx.upperBound()) : null;
+    if (lowerBound == null && upperBound == null) return RangeMatch.numberType;
     return new RangeMatch(lowerBound, upperBound);
   }
 
   @Override
+  public Membrane visitStringTypeMatch(TailspinParser.StringTypeMatchContext ctx) {
+    return RegexpMatch.stringType;
+  }
+
+  @Override
   public Membrane visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
-    return new RegexpMatch(visitStringLiteral(ctx.stringLiteral()));
+    return new RegexpMatch(visitTag(ctx.stringLiteral().tag()), new StringLiteral(null, collectStringContent(ctx.stringLiteral())));
   }
 
   @Override
@@ -539,9 +545,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Membrane visitKeyValueMatch(TailspinParser.KeyValueMatchContext ctx) {
-    Object keyMatch = ctx.key() != null
-        ? ctx.key().localIdentifier().getText()
-        : new RegexpMatch(visitStringLiteral(ctx.stringLiteral()));
+    String keyMatch = ctx.key().localIdentifier().getText();
     return new KeyValueMatch(keyMatch,
         visitMatcher(ctx.structureContentMatcher().matcher()));
   }
@@ -832,10 +836,19 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
+  public String visitTag(TailspinParser.TagContext ctx) {
+    return ctx == null ? null : ctx.localIdentifier().getText();
+  }
+
+  @Override
   public Value visitStringLiteral(TailspinParser.StringLiteralContext ctx) {
-    return new StringLiteral(ctx.stringContent().stream()
+    return new StringLiteral(visitTag(ctx.tag()), collectStringContent(ctx));
+  }
+
+  private List<Value> collectStringContent(TailspinParser.StringLiteralContext ctx) {
+    return ctx.stringContent().stream()
         .map(this::visitStringContent)
-        .collect(Collectors.toList()));
+        .collect(Collectors.toList());
   }
 
   @Override
@@ -908,7 +921,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Value visitArithmeticValue(TailspinParser.ArithmeticValueContext ctx) {
-    return new ArithmeticValue(visitArithmeticExpression(ctx.arithmeticExpression()));
+    return new ArithmeticValue(visitTag(ctx.tag()), visitArithmeticExpression(ctx.arithmeticExpression()));
   }
 
   @Override
@@ -1339,11 +1352,17 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Expression expression = (Expression) visit(ctx.literalComposition());
       Value literal = (expression instanceof Value) ? (Value) expression : Value.of(expression) ;
       compositionSpec = new SubComposerFactory.LiteralComposition(literal);
-    } else if (ctx.unit() != null) {
-      Unit unit = visitUnit(ctx.unit());
-      compositionSpec = new SubComposerFactory.MeasureComposition(unit);
     } else {
       throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());
+    }
+    if (ctx.unit() != null) {
+      if (ctx.tag() != null) throw new IllegalArgumentException("Cannot have both tag and unit");
+      Unit unit = visitUnit(ctx.unit());
+      compositionSpec = new SubComposerFactory.MeasureComposition(compositionSpec, unit);
+    }
+    if (ctx.tag() != null) {
+      String tag = visitTag(ctx.tag());
+      compositionSpec = new SubComposerFactory.TagComposition(tag, compositionSpec);
     }
     return compositionSpec;
   }

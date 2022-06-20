@@ -25,7 +25,8 @@ public class DataDictionary {
 
   private static final Membrane stringMatch = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope) {
+    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
       return (toMatch instanceof String) ? toMatch : null;
     }
 
@@ -37,7 +38,8 @@ public class DataDictionary {
 
   private static final Membrane numberMatch = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope) {
+    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
       return (toMatch instanceof Long) ? toMatch : null;
     }
 
@@ -49,7 +51,7 @@ public class DataDictionary {
 
   public static String formatErrorValue(Object value) {
     if (value instanceof TaggedIdentifier t) {
-      return t.getTag() + ":" + t.getValue();
+      return t.getTag() + "´" + t.getValue();
     }
     if (value instanceof Measure m && m.getUnit().equals(Unit.SCALAR)) {
       return m.getValue() + "\"1\"";
@@ -76,7 +78,7 @@ public class DataDictionary {
         if (contentMembrane == null) {
           contentMembrane = getDefaultTypeCriterion(null, toMatch.get(1), dictionary);
           return 1;
-        } else if (null != contentMembrane.permeate(toMatch.get(1), null, null)) {
+        } else if (null != contentMembrane.permeate(toMatch.get(1), null, null, null)) {
           return 1;
         }
         return 0;
@@ -126,7 +128,7 @@ public class DataDictionary {
       return tag == null ? stringMatch : new DefinedTag(tag, stringMatch, null);
     }
     if (data instanceof Long) {
-      return tag == null ? new UnitMatch(Unit.SCALAR) : new DefinedTag(tag, numberMatch, null);
+      return tag == null ? numberMatch : new DefinedTag(tag, numberMatch, null);
     }
     if (data instanceof TailspinArray) {
       return new AutotypedArray(dictionary);
@@ -162,12 +164,12 @@ public class DataDictionary {
     return dataDefinitions.get(identifier);
   }
 
-  public Object checkDataDefinition(String key, Object data) {
+  public Object checkDataDefinition(String key, Object data, Scope scope) {
     if (callingDictionary != null && !isKeyDefined(key)) {
-      return callingDictionary.checkDataDefinition(key, data);
+      return callingDictionary.checkDataDefinition(key, data, scope);
     }
     if (moduleDictionary != null && !dataDefinitions.containsKey(key)) {
-      return moduleDictionary.checkDataDefinition(key, data);
+      return moduleDictionary.checkDataDefinition(key, data, scope);
     }
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
@@ -175,7 +177,7 @@ public class DataDictionary {
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
-    Object result = def.permeate(data, null, null);
+    Object result = def.permeate(data, null, scope, null);
     if (result == null) {
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
     }

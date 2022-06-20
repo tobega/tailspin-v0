@@ -387,6 +387,13 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMembrane(TailspinParser.MembraneContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code stringTypeMatch}
+	 * labeled alternative in {@link TailspinParser#typeMatch}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringTypeMatch(TailspinParser.StringTypeMatchContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code rangeMatch}
 	 * labeled alternative in {@link TailspinParser#typeMatch}.
 	 * @param ctx the parse tree
@@ -519,6 +526,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#tag}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTag(TailspinParser.TagContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#stringLiteral}.
 	 * @param ctx the parse tree
