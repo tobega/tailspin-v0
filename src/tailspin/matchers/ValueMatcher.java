@@ -32,7 +32,7 @@ public class ValueMatcher implements Membrane {
 
   @Override
   public String toString() {
-    return basicMembrane.toString() + suchThatMatchers.stream().map(Object::toString).collect(
+    return (basicMembrane == null ? "" : basicMembrane.toString()) + suchThatMatchers.stream().map(Object::toString).collect(
         Collectors.joining());
   }
 }
