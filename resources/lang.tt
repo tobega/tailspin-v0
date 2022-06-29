@@ -40,26 +40,24 @@ processor Count
 end Count
 
 processor Max&{by:, select:}
-  data max <>, result <> local
   @:[];
   sink accumulate
     <?($@Max <=[]>)
-      | ?($(by) <$@Max.max..>)>  @Max: {max: $(by), result: $(select)};
+      | ?($(by) <$@Max(1)..>)>  @Max: [$(by), $(select)];
   end accumulate
   source result
-    $@Max.result !
+    $@Max(2) !
   end result
 end Max
 
 processor Min&{by:, select:}
-  data min <>, result <> local
   @:[];
   sink accumulate
     <?($@Min <=[]>)
-      | ?($(by) <..$@Min.min>)>  @Min: {min: $(by), result: $(select)};
+      | ?($(by) <..$@Min(1)>)>  @Min: [$(by), $(select)];
   end accumulate
   source result
-    $@Min.result !
+    $@Min(2) !
   end result
 end Min
 

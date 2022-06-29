@@ -26,7 +26,7 @@
 - Strings should not be comparable in a range match, they should always be compared according to explicit collators.
 
 #### Confusing
-* items with different field names just compare unequal. Perhaps should error? You can always type match first.
+* It is a bit difficult to create generic code handling untyped numbers. Perhaps it should be?
 * Index for state assignment is evaluated after the value is calculated (edge case for deletion), e.g.
   ```
   templates foo

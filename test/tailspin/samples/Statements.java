@@ -468,7 +468,7 @@ class Statements {
   }
 
   @Test
-  void maxCollector() throws Exception {
+  void maxCollectorSelectTaggedNumber() throws Exception {
     String program = """
         [{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...
         -> ..=Max&{by: :(n:), select: :(fruit:)} -> !OUT::write
@@ -500,7 +500,37 @@ class Statements {
   }
 
   @Test
-  void minCollector() throws Exception {
+  void maxCollectorRawNumber() throws Exception {
+    String program = """
+        [2, 5, 3]...
+        -> ..=Max&{by: :(), select: :()} -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void maxCollectorMixedNumbersFails() throws Exception {
+    String program = """
+        [2, 5"m", 3]...
+        -> ..=Max&{by: :(), select: :()} -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void minCollectorSelectTaggedNumber() throws Exception {
     String program = """
         [{fruit: 'orange', n: 2}, {fruit: 'apple', n:5}]...
         -> ..=Min&{by: :(n:), select: :(fruit:)} -> !OUT::write
@@ -529,6 +559,36 @@ class Statements {
     runner.run(input, output, List.of());
 
     assertEquals("{fruit=apple, n=5}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void minCollectorRawNumber() throws Exception {
+    String program = """
+        [5, 2, 3]...
+        -> ..=Min&{by: :(), select: :()} -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("2", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void minCollectorMixedNumbersFails() throws Exception {
+    String program = """
+        [2, 5"m", 3]...
+        -> ..=Max&{by: :(), select: :()} -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
