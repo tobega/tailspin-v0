@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class Unit {
+  /** This is a bit dangerous, but needed to allow coercion of an "unknown" expression to a measure */
   public static final Unit UNKNOWN = new Unit("");
 
   public static final Unit SCALAR = new Unit("1");

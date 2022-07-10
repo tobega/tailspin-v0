@@ -160,6 +160,28 @@ public class Units {
   }
 
   @Test
+  void integerUntypedDivideMeasureFails() throws IOException {
+    String program = "12 ~/ 3\"m\" -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void untypedModuloTypedFails() throws IOException {
+    String program = "11 mod 3\"m\" -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void addDifferentUnitFails() throws IOException {
     String program = "4\"m\" + 3\"s\" -> !OUT::write";
     Tailspin runner =

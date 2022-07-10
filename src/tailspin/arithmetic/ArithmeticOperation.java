@@ -18,7 +18,7 @@ public class ArithmeticOperation implements Value {
   }
 
   public enum Op {
-    Add(true) {
+    Add(false, false) {
       @Override
       public long apply(long left, long right) {
         return left + right;
@@ -29,7 +29,7 @@ public class ArithmeticOperation implements Value {
         return "+";
       }
     },
-    Subtract(true) {
+    Subtract(false, false) {
       @Override
       public long apply(long left, long right) {
         return left - right;
@@ -40,7 +40,7 @@ public class ArithmeticOperation implements Value {
         return "-";
       }
     },
-    Multiply(false) {
+    Multiply(true, true) {
       @Override
       public long apply(long left, long right) {
         return left * right;
@@ -51,7 +51,7 @@ public class ArithmeticOperation implements Value {
         return "*";
       }
     },
-    DivideTruncate(false) {
+    DivideTruncate(false, true) {
       @Override
       public long apply(long left, long right) {
         return left / right;
@@ -62,7 +62,7 @@ public class ArithmeticOperation implements Value {
         return "~/";
       }
     },
-    Modulo(false) {
+    Modulo(false, true) {
       @Override
       public long apply(long left, long right) {
         long truncateRemainder = left % right;
@@ -76,11 +76,13 @@ public class ArithmeticOperation implements Value {
     };
 
     private final boolean worksOnSameUnit;
-    private final boolean unchangedByScalar;
+    private final boolean leftCanBeScalar;
+    private final boolean rightCanBeScalar;
 
-    Op(boolean worksOnSameUnit) {
-      this.worksOnSameUnit = worksOnSameUnit;
-      this.unchangedByScalar = !worksOnSameUnit;
+    Op(boolean leftCanBeScalar, boolean rightCanBeScalar) {
+      this.leftCanBeScalar = leftCanBeScalar;
+      this.rightCanBeScalar = rightCanBeScalar;
+      this.worksOnSameUnit = !leftCanBeScalar && !rightCanBeScalar;
     }
 
     public abstract long apply(long left, long right);
@@ -98,19 +100,19 @@ public class ArithmeticOperation implements Value {
       if (right instanceof Measure m) {
         rvalue = m.getValue();
         if (unit == null) {
-          if (!unchangedByScalar) unit = Unit.UNKNOWN;
+          if (!leftCanBeScalar) unit = Unit.UNKNOWN;
           else unit = m.getUnit();
         }
         else if (worksOnSameUnit && unit.equals(m.getUnit())
-            || (unchangedByScalar && unit.equals(Unit.SCALAR))
+            || (leftCanBeScalar && unit.equals(Unit.SCALAR))
         ) {
           unit = m.getUnit();
-        } else if (!unchangedByScalar || !m.getUnit().equals(Unit.SCALAR)) {
+        } else if (!rightCanBeScalar || !m.getUnit().equals(Unit.SCALAR)) {
           unit = Unit.UNKNOWN;
         }
       } else {
         rvalue = (long) right;
-        if (unit != null && !unchangedByScalar) unit = Unit.UNKNOWN;
+        if (unit != null && !rightCanBeScalar) unit = Unit.UNKNOWN;
       }
       long result = apply(lvalue, rvalue);
       return unit == null ? result : new Measure(result, unit);
