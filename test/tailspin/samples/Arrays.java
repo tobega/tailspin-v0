@@ -857,4 +857,81 @@ class Arrays {
 
     assertEquals("[]", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void startAtN() throws Exception {
+    String program =
+        "(0..)[3,4,5] -> $(0) -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void endAtN() throws Exception {
+    String program =
+        "(..0)[3,4,5] -> $(-1) -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void fixedEndAtN() throws Exception {
+    String program = """
+        (..0)[3,4,5] ->\\(
+           @: $;
+           ..|@: 6; \\) -> $(-1..0) -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("56", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void fixedStartAtN() throws Exception {
+    String program = """
+        (0..)[3,4,5] ->\\(
+           @: $;
+           |..@: 2; \\) -> $(0..1) -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("23", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void flexibleAroundN() throws Exception {
+    String program = """
+        (0)[3,4,5] ->\\(
+           @: $;
+           ..|@: 6;
+           |..@: 2; \\) -> $(-1..1) -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("234", output.toString(StandardCharsets.UTF_8));
+  }
 }
