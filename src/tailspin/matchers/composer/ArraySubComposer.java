@@ -27,7 +27,7 @@ public class ArraySubComposer implements SubComposer {
   @Override
   public TailspinArray getValues() {
     if (result == null) {
-      result = TailspinArray.value(new ArrayList<>());
+      result = TailspinArray.value(new ArrayList<>(), 1);
       ResultIterator.forEach(items.getValues(), result::append);
     }
     return result;

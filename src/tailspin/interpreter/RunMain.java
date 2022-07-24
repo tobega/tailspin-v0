@@ -1077,9 +1077,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return new Bound(bound, ctx.Invert() == null);
   }
 
+  private static final Value standardOffset = new IntegerConstant(1, null);
   @Override
   public ArrayLiteral visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx) {
-    return new ArrayLiteral(ctx.arrayExpansion().stream()
+    Value offset = ctx.arithmeticValue() == null ? standardOffset : visitArithmeticValue(ctx.arithmeticValue());
+    return new ArrayLiteral(offset, ctx.arrayExpansion().stream()
         .map(this::visitArrayExpansion)
         .collect(Collectors.toList()));
   }

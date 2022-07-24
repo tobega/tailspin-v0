@@ -859,9 +859,9 @@ class Arrays {
   }
 
   @Test
-  void startAtN() throws Exception {
+  void offset() throws Exception {
     String program =
-        "(0..)[3,4,5] -> $(0) -> !OUT::write\n";
+        "(0)[3,4,5] -> $(0) -> !OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -873,9 +873,9 @@ class Arrays {
   }
 
   @Test
-  void endAtN() throws Exception {
+  void offsetWorksForArrayTemplates() throws Exception {
     String program =
-        "(..0)[3,4,5] -> $(-1) -> !OUT::write\n";
+        "(-1)[3,4,5] -> \\[i]($i * $! \\) ... -> !OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -883,15 +883,13 @@ class Arrays {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+    assertEquals("-305", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void fixedEndAtN() throws Exception {
-    String program = """
-        (..0)[3,4,5] ->\\(
-           @: $;
-           ..|@: 6; \\) -> $(-1..0) -> !OUT::write""";
+  void offsetSameForSublist() throws Exception {
+    String program =
+        "(-1)[-1..5] -> $(1..3) -> $([1, -1, 0]) ... -> !OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -899,32 +897,20 @@ class Arrays {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("56", output.toString(StandardCharsets.UTF_8));
+    assertEquals("312", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
-  void fixedStartAtN() throws Exception {
-    String program = """
-        (0..)[3,4,5] ->\\(
-           @: $;
-           |..@: 2; \\) -> $(0..1) -> !OUT::write""";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("23", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void flexibleAroundN() throws Exception {
+  void offsetFixedAtStart() throws Exception {
     String program = """
         (0)[3,4,5] ->\\(
            @: $;
-           ..|@: 6;
-           |..@: 2; \\) -> $(-1..1) -> !OUT::write""";
+           ..|@: 6..7;
+           |..@: 2..1:-1;
+           ^@(2) -> !VOID
+           ^@(last) -> !VOID
+           ^@(first) -> !VOID
+           $@ ! \\) -> $(-1..6)... -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -932,6 +918,6 @@ class Arrays {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("234", output.toString(StandardCharsets.UTF_8));
+    assertEquals("2456", output.toString(StandardCharsets.UTF_8));
   }
 }

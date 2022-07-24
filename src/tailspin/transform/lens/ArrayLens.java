@@ -17,36 +17,37 @@ import tailspin.types.TailspinArray;
 
 public abstract class ArrayLens implements LensDimension {
 
+  /** This is an ArrayOperation */
   public static Freezable<?> getThawed(TailspinArray array, int index) {
-    Freezable<?> next = (Freezable<?>) array.get(index);
+    Freezable<?> next = (Freezable<?>) array.getNative(index);
     if (!next.isThawed()) {
       next = next.thawedCopy();
-      array.set(index, next);
+      array.setNative(index, next);
     }
     return next;
   }
 
   /* Returns a stream of ints resolved according to resolveIndex */
-  public abstract Object getIndices(DimensionContextKeywordResolver dimension, Object it, Scope scope);
+  public abstract Object getNativeIndices(DimensionContextKeywordResolver dimension, Object it, Scope scope);
 
   private interface ArrayOperation {
-    Object invoke(TailspinArray array, int index);
+    Object invoke(TailspinArray array, int nativeIndex);
   }
 
-  private Object resolveResult(Object dimensionResult) {
+  private Object resolveResult(Object dimensionResult, long offset) {
     if (dimensionResult instanceof Stream) {
-      return TailspinArray.value(((Stream<?>) dimensionResult).collect(Collectors.toList()));
+      return TailspinArray.value(((Stream<?>) dimensionResult).collect(Collectors.toList()), offset);
     } else {
       return dimensionResult;
     }
   }
 
   private Object projectArray(TailspinArray array, Object it, Scope scope, ArrayOperation operation) {
-    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(array.length(),
+    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(array.getOffset(), array.length(),
         false);
     scope.pushArithmeticContextKeywordResolver(resolver);
     try {
-      Object idx = getIndices(resolver, it, scope);
+      Object idx = getNativeIndices(resolver, it, scope);
       if (idx instanceof Number) {
         return operation.invoke(array, ((Number) idx).intValue());
       } else if (idx instanceof IntStream) {
@@ -67,13 +68,13 @@ public abstract class ArrayLens implements LensDimension {
     Object invoke(Object value);
   }
 
-  private Object retrieve(LensOperation operation, Object dimensionResult) {
+  private Object retrieve(LensOperation operation, Object dimensionResult, long offset) {
     if (dimensionResult instanceof Stream) {
       @SuppressWarnings("unchecked")
       Stream<Object> results = (Stream<Object>) dimensionResult;
       return TailspinArray.value(results
           .map(operation::invoke)
-          .collect(Collectors.toList()));
+          .collect(Collectors.toList()), offset);
     } else {
       return operation.invoke(dimensionResult);
     }
@@ -97,14 +98,15 @@ public abstract class ArrayLens implements LensDimension {
   @Override
   public Object get(List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope) {
-    Object dimensionResult = projectArray((TailspinArray) parent, it, scope, TailspinArray::get);
+    Object dimensionResult = projectArray((TailspinArray) parent, it, scope, TailspinArray::getNative);
     if (lowerDimensions.isEmpty()) {
-      return resolveResult(dimensionResult);
+      return resolveResult(dimensionResult, ((TailspinArray) parent).getOffset());
     }
     LensDimension next = lowerDimensions.get(0);
     return retrieve(
         a -> next.get(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope),
-        dimensionResult);
+        dimensionResult,
+        ((TailspinArray) parent).getOffset());
   }
 
   @Override
@@ -123,7 +125,7 @@ public abstract class ArrayLens implements LensDimension {
       }, dimensionResult);
       if (succeeded.get()) return; // else fall through and update this
     }
-    Object dimensionResult = projectArray((TailspinArray) parent, it, scope, (a, i) -> a.set(i, Objects.requireNonNull(ri.getNextResult())));
+    Object dimensionResult = projectArray((TailspinArray) parent, it, scope, (a, i) -> a.setNative(i, Objects.requireNonNull(ri.getNextResult())));
     if (dimensionResult != null) ((Stream<?>) dimensionResult).forEach(foo -> {});
   }
 
@@ -135,20 +137,26 @@ public abstract class ArrayLens implements LensDimension {
           projectArray((TailspinArray) parent, it, scope, ArrayLens::getThawed);
       LensDimension next = lowerDimensions.get(0);
       AtomicBoolean succeeded = new AtomicBoolean(true);
-      Object result = retrieve(
-          a -> {
-            try {
-              return next.delete(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope);
-            } catch (EmptyLensAtBottomException e) {
-              succeeded.set(false);
-              return null;
-            }
-          },
-          dimensionResult);
+      Object result =
+          retrieve(
+              a -> {
+                try {
+                  return next.delete(
+                      lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope);
+                } catch (EmptyLensAtBottomException e) {
+                  succeeded.set(false);
+                  return null;
+                }
+              },
+              dimensionResult,
+              ((TailspinArray) parent).getOffset());
       if (succeeded.get()) return result;
     }
     ElementRemover remover = new ElementRemover();
-    Object result = resolveResult(projectArray((TailspinArray) parent, it, scope, remover));
+    Object result =
+        resolveResult(
+            projectArray((TailspinArray) parent, it, scope, remover),
+            ((TailspinArray) parent).getOffset());
     remover.doRemovals();
     return result;
   }
@@ -165,13 +173,13 @@ public abstract class ArrayLens implements LensDimension {
         currentArray = array;
         arrays.add(array);
       }
-      return array.get(index);
+      return array.getNative(index);
     }
 
     public void doRemovals() {
       for (TailspinArray array : arrays) {
         for (int i : removed.descendingSet()) {
-          array.remove(i);
+          array.removeNative(i);
         }
       }
     }
@@ -221,10 +229,10 @@ public abstract class ArrayLens implements LensDimension {
       invocations++;
       lastArray = array;
       lastIndex = index;
-      Freezable<?> collector = (Freezable<?>) array.get(index);
+      Freezable<?> collector = (Freezable<?>) array.getNative(index);
       if (!collector.isThawed()) {
         collector = collector.thawedCopy();
-        array.set(index, collector);
+        array.setNative(index, collector);
       }
       Reference.collect(Objects.requireNonNull(ri.getNextResult()), collector, method);
       return null;
@@ -232,10 +240,10 @@ public abstract class ArrayLens implements LensDimension {
 
     void resolveSingleElementMergeMany() {
       if (invocations == 1) {
-        Freezable<?> collector = (Freezable<?>) lastArray.get(lastIndex);
+        Freezable<?> collector = (Freezable<?>) lastArray.getNative(lastIndex);
         if (!collector.isThawed()) {
           collector = collector.thawedCopy();
-          lastArray.set(lastIndex, collector);
+          lastArray.setNative(lastIndex, collector);
         }
         Reference.collect(ri, collector, method);
       }

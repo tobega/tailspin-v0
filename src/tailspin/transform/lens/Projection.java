@@ -26,7 +26,7 @@ public class Projection implements LensDimension {
       return relation.project(projections, it, scope);
     } else if (parent instanceof TailspinArray array) {
       return TailspinArray.value(array.stream().map(s -> get(lowerDimensions, s, it, scope)).collect(
-          Collectors.toList()));
+          Collectors.toList()), array.getOffset());
     } else {
       Structure structure = (Structure) parent;
       return structure.project(projections, it, scope);

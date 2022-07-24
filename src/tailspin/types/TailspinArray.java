@@ -11,14 +11,16 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
 
   private final List<Object> array;
   private boolean isMutable;
+  private final long offset;
 
-  private TailspinArray(List<Object> array, boolean isMutable) {
+  private TailspinArray(List<Object> array, boolean isMutable, long offset) {
     this.array = array;
     this.isMutable = isMutable;
+    this.offset = offset;
   }
 
-  public static TailspinArray value(List<Object> array) {
-    return new TailspinArray(array, false);
+  public static TailspinArray value(List<Object> array, long offset) {
+    return new TailspinArray(array, false, offset);
   }
 
   @Override
@@ -52,19 +54,27 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
     return array.size();
   }
 
-  public Object get(int i) {
-    return array.get(i-1);
+  public long getOffset() {
+    return offset;
   }
 
-  public Void set(int i, Object obj) {
+  public Object getNative(int i) {
+    return array.get(i);
+  }
+
+  public Object getTailspinIndex(int i) {
+    return (long) i + offset;
+  }
+
+  public Void setNative(int i, Object obj) {
     if (!isMutable) throw new IllegalStateException();
-    array.set(i-1, obj);
+    array.set(i, obj);
     return null;
   }
 
-  public Object remove(int i) {
+  public void removeNative(int i) {
     if (!isMutable) throw new IllegalStateException();
-    return array.remove(i-1);
+    array.remove(i);
   }
 
   public Object deconstruct() {
@@ -101,7 +111,7 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
 
   @Override
   public TailspinArray thawedCopy() {
-    return new TailspinArray(new ArrayList<>(array), true);
+    return new TailspinArray(new ArrayList<>(array), true, offset);
   }
 
   @Override
@@ -109,7 +119,7 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
     return isMutable;
   }
 
-  public Tail tailFrom(int index) {
+  public Tail tailFromNative(int index) {
     return new Tail(index);
   }
 
@@ -120,20 +130,20 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
       this.startIndex = startIndex;
     }
 
-    public Object get(int i) {
-      return TailspinArray.this.get(i+startIndex-1);
+    public Object getNative(int i) {
+      return TailspinArray.this.getNative(i+startIndex);
     }
 
-    public Tail tailFrom(int index) {
-      return new Tail(index + startIndex - 1);
+    public Tail tailFromNative(int index) {
+      return new Tail(index + startIndex);
     }
 
     public boolean isEmpty() {
-      return startIndex > array.size();
+      return startIndex >= array.size();
     }
 
     public int length() {
-      return array.size() - startIndex + 1;
+      return array.size() - startIndex;
     }
   }
 }

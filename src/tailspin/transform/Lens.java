@@ -31,11 +31,11 @@ public class Lens implements Value {
       throw new UnsupportedOperationException("Cannot resolve more than one dimension of bytes");
     }
     ByteArrayOutputStream result = new ByteArrayOutputStream();
-    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(parentValue.length,
+    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(1, parentValue.length,
         true);
     scope.pushArithmeticContextKeywordResolver(resolver);
     try {
-      Object idx = ((ArrayLens) dimensions.get(0)).getIndices(resolver, it, scope);
+      Object idx = ((ArrayLens) dimensions.get(0)).getNativeIndices(resolver, it, scope);
       if (idx instanceof Number) {
         result.write(getExtended(parentValue, ((Number) idx).intValue()));
       } else if (idx instanceof IntStream) {
@@ -53,8 +53,8 @@ public class Lens implements Value {
   }
 
   private byte getExtended(byte[] a, int i) {
-    if (i > 0) {
-      return a[i-1];
+    if (i >= 0) {
+      return a[i];
     }
     if ((a[0] & 0x80) == 0) {
       return 0;

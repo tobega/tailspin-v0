@@ -7,12 +7,15 @@ import tailspin.types.TaggedIdentifier;
 
 public class DimensionContextKeywordResolver implements ArithmeticContextKeywordResolver,
     RangeGenerator.BoundsResolver {
+
+  private final long offset;
   private final Integer dimensionSize;
   private final boolean allowNegative;
 
   private boolean resolvedKeyword;
 
-  public DimensionContextKeywordResolver(Integer dimensionSize, boolean allowNegative) {
+  public DimensionContextKeywordResolver(long offset, Integer dimensionSize, boolean allowNegative) {
+    this.offset = offset;
     this.dimensionSize = dimensionSize;
     this.allowNegative = allowNegative;
   }
@@ -21,28 +24,28 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
   public long getValue(String name) {
     resolvedKeyword = true;
     if (name.equals("last")) {
-      return dimensionSize;
+      return dimensionSize + offset - 1;
     } else if (name.equals("first")) {
-      return 1;
+      return offset;
     } else {
       throw new UnsupportedOperationException("Unknown dimension context keyword " + name);
     }
   }
 
-  public Long resolveIndex(Object indexValue) {
-    int index = decodeObject(indexValue);
-    if ((!allowNegative && index <= 0) || index > dimensionSize) return null;
-    return (long) (index);
+  public Integer resolveNativeIndex(Object indexValue) {
+    long index = decodeObject(indexValue);
+    if ((!allowNegative && index < offset) || index >= dimensionSize + offset) return null;
+    return (int) (index - offset);
   }
 
-  private int decodeObject(Object indexValue) {
+  private long decodeObject(Object indexValue) {
     if (indexValue instanceof TaggedIdentifier t) {
-      return ((Long) t.getValue()).intValue();
+      return (long) t.getValue();
     }
     if (indexValue instanceof Measure m) {
-      return (int) m.getValue();
+      return m.getValue();
     }
-    return ((Long) indexValue).intValue();
+    return (long) indexValue;
   }
 
   @Override
@@ -68,15 +71,15 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
 
   @Override
   public Long resolveLowerRangeLimit(long index) {
-    if (!allowNegative && index <= 0) index = 1;
-    if (index > dimensionSize) return null;
+    if (!allowNegative && index < offset) index = offset;
+    if (index >= dimensionSize + offset) return null;
     return index;
   }
 
   @Override
   public Long resolveUpperRangeLimit(long index) {
-    if (!allowNegative && index <= 0) return null;
-    if (index > dimensionSize) return Long.valueOf(dimensionSize);
+    if (!allowNegative && index < offset) return null;
+    if (index >= dimensionSize + offset) return dimensionSize + offset - 1;
     return index;
   }
 }

@@ -61,10 +61,18 @@ public class Grouping implements LensDimension {
               .map(
                   e -> {
                     Structure result = e.getKey().thawedCopy();
-                    e.getValue().forEach(a -> result.put(a.key(), scope.getLocalDictionary().checkDataDefinition(a.key(), a.result(), scope)));
+                    e.getValue()
+                        .forEach(
+                            a ->
+                                result.put(
+                                    a.key(),
+                                    scope
+                                        .getLocalDictionary()
+                                        .checkDataDefinition(a.key(), a.result(), scope)));
                     return result;
                   })
-              .collect(Collectors.toList()));
+              .collect(Collectors.toList()),
+          ((TailspinArray) parent).getOffset());
     }
     throw new IllegalStateException("Cannot group " + parent);
   }

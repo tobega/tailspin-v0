@@ -31,20 +31,20 @@ public class ArrayMatch implements Membrane {
     }
     List<CollectionCriterion> criteria = contentMatcherFactories.stream()
         .map(CollectionCriterionFactory::newCriterion).toList();
-    TailspinArray.Tail tail = listToMatch.tailFrom(1);
+    TailspinArray.Tail tail = listToMatch.tailFromNative(0);
     nextElement:
     while(!tail.isEmpty()) {
       for (CollectionCriterion c : criteria) {
         int chop = c.isMetAt(tail, it, scope);
         if (chop != 0) {
-          tail = tail.tailFrom(chop+1);
+          tail = tail.tailFromNative(chop);
           continue nextElement;
         }
       }
       if (nothingElseAllowed) {
         return null;
       }
-      tail = tail.tailFrom(2);
+      tail = tail.tailFromNative(1);
     }
     return criteria.stream().allMatch(c -> c.isSatisfied(it, scope)) ? toMatch : null;
   }

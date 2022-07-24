@@ -187,6 +187,9 @@ E.g. `[1,2,3,4,5]` and `[1..3, 4..5]` and `[1..5]` all produce an array of size 
 
 You can nest array literals inside array literals to produce multi-dimensional arrays.
 
+Arrays are indexed from 1 by default, but you can change that by specifying an offset in parentheses before the opening bracket
+when you create the array, e.g. `(0)[1..5]` creates an array that starts at index 0.
+
 #### Cartesian product
 You can form a stream of arrays of the cartesian product of several streams. Each position in the array that is to
 provide several values is prefixed with the `by` keyword. For example: `[by 1..2, by 3..4]` will produce a stream
@@ -765,7 +768,7 @@ done in the current _value chain_.
 Arrays are an ordered list of objects that can be turned into a [stream](#streams) by a [deconstructor](#deconstructor).
 
 To access elements of an array, append a selector within parentheses, e.g. `$(3)` to get the third element of the current array value.
-The first element of an array has selector `1`, but can/should be referenced as `first` (A future enhancement may enable different starting indices).
+The first element of an array has selector `1` by default, but can/should be referenced as `first` because arrays can be created with a different starting index, see [array literals](#array-literal).
 Elements can also be selected counting from the end of the array by counting from the keyword `last`,
  e.g. the last element of an array can be accessed by selector `last`, the second last element by `last-1` and so on.
 Of course, the selector may be any arithmetic expression.
@@ -799,6 +802,8 @@ So, for example, `$(0)` will result in an error, but `$(0..0)` will result in an
 and `$(0..2)` will return the first two elements just like `$(1..2)`.
 
 The indexing selectors are special [lenses](#projections-and-lenses) that apply only to arrays.
+
+A new array created by selecting a range or subset has the same starting index as the original.
 
 An array is a built-in processor that responds to the following messages:
 * `::length` returns the length of the first dimension.

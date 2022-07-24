@@ -76,9 +76,9 @@ public class DataDictionary {
       public int isMetAt(TailspinArray.Tail toMatch, Object it, Scope scope) {
         // This should never be called if Tail is empty
         if (contentMembrane == null) {
-          contentMembrane = getDefaultTypeCriterion(null, toMatch.get(1), dictionary);
+          contentMembrane = getDefaultTypeCriterion(null, toMatch.getNative(0), dictionary);
           return 1;
-        } else if (null != contentMembrane.permeate(toMatch.get(1), null, null, null)) {
+        } else if (null != contentMembrane.permeate(toMatch.getNative(0), null, null, null)) {
           return 1;
         }
         return 0;
