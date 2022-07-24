@@ -89,6 +89,10 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
     array.add(result);
   }
 
+  public void prepend(Object result) {
+    array.add(0, result);
+  }
+
   @Override
   public void freeze() {
     array.stream().filter(Freezable.class::isInstance).forEach(o -> ((Freezable<?>) o).freeze());

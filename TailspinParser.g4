@@ -138,7 +138,9 @@ blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
 stateAssignment: (valueChain To)? stateSink;
 
-stateSink: (Range Else)? stateIdentifier reference Colon valueProduction SemiColon;
+stateSink: (append|prepend)? stateIdentifier reference Colon valueProduction SemiColon;
+append: Range Else;
+prepend: Else Range;
 
 valueChain: source transform?;
 

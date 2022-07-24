@@ -2,6 +2,7 @@ package tailspin.transform.lens;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import tailspin.control.Reference;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.literals.KeyValueExpression;
@@ -21,11 +22,9 @@ public class Projection implements LensDimension {
   public Object get(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope) {
     if (!lowerDimensions.isEmpty())
       throw new UnsupportedOperationException("Projection cannot extend to lower dimensions");
-    if (parent instanceof Relation) {
-      Relation relation = (Relation) parent;
+    if (parent instanceof Relation relation) {
       return relation.project(projections, it, scope);
-    } else if (parent instanceof TailspinArray) {
-      TailspinArray array = (TailspinArray) parent;
+    } else if (parent instanceof TailspinArray array) {
       return TailspinArray.value(array.stream().map(s -> get(lowerDimensions, s, it, scope)).collect(
           Collectors.toList()));
     } else {
@@ -47,7 +46,7 @@ public class Projection implements LensDimension {
   }
 
   @Override
-  public void merge(List<LensDimension> lowerDimensions, Object parent, Object it,
+  public void merge(Reference.Merge method, List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope, ResultIterator ri) {
     throw new UnsupportedOperationException("Cannot merge values on a projection");
   }

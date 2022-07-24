@@ -1,6 +1,7 @@
 package tailspin.transform.lens;
 
 import java.util.List;
+import tailspin.control.Reference;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.transform.Lens;
@@ -34,9 +35,9 @@ public class DefinedLens implements LensDimension {
   }
 
   @Override
-  public void merge(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
+  public void merge(Reference.Merge method, List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
       ResultIterator ri) throws EmptyLensAtBottomException {
     Lens.ScopedLens lens = (Lens.ScopedLens) scope.resolveValue(identifier);
-    lens.merge(lowerDimensions, (Freezable<?>) parent, ri);
+    lens.merge(method, lowerDimensions, (Freezable<?>) parent, ri);
   }
 }

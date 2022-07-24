@@ -179,7 +179,7 @@ public abstract class ArrayLens implements LensDimension {
 
 
   @Override
-  public void merge(List<LensDimension> lowerDimensions, Object parent, Object it,
+  public void merge(Reference.Merge method, List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope,
       ResultIterator ri) {
     if (!lowerDimensions.isEmpty()) {
@@ -189,7 +189,7 @@ public abstract class ArrayLens implements LensDimension {
       mutate(
           a -> {
             try {
-              next.merge(lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope, ri);
+              next.merge(method, lowerDimensions.subList(1, lowerDimensions.size()), a, it, scope, ri);
             } catch (EmptyLensAtBottomException e) {
               succeeded.set(false);
             }
@@ -197,7 +197,7 @@ public abstract class ArrayLens implements LensDimension {
           dimensionResult);
       if (succeeded.get()) return;
     }
-    Merger merger = new Merger(ri);
+    Merger merger = new Merger(method, ri);
     Object dimensionResult = projectArray((TailspinArray) parent, it, scope, merger);
     if (dimensionResult != null) ((Stream<?>) dimensionResult).forEach(foo -> {});
     merger.resolveSingleElementMergeMany();
@@ -205,12 +205,14 @@ public abstract class ArrayLens implements LensDimension {
 
   private static class Merger implements ArrayOperation {
 
+    private final Reference.Merge method;
     private final ResultIterator ri;
     int invocations = 0;
     TailspinArray lastArray;
     int lastIndex;
 
-    public Merger(ResultIterator ri) {
+    public Merger(Reference.Merge method, ResultIterator ri) {
+      this.method = method;
       this.ri = ri;
     }
 
@@ -224,7 +226,7 @@ public abstract class ArrayLens implements LensDimension {
         collector = collector.thawedCopy();
         array.set(index, collector);
       }
-      Reference.collect(Objects.requireNonNull(ri.getNextResult()), collector);
+      Reference.collect(Objects.requireNonNull(ri.getNextResult()), collector, method);
       return null;
     }
 
@@ -235,7 +237,7 @@ public abstract class ArrayLens implements LensDimension {
           collector = collector.thawedCopy();
           lastArray.set(lastIndex, collector);
         }
-        Reference.collect(ri, collector);
+        Reference.collect(ri, collector, method);
       }
     }
   }

@@ -623,7 +623,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     lastAssignedStateContext = ctx.stateIdentifier().getText().substring(1);
     Reference reference = resolveReference(ctx.reference(), Reference.state(
         lastAssignedStateContext));
-    return new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, ctx.Range() != null);
+    Reference.Merge merge = ctx.append() != null ? Reference.Merge.APPEND : (ctx.prepend() != null ? Reference.Merge.PREPEND : Reference.Merge.NONE);
+    return new StateAssignment(visitValueProduction(ctx.valueProduction()), reference, merge);
   }
 
   @Override
