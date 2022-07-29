@@ -4,24 +4,29 @@ import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
 import tailspin.types.TaggedIdentifier;
+import tailspin.types.Unit;
 
 public class DimensionContextKeywordResolver implements ArithmeticContextKeywordResolver,
     RangeGenerator.BoundsResolver {
 
   private final long offset;
+  private final String tag;
+  private final Unit unit;
   private final Integer dimensionSize;
   private final boolean allowNegative;
 
   private boolean resolvedKeyword;
 
-  public DimensionContextKeywordResolver(long offset, Integer dimensionSize, boolean allowNegative) {
-    this.offset = offset;
+  public DimensionContextKeywordResolver(Object offset, Integer dimensionSize, boolean allowNegative) {
+    tag = (offset instanceof TaggedIdentifier t) ? t.getTag() : null;
+    unit = (offset instanceof Measure m) ? m.getUnit() : null;
+    this.offset = decodeObject(offset);
     this.dimensionSize = dimensionSize;
     this.allowNegative = allowNegative;
   }
 
   @Override
-  public long getValue(String name) {
+  public Object getValue(String name) {
     resolvedKeyword = true;
     if (name.equals("last")) {
       return dimensionSize + offset - 1;
@@ -40,12 +45,21 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
 
   private long decodeObject(Object indexValue) {
     if (indexValue instanceof TaggedIdentifier t) {
+      if (!t.getTag().equals(tag)) throw new IllegalArgumentException("Array indexed by " + t + ". Expected " + getExpectedUnitErrorMessage());
       return (long) t.getValue();
     }
     if (indexValue instanceof Measure m) {
+      if (!m.getUnit().equals(unit)) throw new IllegalArgumentException("Array indexed by " + m + ". Expected " + getExpectedUnitErrorMessage());
       return m.getValue();
     }
+    if (tag != null || unit != null) throw new IllegalArgumentException("Array indexed by untyped " + indexValue + ". Expected " + getExpectedUnitErrorMessage());
     return (long) indexValue;
+  }
+
+  private String getExpectedUnitErrorMessage() {
+    if (tag != null) return "tag " + tag;
+    if (unit != null) return "unit " + unit;
+    return "untyped number";
   }
 
   @Override

@@ -58,7 +58,7 @@ public class ProcessorMessage extends Reference {
     } else if (receiver instanceof String) {
       if (message.equals("asCodePoints")) {
         return (it, params, callingDictionary) -> TailspinArray.value(
-            ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList()), 1);
+            ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList()), 1L);
       } if (message.equals("asUtf8Bytes")) {
         return (it, params, callingDictionary) -> ((String) receiver).getBytes(StandardCharsets.UTF_8);
       } else if (message.equals("raw")) {

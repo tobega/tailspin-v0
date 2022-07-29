@@ -19,7 +19,7 @@ public class ArrayLiteral implements Value {
 
   @Override
   public Object getResults(Object it, Scope scope) {
-    Long startIndex = (Long) this.offset.getResults(it, scope);
+    Object startIndex = this.offset.getResults(it, scope);
     List<List<Object>> seeds = List.of(new ArrayList<>());
     for (CartesianExpansion expansion : expansions) {
       seeds = expansion.expand(seeds, it, scope);

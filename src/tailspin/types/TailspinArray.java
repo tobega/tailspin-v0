@@ -11,15 +11,15 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
 
   private final List<Object> array;
   private boolean isMutable;
-  private final long offset;
+  private final Object offset;
 
-  private TailspinArray(List<Object> array, boolean isMutable, long offset) {
+  private TailspinArray(List<Object> array, boolean isMutable, Object offset) {
     this.array = array;
     this.isMutable = isMutable;
     this.offset = offset;
   }
 
-  public static TailspinArray value(List<Object> array, long offset) {
+  public static TailspinArray value(List<Object> array, Object offset) {
     return new TailspinArray(array, false, offset);
   }
 
@@ -54,7 +54,7 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
     return array.size();
   }
 
-  public long getOffset() {
+  public Object getOffset() {
     return offset;
   }
 
@@ -63,7 +63,13 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
   }
 
   public Object getTailspinIndex(int i) {
-    return (long) i + offset;
+    if (offset instanceof Measure m) {
+      return new Measure(m.getValue() + i, m.getUnit());
+    }
+    if (offset instanceof TaggedIdentifier t) {
+      return new TaggedIdentifier(t.getTag(), (Long) t.getValue() + i);
+    }
+    return (Long) offset + i;
   }
 
   public Void setNative(int i, Object obj) {

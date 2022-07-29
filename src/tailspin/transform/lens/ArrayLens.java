@@ -34,7 +34,7 @@ public abstract class ArrayLens implements LensDimension {
     Object invoke(TailspinArray array, int nativeIndex);
   }
 
-  private Object resolveResult(Object dimensionResult, long offset) {
+  private Object resolveResult(Object dimensionResult, Object offset) {
     if (dimensionResult instanceof Stream) {
       return TailspinArray.value(((Stream<?>) dimensionResult).collect(Collectors.toList()), offset);
     } else {
@@ -68,7 +68,7 @@ public abstract class ArrayLens implements LensDimension {
     Object invoke(Object value);
   }
 
-  private Object retrieve(LensOperation operation, Object dimensionResult, long offset) {
+  private Object retrieve(LensOperation operation, Object dimensionResult, Object offset) {
     if (dimensionResult instanceof Stream) {
       @SuppressWarnings("unchecked")
       Stream<Object> results = (Stream<Object>) dimensionResult;

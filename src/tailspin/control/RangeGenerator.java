@@ -3,6 +3,7 @@ package tailspin.control;
 import static tailspin.types.DataDictionary.formatErrorValue;
 
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
 import tailspin.types.TaggedIdentifier;
@@ -113,13 +114,17 @@ public class RangeGenerator implements Expression {
       if (!isValid(i)) {
         return null;
       }
+      return longToResult(getNextLong());
+    }
+
+    private Object longToResult(long v) {
       if (unit != null) {
-        return new Measure(getNextLong(), unit);
+        return new Measure(v, unit);
       }
       if (tag != null) {
-        return new TaggedIdentifier(tag, getNextLong());
+        return new TaggedIdentifier(tag, v);
       }
-      return getNextLong();
+      return v;
     }
 
     private long getNextLong() {
@@ -132,8 +137,8 @@ public class RangeGenerator implements Expression {
       return (increment > 0 && v <= end) || (increment < 0 && v >= end);
     }
 
-    public LongStream stream() {
-      return LongStream.iterate(getNextLong(), this::isValid, v -> getNextLong());
+    public Stream<Object> stream() {
+      return LongStream.iterate(getNextLong(), this::isValid, v -> getNextLong()).mapToObj(this::longToResult);
     }
   }
 }

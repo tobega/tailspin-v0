@@ -31,7 +31,7 @@ public class Lens implements Value {
       throw new UnsupportedOperationException("Cannot resolve more than one dimension of bytes");
     }
     ByteArrayOutputStream result = new ByteArrayOutputStream();
-    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(1, parentValue.length,
+    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(1L, parentValue.length,
         true);
     scope.pushArithmeticContextKeywordResolver(resolver);
     try {

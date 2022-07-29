@@ -39,7 +39,7 @@ public class JavaTypeConverter {
       @SuppressWarnings("unchecked")
       List<Object> list = (List<Object>) result;
       return TailspinArray.value(list.stream().map(JavaTypeConverter::tailspinTypeOf).collect(
-          Collectors.toList()), 1);
+          Collectors.toList()), 1L);
     }
     return new JavaObject(result);
   }
