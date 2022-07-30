@@ -79,7 +79,7 @@ grouping: Collect LeftBrace collectedValue (Comma collectedValue)* RightBrace By
 
 collectedValue: key templatesReference;
 
-arrayLiteral: (LeftParen arithmeticValue RightParen)? (LeftBracket RightBracket | LeftBracket arrayExpansion (Comma arrayExpansion)* RightBracket);
+arrayLiteral: arithmeticValue? (LeftBracket RightBracket | LeftBracket arrayExpansion (Comma arrayExpansion)* RightBracket);
 
 valueProduction: sendToTemplates | valueChain;
 
