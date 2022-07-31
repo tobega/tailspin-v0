@@ -79,7 +79,7 @@ grouping: Collect LeftBrace collectedValue (Comma collectedValue)* RightBrace By
 
 collectedValue: key templatesReference;
 
-arrayLiteral: arithmeticValue? (LeftBracket RightBracket | LeftBracket arrayExpansion (Comma arrayExpansion)* RightBracket);
+arrayLiteral: (arithmeticValue Colon)? (LeftBracket RightBracket | LeftBracket arrayExpansion (Comma arrayExpansion)* RightBracket);
 
 valueProduction: sendToTemplates | valueChain;
 
@@ -249,7 +249,7 @@ compositionComponents: compositionSkipRule* compositionComponent (Comma? composi
 compositionComponent: compositionMatcher transform? compositionSkipRule*;
 
 compositionMatcher: tokenMatcher
-  | LeftBracket (compositionSequence|compositionSkipRule)? RightBracket
+  | (arithmeticValue Colon)? LeftBracket (compositionSequence|compositionSkipRule)? RightBracket
   | LeftBrace (structureMemberMatchers|compositionSkipRule)? RightBrace
   | source
   | compositionKeyValue

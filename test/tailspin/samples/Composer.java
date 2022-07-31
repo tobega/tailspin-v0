@@ -462,6 +462,74 @@ class Composer {
   }
 
   @Test
+  void buildArrayWithUntypedOffset() throws IOException {
+    String program = """
+        composer intArray
+        0:[ <INT> (<','>) <INT> ]
+        end intArray
+        '1,2' -> intArray -> $(0) -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void buildArrayWithParsedOffset() throws IOException {
+    String program = """
+        composer intArray
+        (def offset:<INT>; <WS>) $offset:[ <INT> (<','>) <INT> ]
+        end intArray
+        '0 1,2' -> intArray -> $(0) -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void buildArrayWithMearureOffset() throws IOException {
+    String program = """
+        composer intArray
+        0"m":[ <INT> (<','>) <INT> ]
+        end intArray
+        '1,2' -> intArray -> $(0"m") -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void buildArrayWithTaggedOffset() throws IOException {
+    String program = """
+        composer intArray
+        x´0:[ <INT> (<','>) <INT> ]
+        end intArray
+        '1,2' -> intArray -> $(x´0) -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void buildArray_placeCommaBeforeSkip() throws IOException {
     String program = """
         composer intArray

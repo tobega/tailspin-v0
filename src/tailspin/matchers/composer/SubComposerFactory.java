@@ -54,7 +54,7 @@ public class SubComposerFactory {
     }
     if (spec instanceof ArrayComposition arraySpec) {
       return new ArraySubComposer(
-          new SequenceSubComposer(arraySpec.itemSpecs, scope, this::resolveSpec));
+          new SequenceSubComposer(arraySpec.itemSpecs, scope, this::resolveSpec), arraySpec.offset, scope);
     }
     if (spec instanceof StructureComposition structureSpec) {
       return new StructureSubComposer(
@@ -140,9 +140,11 @@ public class SubComposerFactory {
   public static class ArrayComposition implements CompositionSpec {
 
     private final List<CompositionSpec> itemSpecs;
+    private final Value offset;
 
-    public ArrayComposition(List<CompositionSpec> itemSpecs) {
+    public ArrayComposition(List<CompositionSpec> itemSpecs, Value offset) {
       this.itemSpecs = itemSpecs;
+      this.offset = offset;
     }
   }
 

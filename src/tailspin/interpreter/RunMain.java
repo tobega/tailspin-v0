@@ -1278,13 +1278,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     CompositionSpec spec;
     if (ctx.LeftBracket() != null) {
+      Value offset = ctx.arithmeticValue() == null ? standardOffset : visitArithmeticValue(ctx.arithmeticValue());
       List<CompositionSpec> contents = new ArrayList<>();
       if (ctx.compositionSequence() != null) {
         contents.addAll(visitCompositionSequence(ctx.compositionSequence()));
       } else {
         contents.add(visitCompositionSkipRule(ctx.compositionSkipRule()));
       }
-      spec = new SubComposerFactory.ArrayComposition(contents);
+      spec = new SubComposerFactory.ArrayComposition(contents, offset);
     } else if (ctx.LeftBrace() != null) {
       List<CompositionSpec> contents = new ArrayList<>();
       if (ctx.structureMemberMatchers() != null) {
