@@ -41,7 +41,7 @@ class FieldReference extends Reference {
     }
     if (!structure.isThawed()) {
       structure = structure.thawedCopy();
-      parent.setValue(false, structure, it, scope);
+      parent.setValue(Merge.NONE, structure, it, scope);
     }
     return structure.remove(fieldIdentifier);
   }
@@ -52,18 +52,11 @@ class FieldReference extends Reference {
   }
 
   @Override
-  public void setValue(boolean merge, Object value, Object it, Scope scope) {
+  public void setValue(Merge merge, Object value, Object it, Scope scope) {
     if (!isMutable()) {
       throw new UnsupportedOperationException("Not mutable");
     }
-    if (merge) {
-      Freezable<?> collector = (Freezable<?>) getValue(it, scope);
-      if (!collector.isThawed()) {
-        collector = collector.thawedCopy();
-        setValue(false, collector, it, scope);
-      }
-      collect(value, collector);
-    } else {
+    if (merge == Merge.NONE) {
       value = scope.getLocalDictionary().checkDataDefinition(fieldIdentifier, value, scope);
       Structure structure = (Structure) parent.getValue(it, scope);
       if (structure == null) {
@@ -71,9 +64,16 @@ class FieldReference extends Reference {
       }
       if (!structure.isThawed()) {
         structure = structure.thawedCopy();
-        parent.setValue(false, structure, it, scope);
+        parent.setValue(Merge.NONE, structure, it, scope);
       }
       structure.put(fieldIdentifier, value);
+    } else {
+      Freezable<?> collector = (Freezable<?>) getValue(it, scope);
+      if (!collector.isThawed()) {
+        collector = collector.thawedCopy();
+        setValue(Merge.NONE, collector, it, scope);
+      }
+      collect(value, collector, merge);
     }
   }
 

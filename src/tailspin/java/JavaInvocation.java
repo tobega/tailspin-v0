@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import tailspin.control.ResultIterator;
 import tailspin.types.DataDictionary;
 import tailspin.types.Processor;
@@ -76,7 +75,7 @@ class JavaInvocation implements Transform {
               + " on class "
               + c.getName()
               + " for parameters "
-              + params.stream().map(Object::getClass).map(Class::getName).collect(Collectors.toList()));
+              + params.stream().map(Object::getClass).map(Class::getName).toList());
     Object[] invokeParams = getInvocationParameters(params, bestM);
     try {
       bestM.trySetAccessible();
@@ -159,7 +158,7 @@ class JavaInvocation implements Transform {
       if (p.isVarArgs() && (param instanceof TailspinArray list)) {
         param = Array.newInstance(p.getType().getComponentType(), list.length());
         for (int i = 0; i < list.length(); i++) {
-          setArrayValue(param, i, toJavaType(p.getType().getComponentType(), list.get(i+1)));
+          setArrayValue(param, i, toJavaType(p.getType().getComponentType(), list.getNative(i)));
         }
       } else {
         param = toJavaType(p.getType(), param);

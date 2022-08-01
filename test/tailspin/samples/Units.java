@@ -680,19 +680,6 @@ public class Units {
   }
 
   @Test
-  void indexByScalarWorks() throws IOException {
-    String program = "[6,7,8] -> $(2\"1\") -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void contextKeywordRangeIndexByScalarWorks() throws IOException {
     String program = """
     def foo: {first: 2"1"};
@@ -706,22 +693,6 @@ public class Units {
     runner.run(input, output, List.of());
 
     assertEquals("[7, 8]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  /**
-   * Unless otherwise specified any numeric integer works as index
-   */
-  @Test
-  void indexByMeasureWorks() throws IOException {
-    String program = "[6,7,8] -> $(2\"m\") -> !OUT::write";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("7", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

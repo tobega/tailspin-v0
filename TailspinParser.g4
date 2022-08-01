@@ -79,7 +79,9 @@ grouping: Collect LeftBrace collectedValue (Comma collectedValue)* RightBrace By
 
 collectedValue: key templatesReference;
 
-arrayLiteral: LeftBracket RightBracket | LeftBracket arrayExpansion (Comma arrayExpansion)* RightBracket;
+arrayLiteral: arrayOffset? (LeftBracket RightBracket | LeftBracket arrayExpansion (Comma arrayExpansion)* RightBracket);
+
+arrayOffset: arithmeticValue Colon;
 
 valueProduction: sendToTemplates | valueChain;
 
@@ -138,7 +140,9 @@ blockStatement: statement;
 sendToTemplates: valueChain To TemplateMatch;
 stateAssignment: (valueChain To)? stateSink;
 
-stateSink: (Range Else)? stateIdentifier reference Colon valueProduction SemiColon;
+stateSink: (append|prepend)? stateIdentifier reference Colon valueProduction SemiColon;
+append: Range Else;
+prepend: Else Range;
 
 valueChain: source transform?;
 
@@ -157,7 +161,7 @@ typeMatch: START_STRING END_STRING    # stringTypeMatch
   | rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
-  | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
+  | arrayOffset? LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
   | (localIdentifier|externalIdentifier) # stereotypeMatch
   | unit # unitMatch
   | LeftParen key structureContentMatcher RightParen # keyValueMatch
@@ -247,7 +251,7 @@ compositionComponents: compositionSkipRule* compositionComponent (Comma? composi
 compositionComponent: compositionMatcher transform? compositionSkipRule*;
 
 compositionMatcher: tokenMatcher
-  | LeftBracket (compositionSequence|compositionSkipRule)? RightBracket
+  | arrayOffset? LeftBracket (compositionSequence|compositionSkipRule)? RightBracket
   | LeftBrace (structureMemberMatchers|compositionSkipRule)? RightBrace
   | source
   | compositionKeyValue

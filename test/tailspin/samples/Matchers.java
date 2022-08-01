@@ -376,6 +376,58 @@ class Matchers {
   }
 
   @Test
+  void indexedArrayIsAnArray() throws Exception {
+    String program = "0:[ 1 ] -> \\(<=1> 'no!' ! <[]> 'yes'! <> 'no'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayIsOneIndexedByDefault() throws Exception {
+    String program = "[ 1 ] -> \\(<=1> 'no!' ! <1:[]> 'yes'! <> 'no'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayDoesNotMatchOtherIndex() throws Exception {
+    String program = "[ 1 ] -> \\(<0:[]> 'no'! <1\"m\":[]> 'no'! <idx´1:[]> 'no'! <> 'yes'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void indexedArrayMatchesCorrectIndex() throws Exception {
+    String program = "idx´0:[ 1 ] -> \\(<0:[]> 'no'! <0\"m\":[]> 'no'! <idx´0:[]> 'yes'! <> 'no'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void arrayMatchNotOnWrongLength() throws Exception {
     String program = "[1,2] -> \\(<[](1)> 'no!'! <> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
@@ -839,6 +891,74 @@ class Matchers {
     runner.run(input, output, List.of());
 
     assertEquals("yesyesyes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void literalEqualityIndexedArray() throws Exception {
+    String program = """
+        0:[3, 5, 2] -> \\(<=0:[3, 5, 2]> 'yes'! <> 'no'!\\) -> !OUT::write
+        0"m":[3, 5, 2] -> \\(<=0"m":[3, 2, 5]> 'no'! <> 'yes'!\\) -> !OUT::write
+        idx´0:[3, 5, 2] -> \\(<=idx´0:[3, 5, 2, 2]> 'no'! <> 'yes'!\\) -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yesyesyes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void equalityIndexedArrayErrorOnWrongIndex() throws Exception {
+    String program = """
+        0:[3, 5, 2] -> \\(<=[3, 5, 2]> 'yes'! <> 'no'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void equalityIndexedArrayErrorOnWrongIndexType() throws Exception {
+    String program = """
+        0:[3, 5, 2] -> \\(<=idx´0:[3, 5, 2]> 'yes'! <> 'no'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void equalityIndexedArrayErrorOnWrongIndexTag() throws Exception {
+    String program = """
+        x´0:[3, 5, 2] -> \\(<=y´0:[3, 5, 2]> 'yes'! <> 'no'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void equalityIndexedArrayErrorOnWrongIndexUnit() throws Exception {
+    String program = """
+        0"m":[3, 5, 2] -> \\(<=0"s":[3, 5, 2]> 'yes'! <> 'no'!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test

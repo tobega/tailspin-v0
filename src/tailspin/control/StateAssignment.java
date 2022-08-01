@@ -5,9 +5,9 @@ import tailspin.interpreter.Scope;
 public class StateAssignment implements Expression {
   private final Expression valueChain;
   public final Reference stateReference;
-  private final boolean merge;
+  private final Reference.Merge merge;
 
-  public StateAssignment(Expression valueChain, Reference stateReference, boolean merge) {
+  public StateAssignment(Expression valueChain, Reference stateReference, Reference.Merge merge) {
     this.valueChain = valueChain;
     this.stateReference = stateReference;
     this.merge = merge;

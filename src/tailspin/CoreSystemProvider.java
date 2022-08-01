@@ -20,7 +20,7 @@ public class CoreSystemProvider {
 
     public static SymbolLibrary of(List<Object> args, InputStream input, OutputStream output) {
         BasicScope scope = new BasicScope(Path.of("not-to-be-used"));
-        scope.defineValue("ARGS", TailspinArray.value(args));
+        scope.defineValue("ARGS", TailspinArray.value(args, 1L));
         scope.defineValue("SYS", new SystemProcessor());
         scope.defineValue("IN", new StdinProcessor(new BufferedReader(new InputStreamReader(input))));
         scope.defineValue("OUT", new StdoutProcessor(output));

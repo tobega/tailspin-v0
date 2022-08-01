@@ -9,10 +9,11 @@ import tailspin.types.Structure;
 import tailspin.types.TailspinArray;
 
 public abstract class Reference implements Value {
+  public enum Merge {NONE, APPEND, PREPEND}
   public abstract Object getValue(Object it, Scope scope);
   public abstract Object deleteValue(Object it, Scope scope);
   public abstract boolean isMutable();
-  public abstract void setValue(boolean merge, Object value, Object it, Scope scope);
+  public abstract void setValue(Merge merge, Object value, Object it, Scope scope);
 
   @Override
   public Object getResults(Object it, Scope scope) {
@@ -70,7 +71,7 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(boolean merge, Object value, Object it, Scope scope) {
+    public void setValue(Merge merge, Object value, Object it, Scope scope) {
       throw new UnsupportedOperationException("$ is not mutable");
     }
 
@@ -104,7 +105,7 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(boolean merge, Object value, Object it, Scope scope) {
+    public void setValue(Merge merge, Object value, Object it, Scope scope) {
       throw new UnsupportedOperationException("§ is not mutable");
     }
 
@@ -145,7 +146,7 @@ public abstract class Reference implements Value {
     }
 
     @Override
-    public void setValue(boolean merge, Object value, Object it, Scope scope) {
+    public void setValue(Merge merge, Object value, Object it, Scope scope) {
       throw new UnsupportedOperationException(identifier + " is not mutable");
     }
 
@@ -169,22 +170,44 @@ public abstract class Reference implements Value {
     throw new IllegalArgumentException("Unknown value type " + value.getClass().getName());
   }
 
-  public static void collect(Object it, Object collector) {
+  public static void collect(Object it, Object collector, Merge method) {
     if (collector instanceof Structure collectorMap) {
       ResultIterator.forEach(it,
           m -> {
             if (m instanceof Structure itMap) {
               ResultIterator.forEach(itMap.deconstruct(), member -> {
                 KeyValue entry = (KeyValue) member;
-                collectorMap.put(entry.getKey(), entry.getValue());
+                if (method == Merge.APPEND) {
+                  collectorMap.put(entry.getKey(), entry.getValue());
+                } else if (method == Merge.PREPEND) {
+                  if (!collectorMap.containsKey(entry.getKey())) {
+                    collectorMap.put(entry.getKey(), entry.getValue());
+                  }
+                } else {
+                  throw new UnsupportedOperationException("Cannot merge " + method);
+                }
               });
             } else {
               KeyValue itEntry = (KeyValue) m;
-              collectorMap.put(itEntry.getKey(), itEntry.getValue());
+              if (method == Merge.APPEND) {
+                collectorMap.put(itEntry.getKey(), itEntry.getValue());
+              } else if (method == Merge.PREPEND) {
+                if (!collectorMap.containsKey(itEntry.getKey())) {
+                  collectorMap.put(itEntry.getKey(), itEntry.getValue());
+                }
+              } else {
+                throw new UnsupportedOperationException("Cannot merge " + method);
+              }
             }
           });
     } else if (collector instanceof TailspinArray collectorList) {
-      ResultIterator.forEach(it, collectorList::append);
+      if (method == Merge.APPEND) {
+        ResultIterator.forEach(it, collectorList::append);
+      } else if (method == Merge.PREPEND) {
+        ResultIterator.forEach(it, collectorList::prepend);
+      } else {
+        throw new UnsupportedOperationException("Cannot merge " + method);
+      }
     } else {
       throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
     }

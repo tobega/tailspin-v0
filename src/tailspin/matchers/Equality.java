@@ -27,8 +27,9 @@ public class Equality implements Membrane {
       return RangeMatch.compare(toMatch, RangeMatch.Comparison.EQUAL, required, contextTag, scope);
     if (toMatch instanceof TailspinArray t && required instanceof TailspinArray r) {
       if (t.length() != r.length()) return null;
-      for (int i = 1; i <= t.length(); i++) {
-        if (eq(t.get(i), r.get(i),contextTag, scope) == null) return null;
+      if (!Objects.equals(t.getOffset(), r.getOffset())) throw new IllegalArgumentException("Trying to compare array of index type " + t.getOffsetDescription() + " with array of index type " + r.getOffsetDescription());
+      for (int i = 0; i < t.length(); i++) {
+        if (eq(t.getNative(i), r.getNative(i),contextTag, scope) == null) return null;
       }
       return t;
     }

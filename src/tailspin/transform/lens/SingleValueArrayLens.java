@@ -13,16 +13,14 @@ public class SingleValueArrayLens extends ArrayLens {
   }
 
   @Override
-  public Object getIndices(DimensionContextKeywordResolver context, Object it, Scope scope) {
+  public Object getNativeIndices(DimensionContextKeywordResolver context, Object it, Scope scope) {
     Object value = simpleValue.getResults(it, scope);
     if (value instanceof TailspinArray) {
       return ((TailspinArray) value)
           .stream()
               .mapToInt(
-                  i ->
-                      context.resolveIndex(i)
-                          .intValue());
+                  context::resolveNativeIndex);
     }
-    return context.resolveIndex(value);
+    return context.resolveNativeIndex(value);
   }
 }

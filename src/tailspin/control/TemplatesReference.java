@@ -39,7 +39,7 @@ public class TemplatesReference extends Reference {
   }
 
   @Override
-  public void setValue(boolean merge, Object value, Object it, Scope scope) {
+  public void setValue(Merge merge, Object value, Object it, Scope scope) {
     throw new IllegalStateException();
   }
 }

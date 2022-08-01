@@ -30,7 +30,7 @@ class LensReference extends Reference {
   @Override
   public Object deleteValue(Object it, Scope scope) {
     if (!isMutable()) {
-      throw new UnsupportedOperationException(toString() + " is not deletable");
+      throw new UnsupportedOperationException(this + " is not deletable");
     }
     Freezable<?> array = (Freezable<?>) parent.getValue(it, scope);
     if (array == null) {
@@ -38,7 +38,7 @@ class LensReference extends Reference {
     }
     if (!array.isThawed()) {
       array = array.thawedCopy();
-      parent.setValue(false, array, it, scope);
+      parent.setValue(Merge.NONE, array, it, scope);
     }
     try {
       return lens.delete(array, it, scope);
@@ -53,9 +53,9 @@ class LensReference extends Reference {
   }
 
   @Override
-  public void setValue(boolean merge, Object value, Object it, Scope scope) {
+  public void setValue(Merge merge, Object value, Object it, Scope scope) {
     if (!isMutable()) {
-      throw new UnsupportedOperationException(toString() + " is not mutable");
+      throw new UnsupportedOperationException(this + " is not mutable");
     }
     ResultIterator ri = ResultIterator.wrap(value);
     Freezable<?> array = (Freezable<?>) parent.getValue(it, scope);
@@ -64,13 +64,13 @@ class LensReference extends Reference {
     }
     if (!array.isThawed()) {
       array = array.thawedCopy();
-      parent.setValue(false, array, it, scope);
+      parent.setValue(Merge.NONE, array, it, scope);
     }
     try {
-      if (merge) {
-        lens.merge(array, it, scope, ri);
-      } else {
+      if (merge == Merge.NONE) {
         lens.set(array, it, scope, ri);
+      } else {
+        lens.merge(merge, array, it, scope, ri);
       }
     } catch (LensDimension.EmptyLensAtBottomException e) {
       parent.setValue(merge, value, it, scope);

@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import tailspin.control.Deconstructor;
 import tailspin.control.Expression;
+import tailspin.control.Reference;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.types.Relation;
@@ -60,10 +61,18 @@ public class Grouping implements LensDimension {
               .map(
                   e -> {
                     Structure result = e.getKey().thawedCopy();
-                    e.getValue().forEach(a -> result.put(a.key(), scope.getLocalDictionary().checkDataDefinition(a.key(), a.result(), scope)));
+                    e.getValue()
+                        .forEach(
+                            a ->
+                                result.put(
+                                    a.key(),
+                                    scope
+                                        .getLocalDictionary()
+                                        .checkDataDefinition(a.key(), a.result(), scope)));
                     return result;
                   })
-              .collect(Collectors.toList()));
+              .collect(Collectors.toList()),
+          ((TailspinArray) parent).getOffset());
     }
     throw new IllegalStateException("Cannot group " + parent);
   }
@@ -74,7 +83,7 @@ public class Grouping implements LensDimension {
   }
 
   @Override
-  public void merge(List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
+  public void merge(Reference.Merge method, List<LensDimension> lowerDimensions, Object parent, Object it, Scope scope,
       ResultIterator ri) {
     throw new UnsupportedOperationException("Cannot merge values on a grouping");
   }

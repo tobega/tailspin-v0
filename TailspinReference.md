@@ -1,3 +1,4 @@
+        ResultIterator.forEach(it, collectorList::append);
 # Tailspin reference
 This is the syntax as it is working so far, with some indications of limitations and future developments.
 More thoughts in [my notes](Notes.md).
@@ -53,7 +54,7 @@ should have been used instead. This is deliberate in order to free the mind of p
 ## Basic structure
 A typical tailspin statement starts with a [source](#sources) for a value (or more correctly a [stream](#streams) of values),
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
-(a.k.a a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you can end with an
+(a.k.a. a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you can end with an
 exclamation point `!` to emit the resulting value into the outer calling context (this is similar to a "yield"
 in a generator in other languages, except that the processing continues right away).
 
@@ -86,7 +87,7 @@ _Future_: all unicode alphabets should be allowed.
 
 ### Side effects
 The current specification is that each step of a _value chain_ is executed
-for all of the values of a stream of current values, `$`, before the next step is evaluated.
+for all the values of a stream of current values, `$`, before the next step is evaluated.
 
 ### Command line arguments
 Command line arguments are available as a list of strings in the predefined value ARGS, accessible as `$ARGS`.
@@ -108,16 +109,16 @@ To enter a character by its numeric unicode value, prefix the decimal value
 (or [arithmetic expression](#arithmetic-expression)) with "$#" and end with ";", e.g. `'$#9;'` gives a tab character.
 
 A dollar sign is also used to do string interpolation with a [dereferenced value](#dereference),
-where a semi-colon `;` completes the interpolation, e.g. `'Hello $name;'` to get `$name;` replaced with
+where a semicolon `;` completes the interpolation, e.g. `'Hello $name;'` to get `$name;` replaced with
 what the symbol identified as `name` currently is defined as. If you need a dollar sign in your string,
-just double it up, e.g. `'The price is $$5'`. If you need a semi-colon in your string right after your
+just double it up, e.g. `'The price is $$5'`. If you need a semicolon in your string right after your
 identifier, you need to double it up, e.g. `'Hello $name;;'`.
 
 Interpolating the _current value_ simply becomes `$;`. In cases where you don't want to use the _current value_,
 or can't because you're at the top level, and you don't want to access a defined value, you can put a colon
 right after the dollar sign, e.g. `'$:5*8;'` gives you the string `'40'`
 
-Interpolation can also execute a _value chain_ by adding transforms, even sending to templates if in a templates context,
+Interpolation can also execute a _value chain_ by adding transforms, even sending to templates if in a template context,
 e.g. `'The total price is $$ $ -> $ * $quantity;'` or `'$:1..3 -> #;'`. Note that when you evaluate a [processor message](#processors),
 you can reference it directly, like `'$p::message;'` if the message does not require input, otherwise you need to use it as a transform,
 that is like `'$->p::message;'`. Note that we now reference the message expression without the $.
@@ -128,7 +129,7 @@ followed by a tick before the string literal, e.g. `name´ 'John'` will tag `'Jo
 
 ### Arithmetic expression
 The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference)
-(including a state deletion, see the [delete operator](#delete-operator).
+(including a state deletion, see the [delete operator](#delete-operator)).
 Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 * multiplication `*`
 * truncation division `~/` (which truncates to the integer closest to 0)
@@ -140,7 +141,7 @@ Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 A value chain that yields a number can be used as an operand on either side of an operator, if it is enclosed in parentheses.
 
 NOTE: The example above shows the use of untyped numbers. While you can use untyped numbers for simple programs,
-Tailspin will nudge you to specify what kind of a number it is. It can either be a [measure](#measures), with a unit,
+Tailspin will nudge you to specify what kind of number it is. It can either be a [measure](#measures), with a unit,
 which forces you to take care when doing arithmetic with different units, or it can be a [tagged identifier](#tagged-identifiers)
 that cannot be used for arithmetic at all. To create a measure, append a unit in quotes after the number or parenthesized expression, e.g. `5"m"`.
 To create a tagged identifier, write the tag as an [identifier](#identifiers) followed by a tick
@@ -186,9 +187,12 @@ E.g. `[1,2,3,4,5]` and `[1..3, 4..5]` and `[1..5]` all produce an array of size 
 
 You can nest array literals inside array literals to produce multi-dimensional arrays.
 
+Arrays are indexed from 1 by default, but you can change that by specifying an offset in parentheses before the opening bracket
+when you create the array, e.g. `(0)[1..5]` creates an array that starts at index 0.
+
 #### Cartesian product
 You can form a stream of arrays of the cartesian product of several streams. Each position in the array that is to
-provide several different values is prefixed with the `by` keyword. For example: `[by 1..2, by 3..4]` will produce a stream
+provide several values is prefixed with the `by` keyword. For example: `[by 1..2, by 3..4]` will produce a stream
 of the values `[1, 3]`, `[2, 3]`, `[1, 4]` and `[2, 4]`.
 
 ### Structure literal
@@ -199,7 +203,7 @@ A literal key-value pair is an identifier followed by a colon and a _value chain
 NOTE: [Autotyping](#autotyping) and the [data dictionary](#data-dictionary) affects what things you can and cannot assign to a key.
 Raw strings or untyped numbers assigned to a key will become [tagged identifiers](#tagged-identifiers).
 
-An example of an expression generating a stream of key-value pairs is a [deconstruct](#deconstructor)
+An example of an expression generating a stream of key-value pairs is a [deconstruction](#deconstructor)
  of a [dereferenced](#dereference) structure value. But as a convenience, you can just include the structure-valued
 dereference as-is and it will be automatically deconstructed into the new structure.
 
@@ -265,7 +269,7 @@ one value may be produced, e.g. `(5 oper (2 -> SYS::randomInt))`
 ## Sinks
 A sink is a place where a value "disappears" and the _value chain_ ends.
 
-A symbol definition (or a state modification) has a semi-colon `;` at the end that could be considered to be a sink that captures the value into the symbol (or state).
+A symbol definition (or a state modification) has a semicolon `;` at the end that could be considered to be a sink that captures the value into the symbol (or state).
 
 `-> !VOID` is a special sink which is used to ignore the values from a chain (or to mark that the chain is not expected to produce values).
 
@@ -401,10 +405,10 @@ otherwise only anonymous same-level state access is possible.
 Array templates is a convenient way to process [array](#arrays) elements individually together with
 their index in the array. They are created by putting an index-decomposition specification before the
 opening parenthesis of an [inline templates](#inline-templates).
-The index-decomppsition definition specifies an identifier for the index counter(s) within brackets,
+The index-decomposition definition specifies an identifier for the index counter(s) within brackets,
 e.g. `[4,5,6] -> \[i]($ + $i!\)` will produce the value `[5,7,9]`.
 Multiple dimensions also work, provided that the array structure has at least as many dimensions as specified.
-e.g `[[1,2,3],[4,5,6]] -> \[i;j]($ * $i + $j ! \)` gives `[[2,4,6],[9,12,15]]`
+e.g. `[[1,2,3],[4,5,6]] -> \[i;j]($ * $i + $j ! \)` gives `[[2,4,6],[9,12,15]]`
 
 Note that the array templates is currently not aware of the array other than that it has parameters for its indices,
 so each element is independently evaluated. This means that (at least currently) the [templates state](#mutable-state)
@@ -526,7 +530,7 @@ the selected elements, e.g. `$(3..5)` or `$([3,1,2])`. See the [array documentat
 
 A key can be used to project onto (that is, extract) a field of a [structure](#structures), e.g. `$(x:)`
 
-Array and key lenses allow going further down into multiple dimensions by appending another lens specification after a semi-colon,
+Array and key lenses allow going further down into multiple dimensions by appending another lens specification after a semicolon,
 e.g. `$(3; values: ; 5)` to get the 5th element of the values field of the third element of the current value.
 This can more conventionally be written as `$(3).values(5)`, which should be preferred when possible.
 
@@ -624,7 +628,7 @@ See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for
   * A content matcher without multiplier will match once only (and may be duplicated to expect several elements).
   E.g. `<[<=3|=5>]>` tests if there is any element that is either a 3 or a 5, while `<[<=3>,<=5>]>`
   tests that the array contains at least one each of 3 and 5.
-  Note that criteria will be matched in order for each element until the first matching criterium is found.
+  Note that criteria will be matched in order for each element until the first matching criterion is found.
   * At the end of the content matcher, just before `]`, the symbol `VOID` may be written to signify that no extra content is allowed.
   * (Sub)sequences of elements can be matched by enclosing conditions in parentheses, with a colon connecting
     the sequential conditions, e.g. `<[(<=3>:<=4>)]>` to match if the element 4 occurs directly after a 3 anywhere.
@@ -694,7 +698,7 @@ which can be modified by the special identifier `@`, set as `@: _value chain_;` 
 a surrounding outer templates object's state, you can append the templates name, e.g. `@name` and `$@name`.
 
 The local state is also deeply modifiable so you could change just a field of the state object, e.g. `@.field: _value chain_;` or `@name.field: _value chain_;`,
-or a position in an array, e.g. `@name(2;5): _value_ chain_;`. A sequenceof variables can also be assigned to an array slice,
+or a position in an array, e.g. `@name(2;5): _value_ chain_;`. A sequence of variables can also be assigned to an array slice,
 e.g. `@(2..4): 1..3;`
 
 A state modification works like a [sink](#sinks).
@@ -705,13 +709,14 @@ mutates the state, e.g. `..|@: _value chain_;`.
 To remove part of the state, use the [delete operator](#delete-operator), e.g. `^@name.key`, which also places the deleted value into the chain.
 
 ### Merge operator
-This is the symbol `..|` which is similar to the [deconstructor](#deconstructor), but collects values instead of disperses them (see also [collectors](#collector)).
-It is applied before a state object assignment instead of after a value stream, e.g. `..|@myState`
+There are two forms of this operator, `..|` for append and `|..` for prepend.
+The symbols are similar to the [deconstructor](#deconstructor), but collects values instead of disperses them (see also [collectors](#collector)).
+They are applied before a state object assignment instead of after a value stream, e.g. `..|@myState` or `|..@myState`
 Slightly different things happen depending on what type of object is used as a collector:
  * A structure: the stream must be a stream of structures or keyed values (or just one structure or keyed value) and the result is that of
- the keys of each streaming structure is merged into the collector, possibly overwriting previous keys, e.g.
- if @ is `{a:1, b:1}` `..|@: {a:2, c:2};` results in @ being `{a:2, b:1, c:2}`
- * An array: append the stream to the end of the array.
+ the keys of each streaming structure merged into the collector. Append overwrites previous keys, prepend doesn't, e.g.
+ if @ is `{a:1, b:1}` then `..|@: {a:2, c:2};` results in @ being `{a:2, b:1, c:2}` but `|..@: {a:2, c:2};` results in @ being `{a:1, b:1, c:2}`
+ * An array: append or prepend the stream to the array. When prepending, each stream element gets prepended in turn, so they end up reversed.
  
  If the merge operator is applied to an array slice, each element of the array slice gets merged with one element from the stream.
  Note the difference between `..|@: 1..3;`, which appends 1, 2 and 3 to the end of the state array,
@@ -763,7 +768,7 @@ done in the current _value chain_.
 Arrays are an ordered list of objects that can be turned into a [stream](#streams) by a [deconstructor](#deconstructor).
 
 To access elements of an array, append a selector within parentheses, e.g. `$(3)` to get the third element of the current array value.
-The first element of an array has selector `1`, but can/should be referenced as `first` (A future enhancement may enable different starting indices).
+The first element of an array has selector `1` by default, but can/should be referenced as `first` because arrays can be created with a different starting index, see [array literals](#array-literal).
 Elements can also be selected counting from the end of the array by counting from the keyword `last`,
  e.g. the last element of an array can be accessed by selector `last`, the second last element by `last-1` and so on.
 Of course, the selector may be any arithmetic expression.
@@ -784,9 +789,9 @@ of integers, or a single array of integers.
 A new array can be created by selecting from an existing array with an array, e.g. `$([3,1,5])`
 would select the third element, followed by the first element and last the fifth element. You can also include
 ranges and the dimension keywords in the array, e.g. `$([last, 1..last-1])` to rotate the last element to the beginning. Note that the only allowed
-elements in an literal array selector are the same ones that are allowed as direct selectors.
+elements in a literal array selector are the same ones that are allowed as direct selectors.
 
-All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semi-colon `;`, e.g.
+All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semicolon `;`, e.g.
 `$(1..3; 2)` to select the second element of each of the first three elements of the first dimension (returns a one-dimensional array of size 3,
 although the elements could be arrays). Selecting only a few dimensions will select everything from the remaining dimensions
 as a new array, but you cannot dereference it immediately in the same step.
@@ -797,6 +802,8 @@ So, for example, `$(0)` will result in an error, but `$(0..0)` will result in an
 and `$(0..2)` will return the first two elements just like `$(1..2)`.
 
 The indexing selectors are special [lenses](#projections-and-lenses) that apply only to arrays.
+
+A new array created by selecting a range or subset has the same starting index as the original.
 
 An array is a built-in processor that responds to the following messages:
 * `::length` returns the length of the first dimension.
@@ -959,7 +966,7 @@ have [local type definitions](#local-types) inside it.
 
 ### Messages
 A message is sent to a processor by getting a reference to the processor and appending two colons and the message identifier,
-e.g. `$::length` to get the length of an array that is the _current value_. Note that the reference shoult be prepended with `$`
+e.g. `$::length` to get the length of an array that is the _current value_. Note that the reference should be prepended with `$`
 if the message represents a source, with `!` if the message represents a sink and with nothing if it is a transform template.
 
 Processor messages are implemented as [defined templates](#defined-templates), [defined sources](#defined-sources) or [defined sinks](#defined-sinks) within the processor which then

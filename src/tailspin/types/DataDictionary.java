@@ -76,9 +76,9 @@ public class DataDictionary {
       public int isMetAt(TailspinArray.Tail toMatch, Object it, Scope scope) {
         // This should never be called if Tail is empty
         if (contentMembrane == null) {
-          contentMembrane = getDefaultTypeCriterion(null, toMatch.get(1), dictionary);
+          contentMembrane = getDefaultTypeCriterion(null, toMatch.getNative(0), dictionary);
           return 1;
-        } else if (null != contentMembrane.permeate(toMatch.get(1), null, null, null)) {
+        } else if (null != contentMembrane.permeate(toMatch.getNative(0), null, null, null)) {
           return 1;
         }
         return 0;
@@ -108,8 +108,8 @@ public class DataDictionary {
       }
     }
 
-    public AutotypedArray(DataDictionary dictionary) {
-      super(null, List.of(new AllTheSameContent(dictionary)), true);
+    public AutotypedArray(Object offset, DataDictionary dictionary) {
+      super((it, scope) -> offset, null, List.of(new AllTheSameContent(dictionary)), true);
     }
   }
 
@@ -130,8 +130,8 @@ public class DataDictionary {
     if (data instanceof Long) {
       return tag == null ? numberMatch : new DefinedTag(tag, numberMatch, null);
     }
-    if (data instanceof TailspinArray) {
-      return new AutotypedArray(dictionary);
+    if (data instanceof TailspinArray a) {
+      return new AutotypedArray(a.getOffset(), dictionary);
     }
     if (data instanceof Structure s) {
       return new StructureMatch(s.keySet().stream().collect(Collectors.toMap(Function.identity(), (k) -> exists)), false);

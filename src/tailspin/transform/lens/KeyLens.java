@@ -70,7 +70,7 @@ public class KeyLens implements LensDimension {
   }
 
   @Override
-  public void merge(List<LensDimension> lowerDimensions, Object parent, Object it,
+  public void merge(Reference.Merge method, List<LensDimension> lowerDimensions, Object parent, Object it,
       Scope scope, ResultIterator ri) {
     Structure structure = (Structure) parent;
     Freezable<?> collector = (Freezable<?>) structure.get(key);
@@ -81,12 +81,12 @@ public class KeyLens implements LensDimension {
     if (!lowerDimensions.isEmpty()) {
       LensDimension next = lowerDimensions.get(0);
       try {
-        next.merge(lowerDimensions.subList(1, lowerDimensions.size()), collector, it, scope, ri);
+        next.merge(method, lowerDimensions.subList(1, lowerDimensions.size()), collector, it, scope, ri);
         return;
       } catch (EmptyLensAtBottomException e) {
         // fall through
       }
     }
-    Reference.collect(ri, collector);
+    Reference.collect(ri, collector, method);
   }
 }

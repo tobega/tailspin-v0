@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import tailspin.control.Reference;
 import tailspin.transform.lens.ArrayLens;
 import tailspin.control.DimensionContextKeywordResolver;
 import tailspin.transform.lens.LensDimension;
@@ -30,11 +31,11 @@ public class Lens implements Value {
       throw new UnsupportedOperationException("Cannot resolve more than one dimension of bytes");
     }
     ByteArrayOutputStream result = new ByteArrayOutputStream();
-    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(parentValue.length,
+    DimensionContextKeywordResolver resolver = new DimensionContextKeywordResolver(1L, parentValue.length,
         true);
     scope.pushArithmeticContextKeywordResolver(resolver);
     try {
-      Object idx = ((ArrayLens) dimensions.get(0)).getIndices(resolver, it, scope);
+      Object idx = ((ArrayLens) dimensions.get(0)).getNativeIndices(resolver, it, scope);
       if (idx instanceof Number) {
         result.write(getExtended(parentValue, ((Number) idx).intValue()));
       } else if (idx instanceof IntStream) {
@@ -52,8 +53,8 @@ public class Lens implements Value {
   }
 
   private byte getExtended(byte[] a, int i) {
-    if (i > 0) {
-      return a[i-1];
+    if (i >= 0) {
+      return a[i];
     }
     if ((a[0] & 0x80) == 0) {
       return 0;
@@ -65,9 +66,9 @@ public class Lens implements Value {
     return dimensions.get(0).delete(dimensions.subList(1, dimensions.size()), array, it, scope);
   }
 
-  public void merge(Freezable<?> array, Object it, Scope scope, ResultIterator ri)
+  public void merge(Reference.Merge method, Freezable<?> array, Object it, Scope scope, ResultIterator ri)
       throws LensDimension.EmptyLensAtBottomException {
-    dimensions.get(0).merge(dimensions.subList(1, dimensions.size()), array, it, scope, ri);
+    dimensions.get(0).merge(method, dimensions.subList(1, dimensions.size()), array, it, scope, ri);
   }
 
   public void set(Freezable<?> array, Object it, Scope scope, ResultIterator ri)
@@ -120,11 +121,11 @@ public class Lens implements Value {
       return dimensions.get(0).delete(dimensions.subList(1, dimensions.size()), parent, it, scope);
     }
 
-    public void merge(List<LensDimension> lowerDimensions, Freezable<?> parent, ResultIterator ri) throws LensDimension.EmptyLensAtBottomException {
+    public void merge(Reference.Merge method, List<LensDimension> lowerDimensions, Freezable<?> parent, ResultIterator ri) throws LensDimension.EmptyLensAtBottomException {
       List<LensDimension> dimensions = new ArrayList<>(this.dimensions);
       dimensions.addAll(lowerDimensions);
       if (dimensions.isEmpty()) throw new LensDimension.EmptyLensAtBottomException();
-      dimensions.get(0).merge(dimensions.subList(1, dimensions.size()), parent, it, scope, ri);
+      dimensions.get(0).merge(method, dimensions.subList(1, dimensions.size()), parent, it, scope, ri);
     }
   }
 }

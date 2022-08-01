@@ -4,45 +4,62 @@ import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
 import tailspin.types.TaggedIdentifier;
+import tailspin.types.Unit;
 
 public class DimensionContextKeywordResolver implements ArithmeticContextKeywordResolver,
     RangeGenerator.BoundsResolver {
+
+  private final long offset;
+  private final String tag;
+  private final Unit unit;
   private final Integer dimensionSize;
   private final boolean allowNegative;
 
   private boolean resolvedKeyword;
 
-  public DimensionContextKeywordResolver(Integer dimensionSize, boolean allowNegative) {
+  public DimensionContextKeywordResolver(Object offset, Integer dimensionSize, boolean allowNegative) {
+    tag = (offset instanceof TaggedIdentifier t) ? t.getTag() : null;
+    unit = (offset instanceof Measure m) ? m.getUnit() : null;
+    this.offset = decodeObject(offset);
     this.dimensionSize = dimensionSize;
     this.allowNegative = allowNegative;
   }
 
   @Override
-  public long getValue(String name) {
+  public Object getValue(String name) {
     resolvedKeyword = true;
     if (name.equals("last")) {
-      return dimensionSize;
+      return dimensionSize + offset - 1;
     } else if (name.equals("first")) {
-      return 1;
+      return offset;
     } else {
       throw new UnsupportedOperationException("Unknown dimension context keyword " + name);
     }
   }
 
-  public Long resolveIndex(Object indexValue) {
-    int index = decodeObject(indexValue);
-    if ((!allowNegative && index <= 0) || index > dimensionSize) return null;
-    return (long) (index);
+  public Integer resolveNativeIndex(Object indexValue) {
+    long index = decodeObject(indexValue);
+    if ((!allowNegative && index < offset) || index >= dimensionSize + offset) return null;
+    return (int) (index - offset);
   }
 
-  private int decodeObject(Object indexValue) {
+  private long decodeObject(Object indexValue) {
     if (indexValue instanceof TaggedIdentifier t) {
-      return ((Long) t.getValue()).intValue();
+      if (!t.getTag().equals(tag)) throw new IllegalArgumentException("Array indexed by " + t + ". Expected " + getExpectedUnitErrorMessage());
+      return (long) t.getValue();
     }
     if (indexValue instanceof Measure m) {
-      return (int) m.getValue();
+      if (!m.getUnit().equals(unit)) throw new IllegalArgumentException("Array indexed by " + m + ". Expected " + getExpectedUnitErrorMessage());
+      return m.getValue();
     }
-    return ((Long) indexValue).intValue();
+    if (tag != null || unit != null) throw new IllegalArgumentException("Array indexed by untyped " + indexValue + ". Expected " + getExpectedUnitErrorMessage());
+    return (long) indexValue;
+  }
+
+  private String getExpectedUnitErrorMessage() {
+    if (tag != null) return "tag " + tag;
+    if (unit != null) return "unit " + unit;
+    return "untyped number";
   }
 
   @Override
@@ -68,15 +85,15 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
 
   @Override
   public Long resolveLowerRangeLimit(long index) {
-    if (!allowNegative && index <= 0) index = 1;
-    if (index > dimensionSize) return null;
+    if (!allowNegative && index < offset) index = offset;
+    if (index >= dimensionSize + offset) return null;
     return index;
   }
 
   @Override
   public Long resolveUpperRangeLimit(long index) {
-    if (!allowNegative && index <= 0) return null;
-    if (index > dimensionSize) return Long.valueOf(dimensionSize);
+    if (!allowNegative && index < offset) return null;
+    if (index >= dimensionSize + offset) return dimensionSize + offset - 1;
     return index;
   }
 }

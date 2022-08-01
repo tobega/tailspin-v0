@@ -14,13 +14,13 @@ public class RangeArrayLens extends ArrayLens {
   }
 
   @Override
-  public IntStream getIndices(DimensionContextKeywordResolver context, Object it, Scope scope) {
+  public IntStream getNativeIndices(DimensionContextKeywordResolver context, Object it, Scope scope) {
     RangeGenerator.RangeIterator rangeIterator =
         rangeGenerator.resultIterator(
             context,
             it, scope);
     return rangeIterator == null
         ? IntStream.empty()
-        : rangeIterator.stream().mapToInt(l -> (int) l);
+        : rangeIterator.stream().mapToInt(context::resolveNativeIndex);
   }
 }

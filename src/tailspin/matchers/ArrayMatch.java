@@ -1,19 +1,24 @@
 package tailspin.matchers;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.types.Membrane;
 import tailspin.types.TailspinArray;
 
 public class ArrayMatch implements Membrane {
+
+  private final Value offset;
   // @Nullable
   private final Membrane lengthMembrane;
   private final List<CollectionCriterionFactory> contentMatcherFactories;
   private final boolean nothingElseAllowed;
 
-  public ArrayMatch(Membrane lengthMembrane,
+  public ArrayMatch(Value offset, Membrane lengthMembrane,
       List<CollectionCriterionFactory> contentMatcherFactories, boolean nothingElseAllowed) {
+    this.offset = offset;
     this.lengthMembrane = lengthMembrane;
     this.contentMatcherFactories = contentMatcherFactories;
     this.nothingElseAllowed = nothingElseAllowed;
@@ -22,6 +27,7 @@ public class ArrayMatch implements Membrane {
   @Override
   public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
     if (!(toMatch instanceof TailspinArray listToMatch)) return null;
+    if (offset != null && !Objects.equals(offset.getResults(it, scope), listToMatch.getOffset())) return null;
     if (lengthMembrane != null && (null == lengthMembrane.permeate((long) listToMatch.length(), it, scope,
         contextTag))) {
       return null;
@@ -31,20 +37,20 @@ public class ArrayMatch implements Membrane {
     }
     List<CollectionCriterion> criteria = contentMatcherFactories.stream()
         .map(CollectionCriterionFactory::newCriterion).toList();
-    TailspinArray.Tail tail = listToMatch.tailFrom(1);
+    TailspinArray.Tail tail = listToMatch.tailFromNative(0);
     nextElement:
     while(!tail.isEmpty()) {
       for (CollectionCriterion c : criteria) {
         int chop = c.isMetAt(tail, it, scope);
         if (chop != 0) {
-          tail = tail.tailFrom(chop+1);
+          tail = tail.tailFromNative(chop);
           continue nextElement;
         }
       }
       if (nothingElseAllowed) {
         return null;
       }
-      tail = tail.tailFrom(2);
+      tail = tail.tailFromNative(1);
     }
     return criteria.stream().allMatch(c -> c.isSatisfied(it, scope)) ? toMatch : null;
   }

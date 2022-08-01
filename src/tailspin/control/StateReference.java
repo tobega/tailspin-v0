@@ -29,14 +29,14 @@ class StateReference extends Reference {
   }
 
   @Override
-  public void setValue(boolean merge, Object value, Object it, Scope scope) {
-    if (merge) {
+  public void setValue(Merge merge, Object value, Object it, Scope scope) {
+    if (merge != Merge.NONE) {
       Freezable<?> state = (Freezable<?>) scope.getState(stateContext);
       if (!state.isThawed()) {
         state = state.thawedCopy();
         scope.setState(stateContext, state);
       }
-      collect(value, state);
+      collect(value, state, merge);
     } else {
       scope.setState(stateContext, value);
     }

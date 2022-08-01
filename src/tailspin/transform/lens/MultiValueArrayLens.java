@@ -13,12 +13,12 @@ public class MultiValueArrayLens extends ArrayLens {
   }
 
   @Override
-  public Object getIndices(DimensionContextKeywordResolver dimension, Object it, Scope scope) {
+  public Object getNativeIndices(DimensionContextKeywordResolver dimension, Object it, Scope scope) {
     IntStream result = IntStream.empty();
     for (ArrayLens dimensionReference : dimensionReferences) {
-      Object index = dimensionReference.getIndices(dimension, it, scope);
+      Object index = dimensionReference.getNativeIndices(dimension, it, scope);
       if (!(index instanceof IntStream)) {
-        index = IntStream.of(((Number) index).intValue());
+        index = IntStream.of((Integer) index);
       }
       result = IntStream.concat(result, (IntStream) index);
     }
