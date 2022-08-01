@@ -79,7 +79,9 @@ grouping: Collect LeftBrace collectedValue (Comma collectedValue)* RightBrace By
 
 collectedValue: key templatesReference;
 
-arrayLiteral: (arithmeticValue Colon)? (LeftBracket RightBracket | LeftBracket arrayExpansion (Comma arrayExpansion)* RightBracket);
+arrayLiteral: arrayOffset? (LeftBracket RightBracket | LeftBracket arrayExpansion (Comma arrayExpansion)* RightBracket);
+
+arrayOffset: arithmeticValue Colon;
 
 valueProduction: sendToTemplates | valueChain;
 
@@ -159,7 +161,7 @@ typeMatch: START_STRING END_STRING    # stringTypeMatch
   | rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
-  | LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
+  | arrayOffset? LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
   | (localIdentifier|externalIdentifier) # stereotypeMatch
   | unit # unitMatch
   | LeftParen key structureContentMatcher RightParen # keyValueMatch
@@ -249,7 +251,7 @@ compositionComponents: compositionSkipRule* compositionComponent (Comma? composi
 compositionComponent: compositionMatcher transform? compositionSkipRule*;
 
 compositionMatcher: tokenMatcher
-  | (arithmeticValue Colon)? LeftBracket (compositionSequence|compositionSkipRule)? RightBracket
+  | arrayOffset? LeftBracket (compositionSequence|compositionSkipRule)? RightBracket
   | LeftBrace (structureMemberMatchers|compositionSkipRule)? RightBrace
   | source
   | compositionKeyValue

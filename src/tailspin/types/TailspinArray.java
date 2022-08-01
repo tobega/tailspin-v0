@@ -58,6 +58,16 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
     return offset;
   }
 
+  public Object getOffsetDescription() {
+    if (offset instanceof Measure m) {
+      return "" + m.getValue() + m.getUnit();
+    } else if (offset instanceof TaggedIdentifier t) {
+      return t.getTag() + "´" + t.getValue();
+    } else {
+      return "untyped " + offset;
+    }
+  }
+
   public Object getNative(int i) {
     return array.get(i);
   }

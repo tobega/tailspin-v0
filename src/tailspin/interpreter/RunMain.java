@@ -569,7 +569,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (ctx.arithmeticValue() != null) {
       lengthMembrane = new Equality(visitArithmeticValue(ctx.arithmeticValue()));
     }
-    return new ArrayMatch(lengthMembrane, criterionFactories, ctx.Void() != null);
+    Value offset = ctx.arrayOffset() == null ? null : visitArithmeticValue(ctx.arrayOffset().arithmeticValue());
+    return new ArrayMatch(offset, lengthMembrane, criterionFactories, ctx.Void() != null);
   }
 
   @Override
@@ -1080,7 +1081,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   private static final Value standardOffset = new IntegerConstant(1, null);
   @Override
   public ArrayLiteral visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx) {
-    Value offset = ctx.arithmeticValue() == null ? standardOffset : visitArithmeticValue(ctx.arithmeticValue());
+    Value offset = ctx.arrayOffset() == null ? standardOffset : visitArithmeticValue(ctx.arrayOffset().arithmeticValue());
     return new ArrayLiteral(offset, ctx.arrayExpansion().stream()
         .map(this::visitArrayExpansion)
         .collect(Collectors.toList()));
@@ -1278,7 +1279,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     CompositionSpec spec;
     if (ctx.LeftBracket() != null) {
-      Value offset = ctx.arithmeticValue() == null ? standardOffset : visitArithmeticValue(ctx.arithmeticValue());
+      Value offset = ctx.arrayOffset() == null ? standardOffset : visitArithmeticValue(ctx.arrayOffset().arithmeticValue());
       List<CompositionSpec> contents = new ArrayList<>();
       if (ctx.compositionSequence() != null) {
         contents.addAll(visitCompositionSequence(ctx.compositionSequence()));
