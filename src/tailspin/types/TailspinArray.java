@@ -25,13 +25,12 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
-    if (message.equals("hashCode")) {
-      return (it, params, callingDictionary) -> ((Number)array.hashCode()).longValue();
-    } else if (message.equals("length")) {
-      return (it, params, callingDictionary) -> ((Number)array.size()).longValue();
-    } else {
-      throw new UnsupportedOperationException("Unknown array message " + message);
-    }
+    return switch (message) {
+      case "hashCode" -> (it, params, callingDictionary) -> ((Number) array.hashCode()).longValue();
+      case "length" -> (it, params, callingDictionary) -> ((Number) array.size()).longValue();
+      case "offset" -> (it, params, callingDictionary) -> offset;
+      default -> throw new UnsupportedOperationException("Unknown array message " + message);
+    };
   }
 
   @Override

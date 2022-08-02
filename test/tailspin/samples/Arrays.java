@@ -601,6 +601,19 @@ class Arrays {
   }
 
   @Test
+  void getOffset() throws Exception {
+    String program = "idx´0:[ 1..6 ] -> $::offset -> \\(<=idx´0> 'yes' !\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void rangeDereferenceEmpty() throws IOException {
     String program = "[] -> $(1..-1)  -> !OUT::write";
     Tailspin runner =

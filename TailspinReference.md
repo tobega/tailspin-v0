@@ -187,8 +187,10 @@ E.g. `[1,2,3,4,5]` and `[1..3, 4..5]` and `[1..5]` all produce an array of size 
 
 You can nest array literals inside array literals to produce multi-dimensional arrays.
 
-Arrays are indexed from 1 by default, but you can change that by specifying an offset in parentheses before the opening bracket
-when you create the array, e.g. `(0)[1..5]` creates an array that starts at index 0.
+Arrays are indexed from 1 by default, but you can change that by specifying an offset followed by a colon before the opening bracket
+when you create the array, e.g. `0:[1..5]` creates an array that starts at index 0. You may also specify an index type together with
+the offset, e.g. `0"s":[1..5 -> 0]` specifies that the array must be indexed by values with unit `"s"`, starting at 0, and `idx´1:[5..9]` specifies
+that the array must be indexed by identifiers tagged `idx`, starting from `idx´1`.
 
 #### Cartesian product
 You can form a stream of arrays of the cartesian product of several streams. Each position in the array that is to
@@ -617,8 +619,9 @@ See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for
   e.g. `<(size:<1..5>)>` matches a keyed value with key `size` and value between 1 and 5.
 * Array match, given as `<[]>` matches if the _current value_ is an array.
   * A match can also be restricted to arrays
-    of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`.
-    Note that the length value or range bounds must be raw values.
+    of a certain length or range of lengths by appending the length (range) in parentheses, e.g. `<[](2..)>`,
+    or a certain offset by prepending the offset specification, e.g. `<0"s":[]>`, or both.
+    Note that the length value or range bounds must be raw (untyped) values.
   * Match criteria on array content are written inside the brackets, separated by commas.
     Array content criteria can have a [multiplier](#multipliers) attached.
   * The simplest array content matching tests if there exist elements in any order so that each criterion is met,
@@ -807,6 +810,7 @@ A new array created by selecting a range or subset has the same starting index a
 
 An array is a built-in processor that responds to the following messages:
 * `::length` returns the length of the first dimension.
+* `::offset` returns the (typed) offset of the first dimension.
 
 ## Structures
 A structure is a collection of [keyed values](#keyed-values) where the keys are unique, without any inherent order,
@@ -1169,6 +1173,7 @@ All objects
 
 Arrays
 * `$::length` returns the length of the array's outer dimension.
+* `$::offset` returns the (typed) offset of the array's outer dimension.
 
 Keyed values
 * `$::key` returns the key as a string.
