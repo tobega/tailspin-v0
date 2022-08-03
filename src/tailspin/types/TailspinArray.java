@@ -28,7 +28,15 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
     return switch (message) {
       case "hashCode" -> (it, params, callingDictionary) -> ((Number) array.hashCode()).longValue();
       case "length" -> (it, params, callingDictionary) -> ((Number) array.size()).longValue();
-      case "offset" -> (it, params, callingDictionary) -> offset;
+      case "first" -> (it, params, callingDictionary) -> offset;
+      case "last" -> (it, params, callingDictionary) -> {
+        if (offset instanceof TaggedIdentifier t) {
+          return new TaggedIdentifier(t.getTag(), (Long) t.getValue() + length() - 1L);
+        } else if (offset instanceof Measure m) {
+          return new Measure(m.getValue() + length() - 1, m.getUnit());
+        }
+        return (Long) offset + length() - 1;
+      };
       default -> throw new UnsupportedOperationException("Unknown array message " + message);
     };
   }

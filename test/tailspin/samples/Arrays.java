@@ -601,8 +601,21 @@ class Arrays {
   }
 
   @Test
-  void getOffset() throws Exception {
-    String program = "idx´0:[ 1..6 ] -> $::offset -> \\(<=idx´0> 'yes' !\\) -> !OUT::write";
+  void getFirst() throws Exception {
+    String program = "idx´0:[ 1..6 ] -> $::first -> \\(<=idx´0> 'yes' !\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void getLast() throws Exception {
+    String program = "idx´0:[ 1..6 ] -> $::last -> \\(<=idx´5> 'yes' !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
