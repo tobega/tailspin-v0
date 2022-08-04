@@ -1,7 +1,6 @@
 package tailspin.control;
 
 import tailspin.arithmetic.ArithmeticContextKeywordResolver;
-import tailspin.interpreter.Scope;
 import tailspin.types.Measure;
 import tailspin.types.TaggedIdentifier;
 import tailspin.types.Unit;
@@ -13,33 +12,36 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
   private final String tag;
   private final Unit unit;
   private final Integer dimensionSize;
-  private final boolean allowNegative;
+  private final boolean infiniteLowerBound;
 
-  private boolean resolvedKeyword;
-
-  public DimensionContextKeywordResolver(Object offset, Integer dimensionSize, boolean allowNegative) {
+  public DimensionContextKeywordResolver(Object offset, Integer dimensionSize, boolean infiniteLowerBound) {
     tag = (offset instanceof TaggedIdentifier t) ? t.getTag() : null;
     unit = (offset instanceof Measure m) ? m.getUnit() : null;
     this.offset = decodeObject(offset);
     this.dimensionSize = dimensionSize;
-    this.allowNegative = allowNegative;
+    this.infiniteLowerBound = infiniteLowerBound;
   }
 
   @Override
   public Object getValue(String name) {
-    resolvedKeyword = true;
     if (name.equals("last")) {
-      return dimensionSize + offset - 1;
+      return encodeObject(dimensionSize + offset - 1);
     } else if (name.equals("first")) {
-      return offset;
+      return encodeObject(offset);
     } else {
       throw new UnsupportedOperationException("Unknown dimension context keyword " + name);
     }
   }
 
+  private Object encodeObject(long i) {
+    if (tag != null) return new TaggedIdentifier(tag, i);
+    if (unit != null) return new Measure(i, unit);
+    return i;
+  }
+
   public Integer resolveNativeIndex(Object indexValue) {
     long index = decodeObject(indexValue);
-    if ((!allowNegative && index < offset) || index >= dimensionSize + offset) return null;
+    if ((!infiniteLowerBound && index < offset) || index >= dimensionSize + offset) return null;
     return (int) (index - offset);
   }
 
@@ -63,36 +65,15 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
   }
 
   @Override
-  public RangeGenerator.Bounds resolveBounds(Value lower, Value upper, Object it, Scope scope) {
-    resolvedKeyword = false;
-    Object lowerValue = lower.getResults(it, scope);
-    Object upperValue = upper.getResults(it, scope);
-    if (resolvedKeyword) {
-      if (lowerValue instanceof Long) {
-        if (upperValue instanceof Measure m)
-          upperValue = m.getValue();
-        else if (upperValue instanceof TaggedIdentifier t)
-          upperValue = t.getValue();
-      } else if (upperValue instanceof Long) {
-        if (lowerValue instanceof Measure m)
-          lowerValue = m.getValue();
-        else if (lowerValue instanceof TaggedIdentifier t)
-          lowerValue = t.getValue();
-      }
-    }
-    return new RangeGenerator.Bounds(lowerValue, upperValue);
-  }
-
-  @Override
   public Long resolveLowerRangeLimit(long index) {
-    if (!allowNegative && index < offset) index = offset;
+    if (!infiniteLowerBound && index < offset) index = offset;
     if (index >= dimensionSize + offset) return null;
     return index;
   }
 
   @Override
   public Long resolveUpperRangeLimit(long index) {
-    if (!allowNegative && index < offset) return null;
+    if (!infiniteLowerBound && index < offset) return null;
     if (index >= dimensionSize + offset) return dimensionSize + offset - 1;
     return index;
   }

@@ -680,22 +680,6 @@ public class Units {
   }
 
   @Test
-  void contextKeywordRangeIndexByScalarWorks() throws IOException {
-    String program = """
-    def foo: {first: 2"1"};
-    [6,7,8] -> $($foo.first..last) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("[7, 8]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void indexByMeasureRawValueWorks() throws IOException {
     String program = """
     def foo: 2"m";

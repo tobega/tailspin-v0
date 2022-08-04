@@ -14,19 +14,12 @@ public class RangeGenerator implements Expression {
   record Bounds(Object lower, Object upper){}
 
   interface BoundsResolver {
-    Bounds resolveBounds(Value lower, Value upper, Object it, Scope scope);
-
     Long resolveLowerRangeLimit(long calculated);
 
     Long resolveUpperRangeLimit(long calculated);
   }
 
   static final BoundsResolver RANGE_BOUNDS = new BoundsResolver(){
-    @Override
-    public Bounds resolveBounds(Value lower, Value upper, Object it, Scope scope) {
-      return new Bounds(lower.getResults(it, scope), upper.getResults(it, scope));
-    }
-
     @Override
     public Long resolveLowerRangeLimit(long calculated) {
       return calculated;
@@ -60,7 +53,7 @@ public class RangeGenerator implements Expression {
     }
     Unit unit = null;
     String tag = null;
-    Bounds bounds = resolver.resolveBounds(lowerBound.value, upperBound.value, it, scope);
+    Bounds bounds = resolveBounds(lowerBound.value, upperBound.value, it, scope);
     Object lowerValue = bounds.lower();
     if (lowerValue instanceof Measure m) {
       unit = m.getUnit();
@@ -75,16 +68,16 @@ public class RangeGenerator implements Expression {
     Object upperValue = bounds.upper();
     if (upperValue instanceof Measure m) {
       if (!m.getUnit().equals(unit))
-        throw new IllegalArgumentException("Range lower bound " + formatErrorValue(lowerValue) + " incompatible with upper bound " + formatErrorValue(upperValue));
+        throw new IllegalArgumentException("Range lower bound " + formatErrorValue(bounds.lower()) + " incompatible with upper bound " + formatErrorValue(bounds.upper()));
       upperValue = m.getValue();
     } else if (unit != null)
-      throw new IllegalArgumentException("Range lower bound " + formatErrorValue(lowerValue) + " incompatible with upper bound " + formatErrorValue(upperValue));
+      throw new IllegalArgumentException("Range lower bound " + formatErrorValue(bounds.lower()) + " incompatible with upper bound " + formatErrorValue(bounds.upper()));
     if (upperValue instanceof TaggedIdentifier t) {
       if (!t.getTag().equals(tag))
-        throw new IllegalArgumentException("Range lower bound " + formatErrorValue(lowerValue) + " incompatible with upper bound " + formatErrorValue(upperValue));
+        throw new IllegalArgumentException("Range lower bound " + formatErrorValue(bounds.lower()) + " incompatible with upper bound " + formatErrorValue(bounds.upper()));
       upperValue = t.getValue();
     } else if (tag != null)
-      throw new IllegalArgumentException("Range lower bound " + formatErrorValue(lowerValue) + " incompatible with upper bound " + formatErrorValue(upperValue));
+      throw new IllegalArgumentException("Range lower bound " + formatErrorValue(bounds.lower()) + " incompatible with upper bound " + formatErrorValue(bounds.upper()));
     long endBound = ((Number) upperValue).longValue();
     Long end = resolver.resolveUpperRangeLimit(upperBound.inclusive ? endBound
         : Math.floorDiv((endBound - 1 - startBound), increment) * increment + startBound);
@@ -92,6 +85,10 @@ public class RangeGenerator implements Expression {
       return null;
     }
     return new RangeIterator(start, increment, end, unit, tag);
+  }
+
+  private Bounds resolveBounds(Value lower, Value upper, Object it, Scope scope) {
+    return new Bounds(lower.getResults(it, scope), upper.getResults(it, scope));
   }
 
   public static class RangeIterator implements ResultIterator {

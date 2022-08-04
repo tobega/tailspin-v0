@@ -962,6 +962,27 @@ class Arrays {
   }
 
   @Test
+  void negativeOffset() throws Exception {
+    String program = """
+        -3:[3,4,5] ->\\(
+           @: $;
+           ..|@: 6..7;
+           |..@: 2..1:-1;
+           ^@(-1) -> !VOID
+           ^@(last) -> !VOID
+           ^@(first) -> !VOID
+           $@ ! \\) -> $(-6..6)... -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("2456", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void offsetTag() throws Exception {
     String program =
         "idx´0:[3,4,5] -> $(idx´1..idx´2)... -> !OUT::write\n";
@@ -976,6 +997,20 @@ class Arrays {
   }
 
   @Test
+  void offsetTagRelative() throws Exception {
+    String program =
+        "idx´0:[3,4,5] -> $(first..last)... -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("345", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void offsetMeasure() throws Exception {
     String program =
         "0\"m\":[3,4,5] -> $(1\"m\"..2\"m\")... -> !OUT::write\n";
@@ -987,6 +1022,20 @@ class Arrays {
     runner.run(input, output, List.of());
 
     assertEquals("45", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void offsetMeasureRelative() throws Exception {
+    String program =
+        "0\"m\":[3,4,5] -> $(first..last)... -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("345", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
