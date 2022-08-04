@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.AnyOf;
 import tailspin.matchers.ArrayMatch;
@@ -53,11 +54,8 @@ public class DataDictionary {
     if (value instanceof TaggedIdentifier t) {
       return t.getTag() + "´" + t.getValue();
     }
-    if (value instanceof Measure m && m.getUnit().equals(Unit.SCALAR)) {
-      return m.getValue() + "\"1\"";
-    }
     if (value instanceof TailspinArray a) {
-      return "[" + a.stream().map(DataDictionary::formatErrorValue).collect(Collectors.joining(", ")) + "]";
+      return formatErrorValue(a.getOffset()) + ":[" + a.stream().map(DataDictionary::formatErrorValue).collect(Collectors.joining(", ")) + "]";
     }
     return value.toString();
   }
@@ -109,7 +107,17 @@ public class DataDictionary {
     }
 
     public AutotypedArray(Object offset, DataDictionary dictionary) {
-      super((it, scope) -> offset, null, List.of(new AllTheSameContent(dictionary)), true);
+      super(new Value() {
+        @Override
+        public Object getResults(Object it, Scope scope) {
+          return offset;
+        }
+
+        @Override
+        public String toString() {
+          return formatErrorValue(offset);
+        }
+      }, null, List.of(new AllTheSameContent(dictionary)), true);
     }
   }
 

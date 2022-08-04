@@ -569,7 +569,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else if (ctx.arithmeticValue() != null) {
       lengthMembrane = new Equality(visitArithmeticValue(ctx.arithmeticValue()));
     }
-    Value offset = ctx.arrayOffset() == null ? null : visitArithmeticValue(ctx.arrayOffset().arithmeticValue());
+    Object offset = null;
+    if (ctx.arrayOffset() != null) offset = visitArithmeticValue(ctx.arrayOffset().arithmeticValue());
+    else if (ctx.unit() != null) offset = visitUnit(ctx.unit());
+    else if (ctx.tag() != null) offset = visitTag(ctx.tag());
     return new ArrayMatch(offset, lengthMembrane, criterionFactories, ctx.Void() != null);
   }
 

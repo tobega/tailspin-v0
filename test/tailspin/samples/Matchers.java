@@ -428,6 +428,32 @@ class Matchers {
   }
 
   @Test
+  void indexedArrayMatchesIndexTagType() throws Exception {
+    String program = "idx´0:[ 1 ] -> \\(<0:[]> 'untyped'! <\"m\":[]> 'm'! <plu´:[]> 'plu'! <idx´:[]> 'yes'! <> 'never'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void indexedArrayMatchesIndexMeasureType() throws Exception {
+    String program = "0\"s\":[ 1 ] -> \\(<0:[]> 'untyped'! <\"m\":[]> 'm'! <idx´:[]> 'idx'! <\"s\":[]> 'yes'! <> 'never'!\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void arrayMatchNotOnWrongLength() throws Exception {
     String program = "[1,2] -> \\(<[](1)> 'no!'! <> 'yes'!\\) -> !OUT::write";
     Tailspin runner =

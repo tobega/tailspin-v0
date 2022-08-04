@@ -161,7 +161,7 @@ typeMatch: START_STRING END_STRING    # stringTypeMatch
   | rangeBounds                       # rangeMatch
   | stringLiteral                          # regexpMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
-  | arrayOffset? LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
+  | (arrayOffset|tag Colon|unit Colon)? LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
   | (localIdentifier|externalIdentifier) # stereotypeMatch
   | unit # unitMatch
   | LeftParen key structureContentMatcher RightParen # keyValueMatch
