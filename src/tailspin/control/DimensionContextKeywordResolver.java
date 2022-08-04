@@ -1,5 +1,7 @@
 package tailspin.control;
 
+import static tailspin.types.DataDictionary.formatErrorValue;
+
 import tailspin.arithmetic.ArithmeticContextKeywordResolver;
 import tailspin.types.Measure;
 import tailspin.types.TaggedIdentifier;
@@ -47,11 +49,11 @@ public class DimensionContextKeywordResolver implements ArithmeticContextKeyword
 
   private long decodeObject(Object indexValue) {
     if (indexValue instanceof TaggedIdentifier t) {
-      if (!t.getTag().equals(tag)) throw new IllegalArgumentException("Array indexed by " + t + ". Expected " + getExpectedUnitErrorMessage());
+      if (!t.getTag().equals(tag)) throw new IllegalArgumentException("Array indexed by " + formatErrorValue(t) + ". Expected " + getExpectedUnitErrorMessage());
       return (long) t.getValue();
     }
     if (indexValue instanceof Measure m) {
-      if (!m.getUnit().equals(unit)) throw new IllegalArgumentException("Array indexed by " + m + ". Expected " + getExpectedUnitErrorMessage());
+      if (!m.getUnit().equals(unit)) throw new IllegalArgumentException("Array indexed by " + formatErrorValue(m) + ". Expected " + getExpectedUnitErrorMessage());
       return m.getValue();
     }
     if (tag != null || unit != null) throw new IllegalArgumentException("Array indexed by untyped " + indexValue + ". Expected " + getExpectedUnitErrorMessage());
