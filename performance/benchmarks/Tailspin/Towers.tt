@@ -5,11 +5,11 @@ include 'harness'
 templates towers
   @: {piles: [[$..0:-1 -> $], [], []], moves: 0"1"};
   sink pushDisk&{pile:}
-    <$@towers.piles($pile)..> $@ ! // Actually throws, there is no $@
-    <> ..|@towers.piles($pile): $;
+    <$@towers.piles($pile::raw)..> $@ ! // Actually throws, there is no $@
+    <> ..|@towers.piles($pile::raw): $;
   end pushDisk
   templates popDisk
-    ^@towers.piles($; last) !
+    ^@towers.piles($::raw; last) !
   end popDisk
   sink moveTopDisk&{to:}
     $ -> popDisk -> !pushDisk&{pile: $to}

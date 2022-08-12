@@ -2,7 +2,7 @@ include 'harness'
 
 templates queens
   templates getRowColumn
-    <?($@queens.freeRows($.r) <=0>)> 0 !
+    <?($@queens.freeRows($.r::raw) <=0>)> 0 !
     <?($@queens.freeMaxs($.r::raw + $.c::raw) <=0>)> 0 !
     <?($@queens.freeMins($.c::raw - $.r::raw + 8) <=0>)> 0 !
     <> 1!
@@ -10,7 +10,7 @@ templates queens
 
   templates setRowColumn
     def p: $;
-    @queens.freeRows($p.r): $p.val::raw;
+    @queens.freeRows($p.r::raw): $p.val::raw;
     @queens.freeMaxs($p.c::raw + $p.r::raw): $p.val::raw;
     @queens.freeMins($p.c::raw - $p.r::raw + 8): $p.val::raw;
   end setRowColumn
@@ -22,7 +22,7 @@ templates queens
     <=r´9> 0 !
     <?({r: $, c: $c} -> getRowColumn <=1>)>
       def r: $;
-      @queens.queenRows($r): $c;
+      @queens.queenRows($r::raw): $c;
       {r: $, c: $c, val: 0} -> setRowColumn -> !VOID
       $c -> \(<=c´8> r´-1!
         <?(c´($c::raw + 1) -> placeQueen <=1>)> r´-1!

@@ -19,6 +19,36 @@ a better-designed version of Richards with immutable packets.
 | [2021-09-12 jdk16 tagged identifiers](#2021-09-12b)                |Interpreted| 1265   | 136  | 305  | 613     | 847 | 47   | 1041 | 655       | 182   | 230     | 1001   |
 | [2022-06-11 jdk18 baseline, no sudo](#2022-06-11)                  |Interpreted| 1207   | 148  | 432  | 1085    | 986 | 166  | 1069 | 811       | 757   | 192     | 978    |
 | [2022-06-12 jdk18 stricter typing](#2022-06-12)                    |Interpreted|1283|116|468|904|1227|166|1127|893|807|208|823|
+| [2022-08-11 jdk18 array typing](#2022-08-11)                    |Interpreted|1235|96|458|999|1464|117|1197|966|842|174|959|
+
+## 2022-08-11
+machine 3, array typing
+openjdk18
+
+|Benchmark|Mean runtime us|
+|---|---|
+|Bounce Java|15|
+|Bounce Tailspin|18525|
+|Json Java|102|
+|Json Tailspin|9832|
+|List Java|24|
+|List Tailspin|11001|
+|Permute Java|23|
+|Permute Tailspin|22974|
+|Queens Java|21|
+|Queens Tailspin|30747|
+|RadixSort Java|85|
+|RadixSort Tailspin|9939|
+|Richards Java|16|
+|Richards Tailspin|19158|
+|Richards2 Java|18|
+|Richards2 Tailspin|17391|
+|Sieve Java|9|
+|Sieve Tailspin|7577|
+|Storage Java|118|
+|Storage Tailspin|20532|
+|Towers Java|25|
+|Towers Tailspin|23978|
 
 ## 2022-06-12
 machine 3, stricter typing

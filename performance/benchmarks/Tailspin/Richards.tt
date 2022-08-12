@@ -37,7 +37,7 @@ processor Scheduler
     layout: 0,
     queuePacketCount: 0"1",
     holdCount: 0"1",
-    taskTable: [1..$NUM_TYPES -> $NO_TASK],
+    taskTable: identity´1:[1..$NUM_TYPES -> $NO_TASK],
     taskList: $NO_TASK,
     currentTask: $NO_TASK,
     currentTaskIdentity: 0
