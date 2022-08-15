@@ -17,7 +17,7 @@ processor Tic-Tac-Toe
   end validMoves
 
   templates move
-    when <?($@Tic-Tac-Toe($.position) <position>)> do @Tic-Tac-Toe($.position): $.mark;
+    when <?($@Tic-Tac-Toe($.position::raw) <position>)> do @Tic-Tac-Toe($.position::raw): $.mark;
       $ !
     otherwise
       'Incorrect move$#10;' -> !OUT::write

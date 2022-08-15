@@ -1,7 +1,7 @@
 templates queens
   def n: $;
   templates getRowColumn
-    when <?($@queens.freeRows($.r) <=0>)> do 0 !
+    when <?($@queens.freeRows($.r::raw) <=0>)> do 0 !
     when <?($@queens.freeMaxs($.r::raw + $.c::raw) <=0>)> do 0 !
     when <?($@queens.freeMins($.c::raw - $.r::raw + $n) <=0>)> do 0 !
     otherwise 1!
@@ -9,7 +9,7 @@ templates queens
 
   sink setRowColumn
     def p: $;
-    @queens.freeRows($p.r): $p.val::raw;
+    @queens.freeRows($p.r::raw): $p.val::raw;
     @queens.freeMaxs($p.c::raw + $p.r::raw): $p.val::raw;
     @queens.freeMins($p.c::raw - $p.r::raw + $n): $p.val::raw;
   end setRowColumn
@@ -23,7 +23,7 @@ templates queens
     when <=row´($n+1)> do 0 !
     when <?({r: $, c: $c} -> getRowColumn <=1>)> do
       def r: $;
-      @queens.queenRows($r): $c;
+      @queens.queenRows($r::raw): $c;
       {r: $, c: $c, val: 0} -> !setRowColumn
       $c -> \(<=col´$n> done´1!
         <?(col´($c::raw + 1) -> placeQueen <=1>)> done´1!
