@@ -9,17 +9,13 @@
   How about matchers for processor protocols? Specify minimum requirements, extra stuff allowed.
 - Concurrency: The basic idea is that state variable changes will be transactional/atomic for each processor template or template chain stage.
   Mechanism will likely be "CAS or retry". How about processors holding processors, giving a "distributed" transaction?
-- Rational numbers, exact math?
-- Scientific numbers, specify digits of accuracy. Units required? Syntax when going from exact number division?
+- Numbers have a certain accuracy. Rational numbers for exact math. Scientific numbers, specify digits of accuracy. All number representations interoperable, operations yield lowest accuracy.
 - Performance. Definitely need better data structures for lists and structures.
 - Error handling. Error path/exception path? VOID path? Need examples to play with.
-- Want prepend to array/structure. Syntax? ..< and ..> instead of ..| maybe or >> and << ? Does a stream get prepended
-  in reverse or as a chunk? 1..3 -> |..@: $; is probably the best prepend syntax. Currently you need to do @: [$, $@...];
 - Are lenses currently enough or do we need some kind of reflective access? E.g. field access like myStruct."$fieldName;"? Or just ($::key)?
 - Unlimited size arrays
 - Use composers as rules in other composers (and INT and WS should be top-level composers)
 - Projection just copying all fields or all fields except some
-- Conditions on array indices. Allow start at arbitrary value? Only specified units?
 - Allow module modification to be exported from (defined in) a separate file
 - Typestates processor should be able to virtually dispatch to current state ('this' keyword?)
 - Composer failures should contain better error information. Partial parsing?
@@ -64,37 +60,9 @@ Syntax for creating exceptions and format for error objects TBD (just throw any 
 - What about array generators (array template source)?
 - Should we be able to specify defined templates to be array templates?
 - Cannot specify the header for empty relations
-- When a definition refers to a mutable processor instances, and if another definition is produced from the processor, statements mutating state will not execute before the second definition.
 
 ## Bugs
-* composer rule updates state when called in not-context (even more weird, 'bananas' counts 2 b, 9 a, 6 n and 3 s):
-  ```
-    operator (word count char)
-    composer howMany
-    @: 0;
-    (<not|is_char>+) $@
-    rule is_char: (<='$char;'>) (@: $@ + 1;)
-    rule not: (<~is_char>)
-    end howMany
-    $word -> howMany !
-    end count
-  ```
-  The explanation is that a `~` rule is greedy, so it hits when it just skipped a non-matching, then it updates for the not-rule when matching, and then for the match. ('graal' counts 5 a)
-  Maybe this is more confusion than an actual bug? The following works fine:
-  ```
-    operator (word count char)
-  composer howMany
-  @: 0;
-  (<counted|not>+) $@
-  rule is_char: (<='$char;'>)
-  rule counted: (<is_char>) (@: $@ + 1;)
-  rule not: (<~is_char>)
-  end howMany
-  $word -> howMany !
-  end count
-
-  ('bananas' count 'a') -> !OUT::write
-  ```
+No known bugs
 
 ## Too much syntax?
 - quick filter by \<match> to mean \(<match> $!\).

@@ -492,6 +492,41 @@ A composer must match the whole string, otherwise it will return a structure wit
 containing the input string. It will backtrack and try other options, but performance-wise it is
 better if matchers are made so that backtracking never needs happen (by a prefix-free grammar).
 
+#### State-changing composer rules
+Care needs to be taken when updating state in composer rules.
+Note that a composer rule updates state also when it is called in a not-context. In the below example, 'bananas' counts 2 'b', 9 'a', 6 'n' and 3 's':
+  ```
+    operator (word count char)
+    composer howMany
+    @: 0;
+    (<not|is_char>+) $@
+    rule is_char: (<='$char;'>) (@: $@ + 1;)
+    rule not: (<~is_char>)
+    end howMany
+    $word -> howMany !
+    end count
+  ```
+  The explanation is that the `is_char` rule is executed twice for each matching char, first to fail the `not` rule, then to match the `is_char` rule.
+  A third count is added when there are preceding non-matching characters and the next matching character is found to stop the greedy `~`.
+  The third count doesn't happen for the initial 'b' in 'bananas', nor the second 'a' in 'graal' which counts 5 'a's.
+
+  To fix the problem, update state on a higher-level rule:
+  ```
+    operator (word count char)
+  composer howMany
+  @: 0;
+  (<counted|not>+) $@
+  rule is_char: (<='$char;'>)
+  rule counted: (<is_char>) (@: $@ + 1;)
+  rule not: (<~is_char>)
+  end howMany
+  $word -> howMany !
+  end count
+
+  ('bananas' count 'a') -> !OUT::write
+  ```
+
+
 ### Operator
 An operator (or more correctly, binary operator) is a type of transform that takes two arguments, one on the left of the
 operator, the other on the right. This is a construct intended to show intent more readably than the alternative of passing in
