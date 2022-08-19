@@ -55,12 +55,12 @@ public class MutableState {
   }
 
   @Test
-  void prependStateStructure() throws Exception {
+  void prependEachStateStructure() throws Exception {
     String program =
         """
             templates state
             @: { a: 0, b: 0};
-            |..@: {b: $, c: 2};
+            [{b: $, c: 2}, {b: $+1, c: 3}]... -> |..@: $;
             $@ !
             end state
             1 -> state -> !OUT::write""";
@@ -72,6 +72,26 @@ public class MutableState {
     runner.run(input, output, List.of());
 
     assertEquals("{a=0, b=0, c=2}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void prependAllStateStructure() throws Exception {
+    String program =
+        """
+            templates state
+            @: { a: 0, b: 0};
+            [{b: $, c: 2}, {b: $+1, c: 3}] -> |..@: $...;
+            $@ !
+            end state
+            1 -> state -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a=0, b=0, c=3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -95,13 +115,13 @@ public class MutableState {
   }
 
   @Test
-  void prependKeyValueToStateArrayElementStructure() throws Exception {
+  void prependEachKeyValueToStateArrayElementStructure() throws Exception {
     String program =
         """
             templates state
             @: [{ a: 0, b: 0 }];
-            |..@(1): (b: $);
-            |..@(1): (c: $);
+            [(b: $), (b:$+1)] ... -> |..@(1): $;
+            [(c: $), (c: $+1)] ... -> |..@(1): $;
             $@ !
             end state
             1 -> state -> !OUT::write""";
@@ -113,6 +133,27 @@ public class MutableState {
     runner.run(input, output, List.of());
 
     assertEquals("[{a=0, b=0, c=1}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void prependAllKeyValueToStateArrayElementStructure() throws Exception {
+    String program =
+        """
+            templates state
+            @: [{ a: 0, b: 0 }];
+            [(b: $), (b:$+1)] -> |..@(1): $...;
+            [(c: $), (c: $+1)] -> |..@(1): $...;
+            $@ !
+            end state
+            1 -> state -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{a=0, b=0, c=2}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -136,11 +177,31 @@ public class MutableState {
   }
 
   @Test
-  void prependStateField() throws Exception {
+  void prependEachStateField() throws Exception {
     String program =
         """
             templates state
-            @: { a: []};
+            @: { a: [0]};
+            1..3 -> |..@.a: $;
+            $@ !
+            end state
+            1 -> state -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a=[3, 2, 1, 0]}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void prependAllStateField() throws Exception {
+    String program =
+        """
+            templates state
+            @: { a: [0]};
             |..@.a: 1..3;
             $@ !
             end state
@@ -152,7 +213,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=[3, 2, 1]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a=[1, 2, 3, 0]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -302,11 +363,31 @@ public class MutableState {
   }
 
   @Test
-  void prependStateArrayElementArray() throws Exception {
+  void prependEachStateArrayElementArray() throws Exception {
     String program =
         """
             templates state
-            @: [[],[]];
+            @: [[],[0]];
+            1..3 -> |..@(2): $;
+            $@ !
+            end state
+            1 -> state -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[], [3, 2, 1, 0]]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void prependAllStateArrayElementArray() throws Exception {
+    String program =
+        """
+            templates state
+            @: [[],[0]];
             |..@(2): 1..3;
             $@ !
             end state
@@ -318,7 +399,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[[], [3, 2, 1]]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[[], [1, 2, 3, 0]]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -520,11 +601,31 @@ public class MutableState {
   }
 
   @Test
-  void prependStateArray() throws Exception {
+  void prependEachStateArray() throws Exception {
     String program =
         """
             templates state
-            @: [];
+            @: [0];
+            $..$+2 -> |..@: $;
+            $@ !
+            end state
+            1 -> state -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[3, 2, 1, 0]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void prependAllStateArray() throws Exception {
+    String program =
+        """
+            templates state
+            @: [0];
             |..@: $..$+2;
             $@ !
             end state
@@ -536,7 +637,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[3, 2, 1]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[1, 2, 3, 0]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1031,26 +1132,6 @@ public class MutableState {
   }
 
   @Test
-  void streamPrependStateArray() throws Exception {
-    String program =
-        """
-            templates bar
-            @: [5..7];
-            1..3 -> |..@: $;
-            $@!
-            end bar
-            3 -> bar -> !OUT::write""";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("[3, 2, 1, 5, 6, 7]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void arrayMergeStateArray() throws Exception {
     String program =
         """
@@ -1071,7 +1152,27 @@ public class MutableState {
   }
 
   @Test
-  void arrayPrependStateArray() throws Exception {
+  void arrayPrependEachStateArray() throws Exception {
+    String program =
+        """
+            templates bar
+            @: [5..7];
+            [1..3]... -> |..@: $;
+            $@!
+            end bar
+            3 -> bar -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[3, 2, 1, 5, 6, 7]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void arrayPrependAllStateArray() throws Exception {
     String program =
         """
             templates bar
@@ -1087,7 +1188,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[3, 2, 1, 5, 6, 7]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[1, 2, 3, 5, 6, 7]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1283,7 +1384,27 @@ public class MutableState {
   }
 
   @Test
-  void keyLensPrepend() throws Exception {
+  void keyLensPrependEach() throws Exception {
+    String program =
+        """
+            templates bar
+            @: {foo:[6,7,8]};
+            [$, $+1] ... -> |..@(foo:): $;
+            $@!
+            end bar
+            3 -> bar -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{foo=[4, 3, 6, 7, 8]}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void keyLensPrependAll() throws Exception {
     String program =
         """
             templates bar
@@ -1299,7 +1420,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=[4, 3, 6, 7, 8]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo=[3, 4, 6, 7, 8]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

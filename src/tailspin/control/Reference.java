@@ -1,5 +1,8 @@
 package tailspin.control;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
 import tailspin.interpreter.Scope;
 import tailspin.transform.Lens;
 import tailspin.types.Freezable;
@@ -170,46 +173,45 @@ public abstract class Reference implements Value {
     throw new IllegalArgumentException("Unknown value type " + value.getClass().getName());
   }
 
-  public static void collect(Object it, Object collector, Merge method) {
-    if (collector instanceof Structure collectorMap) {
-      ResultIterator.forEach(it,
-          m -> {
+  public static void collect(Object it, Object destination, Merge method) {
+    Consumer<Object> collector = getCollector(destination, method);
+    ResultIterator.forEach(it, collector);
+  }
+
+  public static Consumer<Object> getCollector(Object destination, Merge method) {
+    if (destination instanceof Structure collectorMap) {
+      Consumer<KeyValue> keyValueCollector;
+      if (method == Merge.APPEND) {
+        keyValueCollector = entry -> collectorMap.put(entry.getKey(), entry.getValue());
+      } else if (method == Merge.PREPEND) {
+        Set<String> prependedKeys = new HashSet<>();
+        keyValueCollector = entry -> {
+          if (prependedKeys.contains(entry.getKey()) || !collectorMap.containsKey(entry.getKey())) {
+            collectorMap.put(entry.getKey(), entry.getValue());
+            prependedKeys.add(entry.getKey());
+          }
+        };
+      } else {
+        throw new UnsupportedOperationException("Cannot merge " + method);
+      }
+      return m -> {
             if (m instanceof Structure itMap) {
-              ResultIterator.forEach(itMap.deconstruct(), member -> {
-                KeyValue entry = (KeyValue) member;
-                if (method == Merge.APPEND) {
-                  collectorMap.put(entry.getKey(), entry.getValue());
-                } else if (method == Merge.PREPEND) {
-                  if (!collectorMap.containsKey(entry.getKey())) {
-                    collectorMap.put(entry.getKey(), entry.getValue());
-                  }
-                } else {
-                  throw new UnsupportedOperationException("Cannot merge " + method);
-                }
-              });
+              ResultIterator.forEach(itMap.deconstruct(), kv -> keyValueCollector.accept((KeyValue) kv));
             } else {
               KeyValue itEntry = (KeyValue) m;
-              if (method == Merge.APPEND) {
-                collectorMap.put(itEntry.getKey(), itEntry.getValue());
-              } else if (method == Merge.PREPEND) {
-                if (!collectorMap.containsKey(itEntry.getKey())) {
-                  collectorMap.put(itEntry.getKey(), itEntry.getValue());
-                }
-              } else {
-                throw new UnsupportedOperationException("Cannot merge " + method);
-              }
+              keyValueCollector.accept(itEntry);
             }
-          });
-    } else if (collector instanceof TailspinArray collectorList) {
+          };
+    } else if (destination instanceof TailspinArray collectorList) {
       if (method == Merge.APPEND) {
-        ResultIterator.forEach(it, collectorList::append);
+        return collectorList::append;
       } else if (method == Merge.PREPEND) {
-        ResultIterator.forEach(it, collectorList::prepend);
+        return collectorList.new Prepender();
       } else {
         throw new UnsupportedOperationException("Cannot merge " + method);
       }
     } else {
-      throw new UnsupportedOperationException("Cannot collect in " + collector.getClass());
+      throw new UnsupportedOperationException("Cannot collect in " + destination.getClass());
     }
   }
 }

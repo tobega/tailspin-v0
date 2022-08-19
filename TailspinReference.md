@@ -753,8 +753,11 @@ They are applied before a state object assignment instead of after a value strea
 Slightly different things happen depending on what type of object is used as a collector:
  * A structure: the stream must be a stream of structures or keyed values (or just one structure or keyed value) and the result is that of
  the keys of each streaming structure merged into the collector. Append overwrites previous keys, prepend doesn't, e.g.
- if @ is `{a:1, b:1}` then `..|@: {a:2, c:2};` results in @ being `{a:2, b:1, c:2}` but `|..@: {a:2, c:2};` results in @ being `{a:1, b:1, c:2}`
- * An array: append or prepend the stream to the array. When prepending, each stream element gets prepended in turn, so they end up reversed.
+ if @ is `{a:1, b:1}` then `..|@: {a:2, c:2};` results in @ being `{a:2, b:1, c:2}` but `|..@: {a:2, c:2};` results in @ being `{a:1, b:1, c:2}`.
+ Note also the difference that when prepending a stream of same keys one by one, `[(a:1), (a:2)]... -> |..@:$;` will result in `(a:1)` being prepended,
+ while prepending an entire stream `[(a:1), (a:2)] -> |..@:$...;` will result in `(a:2)` being prepended.
+ * An array: append or prepend the stream to the array. Note that when prepending, there is a difference between `[1,2,3]... -> |..@: $;` which will prepend each element in turn,
+ resulting in `[3, 2, 1, ...]`, and `[1,2,3] -> |..@: $...;` which will result in `[1, 2, 3, ...]`.
  
  If the merge operator is applied to an array slice, each element of the array slice gets merged with one element from the stream.
  Note the difference between `..|@: 1..3;`, which appends 1, 2 and 3 to the end of the state array,

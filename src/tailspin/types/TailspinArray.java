@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 import tailspin.control.ResultIterator;
 
@@ -122,8 +123,11 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
     array.add(result);
   }
 
-  public void prepend(Object result) {
-    array.add(0, result);
+  public class Prepender implements Consumer<Object> {
+    int i = 0;
+    public void accept(Object it) {
+      array.add(i++, it);
+    }
   }
 
   @Override

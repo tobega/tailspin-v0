@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -216,8 +217,7 @@ public abstract class ArrayLens implements LensDimension {
     private final Reference.Merge method;
     private final ResultIterator ri;
     int invocations = 0;
-    TailspinArray lastArray;
-    int lastIndex;
+    Consumer<Object> lastCollector;
 
     public Merger(Reference.Merge method, ResultIterator ri) {
       this.method = method;
@@ -227,25 +227,19 @@ public abstract class ArrayLens implements LensDimension {
     @Override
     public Object invoke(TailspinArray array, int index) {
       invocations++;
-      lastArray = array;
-      lastIndex = index;
-      Freezable<?> collector = (Freezable<?>) array.getNative(index);
-      if (!collector.isThawed()) {
-        collector = collector.thawedCopy();
-        array.setNative(index, collector);
+      Freezable<?> destination = (Freezable<?>) array.getNative(index);
+      if (!destination.isThawed()) {
+        destination = destination.thawedCopy();
+        array.setNative(index, destination);
       }
-      Reference.collect(Objects.requireNonNull(ri.getNextResult()), collector, method);
+      lastCollector = Reference.getCollector(destination, method);
+      lastCollector.accept(Objects.requireNonNull(ri.getNextResult()));
       return null;
     }
 
     void resolveSingleElementMergeMany() {
       if (invocations == 1) {
-        Freezable<?> collector = (Freezable<?>) lastArray.getNative(lastIndex);
-        if (!collector.isThawed()) {
-          collector = collector.thawedCopy();
-          lastArray.setNative(lastIndex, collector);
-        }
-        Reference.collect(ri, collector, method);
+        ResultIterator.forEach(ri, lastCollector);
       }
     }
   }
