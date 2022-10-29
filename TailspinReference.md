@@ -33,6 +33,11 @@ should have been used instead. This is deliberate in order to free the mind of p
     1. [Operator](#operator)
     1. [Projections and Lenses](#projections-and-lenses)
 1. [Matchers](#matchers)
+   1. [Multipliers](#multipliers)
+   2. [Types and matching](#type-bounds-for-matching)
+   2. [Do-nothing blocks](#do-nothing-block-guard-clause)
+   3. [Conditions](#conditions)
+   4. [Defined types](#defined-types)
 1. [Mutable state](#mutable-state) (see also [Processors](#processors))
 1. [Parameters](#parameters)
 1. [Streams](#streams)
@@ -606,14 +611,12 @@ See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for
 
 * Empty criterion, `<>`, matches anything.
 * Basic type matches: `<{}>` matches any [structure](#structures), `<[]>` matches any [array](#arrays), `<''>` matches any [raw or tagged](#tagged-identifiers) string value,
-  `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures). To match empty structures or arrays, use equality.
+  `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures). To match empty structures, use `{VOID}`, for empty arrays, use `[](0)`.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
   Note that a raw string or number will become a [tagged identifier](#tagged-identifiers) in the do block of the type-matcher.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
-  Note that equality must have correct [tagging](#tagged-identifiers), or both must be raw values, otherwise the program ends with an error.
-  If the value to be tested is a valid value of the [data type](#types) defined by the tag in the matcher, there is no error. The tag is inferred in a key-value context.
-  If you need to compare mixed tagged and raw values, use a type match and the "raw" message in a condition, e.g. `<'' ?($::raw <='apple'>)>`
+  Note that trying to compare equality between different types is considered a programming error, see [the types and matching section](#type-bounds-for-matching) for details and how to handle it.
 * Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`.
   See the [measure](#measures) documentation for rules of how measures match equality and ranges.
 * You can use the name of a [defined data type](#defined-types) or an [autotyped](#autotyping) field or tag to determine if a value matches that type.
@@ -621,8 +624,7 @@ See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for
   the range operator on the side(s) where the bound is not included.
   Note that `<..>` is a type match for a [tagged or raw](#tagged-identifiers) numeric quantity, or a [measure](#measures).
   Note that the [type](#types) of the upper and lower bounds must match, and also match with the compared value, otherwise the program ends with an error.
-  If the value to be tested is a valid value of the [data type](#types) defined by the tag in the matcher, there is no error. The tag is inferred in a key-value context.
-  If you need to compare mixed raw and tagged values, use a type match and the "raw" message in a condition, e.g. `<.. ?($::raw <$min::raw..$max::raw>)>`
+  See [the types and matching section](#type-bounds-for-matching) for details and how to handle different types when needed.
   Examples of ranges:
     * `<2..5>` for "between 2 and 5 inclusive" (or `<2"m"..5"m">` for a range of metres or `<id´2..id´5>` for a range of id:s)
     * `<..3>` for "less than or equal to 3", or `<..~3>` for "less than 3"
@@ -679,6 +681,17 @@ See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for
 Note that when nesting down matchers for fields and array contents, the _current value_ denoted by `$` will still refer to
 the original item to be matched by the outer match expression. To change perspective so that `$` should represent
 the value at the current level of the match, use a [condition](#conditions)
+
+### Type bounds for matching
+According to the Tailspin philosophy, it is likely to be a programmer error to try and compare different types directly,
+so in that case the program should end with an error. Although [types in Tailspin](#types) can be quite complex, the default type bound for matching
+is very basic, and more strict, similar to how [autotyping](#autotyping) is done.
+
+For example, given `data small <'[a-z]+'>, caps <'[A-Z]+'>, word <small|caps>`,
+it will be an error to try to match `small´'foo'` with `<=caps´'BAR'>`. Even though both are of the type `word`, the type check is for type `small` vs type `caps`.
+One way to work around this is to match with a type-test and compare raw strings, `<word ?($::raw <='BAR'>)>`
+
+TODO: this is work in progress
 
 ### Multipliers
 Composer matchers and array content matchers can have multipliers attached:

@@ -113,6 +113,33 @@ class Composer {
   }
 
   @Test
+  void composeTaggedStringEquality() throws IOException {
+    String program = """
+        composer tag
+        <=id´'abc'>
+        end tag
+        {id: 'def', 'abc' -> tag -> (id: $)} -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{id=abc}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void composeTaggedStringEqualityWrongSyntaxFails() {
+    String program = """
+        composer tag
+        <id´='abc'>
+        end tag
+        {id: 'def', 'abc' -> tag -> (id: $)} -> !OUT::write""";
+    assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  @Test
   void composeTaggedStringWrongAssignmentFails() throws IOException {
     String program = """
         composer tag

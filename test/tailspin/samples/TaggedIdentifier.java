@@ -1374,4 +1374,61 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
   }
+
+  @Test
+  void tagParenthesizedArithmeticExpressionWorks() throws IOException {
+    String program = """
+      data bar <1..9>
+      {foo: bar´ (5+3)} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{foo=8}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void explicitlyTaggedNumberInExpressionIsError() {
+    String program = """
+      data bar <1..9>
+      {foo: bar´ 5 + 3} -> !OUT::write
+    """;
+    assertThrows(Exception.class, () -> Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8))));
+  }
+
+  @Test
+  void tagStringReferenceWorks() throws IOException {
+    String program = """
+      def foo: 'bar';
+      tag´$foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("bar", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void tagNumericReferenceWorks() throws IOException {
+    String program = """
+      def foo: 6;
+      tag´$foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("6", output.toString(StandardCharsets.UTF_8));
+  }
 }
