@@ -14,7 +14,7 @@ public class Condition {
 
   boolean isFulfilled(Object toMatch, Scope scope) {
     Object value = lhs.getResults(toMatch, scope);
-    return null != matcher.permeate(value, toMatch, scope, null);
+    return null != matcher.permeate(value, toMatch, scope);
   }
 
   @Override

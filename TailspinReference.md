@@ -158,8 +158,11 @@ _Possible future directions_: Support for exact arithmetic with rational numbers
 Decimal numbers will probably have to be typed by number of significant digits and a unit.
 
 ### Measures
-A measure is a number that has a unit. A unit is supplied within double quotes directly after a numeric literal,
-e.g. `5"m"`, or after a parenthesized expression, e.g. `(3 * 60)"s"`
+A measure is a number that has a unit. In Tailspin, the concept of unit also includes magnitude and dimension which do not all need to
+be relevant nor specified. Sometimes you care whether something is measured in metres or feet (true unit),
+sometimes whether it is hertz or millihertz (magnitude) and sometimes whether it is the x or the y direction (dimension).
+
+A unit is supplied within double quotes directly after a numeric literal, e.g. `5"m"`, or after a parenthesized expression, e.g. `(3 * 60)"s"`
 
 The unit may contain one slash ('/') separating a numerator and a denominator. The numerator and denominator may each be
 a product of alphabetic symbols, each with an optional positive integer power.
@@ -172,7 +175,7 @@ There is a special unit, `"1"`, to define a scalar number. Scalars or untyped nu
 
 When the resulting measure of arithmetic between measures cannot be inferred, you will need to
 parenthesize the expression and provide the new measure, e.g. `(4"J" + 3 "N m")"J"`, otherwise the program ends with an error.
-NOTE: currently no automatic inference of units is done, except for adding same units.
+NOTE: currently no automatic inference of units is done, except for adding same units or multiplying by scalars.
 
 The message `::raw` can be used on a measure to get the magnitude without the unit.
 
@@ -208,11 +211,10 @@ literal key-value pairs or expressions generating [streams](#streams) of key-val
 A literal key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
 
 NOTE: [Autotyping](#autotyping) and the [data dictionary](#data-dictionary) affects what things you can and cannot assign to a key.
-Raw strings or untyped numbers assigned to a key will become [tagged identifiers](#tagged-identifiers).
+Raw strings or untyped numbers assigned to a key will become [tagged identifiers](#tagged-identifiers) tagged by the key.
 
-An example of an expression generating a stream of key-value pairs is a [deconstruction](#deconstructor)
- of a [dereferenced](#dereference) structure value. But as a convenience, you can just include the structure-valued
-dereference as-is and it will be automatically deconstructed into the new structure.
+A [deconstruction](#deconstructor) of a [dereferenced](#dereference) structure value produces a stream of the key-value pairs from the structure.
+As a convenience when creating a new structure by copying values, you can just include the structure-valued dereference as-is and it will be automatically deconstructed into the new structure.
 
 #### Structure expansion
 Sometimes you want to generate several structures with combinations of similar values, so instead of a key-value pair
@@ -452,7 +454,7 @@ Composition matchers can be string literals containing regexp patterns [(current
 To make the resulting text value into a [tagged identifier](#tagged-identifiers), prepend the tag, e.g. `<city´'\w+'>` to tag the word as a city.
 
 A matcher can be an equals sign followed by a string literal, source reference or state deletion that gives a string result.
-This will match the string value exactly.
+This will match the string value exactly. To create a [tagged identifier](#tagged-identifiers), prepend the tag to the string, e.g. `<=city´'London'>`.
 
 Other composition matchers are the ones defined in the composer as sub-patterns (rules).
 
@@ -607,22 +609,22 @@ executed for that _current value_.
 
 Matchers are also used to [define datatypes](#defined-types)
 
-See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for specific matching considerations.
+See also [type bounds](#type-bounds-for-matching), [measures](#measures) and [tagged identifiers](#tagged-identifiers) for specific matching considerations.
 
 * Empty criterion, `<>`, matches anything.
 * Basic type matches: `<{}>` matches any [structure](#structures), `<[]>` matches any [array](#arrays), `<''>` matches any [raw or tagged](#tagged-identifiers) string value,
   `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures). To match empty structures, use `{VOID}`, for empty arrays, use `[](0)`.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
-  Note that a raw string or number will become a [tagged identifier](#tagged-identifiers) in the do block of the type-matcher.
+  Note that trying to match a raw string or number here is considered a programming error, see [tagged identifiers](#tagged-identifiers).
+  The name of an [autotyped](#autotyping) field or tag can also be used as a defined type.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
-  Note that trying to compare equality between different types is considered a programming error, see [the types and matching section](#type-bounds-for-matching) for details and how to handle it.
+  Note that trying to compare equality between different types is considered a programming error, see [the type bounds for matching section](#type-bounds-for-matching) for details and how to handle it.
 * Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`.
   See the [measure](#measures) documentation for rules of how measures match equality and ranges.
-* You can use the name of a [defined data type](#defined-types) or an [autotyped](#autotyping) field or tag to determine if a value matches that type.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
   the range operator on the side(s) where the bound is not included.
-  Note that `<..>` is a type match for a [tagged or raw](#tagged-identifiers) numeric quantity, or a [measure](#measures).
+  Note that the similar looking `<..>` is a type match for a [tagged or raw](#tagged-identifiers) numeric quantity, or a [measure](#measures).
   Note that the [type](#types) of the upper and lower bounds must match, and also match with the compared value, otherwise the program ends with an error.
   See [the types and matching section](#type-bounds-for-matching) for details and how to handle different types when needed.
   Examples of ranges:
@@ -635,7 +637,7 @@ See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for
 * Regular expression match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
   For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
   Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
-  Note that `<''>` is a type match, not a regular expression, and so matches any raw or tagged string.
+  Note that `<''>` is a type match, not a regular expression, and matches any raw or tagged string.
   You need to use `<=''>` to match the empty raw string, while `<'.*'>` matches any raw string, `<'.+'>` any non-empty raw string.
   To match [tagged strings](#tagged-identifiers), supply the tag before the regular expression, e.g. `<city´ 'L.*'>`.
   For comparing strings for simple equality, see "Equality" above.

@@ -14,10 +14,11 @@ public class RangeMatch implements Membrane {
 
   public static final Membrane numberType = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
-      if (toMatch instanceof Measure m) toMatch = m.getValue();
-      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
-      return (toMatch instanceof Long) ? toMatch : null;
+    public Object permeate(Object toMatch, Object it, Scope scope) {
+      Object baseValue = toMatch;
+      if (baseValue instanceof Measure m) baseValue = m.getValue();
+      else if (baseValue instanceof TaggedIdentifier t) baseValue = t.getValue();
+      return (baseValue instanceof Long) ? toMatch : null;
     }
 
     @Override
@@ -45,15 +46,14 @@ public class RangeMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+  public Object permeate(Object toMatch, Object it, Scope scope) {
     Unit unit = null;
     String tag = null;
     if (lowerBound != null) {
       Object low = lowerBound.value.getResults(it, scope);
       if (low instanceof Measure m) unit = m.getUnit();
       if (low instanceof TaggedIdentifier t) tag = t.getTag();
-      toMatch = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low,
-          contextTag, scope);
+      toMatch = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low);
       if (toMatch == null) return null;
     }
     if (upperBound != null) {
@@ -68,8 +68,7 @@ public class RangeMatch implements Membrane {
           throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + DataDictionary.formatErrorValue(t));
       } else if (tag != null)
         throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + high);
-      toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high,
-          contextTag, scope);
+      toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high);
     }
     return toMatch;
   }
@@ -111,37 +110,22 @@ public class RangeMatch implements Membrane {
     public abstract boolean isValid(int comparison);
   }
 
-  public static Object compare(Object toMatch, Comparison comparison, Object rhs, String contextTag, Scope scope) {
+  public static Object compare(Object toMatch, Comparison comparison, Object rhs) {
     Object lhs = toMatch;
     if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
       if (l.getTag().equals(r.getTag())) {
         lhs = l.getValue();
         rhs = r.getValue();
-      } else if(contextTag != null) { // type of toMatch should be fine in tag context
-        if(scope.getLocalDictionary().checkDataDefinition(contextTag, r, scope) == null)
-          throw new IllegalArgumentException("Value " + DataDictionary.formatErrorValue(rhs) + " not valid for tag " + contextTag);
-        return null;
-      } else if(scope.getLocalDictionary().checkDataDefinition(r.getTag(), l, scope) != null) {
-        return null;
       } else {
-        throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(l) + " with " + DataDictionary.formatErrorValue(r));
+        return null;
       }
     }
     else if (lhs instanceof TaggedIdentifier l) {
-      if (contextTag != null && !l.getTag().equals(contextTag)) {
-        Object checkedRhs = scope.getLocalDictionary().checkDataDefinition(contextTag, rhs, scope);
-        if (checkedRhs == null || (checkedRhs instanceof TaggedIdentifier r && !r.getTag().equals(contextTag))) {
-          throw new IllegalArgumentException("Value " + DataDictionary.formatErrorValue(rhs) + " not valid for tag " + contextTag);
-        }
-        return null; // type match shouldn't throw
-      }
-      if (!l.getTag().equals(contextTag) || rhs instanceof Measure) {
-        throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(l) + " with " + DataDictionary.formatErrorValue(rhs));
-      }
-      lhs = l.getValue();
+      toMatch = l.getValue();
+      lhs = toMatch;
     }
-    else if (rhs instanceof TaggedIdentifier r) {
-      throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(lhs) + " with " + DataDictionary.formatErrorValue(r));
+    else if (rhs instanceof TaggedIdentifier) {
+      return null;
     }
     else if (lhs instanceof Measure l && rhs instanceof Measure r) {
       if (l.getUnit().equals(r.getUnit())) {

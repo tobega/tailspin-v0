@@ -14,7 +14,7 @@ public class AlwaysFalse implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+  public Object permeate(Object toMatch, Object it, Scope scope) {
     return null;
   }
 }

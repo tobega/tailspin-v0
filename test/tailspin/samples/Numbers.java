@@ -461,6 +461,6 @@ class Numbers {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("567889", output.toString(StandardCharsets.UTF_8));
+    assertEquals("567889\"m\"", output.toString(StandardCharsets.UTF_8));
   }
 }

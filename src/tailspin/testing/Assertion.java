@@ -37,7 +37,7 @@ public class Assertion implements Expression {
       return "assertion that " + description.getResults(null, blockScope) + " got too many values: "
           + results;
     }
-    if (null == membrane.permeate(value, value, blockScope, null)) {
+    if (null == membrane.permeate(value, value, blockScope)) {
       return "assertion that " + description.getResults(null, blockScope) + " failed with value " + value;
     }
     return null; // Null means pass

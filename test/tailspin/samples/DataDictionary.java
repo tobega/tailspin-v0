@@ -247,7 +247,7 @@ public class DataDictionary {
     String program = """
     data finger <1..5>
     data x <finger>
-    {x: 3} -> !OUT::write
+    {x: finger´3} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -963,26 +963,11 @@ public class DataDictionary {
   }
 
   @Test
-  void sumTypeAutotypesAsSelfIfPossible() throws IOException {
+  void sumTypeAutotypesRawAsSelfIfPossible() throws IOException {
     String program = """
     data foo <1..5>
     data x <foo | 1..5>
-    {x: 3} -> {foo: $.x} -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void sumTypeAutotypesAsOtherIfNoSelf() throws IOException {
-    String program = """
-    data foo <1..5>
-    data x <foo>
-    {x: 3} -> {foo: $.x} -> !OUT::write
+    {x: 3} -> $.x -> \\(<=x´3> $!\\) -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -991,7 +976,22 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void sumTypeDoesNotAutotypeRawIfNoSelf() throws IOException {
+    String program = """
+    data foo <1..5>
+    data x <foo>
+    {x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () ->runner.run(input, output, List.of()));
   }
 
   @Test
@@ -1027,9 +1027,26 @@ public class DataDictionary {
   }
 
   @Test
-  void typeTestOfTaggedAliasOnOtherTagWorks() throws IOException {
+  void typeTestOfTaggedAliasOnOtherTagCanMatch() throws IOException {
     String program = """
-    data foo <..>
+    data foo <..> // Any numeric type
+    data bar <foo>
+    qaz´4 -> \\(<bar> 'ok'! <> $!\\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void typeTestOfTaggedAliasOnOtherTagCanNotMatch() throws IOException {
+    String program = """
+    data foo <1..> // A positive number tagged as foo
     data bar <foo>
     qaz´4 -> \\(<bar> $! <> 'ok'!\\) -> !OUT::write
     """;
@@ -1080,7 +1097,7 @@ public class DataDictionary {
     String program = """
     data type <='E'|='G'>
     data content <type|='.'>
-    {content: 'E'} -> \\(<{content: <=type´'E'>}> 'ok'! <> 'nope'!\\) -> !OUT::write
+    {content: type´'E'} -> \\(<{content: <=type´'E'>}> 'ok'! <> 'nope'!\\) -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

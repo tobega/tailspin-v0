@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
 import tailspin.types.Membrane;
 import tailspin.types.Structure;
+import tailspin.types.TaggedIdentifier;
 
 public class StructureMatch implements Membrane {
   private final Map<String, Membrane> keyConditions;
@@ -16,7 +17,7 @@ public class StructureMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+  public Object permeate(Object toMatch, Object it, Scope scope) {
     if (!(toMatch instanceof Structure structureToMatch)) return null;
     for (Map.Entry<String, Membrane> keyMatch : keyConditions.entrySet()) {
       if (!structureToMatch.containsKey(keyMatch.getKey())) {
@@ -26,7 +27,13 @@ public class StructureMatch implements Membrane {
         return null;
       }
       Object valueToMatch = structureToMatch.get(keyMatch.getKey());
-      if ((null == keyMatch.getValue().permeate(valueToMatch, it, scope, keyMatch.getKey()))) {
+      // try context-elided tag first
+      if (valueToMatch instanceof TaggedIdentifier t && t.getTag().equals(keyMatch.getKey())) {
+        if (null != keyMatch.getValue().permeate(t.getValue(), it, scope)) {
+          continue;
+        }
+      }
+      if (null == keyMatch.getValue().permeate(valueToMatch, it, scope)) {
         return null;
       }
     }

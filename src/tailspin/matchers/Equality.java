@@ -16,20 +16,20 @@ public class Equality implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+  public Object permeate(Object toMatch, Object it, Scope scope) {
     Object required = value.getResults(it, scope);
-    return eq(toMatch, required, contextTag, scope);
+    return eq(toMatch, required);
   }
 
-  private Object eq(Object toMatch, Object required, String contextTag, Scope scope) {
+  private Object eq(Object toMatch, Object required) {
     if (toMatch instanceof Measure || required instanceof Measure
         || toMatch instanceof TaggedIdentifier || required instanceof TaggedIdentifier)
-      return RangeMatch.compare(toMatch, RangeMatch.Comparison.EQUAL, required, contextTag, scope);
+      return RangeMatch.compare(toMatch, RangeMatch.Comparison.EQUAL, required);
     if (toMatch instanceof TailspinArray t && required instanceof TailspinArray r) {
       if (t.length() != r.length()) return null;
       if (!Objects.equals(t.getOffset(), r.getOffset())) throw new IllegalArgumentException("Trying to compare array of index type " + t.getOffsetDescription() + " with array of index type " + r.getOffsetDescription());
       for (int i = 0; i < t.length(); i++) {
-        if (eq(t.getNative(i), r.getNative(i),contextTag, scope) == null) return null;
+        if (eq(t.getNative(i), r.getNative(i)) == null) return null;
       }
       return t;
     }

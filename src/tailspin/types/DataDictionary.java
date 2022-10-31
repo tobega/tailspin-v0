@@ -26,7 +26,7 @@ public class DataDictionary {
 
   private static final Membrane stringMatch = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+    public Object permeate(Object toMatch, Object it, Scope scope) {
       if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
       return (toMatch instanceof String) ? toMatch : null;
     }
@@ -39,7 +39,7 @@ public class DataDictionary {
 
   private static final Membrane numberMatch = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+    public Object permeate(Object toMatch, Object it, Scope scope) {
       if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
       return (toMatch instanceof Long) ? toMatch : null;
     }
@@ -76,7 +76,7 @@ public class DataDictionary {
         if (contentMembrane == null) {
           contentMembrane = getDefaultTypeCriterion(null, toMatch.getNative(0), dictionary);
           return 1;
-        } else if (null != contentMembrane.permeate(toMatch.getNative(0), null, null, null)) {
+        } else if (null != contentMembrane.permeate(toMatch.getNative(0), null, null)) {
           return 1;
         }
         return 0;
@@ -185,7 +185,10 @@ public class DataDictionary {
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
-    Object result = def.permeate(data, null, scope, null);
+    if (data instanceof String || data instanceof Long) {
+      data = new TaggedIdentifier(key, data);
+    }
+    Object result = def.permeate(data, null, scope);
     if (result == null) {
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
     }

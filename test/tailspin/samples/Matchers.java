@@ -169,7 +169,7 @@ class Matchers {
 
   @Test
   void structureMatchMultiplePropertyMatches() throws Exception {
-    String program = "{ a: 1, b: 2 } -> \\(<{ a: <=1>, b: <=1> }> 'no!' !<{ b:<=2> }> 'yes'! <> 'no'!\\) -> !OUT::write";
+    String program = "{ a: 1, b: 2 } -> \\(<{ a: <=1>, b: <=1> }> 'no!' !<{ b:<=2> }> 'yes'! <> 'oops'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1457,7 +1457,7 @@ class Matchers {
 
   @Test
   void keyValueMatch() throws Exception {
-    String program = "(foo:5) -> \\(<(foo:<0..3>)> 'no'! <(foo:<4..8>)> 'yes'! <> 'no'!\\) -> !OUT::write";
+    String program = "(foo:5) -> \\(<(foo:<0..3>)> 'no'! <(foo:<4..8>)> 'yes'! <> 'oops'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
