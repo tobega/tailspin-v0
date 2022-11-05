@@ -154,7 +154,9 @@ transform: To templates transform?
   | collectorChain transform?
 ;
 
-matcher: StartMatcher (Invert? membrane (Else membrane)*)? EndMatcher;
+matcher: StartMatcher (Invert? typeBound? membrane (Else membrane)*)? EndMatcher;
+
+typeBound: Tick typeMatch? Tick;
 
 membrane: (literalMatch | typeMatch) condition* | condition+;
 

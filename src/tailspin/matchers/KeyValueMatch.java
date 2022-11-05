@@ -3,7 +3,6 @@ package tailspin.matchers;
 import tailspin.interpreter.Scope;
 import tailspin.types.KeyValue;
 import tailspin.types.Membrane;
-import tailspin.types.TaggedIdentifier;
 
 public class KeyValueMatch implements Membrane {
 
@@ -16,16 +15,11 @@ public class KeyValueMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     if (!(toMatch instanceof KeyValue keyValue)) return null;
     if (!keyValue.getKey().equals(key)) return null;
-    // try context-elided tag first
-    if (keyValue.getValue() instanceof TaggedIdentifier t && t.getTag().equals(key)) {
-      if (valueMatch.permeate(t.getValue(), it, scope) != null) {
-        return toMatch;
-      }
-    }
-    if (valueMatch.permeate(keyValue.getValue(), it, scope) != null) {
+    TypeBound keyType = TypeBound.inContext(key, scope.getLocalDictionary().getDataDefinition(key));
+    if (valueMatch.permeate(keyValue.getValue(), it, scope, keyType) != null) {
       return toMatch;
     }
     return null;

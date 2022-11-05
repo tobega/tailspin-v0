@@ -78,6 +78,7 @@ import tailspin.matchers.RegexpMatch;
 import tailspin.matchers.SequenceMatch;
 import tailspin.matchers.StereotypeMatch;
 import tailspin.matchers.StructureMatch;
+import tailspin.matchers.TypeBound;
 import tailspin.matchers.UnitMatch;
 import tailspin.matchers.ValueMatcher;
 import tailspin.matchers.composer.CompositionSpec;
@@ -494,7 +495,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public AnyOf visitMatcher(TailspinParser.MatcherContext ctx) {
-    return new AnyOf(ctx.Invert() != null, ctx.membrane().stream().map(this::visitMembrane).collect(Collectors.toList()));
+    return new AnyOf(ctx.Invert() != null,
+        visitTypeBound(ctx.typeBound()),
+        ctx.membrane().stream().map(this::visitMembrane).collect(Collectors.toList()));
+  }
+
+  @Override
+  public TypeBound visitTypeBound(TailspinParser.TypeBoundContext ctx) {
+    if (ctx == null) return null;
+    if (ctx.typeMatch() == null) return TypeBound.ANY;
+    return TypeBound.of((Membrane) visit(ctx.typeMatch()));
   }
 
   @Override

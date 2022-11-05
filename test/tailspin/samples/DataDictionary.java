@@ -1082,7 +1082,7 @@ public class DataDictionary {
     String program = """
     data type <='E'|='G'>
     data content <type|='.'>
-    {content: 'E'} -> \\(<{content: <='E'>}> 'no way'! <> 'nah'!\\) -> !OUT::write
+    {content: 'E'} -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));

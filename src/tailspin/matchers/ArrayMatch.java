@@ -28,7 +28,7 @@ public class ArrayMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     if (!(toMatch instanceof TailspinArray listToMatch)) return null;
     if (offset != null) {
       if (listToMatch.getOffset() == null) return null;
@@ -36,8 +36,8 @@ public class ArrayMatch implements Membrane {
       if (offset instanceof Unit u && (!(listToMatch.getOffset() instanceof Measure m) || !m.getUnit().equals(u))) return null;
       if (offset instanceof String s && (!(listToMatch.getOffset() instanceof TaggedIdentifier t) || !t.getTag().equals(s))) return null;
     }
-    if (lengthMembrane != null && (null == lengthMembrane.permeate((long) listToMatch.length(), it, scope
-    ))) {
+    if (lengthMembrane != null
+        && (null == lengthMembrane.permeate((long) listToMatch.length(), it, scope, typeBound))) {
       return null;
     }
     if (contentMatcherFactories.isEmpty()) {

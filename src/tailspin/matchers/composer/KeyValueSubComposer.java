@@ -1,22 +1,22 @@
 package tailspin.matchers.composer;
 
 import tailspin.control.Value;
-import tailspin.types.DataDictionary;
+import tailspin.interpreter.Scope;
 import tailspin.types.KeyValue;
 
 class KeyValueSubComposer implements SubComposer {
   private final SubComposer keyComposer;
   private final SequenceSubComposer valueComposer;
-  private final DataDictionary dictionary;
+  private final Scope scope;
   String key;
 
   Object value;
 
   KeyValueSubComposer(SubComposer keyComposer, SequenceSubComposer valueComposer,
-      DataDictionary dictionary) {
+      Scope scope) {
     this.keyComposer = keyComposer;
     this.valueComposer = valueComposer;
-    this.dictionary = dictionary;
+    this.scope = scope;
   }
 
   @Override
@@ -38,7 +38,7 @@ class KeyValueSubComposer implements SubComposer {
   private void trySetValue() {
     if (valueComposer.isSatisfied()) {
       Object parsed = valueComposer.getValues();
-      value = dictionary.checkDataDefinition(key, parsed, null);
+      value = scope.getLocalDictionary().checkDataDefinition(key, parsed, scope);
     }
   }
 

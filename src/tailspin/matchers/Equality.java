@@ -1,8 +1,10 @@
 package tailspin.matchers;
 
 import java.util.Objects;
+import tailspin.TypeError;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.Measure;
 import tailspin.types.Membrane;
 import tailspin.types.TaggedIdentifier;
@@ -16,8 +18,16 @@ public class Equality implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     Object required = value.getResults(it, scope);
+    if (typeBound == null) {
+      typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, required, scope.getLocalDictionary()));
+    } else if (!typeBound.isInBound(required, it, scope)) {
+      throw new TypeError("Matcher " + this + " not in expected type bound " + typeBound);
+    }
+    if (typeBound != null && !typeBound.isInBound(toMatch, it, scope)) {
+      throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " not in expected type bound " + typeBound);
+    }
     return eq(toMatch, required);
   }
 

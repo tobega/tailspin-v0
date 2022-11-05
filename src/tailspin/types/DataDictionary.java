@@ -16,6 +16,7 @@ import tailspin.matchers.DefinedTag;
 import tailspin.matchers.MultipliedCollectionCriterion;
 import tailspin.matchers.RangeMatch;
 import tailspin.matchers.StructureMatch;
+import tailspin.matchers.TypeBound;
 import tailspin.matchers.UnitMatch;
 
 public class DataDictionary {
@@ -26,20 +27,20 @@ public class DataDictionary {
 
   private static final Membrane stringMatch = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope) {
+    public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
       if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
       return (toMatch instanceof String) ? toMatch : null;
     }
 
     @Override
     public String toString() {
-      return "raw string";
+      return "untyped string";
     }
   };
 
   private static final Membrane numberMatch = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope) {
+    public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
       if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
       return (toMatch instanceof Long) ? toMatch : null;
     }
@@ -76,7 +77,7 @@ public class DataDictionary {
         if (contentMembrane == null) {
           contentMembrane = getDefaultTypeCriterion(null, toMatch.getNative(0), dictionary);
           return 1;
-        } else if (null != contentMembrane.permeate(toMatch.getNative(0), null, null)) {
+        } else if (null != contentMembrane.permeate(toMatch.getNative(0), null, scope, null)) {
           return 1;
         }
         return 0;
@@ -121,7 +122,7 @@ public class DataDictionary {
     }
   }
 
-  private static final Membrane exists = new AnyOf(false, List.of());
+  private static final Membrane exists = new AnyOf(false, TypeBound.ANY, List.of());
 
   public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
@@ -131,7 +132,7 @@ public class DataDictionary {
     this.moduleDictionary = moduleDictionary;
   }
 
-  private static Membrane getDefaultTypeCriterion(String tag, Object data, DataDictionary dictionary) {
+  public static Membrane getDefaultTypeCriterion(String tag, Object data, DataDictionary dictionary) {
     if (data instanceof String) {
       return tag == null ? stringMatch : new DefinedTag(tag, stringMatch, null);
     }
@@ -188,7 +189,7 @@ public class DataDictionary {
     if (data instanceof String || data instanceof Long) {
       data = new TaggedIdentifier(key, data);
     }
-    Object result = def.permeate(data, null, scope);
+    Object result = def.permeate(data, null, scope, null);
     if (result == null) {
       throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
     }

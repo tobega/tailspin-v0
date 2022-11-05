@@ -14,7 +14,7 @@ public class AlwaysFalse implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     return null;
   }
 }

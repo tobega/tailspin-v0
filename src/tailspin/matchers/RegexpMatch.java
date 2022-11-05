@@ -1,8 +1,10 @@
 package tailspin.matchers;
 
 import java.util.regex.Pattern;
+import tailspin.TypeError;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.Membrane;
 import tailspin.types.TaggedIdentifier;
 
@@ -10,7 +12,7 @@ public class RegexpMatch implements Membrane {
 
   public static final Membrane stringType = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope) {
+    public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
       Object baseValue = toMatch;
       if (baseValue instanceof TaggedIdentifier t) baseValue = t.getValue();
       return (baseValue instanceof String) ? toMatch : null;
@@ -31,8 +33,15 @@ public class RegexpMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     String pattern = (String) patternValue.getResults(it, scope);
+    if (typeBound == null) {
+      typeBound = TypeBound.of(tag == null ? DataDictionary.getDefaultTypeCriterion(null, "", scope.getLocalDictionary())
+          : scope.getLocalDictionary().getDataDefinition(tag));
+    }
+    if (typeBound != null && !typeBound.isInBound(toMatch, it, scope)) {
+      throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " not matching expected type bound " + typeBound + " in " + this);
+    }
 
     String stringToMatch;
     if (toMatch instanceof TaggedIdentifier t) {

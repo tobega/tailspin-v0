@@ -17,7 +17,7 @@ public class StructureMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope) {
+  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     if (!(toMatch instanceof Structure structureToMatch)) return null;
     for (Map.Entry<String, Membrane> keyMatch : keyConditions.entrySet()) {
       if (!structureToMatch.containsKey(keyMatch.getKey())) {
@@ -27,13 +27,11 @@ public class StructureMatch implements Membrane {
         return null;
       }
       Object valueToMatch = structureToMatch.get(keyMatch.getKey());
-      // try context-elided tag first
-      if (valueToMatch instanceof TaggedIdentifier t && t.getTag().equals(keyMatch.getKey())) {
-        if (null != keyMatch.getValue().permeate(t.getValue(), it, scope)) {
-          continue;
-        }
+      TypeBound keyType = TypeBound.inContext(keyMatch.getKey(), scope.getLocalDictionary().getDataDefinition(keyMatch.getKey()));
+      if (valueToMatch instanceof String || valueToMatch instanceof Long) {
+        valueToMatch = new TaggedIdentifier(keyMatch.getKey(), valueToMatch);
       }
-      if (null == keyMatch.getValue().permeate(valueToMatch, it, scope)) {
+      if (null == keyMatch.getValue().permeate(valueToMatch, it, scope, keyType)) {
         return null;
       }
     }

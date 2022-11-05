@@ -64,7 +64,7 @@ public class Templates implements Transform {
       throw new NullPointerException("Attempt to use templates " + name + " as a source");
     }
     for (MatchTemplate match : matchTemplates) {
-      Object matching = match.matcher.permeate(it, it, scope);
+      Object matching = match.matcher.permeate(it, it, scope, null);
       if (matching != null) {
         return Optional.of(match.block.getResults(matching, new NestedScope(scope)));
       }
