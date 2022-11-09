@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import tailspin.TypeError;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.AnyOf;
@@ -28,7 +29,6 @@ public class DataDictionary {
   private static final Membrane stringMatch = new Membrane() {
     @Override
     public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
-      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
       return (toMatch instanceof String) ? toMatch : null;
     }
 
@@ -41,7 +41,6 @@ public class DataDictionary {
   private static final Membrane numberMatch = new Membrane() {
     @Override
     public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
-      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
       return (toMatch instanceof Long) ? toMatch : null;
     }
 
@@ -122,7 +121,7 @@ public class DataDictionary {
     }
   }
 
-  private static final Membrane exists = new AnyOf(false, TypeBound.ANY, List.of());
+  private static final Membrane exists = new AnyOf(false, TypeBound.any(), List.of());
 
   public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
@@ -186,14 +185,14 @@ public class DataDictionary {
       dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
     }
-    if (data instanceof String || data instanceof Long) {
+    Object result = def.permeate(data, null, scope, TypeBound.anyInContext(key));
+    if (result == null) {
+      throw new TypeError("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
+    }
+    if (data instanceof Long || data instanceof String) {
       data = new TaggedIdentifier(key, data);
     }
-    Object result = def.permeate(data, null, scope, null);
-    if (result == null) {
-      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
-    }
-    return result;
+    return data;
   }
 
   private boolean isKeyDefined(String key) {

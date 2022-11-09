@@ -503,7 +503,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public TypeBound visitTypeBound(TailspinParser.TypeBoundContext ctx) {
     if (ctx == null) return null;
-    if (ctx.typeMatch() == null) return TypeBound.ANY;
+    if (ctx.typeMatch() == null) return TypeBound.any();
     return TypeBound.of((Membrane) visit(ctx.typeMatch()));
   }
 

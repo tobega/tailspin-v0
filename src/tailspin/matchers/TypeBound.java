@@ -6,7 +6,8 @@ import tailspin.types.TaggedIdentifier;
 
 public class TypeBound {
 
-  public static final TypeBound ANY = new TypeBound(null, (Object toMatch, Object it, Scope scope, TypeBound bound) -> toMatch);
+  private static final Membrane anyMatch = (Object toMatch, Object it, Scope scope, TypeBound bound) -> toMatch;
+
   private final String tag;
   private final Membrane bound;
 
@@ -15,13 +16,13 @@ public class TypeBound {
     this.bound = bound;
   }
 
-  public boolean isInBound(Object toMatch, Object it, Scope scope) {
+  public boolean outOfBound(Object toMatch, Object it, Scope scope) {
     if (tag != null && (toMatch instanceof String || toMatch instanceof Long)) {
       toMatch = new TaggedIdentifier(tag, toMatch);
     }
-    Object result = bound.permeate(toMatch, it, scope, ANY);
+    Object result = bound.permeate(toMatch, it, scope, any());
     // For autotyping to work, a tag can match "raw"
-    return result != null;
+    return result == null;
   }
 
   @Override
@@ -35,5 +36,17 @@ public class TypeBound {
 
   public static TypeBound of(Membrane bound) {
     return bound == null ? null : new TypeBound(null, bound);
+  }
+
+  public static TypeBound any() {
+    return new TypeBound(null, anyMatch);
+  }
+
+  public static TypeBound anyInContext(String tag) {
+    return new TypeBound(tag, anyMatch);
+  }
+
+  public String contextTag() {
+    return tag;
   }
 }

@@ -28,8 +28,8 @@ public class StructureMatch implements Membrane {
       }
       Object valueToMatch = structureToMatch.get(keyMatch.getKey());
       TypeBound keyType = TypeBound.inContext(keyMatch.getKey(), scope.getLocalDictionary().getDataDefinition(keyMatch.getKey()));
-      if (valueToMatch instanceof String || valueToMatch instanceof Long) {
-        valueToMatch = new TaggedIdentifier(keyMatch.getKey(), valueToMatch);
+      if (valueToMatch instanceof TaggedIdentifier t && t.getTag().equals(keyMatch.getKey())) {
+        valueToMatch = t.getValue();
       }
       if (null == keyMatch.getValue().permeate(valueToMatch, it, scope, keyType)) {
         return null;

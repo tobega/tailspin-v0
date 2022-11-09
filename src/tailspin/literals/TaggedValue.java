@@ -17,12 +17,12 @@ public class TaggedValue implements Value {
 
   @Override
   public Object getResults(Object it, Scope scope) {
-    Object result = scope.getLocalDictionary().checkDataDefinition(tag, value.getResults(it, scope), scope);
-    if (result instanceof TaggedIdentifier t) {
-      if (t.getTag().equals(tag)) return result;
-      throw new IllegalArgumentException("Assigned tag " + tag + " does not match " + DataDictionary.formatErrorValue(t));
+    Object resolved = value.getResults(it, scope);
+    Object result = scope.getLocalDictionary().checkDataDefinition(tag, resolved, scope);
+    if (result == null) {
+      throw new IllegalArgumentException("Assigned tag " + tag + " does not match " + DataDictionary.formatErrorValue(resolved));
     }
-    throw new IllegalArgumentException("Bad tag " + tag + " assigned for " + value);
+    return new TaggedIdentifier(tag, resolved);
   }
 
   @Override

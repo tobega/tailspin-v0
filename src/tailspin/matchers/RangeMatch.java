@@ -47,17 +47,20 @@ public class RangeMatch implements Membrane {
 
   @Override
   public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
-    if (typeBound != null && !typeBound.isInBound(toMatch, null, scope)) {
+    if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
       throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
+    }
+    if (typeBound != null && toMatch instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
+      toMatch = t.getValue();
     }
     if (lowerBound != null) {
       Object low = lowerBound.value.getResults(it, scope);
       if (typeBound == null) {
         typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, low, scope.getLocalDictionary()));
-        if (typeBound != null && !typeBound.isInBound(toMatch, null, scope)) {
+        if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
           throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
         }
-      } else if (!typeBound.isInBound(low, null, scope)) {
+      } else if (typeBound.outOfBound(low, null, scope)) {
         throw new TypeError("Lower bound in " + this + " is not in expected type bound " + typeBound);
       }
       toMatch = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low);
@@ -67,10 +70,10 @@ public class RangeMatch implements Membrane {
       Object high = upperBound.value.getResults(it, scope);
       if (typeBound == null) {
         typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, high, scope.getLocalDictionary()));
-        if (typeBound != null && !typeBound.isInBound(toMatch, null, scope)) {
+        if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
           throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
         }
-      } else if (!typeBound.isInBound(high, null, scope)) {
+      } else if (typeBound.outOfBound(high, null, scope)) {
         throw new TypeError("Upper bound in " + this + " is not in expected type bound " + typeBound);
       }
       toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high);
@@ -125,11 +128,7 @@ public class RangeMatch implements Membrane {
         return null;
       }
     }
-    else if (lhs instanceof TaggedIdentifier l) {
-      toMatch = l.getValue();
-      lhs = toMatch;
-    }
-    else if (rhs instanceof TaggedIdentifier) {
+    else if (lhs instanceof TaggedIdentifier || rhs instanceof TaggedIdentifier) {
       return null;
     }
     else if (lhs instanceof Measure l && rhs instanceof Measure r) {

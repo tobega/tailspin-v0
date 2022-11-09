@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import tailspin.Tailspin;
+import tailspin.TypeError;
 
 public class TaggedIdentifier {
 
@@ -30,7 +31,7 @@ public class TaggedIdentifier {
   @Test
   void taggedStringOtherNameFails() {
     String program = "{id: 'abc', city: 'London'} -> { id: $.city } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
+    assertThrows(TypeError.class, () -> {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -56,7 +57,7 @@ public class TaggedIdentifier {
   @Test
   void inlineTaggedStringOtherNameFails() {
     String program = "{city: 'London'} -> { city: boy´ 'John' } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
+    assertThrows(TypeError.class, () -> {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -88,7 +89,7 @@ public class TaggedIdentifier {
       data city <'[A-Z].*'>
       city´ 'madrid' -> !OUT::write
     """;
-    assertThrows(Exception.class, () -> {
+    assertThrows(TypeError.class, () -> {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -103,7 +104,7 @@ public class TaggedIdentifier {
     String program = """
       city´ 'madrid' -> {city: 123} -> !OUT::write
     """;
-    assertThrows(Exception.class, () -> {
+    assertThrows(TypeError.class, () -> {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -168,7 +169,7 @@ public class TaggedIdentifier {
   @Test
   void dereferencedTaggedStringOtherNameFails() {
     String program = "{id: 'abc', city: 'London'} -> $.city -> { id: $ } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
+    assertThrows(TypeError.class, () -> {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -236,7 +237,7 @@ public class TaggedIdentifier {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -255,7 +256,7 @@ public class TaggedIdentifier {
   @Test
   void taggedNumberOtherNameFails() {
     String program = "{id: 1234, city_id: 3456} -> { id: $.city_id } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
+    assertThrows(TypeError.class, () -> {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -281,7 +282,7 @@ public class TaggedIdentifier {
   @Test
   void inlineTaggedNumberOtherNameFails() {
     String program = "{id: 1234} -> { id: qty´ 9876 } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
+    assertThrows(TypeError.class, () -> {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -313,7 +314,7 @@ public class TaggedIdentifier {
       data roll <1..6>
       roll´ 7 -> !OUT::write
     """;
-    assertThrows(Exception.class, () -> {
+    assertThrows(TypeError.class, () -> {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -328,7 +329,7 @@ public class TaggedIdentifier {
     String program = """
       id´ 1234 -> {id: 'abc'} -> !OUT::write
     """;
-    assertThrows(Exception.class, () -> {
+    assertThrows(TypeError.class, () -> {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -354,7 +355,7 @@ public class TaggedIdentifier {
   @Test
   void dereferencedTaggedNumberOtherNameFails() {
     String program = "{id: 1234, city_id: 3456} -> $.city_id -> { id: $ } -> !OUT::write";
-    assertThrows(Exception.class, () -> {
+    assertThrows(TypeError.class, () -> {
       Tailspin runner =
           Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -388,7 +389,7 @@ public class TaggedIdentifier {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -696,7 +697,7 @@ public class TaggedIdentifier {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -957,7 +958,7 @@ public class TaggedIdentifier {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test

@@ -39,7 +39,7 @@ public class RegexpMatch implements Membrane {
       typeBound = TypeBound.of(tag == null ? DataDictionary.getDefaultTypeCriterion(null, "", scope.getLocalDictionary())
           : scope.getLocalDictionary().getDataDefinition(tag));
     }
-    if (typeBound != null && !typeBound.isInBound(toMatch, it, scope)) {
+    if (typeBound != null && typeBound.outOfBound(toMatch, it, scope)) {
       throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " not matching expected type bound " + typeBound + " in " + this);
     }
 

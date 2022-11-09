@@ -19,14 +19,11 @@ public class DefinedTag implements Membrane {
   @Override
   public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     if (toMatch instanceof String || toMatch instanceof Long) {
-      return null;
+      if (typeBound == null || !tag.equals(typeBound.contextTag())) return null;
+    } else if (toMatch instanceof TaggedIdentifier t && t.getTag().equals(tag)) {
+      toMatch = t.getValue();
     }
     Object result = baseType.permeate(toMatch, null, definingScope, typeBound);
-    // For autotyping to work, a tag can match "raw"
-    if (result instanceof String || result instanceof Long) {
-      if (toMatch instanceof TaggedIdentifier t && t.getTag().equals(tag)) return toMatch;
-      return null;
-    }
     return result == null ? null : toMatch;
   }
 

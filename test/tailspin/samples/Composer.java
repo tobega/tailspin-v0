@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import tailspin.Tailspin;
+import tailspin.TypeError;
 
 class Composer {
   @Test
@@ -92,7 +93,7 @@ class Composer {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -151,7 +152,7 @@ class Composer {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -231,7 +232,7 @@ class Composer {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -265,7 +266,7 @@ class Composer {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -910,7 +911,7 @@ class Composer {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test

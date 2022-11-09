@@ -255,7 +255,7 @@ class TypeBounds {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
