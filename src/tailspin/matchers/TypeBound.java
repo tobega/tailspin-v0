@@ -6,7 +6,7 @@ import tailspin.types.TaggedIdentifier;
 
 public class TypeBound {
 
-  private static final Membrane anyMatch = (Object toMatch, Object it, Scope scope, TypeBound bound) -> toMatch;
+  public static final Membrane ANY_MATCH = (Object toMatch, Object it, Scope scope, TypeBound bound) -> toMatch;
 
   private final String tag;
   private final Membrane bound;
@@ -39,11 +39,11 @@ public class TypeBound {
   }
 
   public static TypeBound any() {
-    return new TypeBound(null, anyMatch);
+    return new TypeBound(null, ANY_MATCH);
   }
 
   public static TypeBound anyInContext(String tag) {
-    return new TypeBound(tag, anyMatch);
+    return new TypeBound(tag, ANY_MATCH);
   }
 
   public String contextTag() {

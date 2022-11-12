@@ -15,6 +15,7 @@ import tailspin.matchers.CollectionCriterionFactory;
 import tailspin.matchers.CollectionSegmentCriterion;
 import tailspin.matchers.DefinedTag;
 import tailspin.matchers.MultipliedCollectionCriterion;
+import tailspin.matchers.OneElementMatch;
 import tailspin.matchers.RangeMatch;
 import tailspin.matchers.StructureMatch;
 import tailspin.matchers.TypeBound;
@@ -89,24 +90,24 @@ public class DataDictionary {
     }
 
     private static class AllTheSameContent implements CollectionCriterionFactory {
-      private final DiscoveredContent discoveredContent;
+      private final CollectionSegmentCriterion contentCriterion;
 
-      public AllTheSameContent(DataDictionary dictionary) {
-        discoveredContent = new DiscoveredContent(dictionary);
+      public AllTheSameContent(CollectionSegmentCriterion contentCriterion) {
+        this.contentCriterion = contentCriterion;
       }
 
       @Override
       public CollectionCriterion newCriterion() {
-        return new MultipliedCollectionCriterion(discoveredContent, RangeMatch.ANY_AMOUNT);
+        return new MultipliedCollectionCriterion(contentCriterion, RangeMatch.ANY_AMOUNT);
       }
 
       @Override
       public String toString() {
-        return "<" + discoveredContent + ">*";
+        return "<" + contentCriterion + ">*";
       }
     }
 
-    public AutotypedArray(Object offset, DataDictionary dictionary) {
+    public AutotypedArray(Object offset, CollectionSegmentCriterion contentCriterion) {
       super(new Value() {
         @Override
         public Object getResults(Object it, Scope scope) {
@@ -117,7 +118,7 @@ public class DataDictionary {
         public String toString() {
           return formatErrorValue(offset);
         }
-      }, null, List.of(new AllTheSameContent(dictionary)), true);
+      }, null, List.of(new AllTheSameContent(contentCriterion)), true);
     }
   }
 
@@ -139,7 +140,15 @@ public class DataDictionary {
       return tag == null ? numberMatch : new DefinedTag(tag, numberMatch, null);
     }
     if (data instanceof TailspinArray a) {
-      return new AutotypedArray(a.getOffset(), dictionary);
+      CollectionSegmentCriterion contentCriterion;
+      if (a.length() > 0) {
+        Membrane contentMatcher = getDefaultTypeCriterion(null, a.getNative(0), dictionary);
+        // Some types not yet default typed, so may be null
+        contentCriterion = new OneElementMatch(contentMatcher == null ? TypeBound.ANY_MATCH : contentMatcher);
+      } else {
+        contentCriterion = new AutotypedArray.DiscoveredContent(dictionary);
+      }
+      return new AutotypedArray(a.getOffset(), contentCriterion);
     }
     if (data instanceof Structure s) {
       return new StructureMatch(s.keySet().stream().collect(Collectors.toMap(Function.identity(), (k) -> exists)), false);
@@ -150,6 +159,7 @@ public class DataDictionary {
     if (data instanceof TaggedIdentifier t) {
       return dictionary.getDataDefinition(t.getTag());
     }
+    // TODO: match remaining types
     return null;
   }
 

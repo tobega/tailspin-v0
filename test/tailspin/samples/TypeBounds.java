@@ -158,6 +158,65 @@ class TypeBounds {
     assertEquals("ok", output.toString(StandardCharsets.UTF_8));
   }
 
+  @ParameterizedTest
+  @MethodSource(value = "mismatchedEqualType")
+  void mismatchedArrayEqualType(String value, String rhs) throws IOException {
+    String program = String.join("",
+        "[", value, "] -> \\(when <=[",rhs,"]> do $ ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @ParameterizedTest
+  @MethodSource(value = "sameEqualType")
+  void sameArrayEqualType(String value) throws IOException {
+    String program = String.join("",
+        "[", value, "] -> \\(when <=[",value,"]> do 'ok' ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ParameterizedTest
+  @MethodSource(value = "mismatchedRangeType")
+  void arrayEqualMatchWithinTypeBounds(String value, String rhs) throws IOException {
+    String program = String.join("",
+        "data rangeable <[<..|''>]>\n",
+        "[", value, "] -> \\(when <´rangeable´ =[",rhs,"]> do 'no'! otherwise 'ok' ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @ParameterizedTest
+  @MethodSource(value = "mismatchedEqualType")
+  void arrayEqualMatchAnyType(String value, String rhs) throws IOException {
+    String program = String.join("",
+        "[", value, "] -> \\(when <´´ =[",rhs,"]> do 'no'! otherwise 'ok' ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
   @Test
   void rangeMatchWithUntypedUpperBoundIsError() throws Exception {
     String program = """
