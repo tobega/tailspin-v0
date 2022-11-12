@@ -87,7 +87,7 @@ class TypeBounds {
     assertEquals("ok", output.toString(StandardCharsets.UTF_8));
   }
 
-  private static final List<String> compoundEqualTypes = List.of("{num: 8}", "{char: 'h'}", "[8]", "['h']");
+  private static final List<String> compoundEqualTypes = List.of("{num: 8}", "{char: 'h'}", "[8]");
 
   private static Stream<Arguments> mismatchedEqualType() {
     return Stream.concat(rangeTypes.stream(), compoundEqualTypes.stream())
@@ -107,6 +107,7 @@ class TypeBounds {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
+
   private static Stream<String> sameEqualType() {
     return Stream.concat(rangeTypes.stream(), compoundEqualTypes.stream());
   }
@@ -156,41 +157,6 @@ class TypeBounds {
 
     assertEquals("ok", output.toString(StandardCharsets.UTF_8));
   }
-
-  // parametrize array equality
-  @Test
-  void errorForRawStringToTaggedStringInArrayEquality() throws Exception {
-    String program = """
-    def foo: {city: 'London'};
-    ['London'] -> \\(
-      <=[$foo.city]> 'yes'!
-      <> 'no'!
-    \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void taggedStringComparedToRawStringInArrayEqualityIsError() throws Exception {
-    String program = """
-    {city: 'London'} -> [$.city] -> \\(
-      <=['London']> 'yes'!
-      <> 'no'!
-    \\) -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(Exception.class, () -> runner.run(input, output, List.of()));
-  }
-  // parametrize array equality
 
   @Test
   void rangeMatchWithUntypedUpperBoundIsError() throws Exception {

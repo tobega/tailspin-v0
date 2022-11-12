@@ -45,10 +45,8 @@ public class RegexpMatch implements Membrane {
 
     String stringToMatch;
     if (toMatch instanceof TaggedIdentifier t) {
-      if (tag == null && t.getValue() instanceof String s) {
-        toMatch = s;
-        stringToMatch = s;
-      } else if (t.getTag().equals(tag) && t.getValue() instanceof String s) stringToMatch = s;
+      if (t.getTag().equals(tag) && t.getValue() instanceof String s) stringToMatch = s;
+      else if (t.getTag().equals(typeBound.contextTag()) && t.getValue() instanceof String s) stringToMatch = s;
       else return null;
     } else if (toMatch instanceof String s) {
       if (tag != null) return null;
