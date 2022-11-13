@@ -351,4 +351,141 @@ class TypeBounds {
     assertEquals("yes", output.toString(StandardCharsets.UTF_8));
   }
 
+  private static final List<String> typeMatches = List.of("..", "''", "[]", "{}");
+
+  private static Stream<Arguments> typeMatchNeverErrors() {
+    return Stream.concat(rangeTypes.stream(), compoundEqualTypes.stream()).flatMap(v -> typeMatches.stream()
+        .filter(b -> !b.equals(v)).map(b ->Arguments.of(v, b)));
+  }
+
+  @ParameterizedTest
+  @MethodSource
+  void typeMatchNeverErrors(String value, String matcher) throws IOException {
+    String program = String.join("",
+        value, " -> \\(when <",matcher,"> do 'ok' ! otherwise 'ok'! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  private static Stream<String> nonArrayValues() {
+    return Stream.concat(rangeTypes.stream(), compoundEqualTypes.stream()).filter(s -> !s.startsWith("["));
+  }
+
+  @ParameterizedTest
+  @MethodSource(value = "nonArrayValues")
+  void arrayLengthHasDefaultArrayBounds(String value) throws IOException {
+    String program = String.join("",
+        value, " -> \\(when <[](1)> do $ ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @ParameterizedTest
+  @MethodSource(value = "nonArrayValues")
+  void arrayOffsetHasDefaultArrayBounds(String value) throws IOException {
+    String program = String.join("",
+        value, " -> \\(when <1:[]> do $ ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @ParameterizedTest
+  @MethodSource(value = "nonArrayValues")
+  void arrayContentHasDefaultArrayBounds(String value) throws IOException {
+    String program = String.join("",
+        value, " -> \\(when <[<>]> do $ ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  private static Stream<String> nonStructureValues() {
+    return Stream.concat(rangeTypes.stream(), compoundEqualTypes.stream()).filter(s -> !s.startsWith("{"));
+  }
+
+  @ParameterizedTest
+  @MethodSource(value = "nonStructureValues")
+  void structureContentHasDefaultStructureBounds(String value) throws IOException {
+    String program = String.join("",
+        value, " -> \\(when <{foo: <=1>}> do $ ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void notSubtypeStructureIsTypeError() throws IOException {
+    String program = "{bar: 7} -> \\(when <{foo: <=1>}> do $ ! \\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void subtypeStructureCanMismatch() throws IOException {
+    String program = "{bar: 7, foo: 6} -> \\(when <{foo: <=1>}> do 'fail' ! otherwise 'ok' ! \\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void notSubtypeStructureWithinTypeBoundCanMismatch() throws IOException {
+    String program = "{bar: 7, foo: 6} -> \\(when <´{}´ {foo: <=1>}> do 'fail' ! otherwise 'ok' ! \\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  private static Stream<String> anyValues() {
+    return Stream.concat(rangeTypes.stream(), compoundEqualTypes.stream());
+  }
+
+  @ParameterizedTest
+  @MethodSource(value = "anyValues")
+  void voidStructureHasAnyTypeBound(String value) throws IOException {
+    String program = String.join("",
+        value, " -> \\(when <{VOID}> do 'fail' ! otherwise 'ok' ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
 }

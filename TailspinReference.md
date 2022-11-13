@@ -699,8 +699,9 @@ It is advisable to use as narrow type bounds as possible, but if needed, use the
 This is how the default type bound is determined for different types of matchers:
 - Equality and range: the autotype of the expected values
 - regex match: the tag in the matcher, or raw string if none given.
-
-TODO: this is work in progress
+- basic type matchers `..`, `''`, `[]` and `{}` allow any type
+- array match beyond basic type match (not just `[]`) has array type `[]` bound
+- structure match by default requires all matched fields to be present (or absent, if so specified). If there are no field matchers, any type is allowed (which implies `{VOID}` can function as a null value)
 
 ### Multipliers
 Composer matchers and array content matchers can have multipliers attached:

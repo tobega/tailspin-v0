@@ -2,7 +2,9 @@ package tailspin.matchers;
 
 import java.util.Map;
 import java.util.stream.Collectors;
+import tailspin.TypeError;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.Membrane;
 import tailspin.types.Structure;
 import tailspin.types.TaggedIdentifier;
@@ -11,6 +13,22 @@ public class StructureMatch implements Membrane {
   private final Map<String, Membrane> keyConditions;
   private final boolean allowExcessKeys;
 
+  private class SubType implements Membrane {
+    @Override
+    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+      if (!(toMatch instanceof Structure structureToMatch)) return false;
+      for (Map.Entry<String, Membrane> keyMatch : keyConditions.entrySet()) {
+        if (!structureToMatch.containsKey(keyMatch.getKey())) {
+          if  (keyMatch.getValue() == AlwaysFalse.INSTANCE) {
+            continue;
+          }
+          return false;
+        }
+      }
+      return (allowExcessKeys || structureToMatch.keySet().stream().allMatch(keyConditions::containsKey));
+    }
+  }
+
   public StructureMatch(Map<String, Membrane> keyConditions, boolean allowExcessKeys) {
     this.keyConditions = keyConditions;
     this.allowExcessKeys = allowExcessKeys;
@@ -18,6 +36,12 @@ public class StructureMatch implements Membrane {
 
   @Override
   public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    if (typeBound == null) {
+      typeBound = keyConditions.isEmpty() ? TypeBound.any() : TypeBound.of(new SubType());
+    }
+    if (typeBound.outOfBound(toMatch, it, scope)) {
+      throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not a subtype of expected structure in " + this);
+    }
     if (!(toMatch instanceof Structure structureToMatch)) return false;
     for (Map.Entry<String, Membrane> keyMatch : keyConditions.entrySet()) {
       if (!structureToMatch.containsKey(keyMatch.getKey())) {

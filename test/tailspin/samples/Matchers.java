@@ -131,7 +131,7 @@ class Matchers {
 
   @Test
   void structureMatchPropertyExists() throws Exception {
-    String program = "{ a: 1 } -> \\(<{ a1: <=1> }> 'no!'! <{ a:<> }> 'yes'! <> 'no'!\\) -> !OUT::write";
+    String program = "{ a: 1 } -> \\(<´{}´ { a1: <=1> }> 'no!'! <{ a:<> }> 'yes'! <> 'no'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -144,7 +144,7 @@ class Matchers {
 
   @Test
   void structureMatchNonExistentPropertyCannotMatchTheAnyMatcher() throws Exception {
-    String program = "{ a: 1 } -> \\(<{ b: <> }> 'no!'! <> 'yes'!\\) -> !OUT::write";
+    String program = "{ a: 1 } -> \\(<´{}´ { b: <> }> 'no!'! <> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -196,7 +196,7 @@ class Matchers {
 
   @Test
   void structureVoidMatcherFailsWithExtraContent() throws Exception {
-    String program = "{ a: 1, b: 2, c: 3 } -> \\(<{ a: <>, b: <> VOID}> 'no' ! <> 'yes'!\\) -> !OUT::write";
+    String program = "{ a: 1, b: 2, c: 3 } -> \\(<´{}´ { a: <>, b: <> VOID}> 'no' ! <> 'yes'!\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
