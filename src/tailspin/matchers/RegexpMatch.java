@@ -12,10 +12,10 @@ public class RegexpMatch implements Membrane {
 
   public static final Membrane stringType = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
       Object baseValue = toMatch;
       if (baseValue instanceof TaggedIdentifier t) baseValue = t.getValue();
-      return (baseValue instanceof String) ? toMatch : null;
+      return (baseValue instanceof String);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class RegexpMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     String pattern = (String) patternValue.getResults(it, scope);
     if (typeBound == null) {
       typeBound = TypeBound.of(tag == null ? DataDictionary.getDefaultTypeCriterion(null, "", scope.getLocalDictionary())
@@ -47,15 +47,15 @@ public class RegexpMatch implements Membrane {
     if (toMatch instanceof TaggedIdentifier t) {
       if (t.getTag().equals(tag) && t.getValue() instanceof String s) stringToMatch = s;
       else if (t.getTag().equals(typeBound.contextTag()) && t.getValue() instanceof String s) stringToMatch = s;
-      else return null;
+      else return false;
     } else if (toMatch instanceof String s) {
-      if (tag != null) return null;
+      if (tag != null) return false;
       stringToMatch = s;
-    } else return null;
+    } else return false;
     Pattern compiled =
         Pattern.compile(
             "\\A" + pattern + "\\z", Pattern.UNICODE_CHARACTER_CLASS + Pattern.CANON_EQ + Pattern.DOTALL);
-    return compiled.matcher(stringToMatch).matches() ? toMatch : null;
+    return compiled.matcher(stringToMatch).matches();
   }
 
   @Override

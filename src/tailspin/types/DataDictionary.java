@@ -29,8 +29,8 @@ public class DataDictionary {
 
   private static final Membrane stringMatch = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
-      return (toMatch instanceof String) ? toMatch : null;
+    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+      return (toMatch instanceof String);
     }
 
     @Override
@@ -41,8 +41,8 @@ public class DataDictionary {
 
   private static final Membrane numberMatch = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
-      return (toMatch instanceof Long) ? toMatch : null;
+    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+      return (toMatch instanceof Long);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class DataDictionary {
         if (contentMembrane == null) {
           contentMembrane = getDefaultTypeCriterion(null, toMatch.getNative(0), dictionary);
           return 1;
-        } else if (null != contentMembrane.permeate(toMatch.getNative(0), null, scope, null)) {
+        } else if (contentMembrane.matches(toMatch.getNative(0), null, scope, null)) {
           return 1;
         }
         return 0;
@@ -192,11 +192,11 @@ public class DataDictionary {
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
       def = getDefaultTypeCriterion(key, data, this);
-      dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
+      dataDefinitions.put(key, def);
     }
-    Object result = def.permeate(data, null, scope, TypeBound.anyInContext(key));
-    if (result == null) {
+    // Do this also for values that were just autotyped. For example arrays still need to be tested.
+    if (!def.matches(data, null, scope, TypeBound.anyInContext(key))) {
       throw new TypeError("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
     }
     if (data instanceof Long || data instanceof String) {

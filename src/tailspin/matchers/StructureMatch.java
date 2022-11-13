@@ -17,25 +17,25 @@ public class StructureMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
-    if (!(toMatch instanceof Structure structureToMatch)) return null;
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    if (!(toMatch instanceof Structure structureToMatch)) return false;
     for (Map.Entry<String, Membrane> keyMatch : keyConditions.entrySet()) {
       if (!structureToMatch.containsKey(keyMatch.getKey())) {
         if  (keyMatch.getValue() == AlwaysFalse.INSTANCE) {
           continue;
         }
-        return null;
+        return false;
       }
       Object valueToMatch = structureToMatch.get(keyMatch.getKey());
       TypeBound keyType = TypeBound.inContext(keyMatch.getKey(), scope.getLocalDictionary().getDataDefinition(keyMatch.getKey()));
       if (valueToMatch instanceof TaggedIdentifier t && t.getTag().equals(keyMatch.getKey())) {
         valueToMatch = t.getValue();
       }
-      if (null == keyMatch.getValue().permeate(valueToMatch, it, scope, keyType)) {
-        return null;
+      if (!keyMatch.getValue().matches(valueToMatch, it, scope, keyType)) {
+        return false;
       }
     }
-    return (allowExcessKeys || structureToMatch.keySet().stream().allMatch(keyConditions::containsKey)) ? toMatch : null;
+    return (allowExcessKeys || structureToMatch.keySet().stream().allMatch(keyConditions::containsKey));
   }
 
   @Override

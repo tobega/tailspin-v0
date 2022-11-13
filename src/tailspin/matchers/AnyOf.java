@@ -18,15 +18,15 @@ public class AnyOf implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound contextBound) {
-    if (alternativeCriteria.isEmpty()) return toMatch;
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound contextBound) {
+    if (alternativeCriteria.isEmpty()) return true;
     for (Membrane membrane : alternativeCriteria) {
-      Object alternativeResult = membrane.permeate(toMatch, it, scope, bound == null ? contextBound : bound);
-      if (null != alternativeResult) {
-        return invert ? null : alternativeResult;
+      boolean alternativeResult = membrane.matches(toMatch, it, scope, bound == null ? contextBound : bound);
+      if (alternativeResult) {
+        return !invert;
       }
     }
-    return invert ? toMatch : null;
+    return invert;
   }
 
   @Override

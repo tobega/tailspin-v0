@@ -13,9 +13,8 @@ public class UnitMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
-    if (toMatch instanceof Measure m && unit.equals(m.getUnit())) return toMatch;
-    return null;
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    return toMatch instanceof Measure m && unit.equals(m.getUnit());
   }
 
   @Override

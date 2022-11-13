@@ -14,11 +14,11 @@ public class RangeMatch implements Membrane {
 
   public static final Membrane numberType = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
       Object baseValue = toMatch;
       if (baseValue instanceof Measure m) baseValue = m.getValue();
       else if (baseValue instanceof TaggedIdentifier t) baseValue = t.getValue();
-      return (baseValue instanceof Long) ? toMatch : null;
+      return (baseValue instanceof Long);
     }
 
     @Override
@@ -46,7 +46,8 @@ public class RangeMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    boolean result = false;
     if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
       throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
     }
@@ -63,8 +64,8 @@ public class RangeMatch implements Membrane {
       } else if (typeBound.outOfBound(low, null, scope)) {
         throw new TypeError("Lower bound in " + this + " is not in expected type bound " + typeBound);
       }
-      toMatch = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low);
-      if (toMatch == null) return null;
+      result = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low);
+      if (!result) return false;
     }
     if (upperBound != null) {
       Object high = upperBound.value.getResults(it, scope);
@@ -76,9 +77,9 @@ public class RangeMatch implements Membrane {
       } else if (typeBound.outOfBound(high, null, scope)) {
         throw new TypeError("Upper bound in " + this + " is not in expected type bound " + typeBound);
       }
-      toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high);
+      result = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high);
     }
-    return toMatch;
+    return result;
   }
 
   @Override
@@ -118,32 +119,32 @@ public class RangeMatch implements Membrane {
     public abstract boolean isValid(int comparison);
   }
 
-  public static Object compare(Object toMatch, Comparison comparison, Object rhs) {
+  public static boolean compare(Object toMatch, Comparison comparison, Object rhs) {
     Object lhs = toMatch;
     if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
       if (l.getTag().equals(r.getTag())) {
         lhs = l.getValue();
         rhs = r.getValue();
       } else {
-        return null;
+        return false;
       }
     }
     else if (lhs instanceof TaggedIdentifier || rhs instanceof TaggedIdentifier) {
-      return null;
+      return false;
     }
     else if (lhs instanceof Measure l && rhs instanceof Measure r) {
       if (l.getUnit().equals(r.getUnit())) {
         lhs = l.getValue();
         rhs = r.getValue();
       } else {
-        return null;
+        return false;
       }
     }
     else if (lhs instanceof Measure) {
-      return null;
+      return false;
     }
     else if (rhs instanceof Measure) {
-      return null;
+      return false;
     }
 
     boolean matches = false;
@@ -160,6 +161,6 @@ public class RangeMatch implements Membrane {
         matches = comparison.isValid(comparable.compareTo(rhs));
       }
     }
-    return matches ? toMatch : null;
+    return matches;
   }
 }

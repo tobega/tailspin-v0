@@ -28,20 +28,20 @@ public class ArrayMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
-    if (!(toMatch instanceof TailspinArray listToMatch)) return null;
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    if (!(toMatch instanceof TailspinArray listToMatch)) return false;
     if (offset != null) {
-      if (listToMatch.getOffset() == null) return null;
-      if (offset instanceof Value v && !Objects.equals(v.getResults(it, scope), listToMatch.getOffset())) return null;
-      if (offset instanceof Unit u && (!(listToMatch.getOffset() instanceof Measure m) || !m.getUnit().equals(u))) return null;
-      if (offset instanceof String s && (!(listToMatch.getOffset() instanceof TaggedIdentifier t) || !t.getTag().equals(s))) return null;
+      if (listToMatch.getOffset() == null) return false;
+      if (offset instanceof Value v && !Objects.equals(v.getResults(it, scope), listToMatch.getOffset())) return false;
+      if (offset instanceof Unit u && (!(listToMatch.getOffset() instanceof Measure m) || !m.getUnit().equals(u))) return false;
+      if (offset instanceof String s && (!(listToMatch.getOffset() instanceof TaggedIdentifier t) || !t.getTag().equals(s))) return false;
     }
     if (lengthMembrane != null
-        && (null == lengthMembrane.permeate((long) listToMatch.length(), it, scope, typeBound))) {
-      return null;
+        && (!lengthMembrane.matches((long) listToMatch.length(), it, scope, typeBound))) {
+      return false;
     }
     if (contentMatcherFactories.isEmpty()) {
-      return toMatch;
+      return true;
     }
     List<CollectionCriterion> criteria = contentMatcherFactories.stream()
         .map(CollectionCriterionFactory::newCriterion).toList();
@@ -56,11 +56,11 @@ public class ArrayMatch implements Membrane {
         }
       }
       if (nothingElseAllowed) {
-        return null;
+        return false;
       }
       tail = tail.tailFromNative(1);
     }
-    return criteria.stream().allMatch(c -> c.isSatisfied(it, scope)) ? toMatch : null;
+    return criteria.stream().allMatch(c -> c.isSatisfied(it, scope));
   }
 
   @Override
