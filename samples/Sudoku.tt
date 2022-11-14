@@ -1,7 +1,9 @@
+data possibilities <0..9|[<0..9>* VOID]>
+
 templates deduceRemainingDigits
   templates findOpenPosition
     @:{options: 10"1"};
-    $ -> \[i;j](when <[](..~$@findOpenPosition.options::raw)> do @findOpenPosition: {row: $i, col: $j, options: ($::length)"1"}; \) -> !VOID
+    $ -> \[i;j](when <´possibilities´ [](..~$@findOpenPosition.options::raw)> do @findOpenPosition: {row: $i, col: $j, options: ($::length)"1"}; \) -> !VOID
     $@ !
   end findOpenPosition
 
@@ -22,8 +24,8 @@ templates deduceRemainingDigits
   when <{options: <=10"1">}> do $@ !
   when <> do def next: $;
      $@ -> selectFirst&{pos: $next} -> deduceRemainingDigits
-        -> \(when <~=[]> do @deduceRemainingDigits: $; {options: 10"1"} !
-          when <=[]> do ^@deduceRemainingDigits($next.row;$next.col;1)
+        -> \(when <~[](0)> do @deduceRemainingDigits: $; {options: 10"1"} !
+          when <[](0)> do ^@deduceRemainingDigits($next.row;$next.col;1)
                -> { $next..., options: $next.options-1"1"} ! \) -> #
 end deduceRemainingDigits
 
@@ -79,13 +81,15 @@ test 'internal solver'
     $sample(row´2..last)...] -> deduceRemainingDigits <=$sample> 'contradiction is backtracked'
 end 'internal solver'
 
+composer toInt <INT> end toInt
+
 composer parseSudoku
   row´1:[<section>=3]
   rule section: <row>=3 (<'-+'>? <WS>?)
   rule row: col´1:[<triple>=3] (<WS>?)
   rule triple: <digit|dot>=3 (<'\|'>?)
-  rule digit: [<'\d'>]
-  rule dot: <'\.'> -> [1..9 -> '$;']
+  rule digit: [<'\d'> -> toInt]
+  rule dot: <'\.'> -> [1..9]
 end parseSudoku
 
 test 'input sudoku'
@@ -103,13 +107,13 @@ def parsed:
  ...|.8.|.79' -> parseSudoku;
 
   assert $parsed <[<[<[]>=9](9)>=9](9)> 'parsed sudoku has 9 rows containing 9 columns of lists'
-  assert $parsed(row´1;col´1) <=['5']> 'a digit'
-  assert $parsed(row´1;col´3) <=['1','2','3','4','5','6','7','8','9']> 'a dot'
+  assert $parsed(row´1;col´1) <=[5]> 'a digit'
+  assert $parsed(row´1;col´3) <=[1..9]> 'a dot'
 end 'input sudoku'
 
 templates solveSudoku
   $ -> parseSudoku -> deduceRemainingDigits -> #
-  when <=[]> do 'No result found' !
+  when <[](0)> do 'No result found' !
   when <> do $ -> \[i](
        '$(col´1..col´3)...;|$(col´4..col´6)...;|$(col´7..col´9)...;$#10;' !
        $i -> \(when <=row´3|=row´6> do '-----------$#10;' !\) !

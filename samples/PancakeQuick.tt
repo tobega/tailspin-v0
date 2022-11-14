@@ -16,7 +16,7 @@ templates pancakeQuick
     def n: $;
     $ - 1 -> #
 
-    when <=0 ?($@ <{break: <>}>)> do
+    when <=0 ?($@ <´{}´{break: <>}>)> do
       $@.break::raw -> !order&{cmp: -$cmp}
       $n -> !flip
       $n - $@.break::raw -> !order&{cmp: $cmp}
@@ -34,26 +34,26 @@ templates pancakeQuick
       $ -> !flip
       $ - 1 -> #
 
-    when <?($@ <{break: <>}>)
+    when <?($@ <´{}´{break: <>}>)
       ?($cmp <=1>)
       ?($@pancakeQuick.stack($) <..$@pancakeQuick.stack($n)>)
-    | ?($@ <{break: <>}>)
+    | ?($@ <´{}´{break: <>}>)
       ?($cmp <=-1>)
       ?($@pancakeQuick.stack($) <$@pancakeQuick.stack($n)..>)
     > do
       $ -> !flip
       ^@.break -> $::raw -> #
 
-    when <?($@ <{break: VOID}>)
+    when <?($@ <´{}´{break: VOID}>)
       ?($cmp <=1>)
       ?($@pancakeQuick.stack($) <..$@pancakeQuick.stack($n)>)
-    | ?($@ <{break: VOID}>)
+    | ?($@ <´{}´{break: VOID}>)
       ?($cmp <=-1>)
       ?($@pancakeQuick.stack($) <$@pancakeQuick.stack($n)..>)
-    | ?($@ <{break: <>}>)
+    | ?($@ <´{}´{break: <>}>)
       ?($cmp <=1>)
       ?($@pancakeQuick.stack($) <$@pancakeQuick.stack($n)~..>)
-    | ?($@ <{break: <>}>)
+    | ?($@ <´{}´{break: <>}>)
       ?($cmp <=-1>)
       ?($@pancakeQuick.stack($) <..~$@pancakeQuick.stack($n)>)
     > do

@@ -58,6 +58,9 @@ public class DataDictionary {
     if (value instanceof TailspinArray a) {
       return formatErrorValue(a.getOffset()) + ":[" + a.stream().map(DataDictionary::formatErrorValue).collect(Collectors.joining(", ")) + "]";
     }
+    if (value instanceof String) {
+      return "'" + value + "'";
+    }
     return value.toString();
   }
 
