@@ -20,6 +20,9 @@ public class Equality implements Membrane {
   @Override
   public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     Object required = value.getResults(it, scope);
+    if (typeBound != null && required instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
+      required = t.getValue();
+    }
     if (typeBound == null) {
       typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, required, scope.getLocalDictionary()));
     } else if (typeBound.outOfBound(required, it, scope)) {
