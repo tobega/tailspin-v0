@@ -613,7 +613,7 @@ See also [type bounds](#type-bounds-for-matching), [measures](#measures) and [ta
 
 * Empty criterion, `<>`, matches anything.
 * Basic type matches: `<{}>` matches any [structure](#structures), `<[]>` matches any [array](#arrays), `<''>` matches any [raw or tagged](#tagged-identifiers) string value,
-  `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures). To match empty structures, use `{VOID}`, for empty arrays, use `[](0)`.
+  `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures), while `""` matches any measure. To match empty structures, use `{VOID}`, for empty arrays, use `[](0)`.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
   Note that matching here creates a tag context in which raw strings or numbers will match if they could be tagged with the name of the defined type, see [tagged identifiers](#tagged-identifiers).
   The name of an [autotyped](#autotyping) field or tag can also be used as a defined type.
@@ -699,7 +699,7 @@ It is advisable to use as narrow type bounds as possible, but if needed, use the
 This is how the default type bound is determined for different types of matchers:
 - Equality and range: the autotype of the expected values
 - regex match: the tag in the matcher, or raw string if none given.
-- basic type matchers `..`, `''`, `[]` and `{}` allow any type
+- basic type matchers `..`, `''`, `""`, `[]` and `{}` allow any type
 - array match beyond basic type match (not just `[]`) has array type `[]` bound
 - structure match by default requires all matched fields to be present (or absent, if so specified). If there are no field matchers, any type is allowed (which implies `{VOID}` can function as a null value)
 

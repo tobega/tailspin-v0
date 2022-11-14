@@ -651,6 +651,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Membrane visitUnitMatch(TailspinParser.UnitMatchContext ctx) {
+    if (ctx.unit() == null) return UnitMatch.ANY_MEASURE;
     return new UnitMatch(visitUnit(ctx.unit()));
   }
 

@@ -14,7 +14,18 @@ import tailspin.types.TailspinArray;
 import tailspin.types.Unit;
 
 public class ArrayMatch implements Membrane {
-  private static final Membrane arrayType = (Object toMatch, Object it, Scope scope, TypeBound bound) -> toMatch instanceof TailspinArray;
+  private static final Membrane arrayType = new Membrane() {
+    @Override
+    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+      return toMatch instanceof TailspinArray;
+    }
+
+    @Override
+    public String toString() {
+      return "any array type";
+    }
+  };
+
   private final Object offset;
   // @Nullable
   private final Membrane lengthMembrane;

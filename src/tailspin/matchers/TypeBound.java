@@ -6,7 +6,17 @@ import tailspin.types.TaggedIdentifier;
 
 public class TypeBound {
 
-  public static final Membrane ANY_MATCH = (Object toMatch, Object it, Scope scope, TypeBound bound) -> true;
+  public static final Membrane ANY_MATCH = new Membrane() {
+    @Override
+    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+      return true;
+    }
+
+    @Override
+    public String toString() {
+      return "any type";
+    }
+  };
 
   private final String tag;
   private final Membrane bound;

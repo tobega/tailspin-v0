@@ -166,7 +166,7 @@ typeMatch: START_STRING END_STRING    # stringTypeMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
   | (arrayOffset|tag Colon|unit Colon)? LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
   | (localIdentifier|externalIdentifier) # stereotypeMatch
-  | unit # unitMatch
+  | (unit |  Quote Quote) # unitMatch
   | LeftParen key structureContentMatcher RightParen # keyValueMatch
 ;
 
@@ -192,7 +192,7 @@ integerLiteral: (Zero | nonZeroInteger) unit?;
 
 unit: Scalar | Quote measureProduct measureDenominator? Quote;
 
-measureProduct: localIdentifier*;
+measureProduct: localIdentifier+;
 
 measureDenominator: Slash measureProduct;
 

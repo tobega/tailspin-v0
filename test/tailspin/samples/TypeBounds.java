@@ -351,7 +351,7 @@ class TypeBounds {
     assertEquals("yes", output.toString(StandardCharsets.UTF_8));
   }
 
-  private static final List<String> typeMatches = List.of("..", "''", "[]", "{}");
+  private static final List<String> typeMatches = List.of("..", "''", "[]", "{}", "\"\"");
 
   private static Stream<Arguments> typeMatchNeverErrors() {
     return Stream.concat(rangeTypes.stream(), compoundEqualTypes.stream()).flatMap(v -> typeMatches.stream()
@@ -479,6 +479,36 @@ class TypeBounds {
   void voidStructureHasAnyTypeBound(String value) throws IOException {
     String program = String.join("",
         value, " -> \\(when <{VOID}> do 'fail' ! otherwise 'ok' ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  private static Stream<String> nonMeasureValues() {
+    return Stream.concat(rangeTypes.stream(), compoundEqualTypes.stream()).filter(s -> !s.endsWith("\""));
+  }
+
+  @ParameterizedTest
+  @MethodSource(value = "nonMeasureValues")
+  void measureContentHasDefaultMeasureBounds(String value) throws IOException {
+    String program = String.join("",
+        value, " -> \\(when <\"1\"> do $ ! \\) -> !OUT::write");
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void otherMeasureCanMismatch() throws IOException {
+    String program = "6\"m\" -> \\(when <\"x\"> do 'fail' ! otherwise 'ok' ! \\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
