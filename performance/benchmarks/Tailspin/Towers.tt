@@ -1,15 +1,17 @@
 include 'harness'
 
+data pile <1..3>
+
 // Tailspin doesn't have nulls, which the java and javascript implementations rely on
 // So this is more Tailspin-like
 templates towers
-  @: {piles: [[$..0:-1 -> $], [], []], moves: 0"1"};
+  @: {piles: pile´1:[[$..0:-1 -> $], [], []], moves: 0"1"};
   sink pushDisk&{pile:}
-    <$@towers.piles($pile::raw)..> $@ ! // Actually throws, there is no $@
-    <> ..|@towers.piles($pile::raw): $;
+    <?($@towers.piles($pile) <[<..$>]>)> $@ ! // Actually throws, there is no $@
+    <> ..|@towers.piles($pile): $;
   end pushDisk
   templates popDisk
-    ^@towers.piles($::raw; last) !
+    ^@towers.piles($; last) !
   end popDisk
   sink moveTopDisk&{to:}
     $ -> popDisk -> !pushDisk&{pile: $to}
@@ -19,12 +21,12 @@ templates towers
     def what: $;
     $.disks -> #
     <=1"1"> $what.from -> !moveTopDisk&{to: $what.to}
-    <> def otherPile: 6 - $what.from::raw - $what.to::raw;
+    <> def otherPile: pile´(6 - $what.from::raw - $what.to::raw);
       {disks: $ - 1"1", from: $what.from, to: $otherPile }  -> !moveDisks
       $what.from -> !moveTopDisk&{to: $what.to}
       {disks: $ - 1"1", from: $otherPile, to: $what.to }  -> !moveDisks
   end moveDisks
-  {disks: 13"1", from: 1, to: 2} -> !moveDisks
+  {disks: 13"1", from: pile´1, to: pile´2} -> !moveDisks
   $@.moves !
 end towers
 

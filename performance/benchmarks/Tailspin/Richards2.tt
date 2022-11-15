@@ -6,8 +6,9 @@ include 'harness'
 data taskList <>
 data identity <1..5>, destination <identity>
 
-def NO_TASK: {};
-def NO_WORK: {};
+data NO_TASK <{VOID}>,
+  NO_WORK <{VOID}>
+def NOTHING: {};
 def WORKER: identity´1;
 def HANDLER_A: identity´2;
 def HANDLER_B: identity´3;
@@ -53,8 +54,8 @@ processor Scheduler&{monitor:}
   def idle: $Idle;
   @: {
     layout: 0,
-    taskTable: identity´1:[1..$NUM_TYPES -> $NO_TASK],
-    taskList: $NO_TASK
+    taskTable: identity´1:[1..$NUM_TYPES -> $NOTHING],
+    taskList: $NOTHING
   };
 
   sink createTask&{task:}
@@ -72,7 +73,7 @@ processor Scheduler&{monitor:}
   templates queuePacket&{currentId:}
     def packet: $;
     $packet.identity -> findTask -> #
-    when <=$NO_TASK> do $NO_TASK !
+    when <NO_TASK> do $NOTHING !
     otherwise
       def t: $;
       1"1" -> !monitor::incrementQueuePacketCount
@@ -82,7 +83,7 @@ processor Scheduler&{monitor:}
 
   templates release
     $ -> findTask -> #
-    when <=$NO_TASK> do $NO_TASK !
+    when <NO_TASK> do $NOTHING !
     otherwise
       def t: $;
       0 -> !t::setTaskHolding
@@ -93,7 +94,7 @@ processor Scheduler&{monitor:}
     $@Scheduler.taskList -> #
     when <?($::isTaskHoldingOrWaiting <=1>)> do
       $::getLink -> \(
-        when <=$NO_TASK> do
+        when <NO_TASK> do
           $idle::getNextTask -> release !
         otherwise $!
       \) -> #
@@ -128,13 +129,13 @@ processor Scheduler&{monitor:}
 end Scheduler
 
 processor DeviceTask&{monitor:}
-  @:$NO_WORK;
+  @:$NOTHING;
   templates function&{holdSelf:, markWaiting:}
-    when <=$NO_WORK> do
+    when <NO_WORK> do
       $@DeviceTask -> \(
-        <=$NO_WORK> 1 -> !markWaiting
+        <NO_WORK> 1 -> !markWaiting
         otherwise
-          @DeviceTask: $NO_WORK;
+          @DeviceTask: $NOTHING;
           $ !
       \) !
     otherwise
@@ -147,7 +148,7 @@ end DeviceTask
 processor HandlerTask
   @: { workIn: [], deviceIn: []};
   templates function&{holdSelf:, markWaiting:}
-    $ -> \(<~=$NO_WORK> $! \)
+    $ -> \(<~NO_WORK> $! \)
       -> \(
         when <?($.kind <=$WORK_PACKET_KIND>)> do
           ..|@HandlerTask.workIn: $;
@@ -199,7 +200,7 @@ end Idle
 processor WorkerTask
   @: {destination: $HANDLER_A, count: 0"1"};
   templates function&{holdSelf:, markWaiting:}
-    when <=$NO_WORK> do 1 -> !markWaiting
+    when <NO_WORK> do 1 -> !markWaiting
     otherwise
       @WorkerTask.destination: $@WorkerTask.destination -> \(<=$HANDLER_A> $HANDLER_B! <> $HANDLER_A!\);
       { kind: $.kind,
@@ -268,7 +269,7 @@ processor TaskControlBlock&{monitor:, link:, task:}
           <=0> ..|@TaskControlBlock: $taskStateRunning;
           <>  ..|@TaskControlBlock: $taskStatePacketPending;
         \) -> !VOID
-      otherwise $NO_WORK !
+      otherwise $NOTHING !
     \) -> task::function&{holdSelf: setTaskHolding, markWaiting: setTaskWaiting} !
   end runTask
 end TaskControlBlock
