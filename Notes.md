@@ -20,6 +20,7 @@
 - Typestates processor should be able to virtually dispatch to current state ('this' keyword?)
 - Composer failures should contain better error information. Partial parsing?
 - Strings should not be comparable in a range match, they should always be compared according to explicit collators.
+- In array selectors, first and last should respond to ::raw
 
 #### Confusing
 * It is a bit difficult to create generic code handling untyped numbers. Perhaps it should be?
@@ -52,8 +53,6 @@ Syntax for creating exceptions and format for error objects TBD (just throw any 
 - Mixed up ..$bound and $bound.., hard to see error
 - Given source abc, hard to see call to $abc when intended $@abc
 - Easy to forget to use the name of the outer template in a simple filter \(<=$@.foo> $ !\)
-- Comparing the wrong type in the branch to stop recursion. In future, a type analysis should catch it,
-  for now you can defensively always stop recursion on the otherwise-branch
 
 ## Illogical?
 - Should we be able to use inline templates as sources and sinks?

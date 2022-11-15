@@ -19,8 +19,8 @@ end lines
 templates collectDeps
   @: { v: [], e: []};
   composer depRecord
-    (<WS>? def node: <~WS>; <WS>? <dep>* <WS>? $node -> ..|@collectDeps.v: {node: $};)
-    rule dep: (<~WS> -> ..|@collectDeps.e: {from: $node, to: $}; <WS>?)
+    (<WS>? def node: <~WS> -> node´$; <WS>? <dep>* <WS>? $node -> ..|@collectDeps.v: {node: $};)
+    rule dep: (<~WS> -> ..|@collectDeps.e: {from: $node, to: node´$}; <WS>?)
   end depRecord
   $(3..last)... -> !depRecord
   $@!

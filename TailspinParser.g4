@@ -56,6 +56,7 @@ source: rangeLiteral
   | LeftParen keyValue RightParen
   | arithmeticValue
   | operatorExpression
+  | taggedValue
 ;
 
 sourceReference: (SourceMarker anyIdentifier? | Reflexive) reference Message? parameterValues?
@@ -69,7 +70,7 @@ lens: LeftParen dimensionReference (SemiColon dimensionReference)*  RightParen;
 
 dimensionReference: simpleDimension|multiValueDimension|projection|key|localIdentifier|grouping;
 
-simpleDimension: sourceReference|arithmeticValue|rangeLiteral;
+simpleDimension: sourceReference|arithmeticValue|rangeLiteral|taggedValue;
 
 multiValueDimension: LeftBracket simpleDimension (Comma simpleDimension)* RightBracket;
 
@@ -81,7 +82,7 @@ collectedValue: key templatesReference;
 
 arrayLiteral: arrayOffset? (LeftBracket RightBracket | LeftBracket arrayExpansion (Comma arrayExpansion)* RightBracket);
 
-arrayOffset: arithmeticValue Colon;
+arrayOffset: ((integerLiteral|sourceReference|term) | tag (integerLiteral|sourceReference|term) | (integerLiteral|sourceReference|term) unit) Colon;
 
 valueProduction: sendToTemplates | valueChain;
 
@@ -153,17 +154,19 @@ transform: To templates transform?
   | collectorChain transform?
 ;
 
-matcher: StartMatcher (Invert? membrane (Else membrane)*)? EndMatcher;
+matcher: StartMatcher (Invert? typeBound? membrane (Else membrane)*)? EndMatcher;
+
+typeBound: Tick typeMatch? Tick;
 
 membrane: (literalMatch | typeMatch) condition* | condition+;
 
 typeMatch: START_STRING END_STRING    # stringTypeMatch
   | rangeBounds                       # rangeMatch
-  | stringLiteral                          # regexpMatch
+  | tag? stringLiteral                          # regexpMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
   | (arrayOffset|tag Colon|unit Colon)? LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
   | (localIdentifier|externalIdentifier) # stereotypeMatch
-  | unit # unitMatch
+  | (unit |  Quote Quote) # unitMatch
   | LeftParen key structureContentMatcher RightParen # keyValueMatch
 ;
 
@@ -179,9 +182,9 @@ rangeBounds: lowerBound? Range upperBound?;
 
 condition: BeginCondition valueChain matcher RightParen;
 
-lowerBound: (sourceReference|arithmeticValue|stringLiteral|term) Invert?;
+lowerBound: tag? (sourceReference|arithmeticValue|stringLiteral|term) Invert?;
 
-upperBound: Invert? (sourceReference|arithmeticValue|stringLiteral|term);
+upperBound: Invert? tag? (sourceReference|arithmeticValue|stringLiteral|term);
 
 rangeLiteral: lowerBound? Range upperBound? (Colon arithmeticValue)?;
 
@@ -189,7 +192,7 @@ integerLiteral: (Zero | nonZeroInteger) unit?;
 
 unit: Scalar | Quote measureProduct measureDenominator? Quote;
 
-measureProduct: localIdentifier*;
+measureProduct: localIdentifier+;
 
 measureDenominator: Slash measureProduct;
 
@@ -197,7 +200,9 @@ nonZeroInteger: additiveOperator? PositiveInteger;
 
 tag: localIdentifier Tick;
 
-stringLiteral: tag? START_STRING stringContent* END_STRING;
+taggedValue: tag (integerLiteral|stringLiteral|sourceReference|term);
+
+stringLiteral: START_STRING stringContent* END_STRING;
 
 stringContent: stringInterpolate | STRING_TEXT;
 
@@ -208,7 +213,7 @@ characterCode: StartCharacterCode arithmeticValue EndStringInterpolate;
 interpolateEvaluate: StartStringInterpolate (anyIdentifier? reference Message? parameterValues? | Colon source)
   transform? (To TemplateMatch)? EndStringInterpolate;
 
-arithmeticValue: tag? arithmeticExpression;
+arithmeticValue: arithmeticExpression;
 
 arithmeticExpression: integerLiteral
   | LeftParen arithmeticExpression RightParen unit?
@@ -230,6 +235,7 @@ additiveOperator: Plus | Minus;
 
 multiplicativeOperator: Star | TruncateDivide | Mod;
 
+// term must only be used in a position that checks a numeric result
 term: LeftParen valueProduction RightParen|operatorExpression;
 
 operatorExpression: LeftParen operand templatesReference operand RightParen;
@@ -263,9 +269,7 @@ structureMemberMatcher: (tokenMatcher|compositionKeyValue) compositionSkipRule*;
 
 tokenMatcher: StartMatcher Invert? compositionToken (Else compositionToken)* EndMatcher multiplier?;
 
-compositionToken: tag? (literalComposition|localIdentifier|stringLiteral) unit?;
-
-literalComposition: Equal (sourceReference|stringLiteral);
+compositionToken: (Equal tag? (sourceReference|stringLiteral)|tag? localIdentifier|tag? stringLiteral) unit?;
 
 multiplier: Plus | Star | Question
   | Equal (PositiveInteger|sourceReference)

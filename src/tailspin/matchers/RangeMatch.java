@@ -1,23 +1,24 @@
 package tailspin.matchers;
 
+import tailspin.TypeError;
 import tailspin.arithmetic.IntegerConstant;
 import tailspin.control.Bound;
 import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
 import tailspin.types.DataDictionary;
-import tailspin.types.Membrane;
 import tailspin.types.Measure;
+import tailspin.types.Membrane;
 import tailspin.types.TaggedIdentifier;
-import tailspin.types.Unit;
 
 public class RangeMatch implements Membrane {
 
   public static final Membrane numberType = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
-      if (toMatch instanceof Measure m) toMatch = m.getValue();
-      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
-      return (toMatch instanceof Long) ? toMatch : null;
+    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+      Object baseValue = toMatch;
+      if (baseValue instanceof Measure m) baseValue = m.getValue();
+      else if (baseValue instanceof TaggedIdentifier t) baseValue = t.getValue();
+      return (baseValue instanceof Long);
     }
 
     @Override
@@ -45,33 +46,40 @@ public class RangeMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
-    Unit unit = null;
-    String tag = null;
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    boolean result = false;
+    if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
+      throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
+    }
+    if (typeBound != null && toMatch instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
+      toMatch = t.getValue();
+    }
     if (lowerBound != null) {
       Object low = lowerBound.value.getResults(it, scope);
-      if (low instanceof Measure m) unit = m.getUnit();
-      if (low instanceof TaggedIdentifier t) tag = t.getTag();
-      toMatch = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low,
-          contextTag, scope);
-      if (toMatch == null) return null;
+      if (typeBound == null) {
+        typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, low, scope.getLocalDictionary()));
+        if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
+          throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
+        }
+      } else if (typeBound.outOfBound(low, null, scope)) {
+        throw new TypeError("Lower bound in " + this + " is not in expected type bound " + typeBound);
+      }
+      result = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low);
+      if (!result) return false;
     }
     if (upperBound != null) {
       Object high = upperBound.value.getResults(it, scope);
-      if (high instanceof Measure m && lowerBound != null) {
-        if (!m.getUnit().equals(unit))
-          throw new IllegalArgumentException("Match lower bound unit " + unit + " incompatible with upper bound " + m);
-      } else if (unit != null)
-        throw new IllegalArgumentException("Match lower bound unit " + unit + " incompatible with upper bound " + high);
-      if (high instanceof TaggedIdentifier t && lowerBound != null) {
-        if (!t.getTag().equals(tag))
-          throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + DataDictionary.formatErrorValue(t));
-      } else if (tag != null)
-        throw new IllegalArgumentException("Match lower bound tag " + tag + " incompatible with upper bound " + high);
-      toMatch = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high,
-          contextTag, scope);
+      if (typeBound == null) {
+        typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, high, scope.getLocalDictionary()));
+        if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
+          throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
+        }
+      } else if (typeBound.outOfBound(high, null, scope)) {
+        throw new TypeError("Upper bound in " + this + " is not in expected type bound " + typeBound);
+      }
+      result = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high);
     }
-    return toMatch;
+    return result;
   }
 
   @Override
@@ -111,51 +119,32 @@ public class RangeMatch implements Membrane {
     public abstract boolean isValid(int comparison);
   }
 
-  public static Object compare(Object toMatch, Comparison comparison, Object rhs, String contextTag, Scope scope) {
+  public static boolean compare(Object toMatch, Comparison comparison, Object rhs) {
     Object lhs = toMatch;
     if (lhs instanceof TaggedIdentifier l && rhs instanceof TaggedIdentifier r) {
       if (l.getTag().equals(r.getTag())) {
         lhs = l.getValue();
         rhs = r.getValue();
-      } else if(contextTag != null) { // type of toMatch should be fine in tag context
-        if(scope.getLocalDictionary().checkDataDefinition(contextTag, r, scope) == null)
-          throw new IllegalArgumentException("Value " + DataDictionary.formatErrorValue(rhs) + " not valid for tag " + contextTag);
-        return null;
-      } else if(scope.getLocalDictionary().checkDataDefinition(r.getTag(), l, scope) != null) {
-        return null;
       } else {
-        throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(l) + " with " + DataDictionary.formatErrorValue(r));
+        return false;
       }
     }
-    else if (lhs instanceof TaggedIdentifier l) {
-      if (contextTag != null && !l.getTag().equals(contextTag)) {
-        Object checkedRhs = scope.getLocalDictionary().checkDataDefinition(contextTag, rhs, scope);
-        if (checkedRhs == null || (checkedRhs instanceof TaggedIdentifier r && !r.getTag().equals(contextTag))) {
-          throw new IllegalArgumentException("Value " + DataDictionary.formatErrorValue(rhs) + " not valid for tag " + contextTag);
-        }
-        return null; // type match shouldn't throw
-      }
-      if (!l.getTag().equals(contextTag) || rhs instanceof Measure) {
-        throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(l) + " with " + DataDictionary.formatErrorValue(rhs));
-      }
-      lhs = l.getValue();
-    }
-    else if (rhs instanceof TaggedIdentifier r) {
-      throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(lhs) + " with " + DataDictionary.formatErrorValue(r));
+    else if (lhs instanceof TaggedIdentifier || rhs instanceof TaggedIdentifier) {
+      return false;
     }
     else if (lhs instanceof Measure l && rhs instanceof Measure r) {
       if (l.getUnit().equals(r.getUnit())) {
         lhs = l.getValue();
         rhs = r.getValue();
       } else {
-        throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(lhs) + " with " + DataDictionary.formatErrorValue(rhs));
+        return false;
       }
     }
-    else if (lhs instanceof Measure && rhs instanceof Long) {
-      throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(lhs) + " with " + DataDictionary.formatErrorValue(rhs));
+    else if (lhs instanceof Measure) {
+      return false;
     }
-    else if (lhs instanceof Long && rhs instanceof Measure) {
-      throw new IllegalArgumentException("Cannot compare " + DataDictionary.formatErrorValue(lhs) + " with " + DataDictionary.formatErrorValue(rhs));
+    else if (rhs instanceof Measure) {
+      return false;
     }
 
     boolean matches = false;
@@ -172,6 +161,6 @@ public class RangeMatch implements Membrane {
         matches = comparison.isValid(comparable.compareTo(rhs));
       }
     }
-    return matches ? toMatch : null;
+    return matches;
   }
 }

@@ -8,23 +8,25 @@ import tailspin.types.Membrane;
 public class AnyOf implements Membrane {
 
   final boolean invert;
+  private final TypeBound bound;
   final List<Membrane> alternativeCriteria;
 
-  public AnyOf(boolean invert, List<Membrane> alternativeCriteria) {
+  public AnyOf(boolean invert, TypeBound bound, List<Membrane> alternativeCriteria) {
     this.invert = invert;
+    this.bound = bound;
     this.alternativeCriteria = alternativeCriteria;
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
-    if (alternativeCriteria.isEmpty()) return toMatch;
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound contextBound) {
+    if (alternativeCriteria.isEmpty()) return true;
     for (Membrane membrane : alternativeCriteria) {
-      Object alternativeResult = membrane.permeate(toMatch, it, scope, contextTag);
-      if (null != alternativeResult) {
-        return invert ? null : alternativeResult;
+      boolean alternativeResult = membrane.matches(toMatch, it, scope, bound == null ? contextBound : bound);
+      if (alternativeResult) {
+        return !invert;
       }
     }
-    return invert ? toMatch : null;
+    return invert;
   }
 
   @Override

@@ -2,6 +2,7 @@ package tailspin.matchers;
 
 import tailspin.interpreter.Scope;
 import tailspin.types.Membrane;
+import tailspin.types.TaggedIdentifier;
 
 public class StereotypeMatch implements Membrane {
 
@@ -12,9 +13,14 @@ public class StereotypeMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     Membrane stereotype = scope.getLocalDictionary().getDataDefinition(identifier);
-    return stereotype.permeate(toMatch, null, null, contextTag);
+    if (toMatch instanceof String || toMatch instanceof Long) {
+      if (typeBound != null && typeBound.contextTag() != null) {
+        toMatch = new TaggedIdentifier(typeBound.contextTag(), toMatch);
+      }
+    }
+    return stereotype.matches(toMatch, null, scope, TypeBound.anyInContext(identifier));
   }
 
   @Override

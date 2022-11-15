@@ -61,6 +61,7 @@ import tailspin.literals.StringConstant;
 import tailspin.literals.StringInterpolation;
 import tailspin.literals.StringLiteral;
 import tailspin.literals.StructureLiteral;
+import tailspin.literals.TaggedValue;
 import tailspin.matchers.AlwaysFalse;
 import tailspin.matchers.AnyOf;
 import tailspin.matchers.ArrayMatch;
@@ -77,6 +78,7 @@ import tailspin.matchers.RegexpMatch;
 import tailspin.matchers.SequenceMatch;
 import tailspin.matchers.StereotypeMatch;
 import tailspin.matchers.StructureMatch;
+import tailspin.matchers.TypeBound;
 import tailspin.matchers.UnitMatch;
 import tailspin.matchers.ValueMatcher;
 import tailspin.matchers.composer.CompositionSpec;
@@ -210,7 +212,27 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.relationLiteral() != null) {
       return visitRelationLiteral(ctx.relationLiteral());
     }
+    if (ctx.taggedValue() != null) {
+      return visitTaggedValue(ctx.taggedValue());
+    }
     throw new UnsupportedOperationException(ctx.getText());
+  }
+
+  @Override
+  public Value visitTaggedValue(TailspinParser.TaggedValueContext ctx) {
+    Value value;
+    if (ctx.integerLiteral() != null) {
+      value = visitIntegerLiteral(ctx.integerLiteral());
+    } else if (ctx.stringLiteral() != null) {
+      value = visitStringLiteral(ctx.stringLiteral());
+    } else if (ctx.sourceReference() != null) {
+      value = Value.of(visitSourceReference(ctx.sourceReference()));
+    } else if (ctx.term() != null) {
+      value = visitTerm(ctx.term());
+    } else {
+      throw new UnsupportedOperationException("Unknown tagged value type " + ctx);
+    }
+    return new TaggedValue(visitTag(ctx.tag()), value);
   }
 
   @Override
@@ -323,6 +345,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         return new RangeArrayLens(visitRangeLiteral(ctx.rangeLiteral()));
       } else if (ctx.sourceReference() != null) {
         return new SingleValueArrayLens(Value.of(visitSourceReference(ctx.sourceReference())));
+      } else if (ctx.taggedValue() != null) {
+        return new SingleValueArrayLens(Value.of(visitTaggedValue(ctx.taggedValue())));
       } else {
         throw new UnsupportedOperationException(
             "Unknown way to dereference array at "
@@ -471,7 +495,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public AnyOf visitMatcher(TailspinParser.MatcherContext ctx) {
-    return new AnyOf(ctx.Invert() != null, ctx.membrane().stream().map(this::visitMembrane).collect(Collectors.toList()));
+    return new AnyOf(ctx.Invert() != null,
+        visitTypeBound(ctx.typeBound()),
+        ctx.membrane().stream().map(this::visitMembrane).collect(Collectors.toList()));
+  }
+
+  @Override
+  public TypeBound visitTypeBound(TailspinParser.TypeBoundContext ctx) {
+    if (ctx == null) return null;
+    if (ctx.typeMatch() == null) return TypeBound.any();
+    return TypeBound.of((Membrane) visit(ctx.typeMatch()));
   }
 
   @Override
@@ -520,7 +553,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Membrane visitRegexpMatch(TailspinParser.RegexpMatchContext ctx) {
-    return new RegexpMatch(visitTag(ctx.stringLiteral().tag()), new StringLiteral(null, collectStringContent(ctx.stringLiteral())));
+    return new RegexpMatch(visitTag(ctx.tag()), new StringLiteral(collectStringContent(ctx.stringLiteral())));
   }
 
   @Override
@@ -570,10 +603,31 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       lengthMembrane = new Equality(visitArithmeticValue(ctx.arithmeticValue()));
     }
     Object offset = null;
-    if (ctx.arrayOffset() != null) offset = visitArithmeticValue(ctx.arrayOffset().arithmeticValue());
+    if (ctx.arrayOffset() != null) offset = visitArrayOffset(ctx.arrayOffset());
     else if (ctx.unit() != null) offset = visitUnit(ctx.unit());
     else if (ctx.tag() != null) offset = visitTag(ctx.tag());
     return new ArrayMatch(offset, lengthMembrane, criterionFactories, ctx.Void() != null);
+  }
+
+  @Override
+  public Value visitArrayOffset(TailspinParser.ArrayOffsetContext ctx) {
+    Value value;
+    if (ctx.integerLiteral() != null) {
+      value = visitIntegerLiteral(ctx.integerLiteral());
+    } else if (ctx.sourceReference() != null) {
+      value = Value.of(visitSourceReference(ctx.sourceReference()));
+    } else if (ctx.term() != null) {
+      value = visitTerm(ctx.term());
+    } else {
+      throw new UnsupportedOperationException("Unknown array offset type " + ctx);
+    }
+    if (ctx.tag() != null) {
+      return new TaggedValue(visitTag(ctx.tag()), value);
+    }
+    if (ctx.unit() != null) {
+      return new MeasureExpression(value, visitUnit(ctx.unit()));
+    }
+    return value;
   }
 
   @Override
@@ -597,6 +651,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Membrane visitUnitMatch(TailspinParser.UnitMatchContext ctx) {
+    if (ctx.unit() == null) return UnitMatch.ANY_MEASURE;
     return new UnitMatch(visitUnit(ctx.unit()));
   }
 
@@ -847,7 +902,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Value visitStringLiteral(TailspinParser.StringLiteralContext ctx) {
-    return new StringLiteral(visitTag(ctx.tag()), collectStringContent(ctx));
+    return new StringLiteral(collectStringContent(ctx));
   }
 
   private List<Value> collectStringContent(TailspinParser.StringLiteralContext ctx) {
@@ -926,7 +981,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Value visitArithmeticValue(TailspinParser.ArithmeticValueContext ctx) {
-    return new ArithmeticValue(visitTag(ctx.tag()), visitArithmeticExpression(ctx.arithmeticExpression()));
+    return new ArithmeticValue(visitArithmeticExpression(ctx.arithmeticExpression()));
   }
 
   @Override
@@ -1060,6 +1115,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
     }
+    if (ctx.tag() != null) {
+      bound = new TaggedValue(visitTag(ctx.tag()), bound);
+    }
     return new Bound(bound, ctx.Invert() == null);
   }
 
@@ -1078,13 +1136,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new UnsupportedOperationException(
           "Cannot extract comparison object at " + ctx.start.getLine() + ":" + ctx.start.getCharPositionInLine());
     }
+    if (ctx.tag() != null) {
+      bound = new TaggedValue(visitTag(ctx.tag()), bound);
+    }
     return new Bound(bound, ctx.Invert() == null);
   }
 
   private static final Value standardOffset = new IntegerConstant(1, null);
   @Override
   public ArrayLiteral visitArrayLiteral(TailspinParser.ArrayLiteralContext ctx) {
-    Value offset = ctx.arrayOffset() == null ? standardOffset : visitArithmeticValue(ctx.arrayOffset().arithmeticValue());
+    Value offset = ctx.arrayOffset() == null ? standardOffset : visitArrayOffset(ctx.arrayOffset());
     return new ArrayLiteral(offset, ctx.arrayExpansion().stream()
         .map(this::visitArrayExpansion)
         .collect(Collectors.toList()));
@@ -1282,7 +1343,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     CompositionSpec spec;
     if (ctx.LeftBracket() != null) {
-      Value offset = ctx.arrayOffset() == null ? standardOffset : visitArithmeticValue(ctx.arrayOffset().arithmeticValue());
+      Value offset = ctx.arrayOffset() == null ? standardOffset : visitArrayOffset(ctx.arrayOffset());
       List<CompositionSpec> contents = new ArrayList<>();
       if (ctx.compositionSequence() != null) {
         contents.addAll(visitCompositionSequence(ctx.compositionSequence()));
@@ -1353,13 +1414,19 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.localIdentifier() != null) {
       String matchRule = ctx.localIdentifier().getText();
       compositionSpec = new SubComposerFactory.NamedComposition(matchRule);
+    } else if (ctx.Equal() != null) {
+      Value literal;
+      if (ctx.stringLiteral() != null) {
+        literal = visitStringLiteral(ctx.stringLiteral());
+      } else if (ctx.sourceReference() != null) {
+        literal = Value.of(visitSourceReference(ctx.sourceReference()));
+      } else {
+        throw new UnsupportedOperationException("Unknown composition literal " + ctx.getText());
+      }
+      compositionSpec = new SubComposerFactory.LiteralComposition(literal);
     } else if (ctx.stringLiteral() != null) {
       Value regex = visitStringLiteral(ctx.stringLiteral());
       compositionSpec = new SubComposerFactory.RegexComposition(regex);
-    } else if (ctx.literalComposition() != null) {
-      Expression expression = (Expression) visit(ctx.literalComposition());
-      Value literal = (expression instanceof Value) ? (Value) expression : Value.of(expression) ;
-      compositionSpec = new SubComposerFactory.LiteralComposition(literal);
     } else {
       throw new UnsupportedOperationException("Unknown composition spec " + ctx.getText());
     }

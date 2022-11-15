@@ -33,6 +33,11 @@ should have been used instead. This is deliberate in order to free the mind of p
     1. [Operator](#operator)
     1. [Projections and Lenses](#projections-and-lenses)
 1. [Matchers](#matchers)
+   1. [Multipliers](#multipliers)
+   2. [Types and matching](#type-bounds-for-matching)
+   2. [Do-nothing blocks](#do-nothing-block-guard-clause)
+   3. [Conditions](#conditions)
+   4. [Defined types](#defined-types)
 1. [Mutable state](#mutable-state) (see also [Processors](#processors))
 1. [Parameters](#parameters)
 1. [Streams](#streams)
@@ -153,8 +158,11 @@ _Possible future directions_: Support for exact arithmetic with rational numbers
 Decimal numbers will probably have to be typed by number of significant digits and a unit.
 
 ### Measures
-A measure is a number that has a unit. A unit is supplied within double quotes directly after a numeric literal,
-e.g. `5"m"`, or after a parenthesized expression, e.g. `(3 * 60)"s"`
+A measure is a number that has a unit. In Tailspin, the concept of unit also includes magnitude and dimension which do not all need to
+be relevant nor specified. Sometimes you care whether something is measured in metres or feet (true unit),
+sometimes whether it is hertz or millihertz (magnitude) and sometimes whether it is the x or the y direction (dimension).
+
+A unit is supplied within double quotes directly after a numeric literal, e.g. `5"m"`, or after a parenthesized expression, e.g. `(3 * 60)"s"`
 
 The unit may contain one slash ('/') separating a numerator and a denominator. The numerator and denominator may each be
 a product of alphabetic symbols, each with an optional positive integer power.
@@ -167,7 +175,7 @@ There is a special unit, `"1"`, to define a scalar number. Scalars or untyped nu
 
 When the resulting measure of arithmetic between measures cannot be inferred, you will need to
 parenthesize the expression and provide the new measure, e.g. `(4"J" + 3 "N m")"J"`, otherwise the program ends with an error.
-NOTE: currently no automatic inference of units is done, except for adding same units.
+NOTE: currently no automatic inference of units is done, except for adding same units or multiplying by scalars.
 
 The message `::raw` can be used on a measure to get the magnitude without the unit.
 
@@ -203,11 +211,10 @@ literal key-value pairs or expressions generating [streams](#streams) of key-val
 A literal key-value pair is an identifier followed by a colon and a _value chain_. E.g. `{ a: 0, b: 'hello' }`
 
 NOTE: [Autotyping](#autotyping) and the [data dictionary](#data-dictionary) affects what things you can and cannot assign to a key.
-Raw strings or untyped numbers assigned to a key will become [tagged identifiers](#tagged-identifiers).
+Raw strings or untyped numbers assigned to a key will become [tagged identifiers](#tagged-identifiers) tagged by the key.
 
-An example of an expression generating a stream of key-value pairs is a [deconstruction](#deconstructor)
- of a [dereferenced](#dereference) structure value. But as a convenience, you can just include the structure-valued
-dereference as-is and it will be automatically deconstructed into the new structure.
+A [deconstruction](#deconstructor) of a [dereferenced](#dereference) structure value produces a stream of the key-value pairs from the structure.
+As a convenience when creating a new structure by copying values, you can just include the structure-valued dereference as-is and it will be automatically deconstructed into the new structure.
 
 #### Structure expansion
 Sometimes you want to generate several structures with combinations of similar values, so instead of a key-value pair
@@ -447,7 +454,7 @@ Composition matchers can be string literals containing regexp patterns [(current
 To make the resulting text value into a [tagged identifier](#tagged-identifiers), prepend the tag, e.g. `<city´'\w+'>` to tag the word as a city.
 
 A matcher can be an equals sign followed by a string literal, source reference or state deletion that gives a string result.
-This will match the string value exactly.
+This will match the string value exactly. To create a [tagged identifier](#tagged-identifiers), prepend the tag to the string, e.g. `<=city´'London'>`.
 
 Other composition matchers are the ones defined in the composer as sub-patterns (rules).
 
@@ -602,27 +609,24 @@ executed for that _current value_.
 
 Matchers are also used to [define datatypes](#defined-types)
 
-See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for specific matching considerations.
+See also [type bounds](#type-bounds-for-matching), [measures](#measures) and [tagged identifiers](#tagged-identifiers) for specific matching considerations.
 
 * Empty criterion, `<>`, matches anything.
 * Basic type matches: `<{}>` matches any [structure](#structures), `<[]>` matches any [array](#arrays), `<''>` matches any [raw or tagged](#tagged-identifiers) string value,
-  `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures). To match empty structures or arrays, use equality.
+  `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures), while `""` matches any measure. To match empty structures, use `{VOID}`, for empty arrays, use `[](0)`.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
-  Note that a raw string or number will become a [tagged identifier](#tagged-identifiers) in the do block of the type-matcher.
+  Note that matching here creates a tag context in which raw strings or numbers will match if they could be tagged with the name of the defined type, see [tagged identifiers](#tagged-identifiers).
+  The name of an [autotyped](#autotyping) field or tag can also be used as a defined type.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
-  Note that equality must have correct [tagging](#tagged-identifiers), or both must be raw values, otherwise the program ends with an error.
-  If the value to be tested is a valid value of the [data type](#types) defined by the tag in the matcher, there is no error. The tag is inferred in a key-value context.
-  If you need to compare mixed tagged and raw values, use a type match and the "raw" message in a condition, e.g. `<'' ?($::raw <='apple'>)>`
+  Note that trying to compare equality between different types is considered a programming error, see [the type bounds for matching section](#type-bounds-for-matching) for details and how to handle it.
 * Unit of measure can be used to test whether a [measure](#measures) has that unit, e.g. `<"m/s2">`.
   See the [measure](#measures) documentation for rules of how measures match equality and ranges.
-* You can use the name of a [defined data type](#defined-types) or an [autotyped](#autotyping) field or tag to determine if a value matches that type.
 * Range match has a lower bound and/or an upper bound separated by the range operator, with an optional tilde next to
   the range operator on the side(s) where the bound is not included.
-  Note that `<..>` is a type match for a [tagged or raw](#tagged-identifiers) numeric quantity, or a [measure](#measures).
+  Note that the similar looking `<..>` is a type match for a [tagged or raw](#tagged-identifiers) numeric quantity, or a [measure](#measures).
   Note that the [type](#types) of the upper and lower bounds must match, and also match with the compared value, otherwise the program ends with an error.
-  If the value to be tested is a valid value of the [data type](#types) defined by the tag in the matcher, there is no error. The tag is inferred in a key-value context.
-  If you need to compare mixed raw and tagged values, use a type match and the "raw" message in a condition, e.g. `<.. ?($::raw <$min::raw..$max::raw>)>`
+  See [the types and matching section](#type-bounds-for-matching) for details and how to handle different types when needed.
   Examples of ranges:
     * `<2..5>` for "between 2 and 5 inclusive" (or `<2"m"..5"m">` for a range of metres or `<id´2..id´5>` for a range of id:s)
     * `<..3>` for "less than or equal to 3", or `<..~3>` for "less than 3"
@@ -633,8 +637,8 @@ See also [measures](#measures) and [tagged identifiers](#tagged-identifiers) for
 * Regular expression match, given as a [string literal](#string-literal), resolves as a _regular expression_ for matching the _current value_.
   For more info on how string matching works, see the [java documentation](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Pattern.html).
   Note that the expression must match the entire value (this may change in future, as may the regular expression syntax).
-  Note that `<''>` is a type match, not a regular expression, and so matches any raw or tagged string.
-  You need to use `<=''>` to match the empty raw string, while `<'.*'>` matches any raw string, `<'.+'>` any non-empty raw string.
+  Note that `<''>` is a type match, not a regular expression, and matches any raw or tagged string.
+  You need to use `<=''>` or `<~'.+'>` to match the empty raw string, while `<'.*'>` matches any raw string, `<'.+'>` any non-empty raw string.
   To match [tagged strings](#tagged-identifiers), supply the tag before the regular expression, e.g. `<city´ 'L.*'>`.
   For comparing strings for simple equality, see "Equality" above.
 * If either of several criteria is acceptable, just list the acceptable criteria inside the angle brackets separated by `|` as a logical "or".
@@ -680,6 +684,25 @@ Note that when nesting down matchers for fields and array contents, the _current
 the original item to be matched by the outer match expression. To change perspective so that `$` should represent
 the value at the current level of the match, use a [condition](#conditions)
 
+### Type bounds for matching
+According to the Tailspin philosophy, it is likely to be a programmer error to try and compare different types directly,
+so in that case the program should end with an error. Although [types in Tailspin](#types) can be quite complex, the default type bound for matching
+is very basic, and more strict, similar to how [autotyping](#autotyping) is done.
+
+For example, given `data small <'[a-z]+'>, caps <'[A-Z]+'>, word <small|caps>`,
+it will be an error to try to match `small´'foo'` with `<=caps´'BAR'>`. Even though both are of the type `word`, the default type bound for the comparison is `caps`,
+and the `small` value will cause a type error. The way to handle this is to set an explicit type bound, for example `<´word´ =caps´'BAR'>`, which means that any value
+that is a `word` can be compared in the matcher without causing a type error.
+
+It is advisable to use as narrow type bounds as possible, but if needed, use the "any" bound, `´´`.
+
+This is how the default type bound is determined for different types of matchers:
+- Equality and range: the autotype of the expected values
+- regex match: the tag in the matcher, or raw string if none given.
+- basic type matchers `..`, `''`, `""`, `[]` and `{}` allow any type
+- array match beyond basic type match (not just `[]`) has array type `[]` bound
+- structure match by default requires all matched fields to be present (or absent, if so specified). If there are no field matchers, any type is allowed (which implies `{VOID}` can function as a null value)
+
 ### Multipliers
 Composer matchers and array content matchers can have multipliers attached:
  * `?` if it is optional, once or no times.
@@ -705,9 +728,9 @@ Note that a condition will change the perspective of the _current value_ so that
 It is possible to define a named criterion (a type definition), by the keyword "data" followed by an identifier and a [matcher](#matchers), e.g. `data _identifier_ <_matcher_>`.
 The named criterion can then be used in a matcher by simply writing the identifier, e.g. `when <_identifier_> do`.
 
-NOTE that definitions where the base matcher is for an untyped number or raw string will become definitions for [tagged identifiers](#tagged-identifiers),
-so defining e.g. `data true <=1>` and then trying to match `{foo: 1}` with `<{foo: <true>}>` will fail, because the 1 assigned to foo will get tagged as "foo",
-not "true". Tags are sticky so this will apply even if you try to match `$.foo`. The workaround is to either match `$.foo::raw` or to define `data foo <true|something_else>`.
+NOTE that definitions where the base matcher is for an untyped number or raw string will become definitions for the [tagged identifier](#tagged-identifiers) tagged with the name of the defined type,
+so defining e.g. `data true <=1>` and then trying to match `{foo: 1}` with `<{foo: <true>}>` will fail, because the 1 assigned to foo will get tagged as `foo´1`,
+not `true´1`. Tags are sticky so this will apply even if you try to match `$.foo`. The workaround is to either match `$.foo::raw` or to assign `{foo: true´1}` (possibly with foo defined `data foo <true|something_else>`).
 
 When a type definition contains a structure, each key will also be defined as a type. Note that it is an error
 to define the same type twice. If you already have defined a type for a key, you must reference that definition, e.g.
@@ -814,22 +837,22 @@ Elements can also be selected counting from the end of the array by counting fro
  e.g. the last element of an array can be accessed by selector `last`, the second last element by `last-1` and so on.
 Of course, the selector may be any arithmetic expression.
 
-Note that selectors can be untyped numbers, [measures](#measures) or [tagged numbers](#tagged-identifiers)
+Note that selectors can be [defined](#array-literal) to be untyped numbers, [measures](#measures) or [tagged numbers](#tagged-identifiers)
 
 A new array can be created by selecting from an existing array by a [range literal](#range-literal), using keywords
 `first` and `last` if needed.
 E.g. `$(2..last-1:3)` would select every third element starting at the second element and ending on or before
-the second last element. As usual, the increment defaults to 1 if not specified.
+the second last element. As usual, the increment defaults to 1 if not specified. Note that the type of the upper and lower bounds of a range selector must match.
 
-Note that the type of the upper and lower bounds of a range selector must match, except that an untyped expression involving
-`first` or `last` will be coerced to match the type of the other bound.
+NOTE that `first` and `last` will have the defined selector type. Particularly, this means you cannot easily do arithmetic on tagged selectors. An exclusive bound will still work, for example `$(first..~last)`.
+The `first` and `last` keywords do not directly respond to the `::raw` message, but it can be worked around by, for example, `$(foo´2..foo´((last -> $::raw) - 2))`
 
 An array or integer for index can be obtained from a value [dereference](#dereference). The result must be an integer or a stream
 of integers, or a single array of integers.
 
 A new array can be created by selecting from an existing array with an array, e.g. `$([3,1,5])`
 would select the third element, followed by the first element and last the fifth element. You can also include
-ranges and the dimension keywords in the array, e.g. `$([last, 1..last-1])` to rotate the last element to the beginning. Note that the only allowed
+ranges and the dimension keywords in the array, e.g. `$([last, first..last-1])` to rotate the last element to the beginning. Note that the only allowed
 elements in a literal array selector are the same ones that are allowed as direct selectors.
 
 All these rules can be applied to multiple dimensions by separating the dimension dereferences with a semicolon `;`, e.g.
@@ -1131,7 +1154,7 @@ The defined data type can be used as a [matcher](#matchers), e.g. `<adress>`, bu
 [keyed-value](#keyed-values) or member of a [structure](#structures) that has key 'adress'. NOTE that if the base type
 of a defined type is a raw string or untyped number, the defined type will actually be a [tagged identifier](#tagged-identifiers).
 If a defined (or [autotyped](#autotyping)) type "foo" refers only to a defined (or [autotyped](#autotyping)) [tagged identifier](#tagged-identifiers) called "bar",
-all values assigned as "foo"s will be tagged as "bar"s (all "foo"s are "bar"s).
+all values assigned as "foo"s must be tagged as "bar"s (all "foo"s are "bar"s).
 Of course, it is possible to have union types so that a "foo" could be a "bar" or something else.
 
 The data dictionary will also contain all [autotyped](#autotyping) definitions. Note that for modules, all defined types stay in the defining scope of the module,
@@ -1168,7 +1191,7 @@ as [local types](#local-types) if the autotyping rules don't do what you intende
 [Measures](#measures) (including scalars) will be autotyped as such.
 
 [Structures](#structures) are currently conservatively autotyped as having the exact fields in the first instance encountered.
-[Arrays](#arrays) are currently conservatively autotyped to consist of all the same kind of element.
+[Arrays](#arrays) are currently conservatively autotyped to consist of all the same kind of element (if the elements are autypable).
 
 Raw strings and untyped numbers will be autotyped as [tagged identifiers](#tagged-identifiers).
 
@@ -1188,21 +1211,22 @@ or check the string ('London' in this case) to verify that it complies with the 
 The definition and restrictions applied can be as complex as you like if you [define the tag type yourself](#defined-types).
 Note that defined types will only have tags when their representation type is a raw string or untyped number.
 
-When the key being assigned to is a [defined type](#defined-types), the raw string will first try to add the key as a tag. If that doesn't work,
-the options are tried in order of definition, again trying the tag for that type first.
+When the key being assigned to is a [defined type](#defined-types), a raw string or number is assumed to be tagged with the name of the defined type.
 
 Numeric tagged identifiers cannot be used in arithmetic, so if you intend to use a number in arithmetic,
-the recommendation is to give it a unit (or the scalar unit "1").
+the recommendation is to give it a [unit](#measures) (or the scalar unit "1").
 
 When tagged identifiers are compared with other tagged identifiers, the tags must also match for the comparison to become true.
 In the context of matching a [keyed value](#keyed-values), matching a field of a [structure](#structures) or [defining a type](#defined-types),
-the tag may be omitted from the matcher if it is the same as the key or type, that is `<{foo: <'a.*'>}>` is equivalent to  `<{foo: <foo´ 'a.*'>}>`,
-`<(foo: <'a.*'>)>` is equivalent to  `<(foo: <foo´ 'a.*'>)>` and `data foo <'a.*'>` is equivalent to `data foo <foo´ 'a.*'>`.
-Tagged identifiers cannot be compared with raw strings or numbers, that will cause an error to be thrown.
+the tag should preferably be omitted from the matcher if it is the same as the key or type.
+Even if `when <{foo: <'a.*'>}> do` is equivalent to  `when <{foo: <foo´ 'a.*'>}> do` in match arrays,
+there is a difference in data defininitions so that `data foo <'a.*'>` works, while `data foo <foo´ 'a.*'>` doesn't, and something like `data true <=true´1>` can result in an infinite checking loop.
+
+Tagged identifiers cannot be compared with raw strings or numbers, that will cause an error to be thrown, see [the section on type bounds](#type-bounds-for-matching).
 
 Note that you need to provide the correct tag, not an alias. For example, if "foo" is defined as a "bar", e.g. `data foo <bar>`, the tag will be "bar", not "foo",
 so `$.foo -> \(<foo´ '.*'> 'yes'!\)` will not match, you need to do  `$.foo -> \(<bar´ '.*'> 'yes'!\)`.
-Similarly, `{foo: foo´ 'value'}` will not work, you need to write `{foo: bar´ 'value'}` (or just `{foo: 'value'}` of course).
+Similarly, `{foo: foo´ 'value'}` will not work, you need to write `{foo: bar´ 'value'}`.
 
 You can use the `::raw` message on a tagged identifier to get the base value without the tag, when you need to.
 

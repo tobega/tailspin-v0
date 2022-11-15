@@ -1,18 +1,18 @@
 package tailspin.matchers.composer;
 
-import tailspin.types.DataDictionary;
+import tailspin.interpreter.Scope;
 import tailspin.types.TaggedIdentifier;
 
 public class TagSubComposer implements SubComposer {
 
-  private final DataDictionary localDictionary;
+  private final Scope scope;
   private final String tag;
   private final SubComposer subComposer;
 
   private TaggedIdentifier value;
 
-  public TagSubComposer(DataDictionary localDictionary, String tag, SubComposer subComposer) {
-    this.localDictionary = localDictionary;
+  public TagSubComposer(Scope scope, String tag, SubComposer subComposer) {
+    this.scope = scope;
     this.tag = tag;
     this.subComposer = subComposer;
   }
@@ -32,7 +32,7 @@ public class TagSubComposer implements SubComposer {
       if (!(parsed instanceof Long) && !(parsed instanceof String)) {
         throw new IllegalStateException("Cannot assign tag " + tag + " to value " + parsed.toString());
       }
-      parsed = localDictionary.checkDataDefinition(tag, parsed, null);
+      parsed = scope.getLocalDictionary().checkDataDefinition(tag, parsed, scope);
       if (parsed instanceof TaggedIdentifier t && tag.equals(t.getTag())) {
         value = t;
       }

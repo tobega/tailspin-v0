@@ -1,7 +1,7 @@
 processor Sum&{of:}
   @:{};
   sink accumulate
-    when <?($@Sum <={}>)> do @Sum: $(of);
+    when <?($@Sum <{VOID}>)> do @Sum: $(of);
     otherwise @Sum: $@Sum + $(of);
   end accumulate
   source result
@@ -42,7 +42,7 @@ end Count
 processor Max&{by:, select:}
   @:[];
   sink accumulate
-    <?($@Max <=[]>)
+    <?($@Max <[](0)>)
       | ?($(by) <$@Max(1)..>)>  @Max: [$(by), $(select)];
   end accumulate
   source result
@@ -53,7 +53,7 @@ end Max
 processor Min&{by:, select:}
   @:[];
   sink accumulate
-    <?($@Min <=[]>)
+    <?($@Min <[](0)>)
       | ?($(by) <..$@Min(1)>)>  @Min: [$(by), $(select)];
   end accumulate
   source result

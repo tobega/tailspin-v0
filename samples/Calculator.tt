@@ -29,11 +29,11 @@ composer parseArithmetic
 end parseArithmetic
 
 templates evaluateArithmetic
+  <""> $ !
   <{op: <='+'>}> ($.left -> evaluateArithmetic) + ($.right -> evaluateArithmetic) !
   <{op: <='-'>}> ($.left -> evaluateArithmetic) - ($.right -> evaluateArithmetic) !
   <{op: <='*'>}> ($.left -> evaluateArithmetic) * ($.right -> evaluateArithmetic) !
   <{op: <='/'>}> ($.left -> evaluateArithmetic) ~/ ($.right -> evaluateArithmetic) !
-  otherwise $ !
 end evaluateArithmetic
 
 def ast: '(100 - 5 * (2+3*4) + 2) / 2' -> parseArithmetic;

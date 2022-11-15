@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import tailspin.TypeError;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.AnyOf;
@@ -14,8 +15,10 @@ import tailspin.matchers.CollectionCriterionFactory;
 import tailspin.matchers.CollectionSegmentCriterion;
 import tailspin.matchers.DefinedTag;
 import tailspin.matchers.MultipliedCollectionCriterion;
+import tailspin.matchers.OneElementMatch;
 import tailspin.matchers.RangeMatch;
 import tailspin.matchers.StructureMatch;
+import tailspin.matchers.TypeBound;
 import tailspin.matchers.UnitMatch;
 
 public class DataDictionary {
@@ -26,22 +29,20 @@ public class DataDictionary {
 
   private static final Membrane stringMatch = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
-      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
-      return (toMatch instanceof String) ? toMatch : null;
+    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+      return (toMatch instanceof String);
     }
 
     @Override
     public String toString() {
-      return "raw string";
+      return "untyped string";
     }
   };
 
   private static final Membrane numberMatch = new Membrane() {
     @Override
-    public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
-      if (toMatch instanceof TaggedIdentifier t) toMatch = t.getValue();
-      return (toMatch instanceof Long) ? toMatch : null;
+    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+      return (toMatch instanceof Long);
     }
 
     @Override
@@ -56,6 +57,9 @@ public class DataDictionary {
     }
     if (value instanceof TailspinArray a) {
       return formatErrorValue(a.getOffset()) + ":[" + a.stream().map(DataDictionary::formatErrorValue).collect(Collectors.joining(", ")) + "]";
+    }
+    if (value instanceof String) {
+      return "'" + value + "'";
     }
     return value.toString();
   }
@@ -76,7 +80,7 @@ public class DataDictionary {
         if (contentMembrane == null) {
           contentMembrane = getDefaultTypeCriterion(null, toMatch.getNative(0), dictionary);
           return 1;
-        } else if (null != contentMembrane.permeate(toMatch.getNative(0), null, null, null)) {
+        } else if (contentMembrane.matches(toMatch.getNative(0), null, scope, null)) {
           return 1;
         }
         return 0;
@@ -89,24 +93,24 @@ public class DataDictionary {
     }
 
     private static class AllTheSameContent implements CollectionCriterionFactory {
-      private final DiscoveredContent discoveredContent;
+      private final CollectionSegmentCriterion contentCriterion;
 
-      public AllTheSameContent(DataDictionary dictionary) {
-        discoveredContent = new DiscoveredContent(dictionary);
+      public AllTheSameContent(CollectionSegmentCriterion contentCriterion) {
+        this.contentCriterion = contentCriterion;
       }
 
       @Override
       public CollectionCriterion newCriterion() {
-        return new MultipliedCollectionCriterion(discoveredContent, RangeMatch.ANY_AMOUNT);
+        return new MultipliedCollectionCriterion(contentCriterion, RangeMatch.ANY_AMOUNT);
       }
 
       @Override
       public String toString() {
-        return "<" + discoveredContent + ">*";
+        return "<" + contentCriterion + ">*";
       }
     }
 
-    public AutotypedArray(Object offset, DataDictionary dictionary) {
+    public AutotypedArray(Object offset, CollectionSegmentCriterion contentCriterion) {
       super(new Value() {
         @Override
         public Object getResults(Object it, Scope scope) {
@@ -117,11 +121,11 @@ public class DataDictionary {
         public String toString() {
           return formatErrorValue(offset);
         }
-      }, null, List.of(new AllTheSameContent(dictionary)), true);
+      }, null, List.of(new AllTheSameContent(contentCriterion)), true);
     }
   }
 
-  private static final Membrane exists = new AnyOf(false, List.of());
+  private static final Membrane exists = new AnyOf(false, TypeBound.any(), List.of());
 
   public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
@@ -131,7 +135,7 @@ public class DataDictionary {
     this.moduleDictionary = moduleDictionary;
   }
 
-  private static Membrane getDefaultTypeCriterion(String tag, Object data, DataDictionary dictionary) {
+  public static Membrane getDefaultTypeCriterion(String tag, Object data, DataDictionary dictionary) {
     if (data instanceof String) {
       return tag == null ? stringMatch : new DefinedTag(tag, stringMatch, null);
     }
@@ -139,7 +143,15 @@ public class DataDictionary {
       return tag == null ? numberMatch : new DefinedTag(tag, numberMatch, null);
     }
     if (data instanceof TailspinArray a) {
-      return new AutotypedArray(a.getOffset(), dictionary);
+      CollectionSegmentCriterion contentCriterion;
+      if (a.length() > 0) {
+        Membrane contentMatcher = getDefaultTypeCriterion(null, a.getNative(0), dictionary);
+        // Some types not yet default typed, so may be null
+        contentCriterion = new OneElementMatch(contentMatcher == null ? TypeBound.ANY_MATCH : contentMatcher);
+      } else {
+        contentCriterion = new AutotypedArray.DiscoveredContent(dictionary);
+      }
+      return new AutotypedArray(a.getOffset(), contentCriterion);
     }
     if (data instanceof Structure s) {
       return new StructureMatch(s.keySet().stream().collect(Collectors.toMap(Function.identity(), (k) -> exists)), false);
@@ -150,6 +162,7 @@ public class DataDictionary {
     if (data instanceof TaggedIdentifier t) {
       return dictionary.getDataDefinition(t.getTag());
     }
+    // TODO: match remaining types
     return null;
   }
 
@@ -182,14 +195,17 @@ public class DataDictionary {
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
       def = getDefaultTypeCriterion(key, data, this);
-      dataDefinitions.put(key, def);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
+      dataDefinitions.put(key, def);
     }
-    Object result = def.permeate(data, null, scope, null);
-    if (result == null) {
-      throw new IllegalArgumentException("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
+    // Do this also for values that were just autotyped. For example arrays still need to be tested.
+    if (!def.matches(data, null, scope, TypeBound.anyInContext(key))) {
+      throw new TypeError("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
     }
-    return result;
+    if (data instanceof Long || data instanceof String) {
+      data = new TaggedIdentifier(key, data);
+    }
+    return data;
   }
 
   private boolean isKeyDefined(String key) {

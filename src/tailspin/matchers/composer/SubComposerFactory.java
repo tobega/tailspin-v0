@@ -62,7 +62,7 @@ public class SubComposerFactory {
     }
     if (spec instanceof KeyValueComposition keyValueSpec) {
       return new KeyValueSubComposer(resolveSpec(keyValueSpec.key, scope),
-          new SequenceSubComposer(keyValueSpec.valueMatch, scope, this::resolveSpec), scope.getLocalDictionary());
+          new SequenceSubComposer(keyValueSpec.valueMatch, scope, this::resolveSpec), scope);
     }
     if (spec instanceof MultiplierComposition) {
       return new MultiplierSubComposer(
@@ -99,7 +99,7 @@ public class SubComposerFactory {
       return new MeasureSubComposer(resolveSpec(mc.compositionSpec, scope), mc.unit);
     }
     if (spec instanceof TagComposition tc) {
-      return new TagSubComposer(scope.getLocalDictionary(), tc.tag, resolveSpec(tc.compositionSpec, scope));
+      return new TagSubComposer(scope, tc.tag, resolveSpec(tc.compositionSpec, scope));
     }
     throw new UnsupportedOperationException(
         "Unknown composition spec " + spec.getClass().getSimpleName());

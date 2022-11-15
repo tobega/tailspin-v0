@@ -15,9 +15,10 @@ public class KeyValueMatch implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
-    if (!(toMatch instanceof KeyValue keyValue)) return null;
-    if (!keyValue.getKey().equals(key)) return null;
-    return valueMatch.permeate(keyValue.getValue(), it, scope, key) == null ? null : toMatch;
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    if (!(toMatch instanceof KeyValue keyValue)) return false;
+    if (!keyValue.getKey().equals(key)) return false;
+    TypeBound keyType = TypeBound.inContext(key, scope.getLocalDictionary().getDataDefinition(key));
+    return valueMatch.matches(keyValue.getValue(), it, scope, keyType);
   }
 }

@@ -16,18 +16,16 @@ public class ValueMatcher implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
-    Object baseValue = basicMembrane == null ? toMatch : basicMembrane.permeate(toMatch, it, scope,
-        contextTag);
-    if (baseValue == null) {
-      return null;
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    if (basicMembrane != null && !basicMembrane.matches(toMatch, it, scope, typeBound)) {
+      return false;
     }
     for (Condition condition : suchThatMatchers) {
       if (!condition.isFulfilled(toMatch, scope)) {
-        return null;
+        return false;
       }
     }
-    return baseValue;
+    return true;
   }
 
   @Override

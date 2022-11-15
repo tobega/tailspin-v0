@@ -31,6 +31,8 @@ templates doScan
   [$... -> decodeLedLine] -> collectVerticalLedArrays !
 end doScan
 
+data scanDigit <='?'|0..9>
+
 templates exactScanMatch
   [($digits matching {|{code: $}|}) ...] -> #
   when <=[]> do '?' !
@@ -129,7 +131,7 @@ end validAccount
 
 templates scanResult
   $ -> scanOCR -> #
-  when <[<='?'>]> do '$...; ILL' !
+  when <[<´scanDigit´='?'>]> do '$...; ILL' !
   otherwise '$...;$ -> [$ -> validAccount] -> \(<=[]> ' ERR'! \);' !
 end scanResult
 
@@ -182,7 +184,7 @@ templates correct&{pos:}
   1..$codes::length -> #
   $@!
 
-  when <=$pos> do @: [[$@(1)..., by $codes($pos) -> ($oneErrorDigits matching {|{code: $}|}) ... -> $.digit]];
+  when <=$pos> do @: [[$@(1)..., by $codes($pos) -> ($oneErrorDigits matching {|{code: $}|}) ... -> $.digit::raw]];
   otherwise
     def digit: $codes($) -> exactScanMatch;
     @: [$@... -> [$..., $digit]];
@@ -201,11 +203,11 @@ templates scanCorrected
 
   $scanned -> #
 
-  when <[<='?'>=1]> do
-    def pos: $ -> \[i](<='?'> $i!\)...;
+  when <[<´scanDigit´='?'>=1]> do
+    def pos: $ -> \[i](<´scanDigit´='?'> $i!\)...;
     $codes -> correct&{pos: $pos} -> outputCorrected !
 
-  when <[<='?'>]> do '$scanned...; ILL' !
+  when <[<´scanDigit´='?'>]> do '$scanned...; ILL' !
 
   otherwise
     [$scanned -> validAccount] -> \(

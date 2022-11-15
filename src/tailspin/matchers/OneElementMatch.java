@@ -13,7 +13,7 @@ public class OneElementMatch implements CollectionSegmentCriterion {
 
   @Override
   public int isMetAt(TailspinArray.Tail tail, Object it, Scope scope) {
-    if (null != membrane.permeate(tail.getNative(0), it, scope, null)) {
+    if (membrane.matches(tail.getNative(0), it, scope, null)) {
       return 1;
     }
     return 0;

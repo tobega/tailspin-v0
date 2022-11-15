@@ -6,7 +6,7 @@ processor Element
 
   source length
     $@Element -> #
-    <{next:<>}>
+    <´{}´{next:<>}>
       1 + $@Element.next::length !
     <>
       1 !
@@ -17,7 +17,7 @@ processor Element
   end setNext
 
   source getNext
-    $@Element -> \(<{next:<>}> $.next!\) !
+    $@Element -> \(<´{}´{next:<>}> $.next!\) !
   end getNext
 end Element
 
@@ -29,9 +29,9 @@ templates makeList
 end makeList
 
 templates isShorterThan
-  <{x:<>, y:<>}>
+  <´{}´{x:<>, y:<>}>
     { $.x::getNext -> (x: $), $.y::getNext -> (y: $) } -> #
-  <{y:<>}> 1 !
+  <´{}´{y:<>}> 1 !
   <> 0 !
 end isShorterThan
 

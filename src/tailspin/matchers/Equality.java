@@ -1,8 +1,10 @@
 package tailspin.matchers;
 
 import java.util.Objects;
+import tailspin.TypeError;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.Measure;
 import tailspin.types.Membrane;
 import tailspin.types.TaggedIdentifier;
@@ -16,24 +18,35 @@ public class Equality implements Membrane {
   }
 
   @Override
-  public Object permeate(Object toMatch, Object it, Scope scope, String contextTag) {
+  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     Object required = value.getResults(it, scope);
-    return eq(toMatch, required, contextTag, scope);
+    if (typeBound != null && required instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
+      required = t.getValue();
+    }
+    if (typeBound == null) {
+      typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, required, scope.getLocalDictionary()));
+    } else if (typeBound.outOfBound(required, it, scope)) {
+      throw new TypeError("Matcher " + this + " not in expected type bound " + typeBound);
+    }
+    if (typeBound != null && typeBound.outOfBound(toMatch, it, scope)) {
+      throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " not in expected type bound " + typeBound);
+    }
+    return eq(toMatch, required);
   }
 
-  private Object eq(Object toMatch, Object required, String contextTag, Scope scope) {
+  private boolean eq(Object toMatch, Object required) {
     if (toMatch instanceof Measure || required instanceof Measure
         || toMatch instanceof TaggedIdentifier || required instanceof TaggedIdentifier)
-      return RangeMatch.compare(toMatch, RangeMatch.Comparison.EQUAL, required, contextTag, scope);
+      return RangeMatch.compare(toMatch, RangeMatch.Comparison.EQUAL, required);
     if (toMatch instanceof TailspinArray t && required instanceof TailspinArray r) {
-      if (t.length() != r.length()) return null;
+      if (t.length() != r.length()) return false;
       if (!Objects.equals(t.getOffset(), r.getOffset())) throw new IllegalArgumentException("Trying to compare array of index type " + t.getOffsetDescription() + " with array of index type " + r.getOffsetDescription());
       for (int i = 0; i < t.length(); i++) {
-        if (eq(t.getNative(i), r.getNative(i),contextTag, scope) == null) return null;
+        if (!eq(t.getNative(i), r.getNative(i))) return false;
       }
-      return t;
+      return true;
     }
-    return Objects.deepEquals(toMatch, required) ? toMatch : null;
+    return Objects.deepEquals(toMatch, required);
   }
 
   @Override
