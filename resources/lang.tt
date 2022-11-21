@@ -30,9 +30,9 @@ processor List&{of:}
 end List
 
 processor Count
-  @:0;
+  @:0"1";
   sink accumulate
-    @Count: $@Count + 1;
+    @Count: $@Count + 1"1";
   end accumulate
   source result
     $@Count !
