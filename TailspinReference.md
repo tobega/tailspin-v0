@@ -1,4 +1,3 @@
-        ResultIterator.forEach(it, collectorList::append);
 # Tailspin reference
 This is the syntax as it is working so far, with some indications of limitations and future developments.
 More thoughts in [my notes](Notes.md).
