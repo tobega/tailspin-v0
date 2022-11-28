@@ -1347,7 +1347,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       List<CompositionSpec> contents = new ArrayList<>();
       if (ctx.compositionSequence() != null) {
         contents.addAll(visitCompositionSequence(ctx.compositionSequence()));
-      } else {
+      } else if (ctx.compositionSkipRule() != null) {
         contents.add(visitCompositionSkipRule(ctx.compositionSkipRule()));
       }
       spec = new SubComposerFactory.ArrayComposition(contents, offset);
@@ -1355,7 +1355,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       List<CompositionSpec> contents = new ArrayList<>();
       if (ctx.structureMemberMatchers() != null) {
         contents.addAll(visitStructureMemberMatchers(ctx.structureMemberMatchers()));
-      } else {
+      } else if (ctx.compositionSkipRule() != null) {
         contents.add(visitCompositionSkipRule(ctx.compositionSkipRule()));
       }
       spec = new SubComposerFactory.StructureComposition(contents);
