@@ -55,7 +55,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -71,7 +71,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3, y=6}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3, y: 6}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -101,7 +101,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -117,7 +117,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=6}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 6}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -163,7 +163,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -193,7 +193,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -209,7 +209,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -225,7 +225,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -257,7 +257,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -273,7 +273,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=apple}{x=banana}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: apple}{x: banana}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -303,7 +303,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: apple}{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -319,7 +319,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: apple}{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -339,7 +339,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: apple}{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -360,7 +360,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: apple}{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -398,7 +398,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -436,7 +436,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: apple}{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -460,7 +460,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=apple}{x=3}{x=banana}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: apple}{x: 3}{x: banana}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -482,7 +482,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=banana}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: banana}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -505,7 +505,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=apple}{x=banana}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: apple}{x: banana}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -547,7 +547,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("apple{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("apple{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -567,7 +567,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=apple}{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: apple}{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -632,7 +632,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=[apple]}{x=[banana, orange]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: [apple]}{x: [banana, orange]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -689,7 +689,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x={fruit=apple}}{x={fruit=banana}}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: {fruit: apple}}{x: {fruit: banana}}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -775,7 +775,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=1\"s\"}{x=2\"s\"}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 1\"s\"}{x: 2\"s\"}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -836,7 +836,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=1}{x=5}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 1}{x: 5}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -877,7 +877,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=5}{x=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 5}{x: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -945,7 +945,7 @@ public class DataDictionary {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=5}{x=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 5}{x: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

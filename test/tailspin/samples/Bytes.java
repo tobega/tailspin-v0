@@ -27,6 +27,45 @@ public class Bytes {
   }
 
   @Test
+  void arrayOfByteConstant() throws IOException {
+    String program = "[[x 06a3 x], [x 8105 x]] -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[06a3, 8105]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void structOfByteConstant() throws IOException {
+    String program = "{foo: [x 06a3 x], bar: [x 8105 x]} -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{bar: 8105, foo: 06a3}", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void keyedByteValue() throws IOException {
+    String program = "(foo: [x 06a3 x]) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("foo: 06a3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void byteConstantMustHaveEvenNumberOfDigits() {
     String program = "[x 6a3 x] -> !OUT::write";
     assertThrows(Exception.class,
@@ -76,9 +115,10 @@ public class Bytes {
 
   @Test
   void matchEqualLiteral() throws IOException {
-    String program = "[x 06a3 x] -> \\(\n"
-        + "  <=[x 06a3 x]> 'yes' !\n"
-        + "  otherwise 'no' !\\) -> !OUT::write";
+    String program = """
+        [x 06a3 x] -> \\(
+          <=[x 06a3 x]> 'yes' !
+          otherwise 'no' !\\) -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -91,10 +131,11 @@ public class Bytes {
 
   @Test
   void matchEqualValue() throws IOException {
-    String program = "def a: [x 06a3 x];\n"
-        + "[x 06a3 x] -> \\(\n"
-        + "  <=$a> 'yes' !\n"
-        + "  otherwise 'no' !\\) -> !OUT::write";
+    String program = """
+        def a: [x 06a3 x];
+        [x 06a3 x] -> \\(
+          <=$a> 'yes' !
+          otherwise 'no' !\\) -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

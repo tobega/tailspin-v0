@@ -12,6 +12,7 @@ import tailspin.control.Reference;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.literals.KeyValueExpression;
+import tailspin.literals.StringInterpolation;
 
 public class Structure implements Freezable<Structure> {
 
@@ -54,14 +55,27 @@ public class Structure implements Freezable<Structure> {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof Structure)) return false;
-    Structure s = (Structure) obj;
+    if (!(obj instanceof Structure s)) return false;
     return map.equals(s.map);
   }
 
   @Override
   public String toString() {
-    return map.toString();
+    StringBuilder builder = new StringBuilder();
+    builder.append('{');
+    Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
+    if (it.hasNext()) {
+      Entry<String, Object> next = it.next();
+      builder.append(next.getKey()).append(": ");
+      StringInterpolation.appendStringValue(builder, next.getValue());
+    }
+    while (it.hasNext()) {
+      Entry<String, Object> next = it.next();
+      builder.append(", ").append(next.getKey()).append(": ");
+      StringInterpolation.appendStringValue(builder, next.getValue());
+    }
+    builder.append('}');
+    return builder.toString();
   }
 
   public boolean containsKey(String key) {

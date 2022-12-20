@@ -21,8 +21,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    // TODO: Make the object default printing be valid json
-    assertEquals("{a=0, b=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 0, b: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -74,7 +73,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=0, b=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 0, b: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -113,7 +112,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1, b: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -126,7 +125,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=2, c=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1, b: 2, c: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -139,7 +138,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1, b: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -152,7 +151,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{b=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{b: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -165,7 +164,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{b=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{b: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -178,7 +177,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{b=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{b: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -191,7 +190,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("a=1\nb=2\n", output.toString(StandardCharsets.UTF_8));
+    assertEquals("a: 1\nb: 2\n", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -204,7 +203,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1, b: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -217,7 +216,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -230,7 +229,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{last=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{last: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -243,7 +242,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("a=1", output.toString(StandardCharsets.UTF_8));
+    assertEquals("a: 1", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -256,7 +255,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -269,7 +268,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("a=yes", output.toString(StandardCharsets.UTF_8));
+    assertEquals("a: yes", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -334,7 +333,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1\"1\", b=5\"1\", d=6\"1\"}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1\"1\", b: 5\"1\", d: 6\"1\"}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -347,7 +346,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=3, c=2}{a=1, b=4, c=2}{a=1, b=5, c=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1, b: 3, c: 2}{a: 1, b: 4, c: 2}{a: 1, b: 5, c: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -360,7 +359,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=4, c=1}{a=1, b=5, c=1}{a=1, b=4, c=2}{a=1, b=5, c=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1, b: 4, c: 1}{a: 1, b: 5, c: 1}{a: 1, b: 4, c: 2}{a: 1, b: 5, c: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -373,7 +372,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=4, c=1}{a=1, b=5, c=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1, b: 4, c: 1}{a: 1, b: 5, c: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -386,7 +385,7 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=4, c=1}{a=1, b=5, c=1}{a=1, b=4, c=2}{a=1, b=5, c=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1, b: 4, c: 1}{a: 1, b: 5, c: 1}{a: 1, b: 4, c: 2}{a: 1, b: 5, c: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -399,6 +398,6 @@ class Structures {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=4, c=5}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1, b: 4, c: 5}", output.toString(StandardCharsets.UTF_8));
   }
 }

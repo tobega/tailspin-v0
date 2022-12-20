@@ -21,6 +21,9 @@
 - Composer failures should contain better error information. Partial parsing?
 - Strings should not be comparable in a range match, they should always be compared according to explicit collators.
 - In array selectors, first and last should respond to ::raw
+- Syntax for extending structure types
+- Extract pieces from an n-D-subview: Lens of list of multidimensional lenses. Lenses as data. Relative lenses. Or just make processors?
+- default parameters
 
 #### Confusing
 * It is a bit difficult to create generic code handling untyped numbers. Perhaps it should be?
@@ -35,6 +38,7 @@
 * range match cannot take a jump value
 * Local data tagged identifiers could escape to the outside. We should make that an error.
 * Programs execute all statements, but when included or used as module, only the used definitions are executed.
+* Bytes values use direct variable references. Currently `[x ($a) ($b) x]` works, why not `[x $a $b x]`?
 
 ### Exceptions
 Do we need them? Do we want them?
@@ -61,7 +65,7 @@ Syntax for creating exceptions and format for error objects TBD (just throw any 
 - Cannot specify the header for empty relations
 
 ## Bugs
-No known bugs
+- It should be an error to define the same composition rule twice
 
 ## Too much syntax?
 - quick filter by \<match> to mean \(<match> $!\).
@@ -75,6 +79,7 @@ No known bugs
 - an "ignore" rule for composers (tried before, between rules and after, useful for e.g. whitespace)
 - Multidimensional array-length-match
 - Dynamic composition of composers
+- Message lambdas? Something like `->::foo` could mean the function/templates calling `$::foo`
 
 ## Other thoughts
 - Use more words instead of symbols? YES, easier to scan and search. Even redundant words (to some limit).

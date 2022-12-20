@@ -336,7 +336,7 @@ class Processor {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1}1{a=2}[3]3[3, 4]3[4]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1}1{a: 2}[3]3[3, 4]3[4]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -379,7 +379,7 @@ class Processor {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1}1{a=2}[3]3[3, 4]3[4]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1}1{a: 2}[3]3[3, 4]3[4]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -415,7 +415,7 @@ class Processor {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1}1{a=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1}1{a: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

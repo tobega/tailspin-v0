@@ -26,9 +26,9 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1, y=2}"));
-    assertTrue(result.contains("{x=2, y=3}"));
-    assertEquals(26, result.length());
+    assertTrue(result.contains("{x: 1, y: 2}"));
+    assertTrue(result.contains("{x: 2, y: 3}"));
+    assertEquals(30, result.length());
   }
 
   @Test
@@ -44,9 +44,9 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1, y=2}"));
-    assertTrue(result.contains("{x=2, y=3}"));
-    assertEquals(26, result.length());
+    assertTrue(result.contains("{x: 1, y: 2}"));
+    assertTrue(result.contains("{x: 2, y: 3}"));
+    assertEquals(30, result.length());
   }
 
   @Test
@@ -73,9 +73,9 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1, y=2, z=3}"));
-    assertTrue(result.contains("{x=1, y=2, z=4}"));
-    assertEquals(36, result.length());
+    assertTrue(result.contains("{x: 1, y: 2, z: 3}"));
+    assertTrue(result.contains("{x: 1, y: 2, z: 4}"));
+    assertEquals(42, result.length());
   }
 
   @Test
@@ -91,8 +91,8 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=2, y=3}"));
-    assertEquals(14, result.length());
+    assertTrue(result.contains("{x: 2, y: 3}"));
+    assertEquals(16, result.length());
   }
 
   @Test
@@ -108,11 +108,11 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1, z=3}"));
-    assertTrue(result.contains("{x=1, z=4}"));
-    assertTrue(result.contains("{x=2, z=3}"));
-    assertTrue(result.contains("{x=2, z=4}"));
-    assertEquals(50, result.length());
+    assertTrue(result.contains("{x: 1, z: 3}"));
+    assertTrue(result.contains("{x: 1, z: 4}"));
+    assertTrue(result.contains("{x: 2, z: 3}"));
+    assertTrue(result.contains("{x: 2, z: 4}"));
+    assertEquals(58, result.length());
   }
 
   @Test
@@ -128,9 +128,9 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1}"));
-    assertTrue(result.contains("{x=2}"));
-    assertEquals(16, result.length());
+    assertTrue(result.contains("{x: 1}"));
+    assertTrue(result.contains("{x: 2}"));
+    assertEquals(18, result.length());
   }
 
   @Test
@@ -162,9 +162,9 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1, z=2}"));
-    assertTrue(result.contains("{x=2, z=3}"));
-    assertEquals(26, result.length());
+    assertTrue(result.contains("{x: 1, z: 2}"));
+    assertTrue(result.contains("{x: 2, z: 3}"));
+    assertEquals(30, result.length());
   }
 
   @Test
@@ -181,9 +181,9 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1\"1\", y=2\"1\", z=3\"1\"}"));
-    assertTrue(result.contains("{x=2\"1\", y=3\"1\", z=4\"1\"}"));
-    assertEquals(54, result.length());
+    assertTrue(result.contains("{x: 1\"1\", y: 2\"1\", z: 3\"1\"}"));
+    assertTrue(result.contains("{x: 2\"1\", y: 3\"1\", z: 4\"1\"}"));
+    assertEquals(60, result.length());
   }
 
   @Test
@@ -223,10 +223,10 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.contains("{x=1, y=2}"));
-    assertTrue(result.contains("{x=2, y=3}"));
-    assertTrue(result.contains("{x=1, y=3}"));
-    assertEquals(30, result.length());
+    assertTrue(result.contains("{x: 1, y: 2}"));
+    assertTrue(result.contains("{x: 2, y: 3}"));
+    assertTrue(result.contains("{x: 1, y: 3}"));
+    assertEquals(36, result.length());
   }
 
   @Test
@@ -240,7 +240,7 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.matches("\\{\\|\\{x=1, ys=\\{\\|(\\{y=2}, \\{y=3}|\\{y=3}, \\{y=2})\\|}}\\|}"));
+    assertTrue(result.matches("\\{\\|\\{x: 1, ys: \\{\\|(\\{y: 2}, \\{y: 3}|\\{y: 3}, \\{y: 2})\\|}}\\|}"));
   }
 
   @Test
@@ -255,7 +255,7 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{|{xs=2\"x\", ys=5\"y\"}|}", result);
+    assertEquals("{|{xs: 2\"x\", ys: 5\"y\"}|}", result);
   }
 
   @Test
@@ -273,11 +273,11 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1, y=2}"));
-    assertTrue(result.contains("{x=1, y=3}"));
-    assertTrue(result.contains("{x=2, y=1}"));
-    assertTrue(result.contains("{x=2, y=4}"));
-    assertEquals(50, result.length());
+    assertTrue(result.contains("{x: 1, y: 2}"));
+    assertTrue(result.contains("{x: 1, y: 3}"));
+    assertTrue(result.contains("{x: 2, y: 1}"));
+    assertTrue(result.contains("{x: 2, y: 4}"));
+    assertEquals(58, result.length());
   }
 
   @Test
@@ -305,7 +305,7 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{|{x=1}|}", result);
+    assertEquals("{|{x: 1}|}", result);
   }
 
   /**
@@ -322,7 +322,7 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{|{x=1}|}", result);
+    assertEquals("{|{x: 1}|}", result);
   }
 
   @Test
@@ -336,7 +336,7 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{|{x=2}|}", result);
+    assertEquals("{|{x: 2}|}", result);
   }
 
   /**
@@ -354,7 +354,7 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{|{x=2}|}", result);
+    assertEquals("{|{x: 2}|}", result);
   }
 
   @Test
@@ -370,9 +370,9 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1, y=2}"));
-    assertTrue(result.contains("{x=2, y=3}"));
-    assertEquals(26, result.length());
+    assertTrue(result.contains("{x: 1, y: 2}"));
+    assertTrue(result.contains("{x: 2, y: 3}"));
+    assertEquals(30, result.length());
   }
 
   @Test
@@ -399,9 +399,9 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1, y=2}"));
-    assertTrue(result.contains("{x=2, y=3}"));
-    assertEquals(26, result.length());
+    assertTrue(result.contains("{x: 1, y: 2}"));
+    assertTrue(result.contains("{x: 2, y: 3}"));
+    assertEquals(30, result.length());
   }
 
   @Test
@@ -433,9 +433,9 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1}"));
-    assertTrue(result.contains("{x=2}"));
-    assertEquals(16, result.length());
+    assertTrue(result.contains("{x: 1}"));
+    assertTrue(result.contains("{x: 2}"));
+    assertEquals(18, result.length());
   }
 
   @Test
@@ -451,8 +451,8 @@ public class Relations {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=3}"));
-    assertEquals(9, result.length());
+    assertTrue(result.contains("{x: 3}"));
+    assertEquals(10, result.length());
   }
 
   @Test
@@ -466,7 +466,7 @@ public class Relations {
     runner.run(input, output, List.of());
 
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("{|{x=1}|}", result);
+    assertEquals("{|{x: 1}|}", result);
   }
 
   @Test
@@ -481,10 +481,10 @@ public class Relations {
 
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
-    assertTrue(result.contains("{x=1}"));
-    assertTrue(result.contains("{x=2}"));
-    assertTrue(result.contains("{x=3}"));
+    assertTrue(result.contains("{x: 1}"));
+    assertTrue(result.contains("{x: 2}"));
+    assertTrue(result.contains("{x: 3}"));
     assertTrue(result.endsWith("|}"));
-    assertEquals(23, result.length());
+    assertEquals(26, result.length());
   }
 }

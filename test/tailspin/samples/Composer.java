@@ -78,7 +78,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{id=23}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{id: 23}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -110,7 +110,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{id=abc}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{id: abc}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -127,7 +127,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{id=abc}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{id: abc}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -250,7 +250,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("abc{id=def}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("abc{id: def}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -824,7 +824,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals(":{composerFailed=}:", output.toString(StandardCharsets.UTF_8));
+    assertEquals(":{composerFailed: }:", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -877,7 +877,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=1, y=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 1, y: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -895,7 +895,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{roll=4}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{roll: 4}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -928,7 +928,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[x=1, y=2]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[x: 1, y: 2]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -945,7 +945,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[0, x=1, {y=[2]}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[0, x: 1, {y: [2]}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -962,7 +962,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=1, y=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 1, y: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -979,7 +979,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=1, y=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 1, y: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -996,7 +996,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=1, y=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 1, y: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1014,7 +1014,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3, y=5}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3, y: 5}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1031,7 +1031,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1049,7 +1049,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1117,7 +1117,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{first=[Hello, wild], last=World!}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{first: [Hello, wild], last: World!}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1323,7 +1323,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{left=100\"1\", op=+, right={left=3\"1\", op=+, right=4\"1\"}}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{left: 100\"1\", op: +, right: {left: 3\"1\", op: +, right: 4\"1\"}}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1345,7 +1345,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{composerFailed=(5 +3)}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{composerFailed: (5 +3)}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1406,7 +1406,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{left={left={left=100\"1\", op=-, right={left=5\"1\", op=*, right={left=2\"1\", op=+, right={left=3\"1\", op=*, right=4\"1\"}}}}, op=+, right=2\"1\"}, op=/, right=2\"1\"}",
+    assertEquals("{left: {left: {left: 100\"1\", op: -, right: {left: 5\"1\", op: *, right: {left: 2\"1\", op: +, right: {left: 3\"1\", op: *, right: 4\"1\"}}}}, op: +, right: 2\"1\"}, op: /, right: 2\"1\"}",
         output.toString(StandardCharsets.UTF_8));
   }
 
@@ -1438,7 +1438,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[noun=i, verb=s, det=a, noun=m, prep=n, det=t, noun=p, prep=w, det=a, noun=b]",
+    assertEquals("[noun: i, verb: s, det: a, noun: m, prep: n, det: t, noun: p, prep: w, det: a, noun: b]",
         output.toString(StandardCharsets.UTF_8));
   }
 
@@ -1594,7 +1594,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=bar}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo: bar}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1612,7 +1612,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{baz=qux, foo=bar}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{baz: qux, foo: bar}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1630,7 +1630,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{x=5}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{x: 5}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1648,7 +1648,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{bar=1, baz=1, foo=1, qux=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{bar: 1, baz: 1, foo: 1, qux: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1685,7 +1685,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{baz=qux, foo=bar}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{baz: qux, foo: bar}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1825,7 +1825,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=word}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{a: word}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1842,7 +1842,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[a=word]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[a: word]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1861,7 +1861,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{flag=0, word=hello}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{flag: 0, word: hello}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1880,7 +1880,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{flag=1, word=hello}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{flag: 1, word: hello}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1898,7 +1898,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{word=hello}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{word: hello}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -2200,6 +2200,6 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("4", output.toString(StandardCharsets.UTF_8));
+    assertEquals("4\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 }

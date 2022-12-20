@@ -2,6 +2,7 @@ package tailspin.types;
 
 import java.util.Map;
 import java.util.Objects;
+import tailspin.literals.StringInterpolation;
 
 public class KeyValue implements Map.Entry<String, Object> {
   private final String key;
@@ -29,7 +30,9 @@ public class KeyValue implements Map.Entry<String, Object> {
 
   @Override
   public String toString() {
-    return key + "=" + value.toString();
+    StringBuilder builder = new StringBuilder();
+    StringInterpolation.appendStringValue(builder.append(key).append(": "), value);
+    return builder.toString();
   }
 
   @Override

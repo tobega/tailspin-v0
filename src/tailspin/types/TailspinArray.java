@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import tailspin.control.ResultIterator;
+import tailspin.literals.StringInterpolation;
 
 public class TailspinArray implements Processor, Freezable<TailspinArray> {
 
@@ -44,7 +45,13 @@ public class TailspinArray implements Processor, Freezable<TailspinArray> {
 
   @Override
   public String toString() {
-    return array.toString();
+    StringBuilder builder = new StringBuilder();
+    builder.append('[');
+    Iterator<?> it = array.iterator();
+    if (it.hasNext()) StringInterpolation.appendStringValue(builder, it.next());
+    while (it.hasNext()) StringInterpolation.appendStringValue(builder.append(", "), it.next());
+    builder.append(']');
+    return builder.toString();
   }
 
   @Override

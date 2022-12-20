@@ -450,13 +450,13 @@ class Statements {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("5", output.toString(StandardCharsets.UTF_8));
+    assertEquals("5\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
   void transformCollectorResult() throws Exception {
     String program =
-        "2..6 -> ..=Count -> $*2 - 1 -> !OUT::write\n";
+        "2..6 -> ..=Count -> $*2 - 1\"1\" -> !OUT::write\n";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -464,7 +464,7 @@ class Statements {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("9", output.toString(StandardCharsets.UTF_8));
+    assertEquals("9\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -496,7 +496,7 @@ class Statements {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{fruit=orange, n=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{fruit: orange, n: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -558,7 +558,7 @@ class Statements {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{fruit=apple, n=5}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{fruit: apple, n: 5}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

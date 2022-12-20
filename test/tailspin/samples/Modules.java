@@ -387,7 +387,7 @@ public class Modules {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(dir, input, output, List.of());
+    runner.run(baseDir, input, output, List.of());
 
     assertEquals("10", output.toString(StandardCharsets.UTF_8));
   }
@@ -407,7 +407,7 @@ public class Modules {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(dir, input, output, List.of());
+    runner.run(baseDir, input, output, List.of());
 
     assertEquals("10", output.toString(StandardCharsets.UTF_8));
   }
@@ -428,7 +428,7 @@ public class Modules {
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(dir, input, output, List.of());
+    runner.run(baseDir, input, output, List.of());
 
     assertEquals("10", output.toString(StandardCharsets.UTF_8));
   }
@@ -458,7 +458,7 @@ public class Modules {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(baseDir, input, output, List.of());
 
-    assertEquals("[key=1, key=a]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
   }
 
   @ExtendWith(TempDirectory.class)
@@ -487,7 +487,7 @@ public class Modules {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(baseDir, input, output, List.of());
 
-    assertEquals("[key=1, key=a]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
   }
 
   @ExtendWith(TempDirectory.class)
@@ -518,7 +518,7 @@ public class Modules {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(baseDir, input, output, List.of());
 
-    assertEquals("[key=1, key=a]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
   }
 
   @ExtendWith(TempDirectory.class)

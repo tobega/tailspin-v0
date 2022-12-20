@@ -25,7 +25,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{city=London}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{city: London}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -51,7 +51,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{city=Madrid}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{city: Madrid}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -124,7 +124,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{city=London}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{city: London}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -150,7 +150,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{id=London}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{id: London}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -163,7 +163,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{city=London}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{city: London}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -192,7 +192,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{destination=London}{city=Paris}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{destination: London}{city: Paris}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -209,7 +209,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{destination=London}{city=Paris}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{destination: London}{city: Paris}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -250,7 +250,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{id=1234}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{id: 1234}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -276,7 +276,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{id=9876}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{id: 9876}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -349,7 +349,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{id=1234}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{id: 1234}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -733,7 +733,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{city=2}{city=3}{city=4}{city=5}{city=6}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{city: 2}{city: 3}{city: 4}{city: 5}{city: 6}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -749,9 +749,9 @@ public class TaggedIdentifier {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=a}"));
-    assertTrue(result.contains("{x=b}"));
-    assertEquals(16, result.length());
+    assertTrue(result.contains("{x: a}"));
+    assertTrue(result.contains("{x: b}"));
+    assertEquals(18, result.length());
   }
 
   @Test
@@ -766,7 +766,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{ds=[1, 2, 3]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{ds: [1, 2, 3]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -933,7 +933,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=value}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo: value}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -963,7 +963,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=5}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo: 5}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -993,7 +993,7 @@ public class TaggedIdentifier {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=8}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo: 8}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

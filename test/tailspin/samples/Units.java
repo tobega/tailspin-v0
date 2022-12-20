@@ -583,9 +583,9 @@ public class Units {
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.startsWith("{|"));
     assertTrue(result.endsWith("|}"));
-    assertTrue(result.contains("{x=1\"m\"}"));
-    assertTrue(result.contains("{x=2\"m\"}"));
-    assertEquals(22, result.length());
+    assertTrue(result.contains("{x: 1\"m\"}"));
+    assertTrue(result.contains("{x: 2\"m\"}"));
+    assertEquals(24, result.length());
   }
 
   @Test

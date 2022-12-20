@@ -31,7 +31,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=0, b=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 0, b: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -51,7 +51,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=0, b=1, c=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 0, b: 1, c: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -71,7 +71,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=0, b=0, c=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 0, b: 0, c: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -91,7 +91,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=0, b=0, c=3}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 0, b: 0, c: 3}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -111,7 +111,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=0, b=1}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{a: 0, b: 1}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -132,7 +132,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=0, b=0, c=1}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{a: 0, b: 0, c: 1}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -153,7 +153,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=0, b=0, c=2}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{a: 0, b: 0, c: 2}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -173,7 +173,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=[1, 2, 3]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: [1, 2, 3]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -193,7 +193,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=[3, 2, 1, 0]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: [3, 2, 1, 0]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -213,7 +213,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=[1, 2, 3, 0]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: [1, 2, 3, 0]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -420,7 +420,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=0}, {a=2}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{a: 0}, {a: 2}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -441,7 +441,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=0}, {a=2}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{a: 0}, {a: 2}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -461,7 +461,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=0}, {a=1, b=1, c=2}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{a: 0}, {a: 1, b: 1, c: 2}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -481,7 +481,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=0}, {a=1, b=1, c=2}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{a: 0}, {a: 1, b: 1, c: 2}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -737,7 +737,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -757,7 +757,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=[1, 2, 3]}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{a: [1, 2, 3]}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -777,7 +777,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=[{b=[1, 2, 3]}]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: [{b: [1, 2, 3]}]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -798,7 +798,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{b=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{b: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -818,7 +818,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{b=2}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{b: 2}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -860,7 +860,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -881,7 +881,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{a=[1, 2, 3]}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{a: [1, 2, 3]}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -925,7 +925,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=1, b=4}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: 1, b: 4}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -946,7 +946,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=[{b=1}]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: [{b: 1}]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -967,7 +967,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{a=[{b=1}]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{a: [{b: 1}]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -987,7 +987,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("1{a=0}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("1{a: 0}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1007,7 +1007,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("1{a=0}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("1{a: 0}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1108,7 +1108,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[8, 6]{foo=[7]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[8, 6]{foo: [7]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1248,7 +1248,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{}, {x=1}, {y=2}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{}, {x: 1}, {y: 2}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1268,7 +1268,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{}, {x=1}, {y=2}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{}, {x: 1}, {y: 2}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1360,7 +1360,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=[6, 3, 4]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo: [6, 3, 4]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1380,7 +1380,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=[6, 7, 8, 3, 4]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo: [6, 7, 8, 3, 4]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1400,7 +1400,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=[4, 3, 6, 7, 8]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo: [4, 3, 6, 7, 8]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1420,7 +1420,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=[3, 4, 6, 7, 8]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo: [3, 4, 6, 7, 8]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1440,7 +1440,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=[[6], [7, 3], [8, 4]]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo: [[6], [7, 3], [8, 4]]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1460,7 +1460,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("{foo=[[6], [3, 7], [4, 8]]}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{foo: [[6], [3, 7], [4, 8]]}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1479,7 +1479,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{foo=5}, {foo=1}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{foo: 5}, {foo: 1}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1498,7 +1498,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{foo=[5]}, {foo=[1]}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{foo: [5]}, {foo: [1]}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1517,7 +1517,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("7[{foo=5}, {}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("7[{foo: 5}, {}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1536,7 +1536,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("7[{foo=[5]}, {foo=[]}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("7[{foo: [5]}, {foo: []}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1555,7 +1555,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{foo=[5]}, {foo=[7, fum=1]}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{foo: [5]}, {foo: [7, fum: 1]}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1574,7 +1574,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{foo=[5]}, {foo=[fum=1, 7]}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{foo: [5]}, {foo: [fum: 1, 7]}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1593,7 +1593,7 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{foo=[[5]]}, {foo=[[7, fum=1]]}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{foo: [[5]]}, {foo: [[7, fum: 1]]}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1612,6 +1612,6 @@ public class MutableState {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{foo=[[5]]}, {foo=[[fum=1, 7]]}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{foo: [[5]]}, {foo: [[fum: 1, 7]]}]", output.toString(StandardCharsets.UTF_8));
   }
 }

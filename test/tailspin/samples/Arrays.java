@@ -824,7 +824,7 @@ class Arrays {
     runner.run(input, output, List.of());
 
     assertEquals(
-        "[{a=1\"m\", b=5\"m\", d=6\"m\"}, {a=2\"m\", b=2\"m\", d=4\"m\"}]",
+        "[{a: 1\"m\", b: 5\"m\", d: 6\"m\"}, {a: 2\"m\", b: 2\"m\", d: 4\"m\"}]",
         output.toString(StandardCharsets.UTF_8));
   }
 
@@ -839,7 +839,7 @@ class Arrays {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("[{x=1, ys=5\"1\"}]", output.toString(StandardCharsets.UTF_8));
+    assertEquals("[{x: 1, ys: 5\"1\"}]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
