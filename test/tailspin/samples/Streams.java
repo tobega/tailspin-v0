@@ -26,6 +26,84 @@ class Streams {
   }
 
   @Test
+  void iterateSingleton() throws IOException {
+    String program = "1..1 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a 1 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateEmpty() throws IOException {
+    String program = "3..1 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateEmptyExclusiveStart() throws IOException {
+    String program = "2~..0 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateEmptyExclusiveStartEdgeCase() throws IOException {
+    String program = "1~..0 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateEmptyExclusiveEnd() throws IOException {
+    String program = "2..~0 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateEmptyExclusiveEndEdgeCase() throws IOException {
+    String program = "1..~0 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void iterateIncrement() throws IOException {
     String program = "1..6:2 -> 'a $; ' -> !OUT::write";
     Tailspin runner =
@@ -49,6 +127,84 @@ class Streams {
     runner.run(input, output, List.of());
 
     assertEquals("a 3 a 2 a 1 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateSingletonBackwards() throws IOException {
+    String program = "1..1:-1 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a 1 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateBackwardsEmpty() throws IOException {
+    String program = "1..3:-1 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateBackwardsEmptyExclusiveStart() throws IOException {
+    String program = "1..~3:-1 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateBackwardsEmptyExclusiveStartEdgeCase() throws IOException {
+    String program = "1..~2:-1 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateBackwardsEmptyExclusiveEnd() throws IOException {
+    String program = "1..~3:-1 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateBackwardsEmptyExclusiveEndEdgeCase() throws IOException {
+    String program = "1..~2:-1 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -116,6 +272,58 @@ class Streams {
     runner.run(input, output, List.of());
 
     assertEquals("a 1 a 2 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateIncrementExclusiveStart() throws IOException {
+    String program = "1~..3:2 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a 3 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateIncrementExclusiveEnd() throws IOException {
+    String program = "1..~3:2 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a 1 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateBackwardExclusiveStart() throws IOException {
+    String program = "3~..1:-1 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a 2 a 1 ", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void iterateBackwardExclusiveEnd() throws IOException {
+    String program = "3..~1:-1 -> 'a $; ' -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a 3 a 2 ", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

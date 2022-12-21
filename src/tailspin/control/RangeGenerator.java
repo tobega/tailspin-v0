@@ -79,8 +79,14 @@ public class RangeGenerator implements Expression {
     } else if (tag != null)
       throw new IllegalArgumentException("Range lower bound " + formatErrorValue(bounds.lower()) + " incompatible with upper bound " + formatErrorValue(bounds.upper()));
     long endBound = ((Number) upperValue).longValue();
-    Long end = resolver.resolveUpperRangeLimit(upperBound.inclusive ? endBound
-        : Math.floorDiv((endBound - 1 - startBound), increment) * increment + startBound);
+    if (!upperBound.inclusive) {
+      if (increment > 0) {
+        endBound = Math.floorDiv((endBound - 1 - startBound), increment) * increment + startBound;
+      } else {
+        endBound = Math.floorDiv((endBound + 1 - startBound), increment) * increment + startBound;
+      }
+    }
+    Long end = resolver.resolveUpperRangeLimit(endBound);
     if (start == null || end == null || (increment > 0 && start > end) || (increment < 0 && start < end)) {
       return null;
     }
