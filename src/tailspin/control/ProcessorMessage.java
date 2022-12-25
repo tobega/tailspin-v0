@@ -84,7 +84,7 @@ public class ProcessorMessage extends Reference {
           }
           return result;
         };
-        case "length" -> (it, parameters, callingDictionary) -> ((byte[]) receiver).length;
+        case "length" -> (it, parameters, callingDictionary) -> (long) ((byte[]) receiver).length;
         case "asUtf8String" -> (it, parameters, callingDictionary) -> new String((byte[]) receiver,
             StandardCharsets.UTF_8);
         case "asInteger" -> (it, parameters, callingDictionary) -> new BigInteger((byte[]) receiver).longValue();

@@ -225,6 +225,19 @@ public class Bytes {
   }
 
   @Test
+  void lengthIsNumber() throws IOException {
+    String program = "[x 0125fe x] -> $::length + 4 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("7", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void hashCodeBasedOnContents() throws IOException {
     String program = "def code: [x 0125fe x] -> $::hashCode;\n"
         + "[x 0125fe x] -> $::hashCode -> \\(<=$code> 'yes'! <> 'no' !\\) -> !OUT::write";
