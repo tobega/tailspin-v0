@@ -6,6 +6,7 @@ import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
+import tailspin.literals.StringInterpolation;
 import tailspin.types.Membrane;
 
 public class Assertion implements Expression {
@@ -38,7 +39,9 @@ public class Assertion implements Expression {
           + results;
     }
     if (!membrane.matches(value, value, blockScope, null)) {
-      return "assertion that " + description.getResults(null, blockScope) + " failed with value " + value;
+      return StringInterpolation.appendStringValue(
+          new StringBuilder("assertion that " + description.getResults(null, blockScope) + " failed with value "),
+          value).toString();
     }
     return null; // Null means pass
   }
