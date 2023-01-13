@@ -972,7 +972,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Long visitNonZeroInteger(TailspinParser.NonZeroIntegerContext ctx) {
-    long value = Long.parseLong(ctx.PositiveInteger().getText());
+    long value = Long.parseLong(ctx.PositiveInteger().getText().replaceAll("_", ""));
     if (ctx.additiveOperator() != null && ctx.additiveOperator().getText().equals("-")) {
       value = - value;
     }

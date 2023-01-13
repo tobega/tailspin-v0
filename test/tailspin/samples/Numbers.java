@@ -25,6 +25,19 @@ class Numbers {
   }
 
   @Test
+  void literalWithSeparator() throws IOException {
+    String program = "1_337 -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("1337", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void printNegativeLiteral() throws IOException {
     String program = "-1337 -> !OUT::write";
     Tailspin runner =

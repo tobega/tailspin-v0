@@ -34,7 +34,7 @@ should have been used instead. This is deliberate in order to free the mind of p
 1. [Matchers](#matchers)
    1. [Multipliers](#multipliers)
    2. [Types and matching](#type-bounds-for-matching)
-   2. [Do-nothing blocks](#do-nothing-block-guard-clause)
+   2. [Do-nothing blocks](#do-nothing-block--guard-clause-)
    3. [Conditions](#conditions)
    4. [Defined types](#defined-types)
 1. [Mutable state](#mutable-state) (see also [Processors](#processors))
@@ -132,7 +132,7 @@ Tailspin will often nudge you to treat them as [tagged identifiers](#tagged-iden
 followed by a tick before the string literal, e.g. `name´ 'John'` will tag `'John'` as representing a name.
 
 ### Arithmetic expression
-The simplest form of arithmetic expression is just a literal number, e.g. `5`, or a [dereferenced value](#dereference)
+The simplest form of arithmetic expression is just a literal number, e.g. `1337`, possibly with a readability separator `_`, e.g. `1_337`, or a [dereferenced value](#dereference)
 (including a state deletion, see the [delete operator](#delete-operator)).
 Several numbers can be combined by arithmetic operators, e.g. `2 * $i - 8 ~/ 4`:
 * multiplication `*`

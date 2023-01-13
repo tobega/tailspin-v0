@@ -163,7 +163,7 @@ Zero: '0';
 
 PositiveInteger: [1-9] Digits?;
 
-fragment Digits: [0-9]+;
+fragment Digits: [_0-9]+;
 
 START_STRING: '\'' {ctx.push('\'');} -> pushMode(IN_STRING);
 
