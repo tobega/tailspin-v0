@@ -69,6 +69,8 @@ LeftBrace: '{';
 
 RightBrace: '}';
 
+StartArrayTemplates: '\\' (IDENTIFIER_START IDENTIFIER_PART*)? '[';
+
 StartBytes: '[x' -> pushMode(IN_BYTES);
 
 StartMatcher: '<';

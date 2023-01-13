@@ -443,12 +443,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Object visitLambdaArrayTemplates(TailspinParser.LambdaArrayTemplatesContext ctx) {
     String name = "";
-    if (!ctx.localIdentifier().isEmpty()) {
-      name = ctx.localIdentifier(0).getText();
-      String endName = ctx.localIdentifier().size() > 1 ? ctx.localIdentifier(1).getText() : "";
-      if (!name.equals(endName)) {
+    if (ctx.localIdentifier() != null) {
+      name = ctx.localIdentifier().getText();
+      String startName = ctx.StartArrayTemplates().getText().substring(1, name.length()+1);
+      if (!name.equals(startName)) {
         throw new IllegalStateException(
-            "Mismatched end \"" + endName + "\" for templates " + name);
+            "Mismatched end \"" + name + "\" for templates " + startName);
       }
     }
     List<String> loopVariables = visitArrayIndexDecomposition(ctx.arrayIndexDecomposition());

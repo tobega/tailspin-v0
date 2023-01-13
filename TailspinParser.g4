@@ -109,10 +109,10 @@ keyValue: key valueProduction;
 templates: templatesReference                        # callDefinedTransform
   | source                        # literalTemplates
   | Lambda localIdentifier? LeftParen localDataDeclaration? templatesBody Lambda localIdentifier? RightParen # lambdaTemplates
-  | Lambda localIdentifier? arrayIndexDecomposition LeftParen localDataDeclaration? templatesBody Lambda localIdentifier? RightParen # lambdaArrayTemplates
+  | StartArrayTemplates arrayIndexDecomposition LeftParen localDataDeclaration? templatesBody Lambda localIdentifier? RightParen # lambdaArrayTemplates
 ;
 
-arrayIndexDecomposition: LeftBracket localIdentifier (SemiColon localIdentifier)* RightBracket;
+arrayIndexDecomposition: localIdentifier (SemiColon localIdentifier)* RightBracket;
 
 sink: ResultMarker ((anyIdentifier reference Message? parameterValues?) | Void);
 
