@@ -1,10 +1,12 @@
 package tailspin.control;
 
-import java.util.List;
-import java.util.Map;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.DefinedTag;
+import tailspin.matchers.EnumValues;
 import tailspin.types.Membrane;
+
+import java.util.List;
+import java.util.Map;
 
 public class DataDefinition implements Expression {
   private final List<Map.Entry<String, Membrane>> definitions;
@@ -15,8 +17,13 @@ public class DataDefinition implements Expression {
 
   public Object getResults(Object it, Scope blockScope) {
     for (Map.Entry<String, Membrane> definition : definitions) {
-      blockScope.getLocalDictionary().createDataDefinition(
-          definition.getKey(), new DefinedTag(definition.getKey(), definition.getValue(), blockScope));
+      Membrane def;
+      if (definition.getValue() instanceof EnumValues e) {
+        def = e.defineValues(it, blockScope);
+      } else {
+        def = new DefinedTag(definition.getKey(), definition.getValue(), blockScope);
+      }
+      blockScope.getLocalDictionary().createDataDefinition(definition.getKey(), def);
     }
     return null;
   }

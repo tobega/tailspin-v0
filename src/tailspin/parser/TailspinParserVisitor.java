@@ -1,4 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.8
+// Generated from TailspinParser.g4 by ANTLR 4.13.0
 package tailspin.parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -94,6 +94,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitDataDefinition(TailspinParser.DataDefinitionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#symbolSet}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSymbolSet(TailspinParser.SymbolSetContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link TailspinParser#localDataDeclaration}.
 	 * @param ctx the parse tree
@@ -250,6 +256,18 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitKeyValue(TailspinParser.KeyValueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#enumeratedValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEnumeratedValue(TailspinParser.EnumeratedValueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link TailspinParser#enumeration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEnumeration(TailspinParser.EnumerationContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code callDefinedTransform}
 	 * labeled alternative in {@link TailspinParser#templates}.

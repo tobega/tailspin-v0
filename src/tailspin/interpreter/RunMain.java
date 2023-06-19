@@ -1,130 +1,29 @@
 package tailspin.interpreter;
 
-import java.util.AbstractMap;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import tailspin.arithmetic.ArithmeticContextValue;
-import tailspin.arithmetic.ArithmeticOperation;
-import tailspin.arithmetic.ArithmeticValue;
-import tailspin.arithmetic.IntegerConstant;
-import tailspin.arithmetic.IntegerExpression;
-import tailspin.arithmetic.MeasureExpression;
-import tailspin.control.ArrayTemplates;
-import tailspin.control.Block;
-import tailspin.control.Bound;
-import tailspin.control.ChainStage;
-import tailspin.control.CollectorStage;
-import tailspin.control.ComposerDefinition;
-import tailspin.control.DataDefinition;
-import tailspin.control.Deconstructor;
-import tailspin.control.Definition;
-import tailspin.control.DeleteState;
-import tailspin.control.Expression;
-import tailspin.control.InlineTemplates;
-import tailspin.control.OperatorApplication;
-import tailspin.control.ProcessorDefinition;
-import tailspin.control.ProcessorMessage;
-import tailspin.control.RangeGenerator;
-import tailspin.control.Reference;
-import tailspin.control.SendToTemplates;
-import tailspin.control.SinkReference;
-import tailspin.control.SinkValueChain;
-import tailspin.control.SourceReference;
-import tailspin.control.StateAssignment;
-import tailspin.control.TemplatesCall;
-import tailspin.control.TemplatesDefinition;
+import tailspin.arithmetic.*;
+import tailspin.control.*;
 import tailspin.control.TemplatesDefinition.TemplatesConstructor;
-import tailspin.control.TemplatesReference;
-import tailspin.control.TransformStage;
-import tailspin.control.TypestateDefinition;
-import tailspin.control.Value;
-import tailspin.control.ValueChain;
-import tailspin.literals.ArrayLiteral;
-import tailspin.literals.ByteLiteral;
-import tailspin.literals.BytesConstant;
-import tailspin.literals.CartesianExpansion;
-import tailspin.literals.CodedCharacter;
-import tailspin.literals.KeyValueExpression;
-import tailspin.literals.RelationLiteral;
-import tailspin.literals.StringConstant;
-import tailspin.literals.StringInterpolation;
-import tailspin.literals.StringLiteral;
-import tailspin.literals.StructureLiteral;
-import tailspin.literals.TaggedValue;
-import tailspin.matchers.AlwaysFalse;
-import tailspin.matchers.AnyOf;
-import tailspin.matchers.ArrayMatch;
-import tailspin.matchers.CollectionCriterionFactory;
-import tailspin.matchers.CollectionSegmentCriterion;
-import tailspin.matchers.Condition;
-import tailspin.matchers.Equality;
-import tailspin.matchers.KeyValueMatch;
-import tailspin.matchers.MultipliedCollectionCriterionFactory;
-import tailspin.matchers.OnceOnlyCollectionCriterionFactory;
-import tailspin.matchers.OneElementMatch;
-import tailspin.matchers.RangeMatch;
-import tailspin.matchers.RegexpMatch;
-import tailspin.matchers.SequenceMatch;
-import tailspin.matchers.StereotypeMatch;
-import tailspin.matchers.StructureMatch;
-import tailspin.matchers.TypeBound;
-import tailspin.matchers.UnitMatch;
-import tailspin.matchers.ValueMatcher;
+import tailspin.literals.*;
+import tailspin.matchers.*;
 import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.parser.TailspinParser;
-import tailspin.parser.TailspinParser.ByteValueContext;
-import tailspin.parser.TailspinParser.BytesLiteralContext;
-import tailspin.parser.TailspinParser.CompositionSequenceContext;
-import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
-import tailspin.parser.TailspinParser.DimensionReferenceContext;
-import tailspin.parser.TailspinParser.InheritModuleContext;
-import tailspin.parser.TailspinParser.ModuleIdentifierContext;
-import tailspin.parser.TailspinParser.ModuleImportContext;
-import tailspin.parser.TailspinParser.ModuleModificationContext;
-import tailspin.parser.TailspinParser.ModuleShadowingContext;
-import tailspin.parser.TailspinParser.OperandContext;
-import tailspin.parser.TailspinParser.OperatorExpressionContext;
-import tailspin.parser.TailspinParser.ProgramModificationContext;
-import tailspin.parser.TailspinParser.StateSinkContext;
-import tailspin.parser.TailspinParser.StereotypeMatchContext;
-import tailspin.parser.TailspinParser.StructuresContext;
-import tailspin.parser.TailspinParser.TermArithmeticOperationContext;
-import tailspin.parser.TailspinParser.TermContext;
-import tailspin.parser.TailspinParser.UseModuleContext;
-import tailspin.parser.TailspinParser.ValueProductionContext;
+import tailspin.parser.TailspinParser.*;
 import tailspin.parser.TailspinParserBaseVisitor;
 import tailspin.testing.Assertion;
-import tailspin.transform.Composer;
-import tailspin.transform.ExpectedParameter;
-import tailspin.transform.Lens;
-import tailspin.transform.MatchTemplate;
-import tailspin.transform.Operator;
-import tailspin.transform.Templates;
-import tailspin.transform.lens.ArrayLens;
-import tailspin.transform.lens.CollectedValue;
-import tailspin.transform.lens.DefinedLens;
-import tailspin.transform.lens.Grouping;
-import tailspin.transform.lens.KeyLens;
-import tailspin.transform.lens.LensDimension;
-import tailspin.transform.lens.MultiValueArrayLens;
-import tailspin.transform.lens.Projection;
-import tailspin.transform.lens.RangeArrayLens;
-import tailspin.transform.lens.SingleValueArrayLens;
+import tailspin.transform.*;
+import tailspin.transform.lens.*;
+import tailspin.literals.EnumeratedValue;
 import tailspin.types.KeyValue;
 import tailspin.types.Membrane;
 import tailspin.types.Unit;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RunMain extends TailspinParserBaseVisitor<Object> {
   private final Deque<DependencyCounter> dependencyCounters;
@@ -215,7 +114,15 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.taggedValue() != null) {
       return visitTaggedValue(ctx.taggedValue());
     }
+    if (ctx.enumeratedValue() != null) {
+      return visitEnumeratedValue(ctx.enumeratedValue());
+    }
     throw new UnsupportedOperationException(ctx.getText());
+  }
+
+  @Override
+  public Value visitEnumeratedValue(EnumeratedValueContext ctx) {
+    return new EnumeratedValue(ctx.enumeration().localIdentifier().getText(), ctx.localIdentifier().getText());
   }
 
   @Override
@@ -883,8 +790,21 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Map.Entry<String, Membrane> visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
     String identifier = ctx.localIdentifier().getText();
-    AnyOf matcher = visitMatcher(ctx.matcher());
+    Membrane matcher = ctx.matcher() == null ? null : visitMatcher(ctx.matcher());
+    if (ctx.symbolSet() != null) {
+      matcher = new EnumValues(identifier, visitSymbolSet(ctx.symbolSet()), (Membrane) matcher);
+    }
+    assert matcher != null;
     return Map.entry(identifier, matcher);
+  }
+
+  @Override
+  public List<Map.Entry<String, Value>> visitSymbolSet(SymbolSetContext ctx) {
+    List<Map.Entry<String, Value>> symbols = new ArrayList<>();
+    for (int i = 0; i < ctx.localIdentifier().size(); i++) {
+      symbols.add(new AbstractMap.SimpleEntry<>(ctx.localIdentifier(i).getText(), null));
+    }
+    return symbols;
   }
 
   @Override

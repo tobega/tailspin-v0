@@ -36,7 +36,9 @@ operatorDefinition: StartOperatorDefinition LeftParen localIdentifier localIdent
 
 dataDeclaration: DataDefinition dataDefinition (Comma dataDefinition)*;
 
-dataDefinition: localIdentifier matcher;
+dataDefinition: localIdentifier (symbolSet matcher? | matcher);
+
+symbolSet: LeftBracket localIdentifier (Comma localIdentifier)* RightBracket;
 
 localDataDeclaration: DataDefinition localDataDefinition (Comma localDataDefinition)* LocalDefinition;
 
@@ -57,6 +59,7 @@ source: rangeLiteral
   | arithmeticValue
   | operatorExpression
   | taggedValue
+  | enumeratedValue
 ;
 
 sourceReference: (SourceMarker anyIdentifier? | Reflexive) reference Message? parameterValues?
@@ -105,6 +108,10 @@ structureExpansion: keyValue
 ;
 
 keyValue: key valueProduction;
+
+enumeratedValue: enumeration localIdentifier;
+
+enumeration: localIdentifier TemplateMatch;
 
 templates: templatesReference                        # callDefinedTransform
   | source                        # literalTemplates
