@@ -1,13 +1,13 @@
 package tailspin.matchers;
 
-import java.util.Map;
-import java.util.stream.Collectors;
 import tailspin.TypeError;
 import tailspin.interpreter.Scope;
 import tailspin.types.DataDictionary;
 import tailspin.types.Membrane;
 import tailspin.types.Structure;
-import tailspin.types.TaggedIdentifier;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class StructureMatch implements Membrane {
   private final Map<String, Membrane> keyConditions;
@@ -52,9 +52,6 @@ public class StructureMatch implements Membrane {
       }
       Object valueToMatch = structureToMatch.get(keyMatch.getKey());
       TypeBound keyType = TypeBound.inContext(keyMatch.getKey(), scope.getLocalDictionary().getDataDefinition(keyMatch.getKey()));
-      if (valueToMatch instanceof TaggedIdentifier t && t.getTag().equals(keyMatch.getKey())) {
-        valueToMatch = t.getValue();
-      }
       if (!keyMatch.getValue().matches(valueToMatch, it, scope, keyType)) {
         return false;
       }

@@ -1,17 +1,16 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
+import tailspin.TypeError;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
-import tailspin.TypeError;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TaggedIdentifier {
 
@@ -828,7 +827,24 @@ public class TaggedIdentifier {
       \\) -> !OUT::write
     """;
     Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void comparisonInTagContextCanBeTagged() throws IOException {
+    String program = """
+      {foo: 'ab'} -> \\(
+        when <{foo: <foo´'a.+'>}> do 'yes'!
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -860,7 +876,24 @@ public class TaggedIdentifier {
       \\) -> !OUT::write
     """;
     Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void equalityInTagContextCanBeTagged() throws IOException {
+    String program = """
+      {foo: 'ab'} -> \\(
+        when <{foo: <=foo´'ab'>}> do 'yes'!
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -894,7 +927,60 @@ public class TaggedIdentifier {
       \\) -> !OUT::write
     """;
     Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeInTagContextCanBeTagged() throws IOException {
+    String program = """
+      {foo: 'ab'} -> \\(
+        when <{foo: <foo´'aa'..foo´'ac'>}> do 'yes'!
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeInTagContextCanBeTaggedOnLow() throws IOException {
+    String program = """
+      def lower: foo´'aa';
+      {foo: 'ab'} -> \\(
+        when <{foo: <$lower..'ac'>}> do 'yes'!
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void rangeInTagContextCanBeTaggedOnHigh() throws IOException {
+    String program = """
+      def upper: foo´'ac';
+      {foo: 'ab'} -> \\(
+        when <{foo: <'aa'..$upper>}> do 'yes'!
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();

@@ -64,6 +64,9 @@ public class RangeMatch implements Membrane {
       } else if (typeBound.outOfBound(low, null, scope)) {
         throw new TypeError("Lower bound in " + this + " is not in expected type bound " + typeBound);
       }
+      if (typeBound != null && low instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
+        low = t.getValue();
+      }
       result = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low);
       if (!result) return false;
     }
@@ -76,6 +79,9 @@ public class RangeMatch implements Membrane {
         }
       } else if (typeBound.outOfBound(high, null, scope)) {
         throw new TypeError("Upper bound in " + this + " is not in expected type bound " + typeBound);
+      }
+      if (typeBound != null && high instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
+        high = t.getValue();
       }
       result = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high);
     }
