@@ -263,12 +263,6 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitEnumeratedValue(TailspinParser.EnumeratedValueContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link TailspinParser#enumeration}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitEnumeration(TailspinParser.EnumerationContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code callDefinedTransform}
 	 * labeled alternative in {@link TailspinParser#templates}.
 	 * @param ctx the parse tree

@@ -18,7 +18,7 @@ public class Enumerations {
         String program = """
                 data colour [red, white, blue]
                 
-                colour#white -> !OUT::write
+                colour´white -> !OUT::write
                 """;
         Tailspin runner =
                 Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -27,6 +27,6 @@ public class Enumerations {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         runner.run(input, output, List.of());
 
-        assertEquals("colour#white", output.toString(StandardCharsets.UTF_8));
+        assertEquals("white", output.toString(StandardCharsets.UTF_8));
     }
 }

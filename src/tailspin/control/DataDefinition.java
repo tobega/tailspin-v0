@@ -1,8 +1,8 @@
 package tailspin.control;
 
 import tailspin.interpreter.Scope;
+import tailspin.matchers.DefinedEnumeration;
 import tailspin.matchers.DefinedTag;
-import tailspin.matchers.EnumValues;
 import tailspin.types.Membrane;
 
 import java.util.List;
@@ -18,8 +18,8 @@ public class DataDefinition implements Expression {
   public Object getResults(Object it, Scope blockScope) {
     for (Map.Entry<String, Membrane> definition : definitions) {
       Membrane def;
-      if (definition.getValue() instanceof EnumValues e) {
-        def = e.defineValues(it, blockScope);
+      if (definition.getValue() instanceof DefinedEnumeration e) {
+        def = e;
       } else {
         def = new DefinedTag(definition.getKey(), definition.getValue(), blockScope);
       }

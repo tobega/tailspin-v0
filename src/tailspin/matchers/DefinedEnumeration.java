@@ -3,40 +3,33 @@ package tailspin.matchers;
 import tailspin.interpreter.Scope;
 import tailspin.types.EnumSymbol;
 import tailspin.types.Membrane;
-import tailspin.types.TaggedIdentifier;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class DefinedEnumeration implements Membrane {
 
   private final String tag;
-  private final Membrane baseType;
   private final Map<String, EnumSymbol> symbols;
-  private final List<Object> values;
-  private final Scope definingScope;
 
-  public DefinedEnumeration(String tag, Membrane baseType, Map<String, EnumSymbol> symbols, List<Object> values, Scope definingScope) {
+  public DefinedEnumeration(String tag, List<String> values) {
     this.tag = tag;
-    this.baseType = baseType;
-    this.symbols = symbols;
-    this.values = values;
-    this.definingScope = definingScope;
+    this.symbols = new HashMap<>();
+    for (int i = 0; i < values.size(); i ++) {
+      String v = values.get(i);
+      symbols.put(v, new EnumSymbol(tag, v, i));
+    }
   }
 
   @Override
   public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
-    if (toMatch instanceof String || toMatch instanceof Long) {
-      if (typeBound == null || !tag.equals(typeBound.contextTag())) return false;
-    } else if (toMatch instanceof TaggedIdentifier t && t.getTag().equals(tag)) {
-      toMatch = t.getValue();
-    }
-    return baseType.matches(toMatch, null, definingScope, typeBound);
+    return (toMatch instanceof EnumSymbol e && tag.equals(e.enumeration()) && symbols.containsKey(e.value()));
   }
 
   @Override
   public String toString() {
-    return tag + ":" + baseType.toString();
+    return tag + ":" + symbols.keySet();
   }
 
   public Object getValue(String value) {

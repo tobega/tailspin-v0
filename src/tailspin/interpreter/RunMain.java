@@ -122,7 +122,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Value visitEnumeratedValue(EnumeratedValueContext ctx) {
-    return new EnumeratedValue(ctx.enumeration().localIdentifier().getText(), ctx.localIdentifier().getText());
+    return new EnumeratedValue(ctx.localIdentifier(0).getText(), ctx.localIdentifier(1).getText());
   }
 
   @Override
@@ -790,21 +790,18 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public Map.Entry<String, Membrane> visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
     String identifier = ctx.localIdentifier().getText();
-    Membrane matcher = ctx.matcher() == null ? null : visitMatcher(ctx.matcher());
+    Membrane matcher;
     if (ctx.symbolSet() != null) {
-      matcher = new EnumValues(identifier, visitSymbolSet(ctx.symbolSet()), (Membrane) matcher);
+      matcher = new DefinedEnumeration(identifier, visitSymbolSet(ctx.symbolSet()));
+    } else {
+       matcher = visitMatcher(ctx.matcher());
     }
-    assert matcher != null;
     return Map.entry(identifier, matcher);
   }
 
   @Override
-  public List<Map.Entry<String, Value>> visitSymbolSet(SymbolSetContext ctx) {
-    List<Map.Entry<String, Value>> symbols = new ArrayList<>();
-    for (int i = 0; i < ctx.localIdentifier().size(); i++) {
-      symbols.add(new AbstractMap.SimpleEntry<>(ctx.localIdentifier(i).getText(), null));
-    }
-    return symbols;
+  public List<String> visitSymbolSet(SymbolSetContext ctx) {
+    return ctx.localIdentifier().stream().map(LocalIdentifierContext::getText).toList();
   }
 
   @Override

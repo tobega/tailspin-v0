@@ -36,7 +36,7 @@ operatorDefinition: StartOperatorDefinition LeftParen localIdentifier localIdent
 
 dataDeclaration: DataDefinition dataDefinition (Comma dataDefinition)*;
 
-dataDefinition: localIdentifier (symbolSet matcher? | matcher);
+dataDefinition: localIdentifier (symbolSet | matcher);
 
 symbolSet: LeftBracket localIdentifier (Comma localIdentifier)* RightBracket;
 
@@ -109,9 +109,7 @@ structureExpansion: keyValue
 
 keyValue: key valueProduction;
 
-enumeratedValue: enumeration localIdentifier;
-
-enumeration: localIdentifier TemplateMatch;
+enumeratedValue: localIdentifier Tick localIdentifier;
 
 templates: templatesReference                        # callDefinedTransform
   | source                        # literalTemplates
