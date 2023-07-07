@@ -27,6 +27,14 @@ public class DefinedTag implements Membrane {
   }
 
   @Override
+  public Object inContext(Object value) {
+    if (value instanceof String || value instanceof Long) {
+      return new TaggedIdentifier(tag, value);
+    }
+    return value;
+  }
+
+  @Override
   public String toString() {
     return tag + ":" + baseType.toString();
   }

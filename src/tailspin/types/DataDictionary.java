@@ -196,12 +196,10 @@ public class DataDictionary {
       }
       dataDefinitions.put(key, def);
     }
+    data = def.inContext(data);
     // Do this also for values that were just autotyped. For example arrays still need to be tested.
     if (!def.matches(data, null, scope, TypeBound.anyInContext(key))) {
       throw new TypeError("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
-    }
-    if (data instanceof Long || data instanceof String) {
-      data = new TaggedIdentifier(key, data);
     }
     return data;
   }
