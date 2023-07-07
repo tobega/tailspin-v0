@@ -68,7 +68,7 @@ public class DataDictionary {
       public int isMetAt(TailspinArray.Tail toMatch, Object it, Scope scope) {
         // This should never be called if Tail is empty
         if (contentMembrane == null) {
-          contentMembrane = getDefaultTypeCriterion(null, toMatch.getNative(0), dictionary);
+          contentMembrane = getDefaultTypeCriterion(toMatch.getNative(0), dictionary);
           return 1;
         } else if (contentMembrane.matches(toMatch.getNative(0), null, scope, null)) {
           return 1;
@@ -125,17 +125,17 @@ public class DataDictionary {
     this.moduleDictionary = moduleDictionary;
   }
 
-  public static Membrane getDefaultTypeCriterion(String tag, Object data, DataDictionary dictionary) {
+  public static Membrane getDefaultTypeCriterion(Object data, DataDictionary dictionary) {
     if (data instanceof String) {
-      return tag == null ? stringMatch : new DefinedTag(tag, stringMatch, null);
+      return stringMatch;
     }
     if (data instanceof Long) {
-      return tag == null ? numberMatch : new DefinedTag(tag, numberMatch, null);
+      return numberMatch;
     }
     if (data instanceof TailspinArray a) {
       CollectionSegmentCriterion contentCriterion;
       if (a.length() > 0) {
-        Membrane contentMatcher = getDefaultTypeCriterion(null, a.getNative(0), dictionary);
+        Membrane contentMatcher = getDefaultTypeCriterion(a.getNative(0), dictionary);
         // Some types not yet default typed, so may be null
         contentCriterion = new OneElementMatch(contentMatcher == null ? TypeBound.ANY_MATCH : contentMatcher);
       } else {
@@ -187,8 +187,13 @@ public class DataDictionary {
     }
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
-      def = getDefaultTypeCriterion(key, data, this);
+      def = getDefaultTypeCriterion(data, this);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
+      if (data instanceof String) {
+        def = new DefinedTag(key, def, scope);
+      } else if (data instanceof Long) {
+        def = new DefinedTag(key, def, scope);
+      }
       dataDefinitions.put(key, def);
     }
     // Do this also for values that were just autotyped. For example arrays still need to be tested.

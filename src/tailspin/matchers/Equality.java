@@ -18,7 +18,7 @@ public class Equality implements Membrane {
   public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     Object required = value.getResults(it, scope);
     if (typeBound == null) {
-      typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, required, scope.getLocalDictionary()));
+      typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(required, scope.getLocalDictionary()));
     } else if (typeBound.outOfBound(required, it, scope)) {
       throw new TypeError("Matcher " + this + " not in expected type bound " + typeBound);
     }

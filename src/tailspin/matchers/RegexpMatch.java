@@ -36,7 +36,7 @@ public class RegexpMatch implements Membrane {
   public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     String pattern = (String) patternValue.getResults(it, scope);
     if (typeBound == null) {
-      typeBound = TypeBound.of(tag == null ? DataDictionary.getDefaultTypeCriterion(null, "", scope.getLocalDictionary())
+      typeBound = TypeBound.of(tag == null ? DataDictionary.getDefaultTypeCriterion("", scope.getLocalDictionary())
           : scope.getLocalDictionary().getDataDefinition(tag));
     }
     if (typeBound != null && typeBound.outOfBound(toMatch, it, scope)) {

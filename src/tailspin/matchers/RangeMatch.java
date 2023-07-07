@@ -57,7 +57,7 @@ public class RangeMatch implements Membrane {
     if (lowerBound != null) {
       Object low = lowerBound.value.getResults(it, scope);
       if (typeBound == null) {
-        typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, low, scope.getLocalDictionary()));
+        typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(low, scope.getLocalDictionary()));
         if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
           throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
         }
@@ -73,7 +73,7 @@ public class RangeMatch implements Membrane {
     if (upperBound != null) {
       Object high = upperBound.value.getResults(it, scope);
       if (typeBound == null) {
-        typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, high, scope.getLocalDictionary()));
+        typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(high, scope.getLocalDictionary()));
         if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
           throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
         }
