@@ -15,25 +15,19 @@ public class Equality implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
     Object required = value.getResults(it, scope);
     if (typeBound == null) {
-      typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(required, scope.getLocalDictionary()));
+      typeBound = DataDictionary.getDefaultTypeCriterion(required, scope.getLocalDictionary());
     } else {
       toMatch = typeBound.inContext(toMatch);
       required = typeBound.inContext(required);
-      if (typeBound.outOfBound(required, it, scope)) {
+      if (!typeBound.matches(required, it, scope, Membrane.ALWAYS_TRUE)) {
         throw new TypeError("Matcher " + this + " not in expected type bound " + typeBound);
       }
     }
-    if (typeBound != null && typeBound.outOfBound(toMatch, it, scope)) {
+    if (typeBound != null && !typeBound.matches(toMatch, it, scope, Membrane.ALWAYS_TRUE)) {
       throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " not in expected type bound " + typeBound);
-    }
-    if (typeBound != null && required instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
-      required = t.getValue();
-    }
-    if (typeBound != null && toMatch instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
-      toMatch = t.getValue();
     }
     return eq(toMatch, required);
   }

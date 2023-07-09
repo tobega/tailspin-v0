@@ -1,15 +1,16 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
+import tailspin.TypeError;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
-import tailspin.TypeError;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class Matchers {
   @Test
@@ -1353,7 +1354,7 @@ class Matchers {
   @Test
   void stereotypeMatch() throws Exception {
     String program = "data dice <1..6>\n"
-        + "0..7 -> \\(when <´´ dice> do $! otherwise '-' !\\) -> !OUT::write";
+        + "0..7 -> \\(when <dice> do $! otherwise '-' !\\) -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1362,6 +1363,34 @@ class Matchers {
     runner.run(input, output, List.of());
 
     assertEquals("-123456-", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void stereotypeMatchDoesNotMatchUntypedUnderBroadTypeBounds() throws Exception {
+    String program = "data dice <1..6>\n"
+        + "0..7 -> \\(when <´´ dice> do $! otherwise '-' !\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("--------", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void stereotypeMatchMatchesTaggedValueUnderBroadTypeBounds() throws Exception {
+    String program = "data dice <1..6>\n"
+        + "dice´1..dice´6 -> \\(when <´´ dice> do $! otherwise '-' !\\) -> !OUT::write";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("123456", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

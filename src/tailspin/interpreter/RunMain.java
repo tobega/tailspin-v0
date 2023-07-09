@@ -408,10 +408,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public TypeBound visitTypeBound(TailspinParser.TypeBoundContext ctx) {
+  public Membrane visitTypeBound(TailspinParser.TypeBoundContext ctx) {
     if (ctx == null) return null;
-    if (ctx.typeMatch() == null) return TypeBound.any();
-    return TypeBound.of((Membrane) visit(ctx.typeMatch()));
+    if (ctx.typeMatch() == null) return Membrane.ALWAYS_TRUE;
+    return (Membrane) visit(ctx.typeMatch());
   }
 
   @Override
@@ -470,7 +470,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       String key = ctx.key(i).localIdentifier().getText();
       TailspinParser.StructureContentMatcherContext matcherCtx = ctx.structureContentMatcher(i);
       Membrane matcher = matcherCtx.Void() == null ? visitMatcher(matcherCtx.matcher())
-          : AlwaysFalse.INSTANCE;
+          : Membrane.ALWAYS_FALSE;
       keyMatchers.put(key, matcher);
       if (implicitDataDefinitions != null) {
         if (ctx.structureContentMatcher(i).matcher().membrane().size() != 1

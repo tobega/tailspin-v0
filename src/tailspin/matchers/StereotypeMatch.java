@@ -13,14 +13,11 @@ public class StereotypeMatch implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
     Membrane stereotype = scope.getLocalDictionary().getDataDefinition(identifier);
-    if (toMatch instanceof String || toMatch instanceof Long) {
-      if (typeBound != null && typeBound.contextTag() != null) {
-        toMatch = new TaggedIdentifier(typeBound.contextTag(), toMatch);
-      }
-    }
-    return stereotype.matches(toMatch, null, scope, TypeBound.anyInContext(identifier));
+    if (typeBound == null) typeBound = this;
+    toMatch = typeBound.inContext(toMatch);
+    return stereotype.matches(toMatch, null, scope, Membrane.ALWAYS_TRUE);
   }
 
   @Override

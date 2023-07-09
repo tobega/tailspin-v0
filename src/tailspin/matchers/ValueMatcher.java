@@ -16,7 +16,7 @@ public class ValueMatcher implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
     if (basicMembrane != null && !basicMembrane.matches(toMatch, it, scope, typeBound)) {
       return false;
     }

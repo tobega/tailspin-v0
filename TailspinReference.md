@@ -614,8 +614,9 @@ See also [type bounds](#type-bounds-for-matching), [measures](#measures) and [ta
 * Basic type matches: `<{}>` matches any [structure](#structures), `<[]>` matches any [array](#arrays), `<''>` matches any [raw or tagged](#tagged-identifiers) string value,
   `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures), while `""` matches any measure. To match empty structures, use `{VOID}`, for empty arrays, use `[](0)`.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
-  Note that matching a defined type determines if the value could be assigned to a field of that name,
+  Note that matching a defined type without a [type bound](#type-bounds-for-matching) determines if the value could be assigned to a field of that name,
   so raw strings or numbers will match if they could be tagged with the name of the defined type, see [tagged identifiers](#tagged-identifiers), even though they remain untyped.
+  If the defined type matcher is under a type bound, it will not generally match untyped values (unless their [type bound interpretation](#untyped-strings-and-numbers-under-type-bounds) matches)
   The name of an [autotyped](#autotyping) field or tag can also be used as a defined type.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
@@ -699,7 +700,8 @@ It is advisable to use as narrow type bounds as possible, but if needed, use the
 This is how the default type bound is determined for different types of matchers:
 - Equality and range: the autotype of the expected values
 - regex match: the tag in the matcher, or raw string if none given.
-- basic type matchers `..`, `''`, `""`, `[]` and `{}` allow any type. A matcher for a defined type is also considered a type matcher and allows any type.
+- basic type matchers `..`, `''`, `""`, `[]` and `{}` allow any type.
+- a matcher for a defined type acts as a type matcher when no type bound is given, or when it is a type bound (and then allows any type).
 - array match beyond basic type match (not just `[]`) has array type `[]` bound
 - structure match by default requires all matched fields to be present (or absent, if so specified). If there are no field matchers, any type is allowed (which implies `{VOID}` can function as a null value)
 - a structure field has the type bound of its defined (or autotyped) type. There is no point in giving it a broader type bound, but there maybe cases for giving it a narrower bound if the value must be a subtype 
@@ -716,6 +718,7 @@ because the default type bound for `foo´'hello'` requires the compared value to
 
 This may sound a little confusing, because `'hello' -> \(<foo> $! \)` will match. This is because the defined type matcher
 determines if a value could be assigned as that defined type, e.g. to a foo field. But the untyped string will not become tagged until it is assigned to a tag or field.
+Note that `'hello' -> \(<´´ foo> $! \)` will not match, because the string is now interpreted in the "any type" context, not in the "foo" type context.
 
 Comparing the untyped string with the type bound foo, as in `'hello' -> \(<´foo´ =foo´'hello'> $! \)` will actually match,
 but note that the `'hello'` string will only be considered tagged during the matching, it will still remain untagged in the following program flow.

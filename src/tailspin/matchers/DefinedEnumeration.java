@@ -23,7 +23,7 @@ public class DefinedEnumeration implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
     return (toMatch instanceof EnumSymbol e && tag.equals(e.enumeration()) && symbols.containsKey(e.value()));
   }
 

@@ -14,7 +14,7 @@ public class RangeMatch implements Membrane {
 
   public static final Membrane numberType = new Membrane() {
     @Override
-    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
       Object baseValue = toMatch;
       if (baseValue instanceof Measure m) baseValue = m.getValue();
       else if (baseValue instanceof TaggedIdentifier t) baseValue = t.getValue();
@@ -46,32 +46,26 @@ public class RangeMatch implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
     boolean result = false;
     if (typeBound != null) {
       toMatch = typeBound.inContext(toMatch);
     }
-    if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
+    if (typeBound != null && !typeBound.matches(toMatch, null, scope, Membrane.ALWAYS_TRUE)) {
       throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
-    }
-    if (typeBound != null && toMatch instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
-      toMatch = t.getValue();
     }
     if (lowerBound != null) {
       Object low = lowerBound.value.getResults(it, scope);
       if (typeBound == null) {
-        typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(low, scope.getLocalDictionary()));
-        if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
+        typeBound = DataDictionary.getDefaultTypeCriterion(low, scope.getLocalDictionary());
+        if (typeBound != null && !typeBound.matches(toMatch, null, scope, Membrane.ALWAYS_TRUE)) {
           throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
         }
       } else {
         low = typeBound.inContext(low);
-        if (typeBound.outOfBound(low, null, scope)) {
+        if (!typeBound.matches(low, null, scope, Membrane.ALWAYS_TRUE)) {
           throw new TypeError("Lower bound in " + this + " is not in expected type bound " + typeBound);
         }
-      }
-      if (typeBound != null && low instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
-        low = t.getValue();
       }
       result = compare(toMatch, lowerBound.inclusive ? Comparison.GREATER_OR_EQUAL : Comparison.GREATER, low);
       if (!result) return false;
@@ -79,18 +73,15 @@ public class RangeMatch implements Membrane {
     if (upperBound != null) {
       Object high = upperBound.value.getResults(it, scope);
       if (typeBound == null) {
-        typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(high, scope.getLocalDictionary()));
-        if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
+        typeBound = DataDictionary.getDefaultTypeCriterion(high, scope.getLocalDictionary());
+        if (typeBound != null && !typeBound.matches(toMatch, null, scope, Membrane.ALWAYS_TRUE)) {
           throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
         }
       } else {
         high = typeBound.inContext(high);
-        if (typeBound.outOfBound(high, null, scope)) {
+        if (!typeBound.matches(high, null, scope, Membrane.ALWAYS_TRUE)) {
           throw new TypeError("Upper bound in " + this + " is not in expected type bound " + typeBound);
         }
-      }
-      if (typeBound != null && high instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
-        high = t.getValue();
       }
       result = compare(toMatch, upperBound.inclusive ? Comparison.LESS_OR_EQUAL : Comparison.LESS, high);
     }

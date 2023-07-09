@@ -19,7 +19,7 @@ public class DataDictionary {
 
   private static final Membrane stringMatch = new Membrane() {
     @Override
-    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
       return (toMatch instanceof String);
     }
 
@@ -31,7 +31,7 @@ public class DataDictionary {
 
   private static final Membrane numberMatch = new Membrane() {
     @Override
-    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
       return (toMatch instanceof Long);
     }
 
@@ -115,8 +115,6 @@ public class DataDictionary {
     }
   }
 
-  private static final Membrane exists = new AnyOf(false, TypeBound.any(), List.of());
-
   public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
   public DataDictionary(/*@Nullable*/ DataDictionary callingDictionary,
@@ -137,14 +135,14 @@ public class DataDictionary {
       if (a.length() > 0) {
         Membrane contentMatcher = getDefaultTypeCriterion(a.getNative(0), dictionary);
         // Some types not yet default typed, so may be null
-        contentCriterion = new OneElementMatch(contentMatcher == null ? TypeBound.ANY_MATCH : contentMatcher);
+        contentCriterion = new OneElementMatch(contentMatcher == null ? Membrane.ALWAYS_TRUE : contentMatcher);
       } else {
         contentCriterion = new AutotypedArray.DiscoveredContent(dictionary);
       }
       return new AutotypedArray(a.getOffset(), contentCriterion);
     }
     if (data instanceof Structure s) {
-      return new StructureMatch(s.keySet().stream().collect(Collectors.toMap(Function.identity(), (k) -> exists)), false);
+      return new StructureMatch(s.keySet().stream().collect(Collectors.toMap(Function.identity(), (k) -> Membrane.ALWAYS_TRUE)), false);
     }
     if (data instanceof Measure m) {
       return new UnitMatch(m.getUnit());
@@ -198,7 +196,7 @@ public class DataDictionary {
     }
     data = def.inContext(data);
     // Do this also for values that were just autotyped. For example arrays still need to be tested.
-    if (!def.matches(data, null, scope, TypeBound.anyInContext(key))) {
+    if (!def.matches(data, null, scope, Membrane.ALWAYS_TRUE)) {
       throw new TypeError("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
     }
     return data;
