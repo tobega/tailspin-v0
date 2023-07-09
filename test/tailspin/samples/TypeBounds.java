@@ -839,4 +839,24 @@ class TypeBounds {
 
     assertEquals("yay", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void untypedStringInTypeBoundedRegexpMatchIsTyped() throws IOException {
+    String program = """
+      data foo <''>
+
+      'bar' -> \\(
+        <´foo´ 'b.*'> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
 }
