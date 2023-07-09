@@ -48,6 +48,9 @@ public class RangeMatch implements Membrane {
   @Override
   public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
     boolean result = false;
+    if (typeBound != null) {
+      toMatch = typeBound.inContext(toMatch);
+    }
     if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
       throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
     }
@@ -61,8 +64,11 @@ public class RangeMatch implements Membrane {
         if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
           throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
         }
-      } else if (typeBound.outOfBound(low, null, scope)) {
-        throw new TypeError("Lower bound in " + this + " is not in expected type bound " + typeBound);
+      } else {
+        low = typeBound.inContext(low);
+        if (typeBound.outOfBound(low, null, scope)) {
+          throw new TypeError("Lower bound in " + this + " is not in expected type bound " + typeBound);
+        }
       }
       if (typeBound != null && low instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
         low = t.getValue();
@@ -77,8 +83,11 @@ public class RangeMatch implements Membrane {
         if (typeBound != null && typeBound.outOfBound(toMatch, null, scope)) {
           throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not in expected type bound " + typeBound);
         }
-      } else if (typeBound.outOfBound(high, null, scope)) {
-        throw new TypeError("Upper bound in " + this + " is not in expected type bound " + typeBound);
+      } else {
+        high = typeBound.inContext(high);
+        if (typeBound.outOfBound(high, null, scope)) {
+          throw new TypeError("Upper bound in " + this + " is not in expected type bound " + typeBound);
+        }
       }
       if (typeBound != null && high instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
         high = t.getValue();

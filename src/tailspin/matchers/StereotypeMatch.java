@@ -24,6 +24,14 @@ public class StereotypeMatch implements Membrane {
   }
 
   @Override
+  public Object inContext(Object value) {
+    if (value instanceof String || value instanceof Long) {
+      return new TaggedIdentifier(identifier, value);
+    }
+    return value;
+  }
+
+  @Override
   public String toString() {
     return identifier;
   }

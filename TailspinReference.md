@@ -34,7 +34,7 @@ should have been used instead. This is deliberate in order to free the mind of p
 1. [Matchers](#matchers)
    1. [Multipliers](#multipliers)
    2. [Types and matching](#type-bounds-for-matching)
-   2. [Do-nothing blocks](#do-nothing-block--guard-clause-)
+   2. [Do-nothing blocks](#do-nothing-block-guard-clause)
    3. [Conditions](#conditions)
    4. [Defined types](#defined-types)
 1. [Mutable state](#mutable-state) (see also [Processors](#processors))
@@ -614,7 +614,8 @@ See also [type bounds](#type-bounds-for-matching), [measures](#measures) and [ta
 * Basic type matches: `<{}>` matches any [structure](#structures), `<[]>` matches any [array](#arrays), `<''>` matches any [raw or tagged](#tagged-identifiers) string value,
   `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures), while `""` matches any measure. To match empty structures, use `{VOID}`, for empty arrays, use `[](0)`.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
-  Note that matching here creates a tag context in which raw strings or numbers will match if they could be tagged with the name of the defined type, see [tagged identifiers](#tagged-identifiers).
+  Note that matching a defined type determines if the value could be assigned to a field of that name,
+  so raw strings or numbers will match if they could be tagged with the name of the defined type, see [tagged identifiers](#tagged-identifiers), even though they remain untyped.
   The name of an [autotyped](#autotyping) field or tag can also be used as a defined type.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
@@ -698,9 +699,27 @@ It is advisable to use as narrow type bounds as possible, but if needed, use the
 This is how the default type bound is determined for different types of matchers:
 - Equality and range: the autotype of the expected values
 - regex match: the tag in the matcher, or raw string if none given.
-- basic type matchers `..`, `''`, `""`, `[]` and `{}` allow any type
+- basic type matchers `..`, `''`, `""`, `[]` and `{}` allow any type. A matcher for a defined type is also considered a type matcher and allows any type.
 - array match beyond basic type match (not just `[]`) has array type `[]` bound
 - structure match by default requires all matched fields to be present (or absent, if so specified). If there are no field matchers, any type is allowed (which implies `{VOID}` can function as a null value)
+- a structure field has the type bound of its defined (or autotyped) type. There is no point in giving it a broader type bound, but there maybe cases for giving it a narrower bound if the value must be a subtype 
+  at that point in the program, and it would be a programming error otherwise.
+
+#### Untyped strings and numbers under type bounds
+A value that matches the type bound will be considered to be of that type for the duration of the match,
+which has particular consequences for untyped strings and numbers.
+
+Consider the type foo which could be any string value `data foo <''>`.
+
+Comparing an untyped string with a tagged string, as in `'hello' -> \(<=foo´'hello'> $! \)` directly will be an error,
+because the default type bound for `foo´'hello'` requires the compared value to actually be a foo-value.
+
+This may sound a little confusing, because `'hello' -> \(<foo> $! \)` will match. This is because the defined type matcher
+determines if a value could be assigned as that defined type, e.g. to a foo field. But the untyped string will not become tagged until it is assigned to a tag or field.
+
+Comparing the untyped string with the type bound foo, as in `'hello' -> \(<´foo´ =foo´'hello'> $! \)` will actually match,
+but note that the `'hello'` string will only be considered tagged during the matching, it will still remain untagged in the following program flow.
+Note that, as a convenience, you don't need to tag the matcher values with the type bound, so `'hello' -> \(<´foo´ ='hello'> $! \)` works just as well.
 
 ### Multipliers
 Composer matchers and array content matchers can have multipliers attached:
@@ -926,7 +945,7 @@ Operations on relations:
   from the left-hand relation that are not in the right-hand relation.
 * Two relations can be combined with the `join` operator. The new relation will have keys that are the union of
 the keys of both. If there are no common keys, a full cross-product will be created, otherwise the entries will first
-be grouped on equality of common keys and a cross-product will be created within each equivalence group.
+be grouped on equality of common keys and a cross-product will be created within each equivalence group. This is known as a "natural join".
 * A relation can be [projected](#projections-and-lenses) onto a subset of the keys by referencing the relation, appending an opening parenthesis,
 a list of keys for the projection within curly braces and a closing parenthesis, e.g. `$myRelation({x:})` will select all
 the x-values, and only the x-values, in the relation and return a new relation with the new tuples/structures.
@@ -1126,8 +1145,7 @@ if you need to, or that an element must not exist.
 
 One thing to note is that a key of a [key-value pair](#keyed-values), which is also the name of a field in a
 [structure](#structures), is expected to be connected to a value of the same type wherever it is used, i.e. keys form a
-[data dictionary](#data-dictionary). When you do a join on [relations](#relations), values with the same name will
-be joined together in a "natural join". If you don't specify a type in the [data dictionary](#data-dictionary),
+[data dictionary](#data-dictionary). If you don't specify a type in the [data dictionary](#data-dictionary),
 a type will automatically be assigned by [autotyping](#autotyping).
 
 Numbers in arithmetic expressions are in their bare state just untyped numbers, but they can be assigned a

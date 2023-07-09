@@ -19,8 +19,12 @@ public class Equality implements Membrane {
     Object required = value.getResults(it, scope);
     if (typeBound == null) {
       typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(required, scope.getLocalDictionary()));
-    } else if (typeBound.outOfBound(required, it, scope)) {
-      throw new TypeError("Matcher " + this + " not in expected type bound " + typeBound);
+    } else {
+      toMatch = typeBound.inContext(toMatch);
+      required = typeBound.inContext(required);
+      if (typeBound.outOfBound(required, it, scope)) {
+        throw new TypeError("Matcher " + this + " not in expected type bound " + typeBound);
+      }
     }
     if (typeBound != null && typeBound.outOfBound(toMatch, it, scope)) {
       throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " not in expected type bound " + typeBound);

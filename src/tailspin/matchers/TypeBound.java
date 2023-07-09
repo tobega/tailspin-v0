@@ -2,7 +2,6 @@ package tailspin.matchers;
 
 import tailspin.interpreter.Scope;
 import tailspin.types.Membrane;
-import tailspin.types.TaggedIdentifier;
 
 public class TypeBound {
 
@@ -27,10 +26,11 @@ public class TypeBound {
   }
 
   public boolean outOfBound(Object toMatch, Object it, Scope scope) {
-    if (tag != null && (toMatch instanceof String || toMatch instanceof Long)) {
-      toMatch = new TaggedIdentifier(tag, toMatch);
-    }
     return !bound.matches(toMatch, it, scope, any());
+  }
+
+  public Object inContext(Object value) {
+    return bound.inContext(value);
   }
 
   @Override
