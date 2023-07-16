@@ -150,8 +150,8 @@ public class DataDictionary {
     if (data instanceof TaggedIdentifier t) {
       return dictionary.getDataDefinition(t.getTag());
     }
-    if (data instanceof EnumSymbol e) {
-      return dictionary.getDataDefinition(e.enumeration());
+    if (data instanceof Symbol e) {
+      return dictionary.getDataDefinition(e.set());
     }
     // TODO: match remaining types
     return null;

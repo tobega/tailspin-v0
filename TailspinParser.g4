@@ -38,7 +38,7 @@ dataDeclaration: DataDefinition dataDefinition (Comma dataDefinition)*;
 
 dataDefinition: localIdentifier (symbolSet | matcher);
 
-symbolSet: LeftBracket localIdentifier (Comma localIdentifier)* RightBracket;
+symbolSet: TemplateMatch LeftBrace localIdentifier (Comma localIdentifier)* RightBrace;
 
 localDataDeclaration: DataDefinition localDataDefinition (Comma localDataDefinition)* LocalDefinition;
 
@@ -59,7 +59,7 @@ source: rangeLiteral
   | arithmeticValue
   | operatorExpression
   | taggedValue
-  | enumeratedValue
+  | symbolicValue
 ;
 
 sourceReference: (SourceMarker anyIdentifier? | Reflexive) reference Message? parameterValues?
@@ -109,7 +109,7 @@ structureExpansion: keyValue
 
 keyValue: key valueProduction;
 
-enumeratedValue: localIdentifier Tick localIdentifier;
+symbolicValue: localIdentifier TemplateMatch localIdentifier;
 
 templates: templatesReference                        # callDefinedTransform
   | source                        # literalTemplates
@@ -170,7 +170,7 @@ typeMatch: START_STRING END_STRING    # stringTypeMatch
   | tag? stringLiteral                          # regexpMatch
   | LeftBrace (key structureContentMatcher Comma?)* (Comma? Void)? RightBrace # structureMatch
   | (arrayOffset|tag Colon|unit Colon)? LeftBracket arrayContentMatcher? (Comma arrayContentMatcher)* (Comma? Void)? RightBracket (LeftParen (rangeBounds|arithmeticValue) RightParen)?         # arrayMatch
-  | (localIdentifier|externalIdentifier) # stereotypeMatch
+  | (localIdentifier|externalIdentifier) TemplateMatch? # stereotypeMatch
   | (unit |  Quote Quote) # unitMatch
   | LeftParen key structureContentMatcher RightParen # keyValueMatch
 ;

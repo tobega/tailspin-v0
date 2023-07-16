@@ -13,14 +13,14 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class Enumerations {
+public class SymbolSets {
 
     @Test
     void defineSymbols() throws IOException {
         String program = """
-                data colour [red, white, blue]
+                data colour #{red, white, blue}
                 
-                colour´white -> !OUT::write
+                colour#white -> !OUT::write
                 """;
         Tailspin runner =
                 Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -33,13 +33,13 @@ public class Enumerations {
     }
 
     @Test
-    void enumSymbolBelongsToItsEnumType() throws IOException {
+    void symbolBelongsToItsSet() throws IOException {
         String program = """
-                data colour [red, white, blue], texture [smooth, spotted]
+                data colour #{red, white, blue}, texture #{smooth, spotted}
                 
-                colour´white -> \\(
-                  <texture> 'no'!
-                  <colour> 'yes'!
+                colour#white -> \\(
+                  <texture#> 'no'!
+                  <colour#> 'yes'!
                 \\) -> !OUT::write
                 """;
         Tailspin runner =
@@ -53,13 +53,13 @@ public class Enumerations {
     }
 
     @Test
-    void enumSymbolEquality() throws IOException {
+    void symbolEquality() throws IOException {
         String program = """
-                data colour [red, white, blue]
+                data colour #{red, white, blue}
                 
-                colour´white -> \\(
-                  <=colour´blue> 'no'!
-                  <=colour´white> 'yes'!
+                colour#white -> \\(
+                  <=colour#blue> 'no'!
+                  <=colour#white> 'yes'!
                 \\) -> !OUT::write
                 """;
         Tailspin runner =
@@ -73,13 +73,13 @@ public class Enumerations {
     }
 
     @Test
-    void enumEqualityToOtherTypeIsError() throws IOException {
+    void equalityToOtherTypeIsError() throws IOException {
         String program = """
-                data colour [red, white, blue]
+                data colour #{red, white, blue}
                 
-                colour´white -> \\(
+                colour#white -> \\(
                   <=2> 'blows up'!
-                  <=colour´white> 'yes'!
+                  <=colour#white> 'yes'!
                 \\) -> !OUT::write
                 """;
         Tailspin runner =
@@ -91,14 +91,14 @@ public class Enumerations {
     }
 
     @Test
-    void enumEqualityToOtherEnumIsError() throws IOException {
+    void equalityToOtherSetsSymbolIsError() throws IOException {
         String program = """
-                data colour [red, white, blue],
-                     suit [clubs, diamonds, hearts, spades]
+                data colour #{red, white, blue},
+                     suit #{clubs, diamonds, hearts, spades}
                 
-                colour´white -> \\(
-                  <=suit´diamonds> 'blows up'!
-                  <=colour´white> 'yes'!
+                colour#white -> \\(
+                  <=suit#diamonds> 'blows up'!
+                  <=colour#white> 'yes'!
                 \\) -> !OUT::write
                 """;
         Tailspin runner =
@@ -107,5 +107,48 @@ public class Enumerations {
         ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+    }
+
+    @Test
+    void equalityToOtherSetsSymbolInBounds() throws IOException {
+        String program = """
+                data colour #{red, white, blue},
+                     suit #{clubs, diamonds, hearts, spades},
+                     suit_or_colour <colour#|suit#>
+                
+                colour#white -> \\(
+                  <´suit_or_colour´ =suit#diamonds> 'no'!
+                  <´suit_or_colour´ =colour#white> 'yes'!
+                \\) -> !OUT::write
+                """;
+        Tailspin runner =
+                Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+        ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        runner.run(input, output, List.of());
+
+        assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void symbolCanBeUsedInDifferentSets() throws IOException {
+        String program = """
+                data colour #{red, white, blue},
+                     player #{white, black}
+                
+                colour#white -> \\(
+                  <´´ =player#white> 'no'!
+                  <´´ =colour#white> 'yes'!
+                \\) -> !OUT::write
+                """;
+        Tailspin runner =
+                Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+        ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        runner.run(input, output, List.of());
+
+        assertEquals("yes", output.toString(StandardCharsets.UTF_8));
     }
 }

@@ -1,7 +1,7 @@
 package tailspin.control;
 
 import tailspin.interpreter.Scope;
-import tailspin.matchers.DefinedEnumeration;
+import tailspin.matchers.DefinedSymbolSet;
 import tailspin.matchers.DefinedTag;
 import tailspin.types.Membrane;
 
@@ -17,13 +17,12 @@ public class DataDefinition implements Expression {
 
   public Object getResults(Object it, Scope blockScope) {
     for (Map.Entry<String, Membrane> definition : definitions) {
-      Membrane def;
-      if (definition.getValue() instanceof DefinedEnumeration e) {
-        def = e;
+      if (definition.getValue() instanceof DefinedSymbolSet e) {
+        blockScope.getLocalDictionary().createDataDefinition(e.getTag(), e);
       } else {
-        def = new DefinedTag(definition.getKey(), definition.getValue(), blockScope);
+        Membrane def = new DefinedTag(definition.getKey(), definition.getValue(), blockScope);
+        blockScope.getLocalDictionary().createDataDefinition(definition.getKey(), def);
       }
-      blockScope.getLocalDictionary().createDataDefinition(definition.getKey(), def);
     }
     return null;
   }

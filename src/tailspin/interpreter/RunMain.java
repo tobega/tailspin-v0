@@ -16,7 +16,7 @@ import tailspin.parser.TailspinParserBaseVisitor;
 import tailspin.testing.Assertion;
 import tailspin.transform.*;
 import tailspin.transform.lens.*;
-import tailspin.literals.EnumeratedValue;
+import tailspin.literals.SymbolicValue;
 import tailspin.types.KeyValue;
 import tailspin.types.Membrane;
 import tailspin.types.Unit;
@@ -114,15 +114,15 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.taggedValue() != null) {
       return visitTaggedValue(ctx.taggedValue());
     }
-    if (ctx.enumeratedValue() != null) {
-      return visitEnumeratedValue(ctx.enumeratedValue());
+    if (ctx.symbolicValue() != null) {
+      return visitSymbolicValue(ctx.symbolicValue());
     }
     throw new UnsupportedOperationException(ctx.getText());
   }
 
   @Override
-  public Value visitEnumeratedValue(EnumeratedValueContext ctx) {
-    return new EnumeratedValue(ctx.localIdentifier(0).getText(), ctx.localIdentifier(1).getText());
+  public Value visitSymbolicValue(SymbolicValueContext ctx) {
+    return new SymbolicValue(ctx.localIdentifier(0).getText() + "#", ctx.localIdentifier(1).getText());
   }
 
   @Override
@@ -492,9 +492,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Membrane visitStereotypeMatch(StereotypeMatchContext ctx) {
-    String identifier = ctx.localIdentifier() != null
-        ? ctx.localIdentifier().getText() : ctx.externalIdentifier().getText();
-    // We don't reference this as an identifier here, data definitions have a different namespace
+    String identifier = ctx.getText();
     return new StereotypeMatch(identifier);
   }
 
@@ -792,9 +790,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     String identifier = ctx.localIdentifier().getText();
     Membrane matcher;
     if (ctx.symbolSet() != null) {
-      matcher = new DefinedEnumeration(identifier, visitSymbolSet(ctx.symbolSet()));
+      matcher = new DefinedSymbolSet(identifier + "#", visitSymbolSet(ctx.symbolSet()));
     } else {
-       matcher = visitMatcher(ctx.matcher());
+      matcher = visitMatcher(ctx.matcher());
     }
     return Map.entry(identifier, matcher);
   }

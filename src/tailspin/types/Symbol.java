@@ -1,6 +1,6 @@
 package tailspin.types;
 
-public record EnumSymbol(String enumeration, String value, int ordinal) {
+public record Symbol(String set, String value) {
     @Override
     public String toString() {
         return value;
