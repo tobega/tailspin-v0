@@ -1,14 +1,12 @@
 package tailspin.control;
 
-import java.util.ArrayDeque;
-import java.util.Iterator;
 import tailspin.interpreter.Scope;
 import tailspin.java.JavaObject;
 import tailspin.java.JavaTypeConverter;
-import tailspin.types.Relation;
-import tailspin.types.Structure;
-import tailspin.types.TaggedIdentifier;
-import tailspin.types.TailspinArray;
+import tailspin.types.*;
+
+import java.util.ArrayDeque;
+import java.util.Iterator;
 
 public class Deconstructor implements Expression {
   public static final Deconstructor INSTANCE = new Deconstructor();
@@ -27,10 +25,8 @@ public class Deconstructor implements Expression {
     if (it instanceof TaggedIdentifier t) {
       it = t.getValue();
     }
-    if (it instanceof TailspinArray) {
-      return ((TailspinArray) it).deconstruct();
-    } else if (it instanceof Relation) {
-      return ((Relation) it).deconstruct();
+    if (it instanceof Deconstructible d) {
+      return d.deconstruct();
     } else if (it instanceof String) {
       if (((String) it).isEmpty()) {
         return null;
@@ -58,8 +54,6 @@ public class Deconstructor implements Expression {
         }
       }
       return ((ResultIterator.Flat) deconstructed::poll);
-    } else if (it instanceof Structure) {
-      return ((Structure) it).deconstruct();
     } else if (it instanceof JavaObject) {
       Object realObject = ((JavaObject) it).getRealObject();
       if (realObject instanceof Iterable) {

@@ -1,15 +1,16 @@
 package tailspin.types;
 
+import tailspin.control.ResultIterator;
+import tailspin.literals.StringInterpolation;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import tailspin.control.ResultIterator;
-import tailspin.literals.StringInterpolation;
 
-public class TailspinArray implements Processor, Freezable<TailspinArray> {
+public class TailspinArray implements Processor, Freezable<TailspinArray>, Deconstructible {
 
   private final List<Object> array;
   private boolean isMutable;
