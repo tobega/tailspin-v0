@@ -5,24 +5,23 @@ import tailspin.matchers.DefinedSymbolSet;
 import tailspin.matchers.DefinedTag;
 import tailspin.types.Membrane;
 
-import java.util.List;
-import java.util.Map;
-
 public class DataDefinition implements Expression {
-  private final List<Map.Entry<String, Membrane>> definitions;
 
-  public DataDefinition(List<Map.Entry<String, Membrane>> definitions) {
-    this.definitions = definitions;
+  private final String identifier;
+  private final Membrane membrane;
+
+  public DataDefinition(String identifier, Membrane membrane) {
+    this.identifier = identifier;
+    this.membrane = membrane;
   }
 
   public Object getResults(Object it, Scope blockScope) {
-    for (Map.Entry<String, Membrane> definition : definitions) {
-      if (definition.getValue() instanceof DefinedSymbolSet e) {
-        blockScope.getLocalDictionary().createDataDefinition(e.getTag(), e);
-      } else {
-        Membrane def = new DefinedTag(definition.getKey(), definition.getValue(), blockScope);
-        blockScope.getLocalDictionary().createDataDefinition(definition.getKey(), def);
-      }
+    if (membrane instanceof DefinedSymbolSet e) {
+      blockScope.getLocalDictionary().createDataDefinition(e.getTag(), e);
+    } else {
+      /* membrane can be null for a local data definition */
+      Membrane def = membrane == null ? null : new DefinedTag(identifier, membrane, blockScope);
+      blockScope.getLocalDictionary().createDataDefinition(identifier, def);
     }
     return null;
   }

@@ -40,7 +40,7 @@ public class Program extends SymbolResolver {
   }
 
   public Module asModule() {
-    return new Module(getDefinitions(), includedFiles);
+    return new Module(getDefinitions(), getIncludedFiles());
   }
 
   @Override
@@ -60,7 +60,7 @@ public class Program extends SymbolResolver {
   private Object executeTest(TestStatement testStatement, Path basePath, SymbolLibrary coreSystemProvider) {
     BasicScope scope = new BasicScope(basePath);
     List<SymbolLibrary> testModules = getMocksAndModules(testStatement.test.getInjectedModules(), coreSystemProvider, basePath);
-    Module module = new Module(testStatement.test.overrideDefinitions(getDefinitions()), includedFiles);
+    Module module = new Module(testStatement.test.overrideDefinitions(getDefinitions()), getIncludedFiles());
     module.resolveSymbols(testStatement.requiredDefinitions, scope, testModules);
     return testStatement.test.getResults(null, scope);
   }

@@ -16,6 +16,6 @@ public class ModuleModifier extends ModuleImport {
   @Override
   Module getProgram(Path depPath) {
     Module module = super.getProgram(depPath);
-    return new Module(modifier.overrideDefinitions(module.definitions), module.includedFiles);
+    return new Module(modifier.overrideDefinitions(module.definitions), module.getIncludedFiles());
   }
 }

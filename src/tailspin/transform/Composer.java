@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import tailspin.control.DataDefinition;
 import tailspin.control.Expression;
 import tailspin.interpreter.Scope;
-import tailspin.matchers.DefinedTag;
 import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.Memo;
 import tailspin.matchers.composer.SequenceSubComposer;
 import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.types.DataDictionary;
-import tailspin.types.Membrane;
 import tailspin.types.Structure;
 import tailspin.types.TaggedIdentifier;
 import tailspin.types.Transform;
@@ -20,7 +19,7 @@ import tailspin.types.Transform;
 public class Composer implements Transform {
 
   private final Scope definingScope;
-  private final List<Map.Entry<String, Membrane>> localDatatypes;
+  private final List<DataDefinition> localDatatypes;
   private final Expression stateAssignment;
   private final List<CompositionSpec> specs;
   private final List<ExpectedParameter> expectedParameters = new ArrayList<>();
@@ -28,7 +27,7 @@ public class Composer implements Transform {
   private String scopeName = "";
 
   public Composer(Scope definingScope, /* @Nullable */
-      List<Map.Entry<String, Membrane>> localDatatypes, Expression stateAssignment,
+      List<DataDefinition> localDatatypes, Expression stateAssignment,
       List<CompositionSpec> specs,
       SubComposerFactory subComposerFactory) {
     this.definingScope = definingScope;
@@ -63,8 +62,7 @@ public class Composer implements Transform {
   private TransformScope createTransformScope(Map<String, Object> parameters,
       DataDictionary callingDictionary) {
     TransformScope scope = new TransformScope(definingScope, scopeName, callingDictionary);
-    localDatatypes.forEach(dataDef -> scope.getLocalDictionary().createDataDefinition(dataDef.getKey(),
-        dataDef.getValue() == null ? null : new DefinedTag(dataDef.getKey(), dataDef.getValue(), scope)));
+    localDatatypes.forEach(dataDef -> dataDef.getResults(null, scope));
     int foundParameters = 0;
     for (ExpectedParameter expectedParameter : expectedParameters) {
       if (parameters.containsKey(expectedParameter.name)) {

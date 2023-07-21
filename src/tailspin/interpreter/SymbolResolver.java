@@ -7,13 +7,12 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
-import tailspin.control.DataDefinition;
 import tailspin.control.Definition;
 import tailspin.interpreter.lang.Lang;
 
 public abstract class SymbolResolver {
 
-  protected final List<IncludedFile> includedFiles;
+  private final List<IncludedFile> includedFiles;
   private List<SymbolLibrary> openedIncludedFiles;
 
   public SymbolResolver(List<IncludedFile> includedFiles) {
@@ -30,15 +29,11 @@ public abstract class SymbolResolver {
       Set<String> internalSymbols, BasicScope scope, List<SymbolLibrary> providedDependencies) {
     Map<String, Set<String>> definedSymbols =
         getDefinitions().stream()
-            .filter(d -> (d.statement instanceof Definition))
             .collect(
                 Collectors.toMap(
                     d -> ((Definition) d.statement).getIdentifier(),
                     DefinitionStatement::getRequiredDefinitions));
     Queue<String> neededDefinitions = new ArrayDeque<>(internalSymbols);
-    getDefinitions().stream()
-        .filter(d -> (d.statement instanceof DataDefinition))
-        .forEach(d -> neededDefinitions.addAll(d.getRequiredDefinitions()));
     Set<String> transientDefinitions = new HashSet<>();
     Set<String> externalDefinitions = new HashSet<>();
     while (!neededDefinitions.isEmpty()) {

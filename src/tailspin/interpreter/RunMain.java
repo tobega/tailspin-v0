@@ -47,7 +47,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
       if (statement instanceof Test) {
         tests.add(new TestStatement((Test) statement, requiredDefinitions));
-      } else if (statement instanceof Definition || statement instanceof DataDefinition) {
+      } else if (statement instanceof Definition) {
         statements.add(new DefinitionStatement(statement, requiredDefinitions));
       } else {
         statements.add(new TopLevelStatement(statement, requiredDefinitions));
@@ -328,18 +328,20 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public List<Map.Entry<String, Membrane>> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
+  public List<DataDefinition> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
     if (ctx == null) return List.of();
     implicitDataDefinitions = new ArrayList<>();
     ctx.localDataDefinition().forEach(d -> implicitDataDefinitions.add(visitLocalDataDefinition(d)));
-    List<Map.Entry<String, Membrane>> definitions = implicitDataDefinitions;
+    List<DataDefinition> definitions = implicitDataDefinitions;
     implicitDataDefinitions = null;
     return definitions;
   }
 
   @Override
-  public Map.Entry<String, Membrane> visitLocalDataDefinition(TailspinParser.LocalDataDefinitionContext ctx) {
-    return new AbstractMap.SimpleEntry<>(ctx.localIdentifier().getText(), ctx.matcher() == null ? null : visitMatcher(ctx.matcher()));
+  public DataDefinition visitLocalDataDefinition(TailspinParser.LocalDataDefinitionContext ctx) {
+    return new DataDefinition(
+        ctx.localIdentifier().getText(),
+        ctx.matcher() == null ? null : visitMatcher(ctx.matcher()));
   }
 
   @Override
@@ -376,7 +378,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   public TemplatesDefinition visitTemplatesBody(String name,
-      List<Map.Entry<String, Membrane>> localDatatypes, TailspinParser.TemplatesBodyContext ctx,
+      List<DataDefinition> localDatatypes, TailspinParser.TemplatesBodyContext ctx,
       TemplatesConstructor constructor) {
     // The match templates are conceptually in the scope of the block, otherwise we could just do this in visitBlock
     dependencyCounters.push(new DependencyCounter());
@@ -427,7 +429,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Condition visitCondition(TailspinParser.ConditionContext ctx) {
-    List<Map.Entry<String, Membrane>> dataDefinitions = implicitDataDefinitions;
+    List<DataDefinition> dataDefinitions = implicitDataDefinitions;
     implicitDataDefinitions = null;
     try {
       return new Condition(Value.of(visitValueChain(ctx.valueChain())), visitMatcher(ctx.matcher()));
@@ -477,7 +479,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         if (ctx.structureContentMatcher(i).matcher().membrane().size() != 1
           || ctx.structureContentMatcher(i).matcher().membrane(0).typeMatch() == null
           || !ctx.structureContentMatcher(i).matcher().membrane(0).typeMatch().getText().equals(key)) {
-              implicitDataDefinitions.add(Map.entry(key, matcher));
+          implicitDataDefinitions.add(new DataDefinition(key, matcher));
         }
       }
     }
@@ -656,7 +658,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()),
         ctx.templatesBody(), new TemplatesConstructor() {
           @Override
-          public Templates create(String name, Scope definingScope, List<Map.Entry<String, Membrane>> localDatatypes, Block block,
+          public Templates create(String name, Scope definingScope, List<DataDefinition> localDatatypes, Block block,
               List<MatchTemplate> matchTemplates) {
             return new Operator(name, definingScope, localDatatypes, block, matchTemplates, new String[]{left, right});
           }
@@ -776,18 +778,18 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return visitSource(ctx.source());
   }
 
-  private List<Map.Entry<String, Membrane>> implicitDataDefinitions;
+  private List<DataDefinition> implicitDataDefinitions;
   @Override
-  public DataDefinition visitDataDeclaration(TailspinParser.DataDeclarationContext ctx) {
+  public DataDeclaration visitDataDeclaration(TailspinParser.DataDeclarationContext ctx) {
     implicitDataDefinitions = new ArrayList<>();
     ctx.dataDefinition().forEach(d -> implicitDataDefinitions.add(visitDataDefinition(d)));
-    List<Map.Entry<String, Membrane>> definitions = implicitDataDefinitions;
+    List<DataDefinition> definitions = implicitDataDefinitions;
     implicitDataDefinitions = null;
-    return new DataDefinition(definitions);
+    return new DataDeclaration(definitions);
   }
 
   @Override
-  public Map.Entry<String, Membrane> visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
+  public DataDefinition visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
     String identifier = ctx.localIdentifier().getText();
     Membrane matcher;
     if (ctx.symbolSet() != null) {
@@ -795,7 +797,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     } else {
       matcher = visitMatcher(ctx.matcher());
     }
-    return Map.entry(identifier, matcher);
+    return new DataDefinition(identifier, matcher);
   }
 
   @Override
@@ -1161,7 +1163,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     // Parameters must be defined first so as they don't get required
     List<ExpectedParameter> expectedParameters = visitParameterDefinitions(ctx.parameterDefinitions());
-    List<Map.Entry<String, Membrane>> localDatatypes = visitLocalDataDeclaration(ctx.localDataDeclaration());
+    List<DataDefinition> localDatatypes = visitLocalDataDeclaration(ctx.localDataDeclaration());
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
     composerDefinition.expectParameters(expectedParameters);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();

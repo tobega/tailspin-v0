@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import tailspin.control.DataDefinition;
 import tailspin.control.Definition;
 
 public class Module extends SymbolResolver {
@@ -62,14 +61,13 @@ public class Module extends SymbolResolver {
                       List<SymbolLibrary> providedDependencies) {
     Set<String> transientDefinitions = resolveSymbolDependencies(internalSymbols, scope, providedDependencies);
     getDefinitions().stream()
-        .filter(d -> (d.statement instanceof DataDefinition) || transientDefinitions.contains(((Definition) d.statement).getIdentifier()))
+        .filter(d -> transientDefinitions.contains(((Definition) d.statement).getIdentifier()))
         .forEach(d -> d.statement.getResults(null, scope));
   }
 
   public void installAll(BasicScope scope) {
     resolveSymbols(
         definitions.stream()
-            .filter(d -> (d.statement instanceof Definition))
             .map(d -> ((Definition) d.statement).getIdentifier()).collect(Collectors.toSet()),
         scope, List.of());
   }
