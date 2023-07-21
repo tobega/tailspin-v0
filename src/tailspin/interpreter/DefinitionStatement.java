@@ -1,10 +1,12 @@
 package tailspin.interpreter;
-import java.util.Set;
+
 import tailspin.control.Expression;
+
+import java.util.Set;
 
 public class DefinitionStatement implements Statement {
     final Expression statement;
-    final Set<String> requiredDefinitions;
+    private final Set<String> requiredDefinitions;
 
     DefinitionStatement(Expression statement, Set<String> requiredDefinitions) {
         this.statement = statement;

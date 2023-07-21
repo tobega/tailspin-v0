@@ -197,6 +197,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   private Reference resolveReference(TailspinParser.ReferenceContext ctx, Reference reference) {
+    if (ctx == null) return reference;
     if (ctx.lens() != null) {
       try {
         reference = resolveLens(ctx.lens(), reference);
