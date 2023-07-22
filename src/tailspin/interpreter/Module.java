@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import tailspin.control.Definition;
 
 public class Module extends SymbolResolver {
   protected final List<DefinitionStatement> definitions;
@@ -22,20 +21,20 @@ public class Module extends SymbolResolver {
     }
 
     @Override
-    public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
+    public Set<String> resolveSymbols(Set<String> neededSymbols, BasicScope scope) {
       // We might be shadowing a module, so don't try to register what we don't define.
       Set<String> internalSymbols = new HashSet<>();
       for (DefinitionStatement ds : definitions) {
-        if (ds.statement instanceof Definition d && providedSymbols.contains(d.getIdentifier())) {
-          internalSymbols.add(d.getIdentifier());
+        if (neededSymbols.contains(ds.getDefinedSymbol())) {
+          internalSymbols.add(ds.getDefinedSymbol());
         }
       }
-      if (internalSymbols.isEmpty()) return providedSymbols;
+      if (internalSymbols.isEmpty()) return neededSymbols;
       Module.this.resolveSymbols(internalSymbols, depScope, providedDependencies);
-      providedSymbols.stream()
+      neededSymbols.stream()
           .filter(depScope::hasDefinition)
           .forEach(s -> scope.defineValue(prefix + s, depScope.resolveValue(s)));
-      return providedSymbols.stream()
+      return neededSymbols.stream()
           .filter(s -> !depScope.hasDefinition(s))
           .collect(Collectors.toSet());
     }
@@ -59,16 +58,16 @@ public class Module extends SymbolResolver {
 
   void resolveSymbols(Set<String> internalSymbols, BasicScope scope,
                       List<SymbolLibrary> providedDependencies) {
-    Set<String> transientDefinitions = resolveSymbolDependencies(internalSymbols, scope, providedDependencies);
+    Set<String> localDefinitionsNeeded = resolveSymbolDependencies(internalSymbols, scope, providedDependencies);
     getDefinitions().stream()
-        .filter(d -> transientDefinitions.contains(((Definition) d.statement).getIdentifier()))
-        .forEach(d -> d.statement.getResults(null, scope));
+        .filter(d -> d.alwaysRun() || localDefinitionsNeeded.contains(d.getDefinedSymbol()))
+        .forEach(d -> d.getResults(scope));
   }
 
   public void installAll(BasicScope scope) {
     resolveSymbols(
         definitions.stream()
-            .map(d -> ((Definition) d.statement).getIdentifier()).collect(Collectors.toSet()),
+            .map(DefinitionStatement::getDefinedSymbol).collect(Collectors.toSet()),
         scope, List.of());
   }
 

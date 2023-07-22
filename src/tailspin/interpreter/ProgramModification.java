@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import tailspin.control.Definition;
 
 public class ProgramModification {
 
@@ -17,16 +16,17 @@ public class ProgramModification {
   public List<DefinitionStatement> overrideDefinitions(List<DefinitionStatement> programDefinitions) {
     Map<String, Integer> indexedDefinitions = new HashMap<>();
     for (int i = 0; i < definitions.size(); i++) {
-      if (definitions.get(i).statement instanceof Definition d) {
-        indexedDefinitions.put(d.getIdentifier(), i);
+      String definedSymbol = definitions.get(i).getDefinedSymbol();
+      if (definedSymbol != null) {
+        indexedDefinitions.put(definedSymbol, i);
       }
     }
     List<DefinitionStatement> result = new ArrayList<>();
     int addedTo = 0;
     for (DefinitionStatement d : programDefinitions) {
-      if ((d.statement instanceof Definition def) && indexedDefinitions.containsKey(def.getIdentifier())) {
-        result.add(new DefinitionStatement(def.rename("*" + def.getIdentifier()), d.getRequiredDefinitions()));
-        int addUntil = indexedDefinitions.get(def.getIdentifier());
+      if (indexedDefinitions.containsKey(d.getDefinedSymbol())) {
+        result.add(d.renamed("*" + d.getDefinedSymbol()));
+        int addUntil = indexedDefinitions.get(d.getDefinedSymbol());
         if (addUntil >= addedTo) {
           result.addAll(definitions.subList(addedTo, addUntil+1));
           addedTo = addUntil+1;

@@ -1,11 +1,12 @@
 package tailspin.control;
 
+import tailspin.interpreter.DefinitionExpression;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.DefinedSymbolSet;
 import tailspin.matchers.DefinedTag;
 import tailspin.types.Membrane;
 
-public class DataDefinition implements Expression {
+public class DataDefinition implements DefinitionExpression {
 
   private final String identifier;
   private final Membrane membrane;

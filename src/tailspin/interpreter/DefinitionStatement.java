@@ -1,15 +1,15 @@
 package tailspin.interpreter;
 
-import tailspin.control.Expression;
-
 import java.util.Set;
+import tailspin.control.DataDefinition;
+import tailspin.control.Definition;
 
 public class DefinitionStatement implements Statement {
-    final Expression statement;
+    private final DefinitionExpression definition;
     private final Set<String> requiredDefinitions;
 
-    DefinitionStatement(Expression statement, Set<String> requiredDefinitions) {
-        this.statement = statement;
+    DefinitionStatement(DefinitionExpression definition, Set<String> requiredDefinitions) {
+        this.definition = definition;
         this.requiredDefinitions = requiredDefinitions;
     }
 
@@ -20,8 +20,26 @@ public class DefinitionStatement implements Statement {
 
     @Override
     public void getResults(BasicScope scope) {
-        if (statement.getResults(null, scope) != null) {
+        if (definition.getResults(null, scope) != null) {
             throw new AssertionError("Non-empty statement result");
         }
+    }
+
+    public String getDefinedSymbol() {
+        if (definition instanceof Definition d) {
+            return d.getIdentifier();
+        }
+        return null;
+    }
+
+    public DefinitionStatement renamed(String newName) {
+        if (definition instanceof Definition d) {
+            return new DefinitionStatement(d.renamed(newName), requiredDefinitions);
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean alwaysRun() {
+        return definition instanceof DataDefinition;
     }
 }

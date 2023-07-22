@@ -1,13 +1,13 @@
 package tailspin.interpreter;
 
 import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
-import tailspin.control.Definition;
 import tailspin.interpreter.lang.Lang;
 
 public abstract class SymbolResolver {
@@ -26,15 +26,15 @@ public abstract class SymbolResolver {
   }
 
   Set<String> resolveSymbolDependencies(
-      Set<String> internalSymbols, BasicScope scope, List<SymbolLibrary> providedDependencies) {
-    Map<String, Set<String>> definedSymbols =
-        getDefinitions().stream()
-            .collect(
-                Collectors.toMap(
-                    d -> ((Definition) d.statement).getIdentifier(),
-                    DefinitionStatement::getRequiredDefinitions));
-    Queue<String> neededDefinitions = new ArrayDeque<>(internalSymbols);
-    Set<String> transientDefinitions = new HashSet<>();
+      Set<String> symbolsToInstall, BasicScope scope, List<SymbolLibrary> providedDependencies) {
+    Map<String, Set<String>> definedSymbols = new HashMap<>();
+    for (DefinitionStatement s : getDefinitions()) {
+      if (s.getDefinedSymbol() != null) {
+        definedSymbols.put(s.getDefinedSymbol(), s.getRequiredDefinitions());
+      }
+    }
+    Queue<String> neededDefinitions = new ArrayDeque<>(symbolsToInstall);
+    Set<String> internalDefinitions = new HashSet<>();
     Set<String> externalDefinitions = new HashSet<>();
     while (!neededDefinitions.isEmpty()) {
       String def = neededDefinitions.poll();
@@ -45,7 +45,7 @@ public abstract class SymbolResolver {
         externalDefinitions.add(def);
         continue;
       }
-      if (transientDefinitions.add(def)) {
+      if (internalDefinitions.add(def)) {
         neededDefinitions.addAll(definedSymbols.get(def));
       }
     }
@@ -56,7 +56,7 @@ public abstract class SymbolResolver {
       externalDefinitions = lib.installSymbols(externalDefinitions, scope);
     }
     if (!externalDefinitions.isEmpty()) Lang.installBuiltins(externalDefinitions, scope);
-    return transientDefinitions;
+    return internalDefinitions;
   }
 
   List<SymbolLibrary> openIncludedFiles(

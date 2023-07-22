@@ -69,7 +69,6 @@ Syntax for creating exceptions and format for error objects TBD (just throw any 
 
 ## Bugs
 - It should be an error to define the same composition rule twice
-- Types (data declarations) are not evaluated in modules
 
 ## Too much syntax?
 - quick filter by \<match> to mean \(<match> $!\).

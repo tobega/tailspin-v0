@@ -41,18 +41,22 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         .map(this::visitInclusion).collect(Collectors.toList());
     List<Statement> statements = new ArrayList<>();
     List<TestStatement> tests = new ArrayList<>();
-    ctx.statement().forEach(s -> {
+    for (StatementContext s : ctx.statement()) {
       dependencyCounters.push(new DependencyCounter());
-      Expression statement = (Expression) visit(s);
+      Object statement = visit(s);
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
-      if (statement instanceof Test) {
-        tests.add(new TestStatement((Test) statement, requiredDefinitions));
-      } else if (statement instanceof Definition) {
-        statements.add(new DefinitionStatement(statement, requiredDefinitions));
+      if (statement instanceof Test t) {
+        tests.add(new TestStatement(t, requiredDefinitions));
+      } else if (statement instanceof Definition d) {
+        statements.add(new DefinitionStatement(d, requiredDefinitions));
+      } else if (statement instanceof DataDeclaration dd) {
+        for (DataDefinition d : dd.getDefinitions()) {
+          statements.add(new DefinitionStatement(d, requiredDefinitions));
+        }
       } else {
-        statements.add(new TopLevelStatement(statement, requiredDefinitions));
+        statements.add(new TopLevelStatement((Expression) statement, requiredDefinitions));
       }
-    });
+    }
     return new Program(statements, tests, includedFiles, modules);
   }
 
@@ -1413,7 +1417,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Stream<Expression> visitTestBlock(TailspinParser.TestBlockContext ctx) {
-    return Stream.concat(ctx.statement().stream().map(this::visit).map(Expression.class::cast),
+    return Stream.concat(ctx.statement().stream().map(this::visit)
+        .flatMap(s -> {
+          if (s instanceof DataDeclaration dd) return dd.getDefinitions().stream();
+          return Stream.of(s);
+        }).map(Expression.class::cast),
         ctx.assertion().stream().map(this::visitAssertion));
   }
 
@@ -1429,8 +1437,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       dependencyCounters.push(new DependencyCounter());
       Expression statement = (Expression) visit(s);
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
-      if (statement instanceof Definition) {
-        return new DefinitionStatement(statement, requiredDefinitions);
+      if (statement instanceof Definition d) {
+        return new DefinitionStatement(d, requiredDefinitions);
       } else {
         throw new UnsupportedOperationException("Only definitions are relevant in program modification");
       }
