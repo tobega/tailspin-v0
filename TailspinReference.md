@@ -13,6 +13,7 @@ should have been used instead. This is deliberate in order to free the mind of p
     1. [Text String](#string-literal)
     1. [Arithmetic expression](#arithmetic-expression)
     1. [Numbers with units of measure](#measures)
+    2. [Symbolic value sets (enums)](#symbolic-value-sets)
     1. [Range](#range-literal)
     1. [Array](#array-literal)
     1. [Structure](#structure-literal)
@@ -194,7 +195,9 @@ where field names are automatically connected to a type of the same name.
 
 Note that Tailspin does not have boolean values. You could define the set of `boolean #{true, false}` if you want, but often it is better to have
 more specific values for your use case. For example, instead of an `ìs_appliance_on` field or variable with a `true` or `false` value,
-it would usually be better to define `appliance_state #{on, off}` and use 
+it would usually be better to define `appliance_state #{on, off}` and use an `appliance_state#` field. Besides being clearer, it is also possible to extend
+with other states when needed, for example `standby` or `decommissioned`.
+
 _Future work_: Symbolic values can be used as indices in symbol maps containing arbitrary values connected to each symbol.
 
 ### Range literal
