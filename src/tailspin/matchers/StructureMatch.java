@@ -1,13 +1,13 @@
 package tailspin.matchers;
 
-import java.util.Map;
-import java.util.stream.Collectors;
 import tailspin.TypeError;
 import tailspin.interpreter.Scope;
 import tailspin.types.DataDictionary;
 import tailspin.types.Membrane;
 import tailspin.types.Structure;
-import tailspin.types.TaggedIdentifier;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class StructureMatch implements Membrane {
   private final Map<String, Membrane> keyConditions;
@@ -15,11 +15,11 @@ public class StructureMatch implements Membrane {
 
   private class SubType implements Membrane {
     @Override
-    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
       if (!(toMatch instanceof Structure structureToMatch)) return false;
       for (Map.Entry<String, Membrane> keyMatch : keyConditions.entrySet()) {
         if (!structureToMatch.containsKey(keyMatch.getKey())) {
-          if  (keyMatch.getValue() == AlwaysFalse.INSTANCE) {
+          if  (keyMatch.getValue() == Membrane.ALWAYS_FALSE) {
             continue;
           }
           return false;
@@ -35,26 +35,23 @@ public class StructureMatch implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
     if (typeBound == null) {
-      typeBound = keyConditions.isEmpty() ? TypeBound.any() : TypeBound.of(new SubType());
+      typeBound = keyConditions.isEmpty() ? Membrane.ALWAYS_TRUE : new SubType();
     }
-    if (typeBound.outOfBound(toMatch, it, scope)) {
+    if (!typeBound.matches(toMatch, it, scope, Membrane.ALWAYS_TRUE)) {
       throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " is not a subtype of expected structure in " + this);
     }
     if (!(toMatch instanceof Structure structureToMatch)) return false;
     for (Map.Entry<String, Membrane> keyMatch : keyConditions.entrySet()) {
       if (!structureToMatch.containsKey(keyMatch.getKey())) {
-        if  (keyMatch.getValue() == AlwaysFalse.INSTANCE) {
+        if  (keyMatch.getValue() == Membrane.ALWAYS_FALSE) {
           continue;
         }
         return false;
       }
       Object valueToMatch = structureToMatch.get(keyMatch.getKey());
-      TypeBound keyType = TypeBound.inContext(keyMatch.getKey(), scope.getLocalDictionary().getDataDefinition(keyMatch.getKey()));
-      if (valueToMatch instanceof TaggedIdentifier t && t.getTag().equals(keyMatch.getKey())) {
-        valueToMatch = t.getValue();
-      }
+      Membrane keyType = scope.getLocalDictionary().getDataDefinition(keyMatch.getKey());
       if (!keyMatch.getValue().matches(valueToMatch, it, scope, keyType)) {
         return false;
       }

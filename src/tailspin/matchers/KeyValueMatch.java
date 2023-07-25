@@ -15,10 +15,10 @@ public class KeyValueMatch implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
     if (!(toMatch instanceof KeyValue keyValue)) return false;
     if (!keyValue.getKey().equals(key)) return false;
-    TypeBound keyType = TypeBound.inContext(key, scope.getLocalDictionary().getDataDefinition(key));
+    Membrane keyType = scope.getLocalDictionary().getDataDefinition(key);
     return valueMatch.matches(keyValue.getValue(), it, scope, keyType);
   }
 }

@@ -1,4 +1,4 @@
-// Generated from TailspinParser.g4 by ANTLR 4.8
+// Generated from TailspinParser.g4 by ANTLR 4.13.0
 package tailspin.parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
+@SuppressWarnings("CheckReturnValue")
 public class TailspinParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements TailspinParserVisitor<T> {
 	/**
 	 * {@inheritDoc}
@@ -109,6 +110,13 @@ public class TailspinParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> im
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitDataDefinition(TailspinParser.DataDefinitionContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitSymbolSet(TailspinParser.SymbolSetContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -291,6 +299,13 @@ public class TailspinParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> im
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitKeyValue(TailspinParser.KeyValueContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitSymbolicValue(TailspinParser.SymbolicValueContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

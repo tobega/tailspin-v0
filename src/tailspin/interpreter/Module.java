@@ -1,22 +1,12 @@
 package tailspin.interpreter;
 
 import java.nio.file.Path;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import tailspin.control.DataDefinition;
-import tailspin.control.Definition;
-import tailspin.interpreter.lang.Lang;
 
-public class Module {
+public class Module extends SymbolResolver {
   protected final List<DefinitionStatement> definitions;
-  protected final List<IncludedFile> includedFiles;
 
   class Installer implements SymbolLibrary.Installer {
     private final BasicScope depScope;
@@ -31,20 +21,20 @@ public class Module {
     }
 
     @Override
-    public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
+    public Set<String> resolveSymbols(Set<String> neededSymbols, BasicScope scope) {
       // We might be shadowing a module, so don't try to register what we don't define.
       Set<String> internalSymbols = new HashSet<>();
       for (DefinitionStatement ds : definitions) {
-        if (ds.statement instanceof Definition d && providedSymbols.contains(d.getIdentifier())) {
-          internalSymbols.add(d.getIdentifier());
+        if (neededSymbols.contains(ds.getDefinedSymbol())) {
+          internalSymbols.add(ds.getDefinedSymbol());
         }
       }
-      if (internalSymbols.isEmpty()) return providedSymbols;
+      if (internalSymbols.isEmpty()) return neededSymbols;
       Module.this.resolveSymbols(internalSymbols, depScope, providedDependencies);
-      providedSymbols.stream()
+      neededSymbols.stream()
           .filter(depScope::hasDefinition)
           .forEach(s -> scope.defineValue(prefix + s, depScope.resolveValue(s)));
-      return providedSymbols.stream()
+      return neededSymbols.stream()
           .filter(s -> !depScope.hasDefinition(s))
           .collect(Collectors.toSet());
     }
@@ -57,63 +47,27 @@ public class Module {
 
   public Module(
       List<DefinitionStatement> definitions, List<IncludedFile> includedFiles) {
+    super(includedFiles);
     this.definitions = definitions;
-    this.includedFiles = includedFiles;
+  }
+
+  @Override
+  public List<DefinitionStatement> getDefinitions() {
+    return definitions;
   }
 
   void resolveSymbols(Set<String> internalSymbols, BasicScope scope,
-      List<SymbolLibrary> providedDependencies) {
-    Map<String, Set<String>> definedSymbols = definitions.stream()
-        .filter(d -> (d.statement instanceof Definition))
-        .collect(Collectors
-            .toMap(d -> ((Definition) d.statement).getIdentifier(), d -> d.requiredDefinitions));
-    Queue<String> neededDefinitions = new ArrayDeque<>(internalSymbols);
-    definitions.stream()
-        .filter(d -> (d.statement instanceof DataDefinition))
-        .forEach(d -> neededDefinitions.addAll(d.requiredDefinitions));
-    Set<String> transientDefinitions = new HashSet<>();
-    Set<String> externalDefinitions = new HashSet<>();
-    while (!neededDefinitions.isEmpty()) {
-      String def = neededDefinitions.poll();
-      if (scope.hasDefinition(def)) {
-        continue;
-      }
-      if (!definedSymbols.containsKey(def)) {
-        externalDefinitions.add(def);
-        continue;
-      }
-      if (transientDefinitions.add(def)) {
-        neededDefinitions.addAll(definedSymbols.get(def));
-      }
-    }
-    for (SymbolLibrary dependency : getIncludedFiles(scope, providedDependencies)) {
-      externalDefinitions = dependency.installSymbols(externalDefinitions, scope);
-    }
-    for (SymbolLibrary lib : providedDependencies) {
-      externalDefinitions = lib.installSymbols(externalDefinitions, scope);
-    }
-    if (!externalDefinitions.isEmpty())
-      Lang.installBuiltins(externalDefinitions, scope);
-    definitions.stream()
-        .filter(d -> (d.statement instanceof DataDefinition) || transientDefinitions.contains(((Definition) d.statement).getIdentifier()))
-        .forEach(d -> d.statement.getResults(null, scope));
-  }
-
-  private List<SymbolLibrary> openedIncludedFiles;
-  private List<SymbolLibrary> getIncludedFiles(BasicScope scope,
-      List<SymbolLibrary> providedDependencies) {
-    if (openedIncludedFiles == null) {
-      openedIncludedFiles = includedFiles.stream()
-          .map(i -> i.open(scope, providedDependencies)).collect(Collectors.toList());
-    }
-    return openedIncludedFiles;
+                      List<SymbolLibrary> providedDependencies) {
+    Set<String> localDefinitionsNeeded = resolveSymbolDependencies(internalSymbols, scope, providedDependencies);
+    getDefinitions().stream()
+        .filter(d -> d.alwaysRun() || localDefinitionsNeeded.contains(d.getDefinedSymbol()))
+        .forEach(d -> d.getResults(scope));
   }
 
   public void installAll(BasicScope scope) {
     resolveSymbols(
         definitions.stream()
-            .filter(d -> (d.statement instanceof Definition))
-            .map(d -> ((Definition) d.statement).getIdentifier()).collect(Collectors.toSet()),
+            .map(DefinitionStatement::getDefinedSymbol).collect(Collectors.toSet()),
         scope, List.of());
   }
 

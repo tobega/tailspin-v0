@@ -1,22 +1,18 @@
 package tailspin.matchers;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 import tailspin.TypeError;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
-import tailspin.types.DataDictionary;
-import tailspin.types.Measure;
-import tailspin.types.Membrane;
-import tailspin.types.TaggedIdentifier;
-import tailspin.types.TailspinArray;
-import tailspin.types.Unit;
+import tailspin.types.*;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ArrayMatch implements Membrane {
   private static final Membrane arrayType = new Membrane() {
     @Override
-    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
       return toMatch instanceof TailspinArray;
     }
 
@@ -41,15 +37,15 @@ public class ArrayMatch implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
     if (typeBound == null) {
       if (offset == null && lengthMembrane == null && contentMatcherFactories.isEmpty()) {
-        typeBound = TypeBound.any();
+        typeBound = Membrane.ALWAYS_TRUE;
       } else {
-        typeBound = TypeBound.of(arrayType);
+        typeBound = arrayType;
       }
     }
-    if (typeBound.outOfBound(toMatch, it, scope)) {
+    if (!typeBound.matches(toMatch, it, scope, Membrane.ALWAYS_TRUE)) {
       throw new TypeError("Cannot compare " + DataDictionary.formatErrorValue(toMatch) + " as an array in " + this);
     }
     if (!(toMatch instanceof TailspinArray listToMatch)) return false;

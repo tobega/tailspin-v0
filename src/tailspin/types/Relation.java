@@ -1,18 +1,14 @@
 package tailspin.types;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.literals.KeyValueExpression;
 
-public class Relation implements Processor {
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+public class Relation implements Processor, Deconstructible {
   private final Set<Structure> contents;
   private final Set<String> keys;
 
@@ -87,12 +83,12 @@ public class Relation implements Processor {
     return new Relation(newKeys, tuples);
   }
 
-  public Object deconstruct() {
+  public ResultIterator.Flat deconstruct() {
     if (contents.isEmpty()) {
       return null;
     }
     Iterator<Structure> iterator = contents.iterator();
-    return (ResultIterator.Flat) () -> {
+    return () -> {
       if (!iterator.hasNext()) return null;
       return iterator.next();
     };

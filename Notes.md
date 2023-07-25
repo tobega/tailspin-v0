@@ -24,6 +24,8 @@
 - Syntax for extending structure types
 - Extract pieces from an n-D-subview: Lens of list of multidimensional lenses. Lenses as data. Relative lenses. Or just make processors?
 - default parameters
+- Asynchronous processes: callbacks, timeouts/deadlines, cancellation
+- How should types (data declarations) migrate between scopes? Specifically how to use types from a module?
 
 #### Confusing
 * It is a bit difficult to create generic code handling untyped numbers. Perhaps it should be?

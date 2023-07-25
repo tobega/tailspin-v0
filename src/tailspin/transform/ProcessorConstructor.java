@@ -7,21 +7,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import tailspin.control.Block;
+import tailspin.control.DataDefinition;
 import tailspin.control.DelayedExecution;
 import tailspin.control.ResultIterator;
 import tailspin.control.TypestateDefinition;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
-import tailspin.matchers.DefinedTag;
 import tailspin.types.DataDictionary;
-import tailspin.types.Membrane;
 import tailspin.types.ProcessorInstance;
 
 public class ProcessorConstructor extends Templates {
 
   private final List<TypestateDefinition> typestates;
 
-  public ProcessorConstructor(String name, Scope definingScope, List<Map.Entry<String, Membrane>> localDatatypes, Block block,
+  public ProcessorConstructor(String name, Scope definingScope, List<DataDefinition> localDatatypes, Block block,
       List<TypestateDefinition> typestates) {
     super(name, definingScope, localDatatypes, block, new ArrayList<>());
     this.typestates = typestates;
@@ -32,8 +31,7 @@ public class ProcessorConstructor extends Templates {
       DataDictionary callingDictionary) {
     ProcessorScope scope = new ProcessorScope(definingScope, name, callingDictionary);
     Scope constructorScope = new NestedScope(scope);
-    localDatatypes.forEach(dataDef -> constructorScope.getLocalDictionary().createDataDefinition(dataDef.getKey(),
-        dataDef.getValue() == null ? null : new DefinedTag(dataDef.getKey(), dataDef.getValue(), constructorScope)));
+    localDatatypes.forEach(dataDef -> dataDef.getResults(null, constructorScope));
     resolveParameters(expectedParameters, parameters, constructorScope, name);
     scope.addTypestate(name, constructorScope);
     for (TypestateDefinition typestate : typestates) {

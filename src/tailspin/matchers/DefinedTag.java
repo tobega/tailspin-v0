@@ -17,13 +17,24 @@ public class DefinedTag implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
+    if (typeBound != null) {
+      toMatch = typeBound.inContext(toMatch);
+    }
     if (toMatch instanceof String || toMatch instanceof Long) {
-      if (typeBound == null || !tag.equals(typeBound.contextTag())) return false;
+      return false;
     } else if (toMatch instanceof TaggedIdentifier t && t.getTag().equals(tag)) {
       toMatch = t.getValue();
     }
     return baseType.matches(toMatch, null, definingScope, typeBound);
+  }
+
+  @Override
+  public Object inContext(Object value) {
+    if (value instanceof String || value instanceof Long) {
+      return new TaggedIdentifier(tag, value);
+    }
+    return value;
   }
 
   @Override

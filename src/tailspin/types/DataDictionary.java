@@ -1,25 +1,15 @@
 package tailspin.types;
 
+import tailspin.TypeError;
+import tailspin.control.Value;
+import tailspin.interpreter.Scope;
+import tailspin.matchers.*;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import tailspin.TypeError;
-import tailspin.control.Value;
-import tailspin.interpreter.Scope;
-import tailspin.matchers.AnyOf;
-import tailspin.matchers.ArrayMatch;
-import tailspin.matchers.CollectionCriterion;
-import tailspin.matchers.CollectionCriterionFactory;
-import tailspin.matchers.CollectionSegmentCriterion;
-import tailspin.matchers.DefinedTag;
-import tailspin.matchers.MultipliedCollectionCriterion;
-import tailspin.matchers.OneElementMatch;
-import tailspin.matchers.RangeMatch;
-import tailspin.matchers.StructureMatch;
-import tailspin.matchers.TypeBound;
-import tailspin.matchers.UnitMatch;
 
 public class DataDictionary {
   /* @Nullable */
@@ -29,7 +19,7 @@ public class DataDictionary {
 
   private static final Membrane stringMatch = new Membrane() {
     @Override
-    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
       return (toMatch instanceof String);
     }
 
@@ -41,7 +31,7 @@ public class DataDictionary {
 
   private static final Membrane numberMatch = new Membrane() {
     @Override
-    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
       return (toMatch instanceof Long);
     }
 
@@ -78,7 +68,7 @@ public class DataDictionary {
       public int isMetAt(TailspinArray.Tail toMatch, Object it, Scope scope) {
         // This should never be called if Tail is empty
         if (contentMembrane == null) {
-          contentMembrane = getDefaultTypeCriterion(null, toMatch.getNative(0), dictionary);
+          contentMembrane = getDefaultTypeCriterion(toMatch.getNative(0), dictionary);
           return 1;
         } else if (contentMembrane.matches(toMatch.getNative(0), null, scope, null)) {
           return 1;
@@ -125,8 +115,6 @@ public class DataDictionary {
     }
   }
 
-  private static final Membrane exists = new AnyOf(false, TypeBound.any(), List.of());
-
   public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
   public DataDictionary(/*@Nullable*/ DataDictionary callingDictionary,
@@ -135,32 +123,35 @@ public class DataDictionary {
     this.moduleDictionary = moduleDictionary;
   }
 
-  public static Membrane getDefaultTypeCriterion(String tag, Object data, DataDictionary dictionary) {
+  public static Membrane getDefaultTypeCriterion(Object data, DataDictionary dictionary) {
     if (data instanceof String) {
-      return tag == null ? stringMatch : new DefinedTag(tag, stringMatch, null);
+      return stringMatch;
     }
     if (data instanceof Long) {
-      return tag == null ? numberMatch : new DefinedTag(tag, numberMatch, null);
+      return numberMatch;
     }
     if (data instanceof TailspinArray a) {
       CollectionSegmentCriterion contentCriterion;
       if (a.length() > 0) {
-        Membrane contentMatcher = getDefaultTypeCriterion(null, a.getNative(0), dictionary);
+        Membrane contentMatcher = getDefaultTypeCriterion(a.getNative(0), dictionary);
         // Some types not yet default typed, so may be null
-        contentCriterion = new OneElementMatch(contentMatcher == null ? TypeBound.ANY_MATCH : contentMatcher);
+        contentCriterion = new OneElementMatch(contentMatcher == null ? Membrane.ALWAYS_TRUE : contentMatcher);
       } else {
         contentCriterion = new AutotypedArray.DiscoveredContent(dictionary);
       }
       return new AutotypedArray(a.getOffset(), contentCriterion);
     }
     if (data instanceof Structure s) {
-      return new StructureMatch(s.keySet().stream().collect(Collectors.toMap(Function.identity(), (k) -> exists)), false);
+      return new StructureMatch(s.keySet().stream().collect(Collectors.toMap(Function.identity(), (k) -> Membrane.ALWAYS_TRUE)), false);
     }
     if (data instanceof Measure m) {
       return new UnitMatch(m.getUnit());
     }
     if (data instanceof TaggedIdentifier t) {
       return dictionary.getDataDefinition(t.getTag());
+    }
+    if (data instanceof Symbol e) {
+      return dictionary.getDataDefinition(e.set());
     }
     // TODO: match remaining types
     return null;
@@ -194,16 +185,19 @@ public class DataDictionary {
     }
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
-      def = getDefaultTypeCriterion(key, data, this);
+      def = getDefaultTypeCriterion(data, this);
       if (def == null) return data; // TODO: remove this fallback for non-autotyped values
+      if (data instanceof String) {
+        def = new DefinedTag(key, def, scope);
+      } else if (data instanceof Long) {
+        def = new DefinedTag(key, def, scope);
+      }
       dataDefinitions.put(key, def);
     }
+    data = def.inContext(data);
     // Do this also for values that were just autotyped. For example arrays still need to be tested.
-    if (!def.matches(data, null, scope, TypeBound.anyInContext(key))) {
+    if (!def.matches(data, null, scope, Membrane.ALWAYS_TRUE)) {
       throw new TypeError("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
-    }
-    if (data instanceof Long || data instanceof String) {
-      data = new TaggedIdentifier(key, data);
     }
     return data;
   }

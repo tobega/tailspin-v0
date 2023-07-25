@@ -10,7 +10,7 @@ import tailspin.types.Unit;
 public class UnitMatch implements Membrane {
   public static final Membrane ANY_MEASURE = new Membrane() {
     @Override
-    public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+    public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
       return toMatch instanceof Measure;
     }
 
@@ -27,11 +27,11 @@ public class UnitMatch implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
     if (typeBound == null) {
-      typeBound = TypeBound.of(ANY_MEASURE);
+      typeBound = ANY_MEASURE;
     }
-    if (typeBound.outOfBound(toMatch, it, scope)) {
+    if (!typeBound.matches(toMatch, it, scope, Membrane.ALWAYS_TRUE)) {
       throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " not in expected type bound " + typeBound + " in " + this);
     }
     return toMatch instanceof Measure m && unit.equals(m.getUnit());

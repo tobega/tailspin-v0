@@ -1,14 +1,11 @@
 package tailspin.matchers;
 
-import java.util.Objects;
 import tailspin.TypeError;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
-import tailspin.types.DataDictionary;
-import tailspin.types.Measure;
-import tailspin.types.Membrane;
-import tailspin.types.TaggedIdentifier;
-import tailspin.types.TailspinArray;
+import tailspin.types.*;
+
+import java.util.Objects;
 
 public class Equality implements Membrane {
   private final Value value;
@@ -18,17 +15,18 @@ public class Equality implements Membrane {
   }
 
   @Override
-  public boolean matches(Object toMatch, Object it, Scope scope, TypeBound typeBound) {
+  public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
     Object required = value.getResults(it, scope);
-    if (typeBound != null && required instanceof TaggedIdentifier t && t.getTag().equals(typeBound.contextTag())) {
-      required = t.getValue();
-    }
     if (typeBound == null) {
-      typeBound = TypeBound.of(DataDictionary.getDefaultTypeCriterion(null, required, scope.getLocalDictionary()));
-    } else if (typeBound.outOfBound(required, it, scope)) {
-      throw new TypeError("Matcher " + this + " not in expected type bound " + typeBound);
+      typeBound = DataDictionary.getDefaultTypeCriterion(required, scope.getLocalDictionary());
+    } else {
+      toMatch = typeBound.inContext(toMatch);
+      required = typeBound.inContext(required);
+      if (!typeBound.matches(required, it, scope, Membrane.ALWAYS_TRUE)) {
+        throw new TypeError("Matcher " + this + " not in expected type bound " + typeBound);
+      }
     }
-    if (typeBound != null && typeBound.outOfBound(toMatch, it, scope)) {
+    if (typeBound != null && !typeBound.matches(toMatch, it, scope, Membrane.ALWAYS_TRUE)) {
       throw new TypeError("Value " + DataDictionary.formatErrorValue(toMatch) + " not in expected type bound " + typeBound);
     }
     return eq(toMatch, required);

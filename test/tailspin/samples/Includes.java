@@ -1,7 +1,8 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,15 +11,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.support.io.TempDirectory;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Includes {
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void includeTemplates(@TempDirectory.TempDir Path dir) throws Exception {
+  void includeTemplates(@TempDir Path dir) throws Exception {
     String dep = "templates quote '\"$;\"' ! end quote";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
@@ -33,9 +33,9 @@ public class Includes {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void includeSource(@TempDirectory.TempDir Path dir) throws Exception {
+  void includeSource(@TempDir Path dir) throws Exception {
     String dep = "source quote '\"1\"' ! end quote";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
@@ -50,9 +50,9 @@ public class Includes {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void includeFromDeepProgram(@TempDirectory.TempDir Path dir) throws Exception {
+  void includeFromDeepProgram(@TempDir Path dir) throws Exception {
     String dep = "source quote '\"1\"' ! end quote";
     Path subdir = Files.createDirectory(dir.resolve("ts"));
     Path depFile = subdir.resolve("dep.tt");
@@ -68,9 +68,9 @@ public class Includes {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void deepInclude(@TempDirectory.TempDir Path dir) throws Exception {
+  void deepInclude(@TempDir Path dir) throws Exception {
     String dep = "source quote '\"1\"' ! end quote";
     Path subdir = Files.createDirectory(dir.resolve("lib"));
     Path depFile = subdir.resolve("dep.tt");
@@ -86,9 +86,9 @@ public class Includes {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void includeFromOutsideDirectoryNotAllowed(@TempDirectory.TempDir Path dir) throws Exception {
+  void includeFromOutsideDirectoryNotAllowed(@TempDir Path dir) throws Exception {
     String dep = "source quote '\"1\"' ! end quote";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
@@ -102,12 +102,13 @@ public class Includes {
     assertThrows(Exception.class, () -> runner.run(subdir, input, output, List.of()));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void noStatementsOrUnusedDefinitionsRunInImportedFiles(@TempDirectory.TempDir Path dir) throws Exception {
-    String dep = "source quote '\"1\"' ! end quote\n"
-        + "def b: 'unused' -> \\($ -> !OUT::write $!\\);\n"
-        + "'bad' -> !OUT::write";
+  void noStatementsOrUnusedDefinitionsRunInImportedFiles(@TempDir Path dir) throws Exception {
+    String dep = """
+            source quote '"1"' ! end quote
+            def b: 'unused' -> \\($ -> !OUT::write $!\\);
+            'bad' -> !OUT::write""";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     String program = "include 'dep'\n $dep/quote -> !OUT::write";
@@ -121,9 +122,9 @@ public class Includes {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void includedDepsRunInSourceOrder(@TempDirectory.TempDir Path dir) throws Exception {
+  void includedDepsRunInSourceOrder(@TempDir Path dir) throws Exception {
     String dep = "def a: 1 -> \\($ -> !OUT::write $!\\);\n"
         + "def b: 2 -> \\($ -> !OUT::write $!\\);";
     Path depFile = dir.resolve("dep.tt");
@@ -139,9 +140,9 @@ public class Includes {
     assertEquals("1221", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void includeSink(@TempDirectory.TempDir Path dir) throws Exception {
+  void includeSink(@TempDir Path dir) throws Exception {
     String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
@@ -156,9 +157,9 @@ public class Includes {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void packageTemplatesRunInPackageScope(@TempDirectory.TempDir Path dir) throws Exception {
+  void packageTemplatesRunInPackageScope(@TempDir Path dir) throws Exception {
     String dep = "templates quote '\"$;\"' ! end quote\n"
         + "templates addQuote $ -> quote ! end addQuote";
     Path depFile = dir.resolve("dep.tt");
@@ -174,9 +175,9 @@ public class Includes {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void cannotIncludeModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void cannotIncludeModule(@TempDir Path dir) throws Exception {
     String dep = "templates quote '\"$;\"' ! end quote";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
     System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
@@ -192,9 +193,9 @@ public class Includes {
     assertThrows(Exception.class, () -> runner.run(baseDir, input, output, List.of()));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void includeReprefixed(@TempDirectory.TempDir Path dir) throws Exception {
+  void includeReprefixed(@TempDir Path dir) throws Exception {
     String dep = "templates quote '\"$;\"' ! end quote";
     Path depFile = dir.resolve("dep.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);

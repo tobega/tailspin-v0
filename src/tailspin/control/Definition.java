@@ -1,8 +1,9 @@
 package tailspin.control;
 
+import tailspin.interpreter.DefinitionExpression;
 import tailspin.interpreter.Scope;
 
-public class Definition implements Expression {
+public class Definition implements DefinitionExpression {
   private final String identifier;
   private final Value value;
 
@@ -21,7 +22,7 @@ public class Definition implements Expression {
     return identifier;
   }
 
-  public Definition rename(String newIdentifier) {
+  public Definition renamed(String newIdentifier) {
     return new Definition(newIdentifier, value);
   }
 }

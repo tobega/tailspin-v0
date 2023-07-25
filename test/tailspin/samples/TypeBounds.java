@@ -1,7 +1,11 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import tailspin.Tailspin;
+import tailspin.TypeError;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,12 +13,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-import tailspin.Tailspin;
-import tailspin.TypeError;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class TypeBounds {
   private static final List<String> rangeTypes = List.of("5", "id´5", "ifoo´5", "5\"x\"", "5\"y\"", "'e'", "sid´'e'", "sfoo´'e'");
@@ -517,5 +518,345 @@ class TypeBounds {
     runner.run(input, output, List.of());
 
     assertEquals("ok", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void untypedStringTypetests() throws IOException {
+    String program = """
+      data foo <''>
+
+      'bar' -> \\(
+        <foo> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedStringTypetests() throws IOException {
+    String program = """
+      data foo <''>
+
+      foo´'bar' -> \\(
+        <foo> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedStringEqualsUntypedInBoundsContext() throws IOException {
+    String program = """
+      data foo <''>
+
+      foo´'bar' -> \\(
+        <´foo´ ='bar'> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedStringEqualsTaggedInBoundsContext() throws IOException {
+    String program = """
+      data foo <''>
+
+      foo´'bar' -> \\(
+        <´foo´ =foo´'bar'> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void untypedStringIsTypedInBoundsContext() throws IOException {
+    String program = """
+      data foo <''>
+
+      'bar' -> \\(
+        <´foo´ =foo´'bar'> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void untypedStringIsTypedInBoundsContextAsIsUntypedComparisonString() throws IOException {
+    String program = """
+      data foo <''>
+
+      'bar' -> \\(
+        <´foo´ ='bar'> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void untypedNumberTypetests() throws IOException {
+    String program = """
+      data foo <..>
+
+      6 -> \\(
+        <foo> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedNumberTypetests() throws IOException {
+    String program = """
+      data foo <..>
+
+      foo´6 -> \\(
+        <foo> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedNumberRangeLowerBoundUntypedInBoundsContext() throws IOException {
+    String program = """
+      data foo <..>
+
+      foo´6 -> \\(
+        <´foo´ 6..> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedNumberRangeLowerBoundTaggedInBoundsContext() throws IOException {
+    String program = """
+      data foo <..>
+
+      foo´6 -> \\(
+        <´foo´ foo´6..> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void untypedNumberRangeLowerBoundIsTypedInBoundsContext() throws IOException {
+    String program = """
+      data foo <..>
+
+      6 -> \\(
+        <´foo´ foo´6..> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void untypedNumberRangeLowerBoundIsTypedInBoundsContextAsIsUntypedComparisonNumber() throws IOException {
+    String program = """
+      data foo <..>
+
+      6 -> \\(
+        <´foo´ 6..> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedNumberRangeUpperBoundUntypedInBoundsContext() throws IOException {
+    String program = """
+      data foo <..>
+
+      foo´6 -> \\(
+        <´foo´ ..6> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void taggedNumberRangeUpperBoundTaggedInBoundsContext() throws IOException {
+    String program = """
+      data foo <..>
+
+      foo´6 -> \\(
+        <´foo´ ..foo´6> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void untypedNumberRangeUpperBoundIsTypedInBoundsContext() throws IOException {
+    String program = """
+      data foo <..>
+
+      6 -> \\(
+        <´foo´ ..foo´6> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void untypedNumberRangeUpperBoundIsTypedInBoundsContextAsIsUntypedComparisonNumber() throws IOException {
+    String program = """
+      data foo <..>
+
+      6 -> \\(
+        <´foo´ ..6> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void untypedStringInTypeBoundedRegexpMatchIsTyped() throws IOException {
+    String program = """
+      data foo <''>
+
+      'bar' -> \\(
+        <´foo´ 'b.*'> 'yay' !
+        otherwise 'oh' !
+      \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yay", output.toString(StandardCharsets.UTF_8));
   }
 }

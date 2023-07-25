@@ -1,20 +1,16 @@
 package tailspin.types;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 import tailspin.control.Reference;
 import tailspin.control.ResultIterator;
 import tailspin.interpreter.Scope;
 import tailspin.literals.KeyValueExpression;
 import tailspin.literals.StringInterpolation;
 
-public class Structure implements Freezable<Structure> {
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+public class Structure implements Freezable<Structure>, Deconstructible {
 
   private final Map<String, Object> map;
   private boolean isMutable;
@@ -93,6 +89,7 @@ public class Structure implements Freezable<Structure> {
     return map.keySet();
   }
 
+  @Override
   public ResultIterator.Flat deconstruct() {
     if (map.isEmpty()) {
       return null;

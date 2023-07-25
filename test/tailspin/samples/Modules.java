@@ -11,14 +11,12 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.support.io.TempDirectory;
+import org.junit.jupiter.api.io.TempDir;
 import tailspin.Tailspin;
 
 public class Modules {
-  @ExtendWith(TempDirectory.class)
   @Test
-  void useModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void useModule(@TempDir Path dir) throws Exception {
     String dep = "templates quote '\"$;\"' ! end quote";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
     System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
@@ -36,9 +34,8 @@ public class Modules {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
   @Test
-  void useRenamedModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void useRenamedModule(@TempDir Path dir) throws Exception {
     String dep = "templates quote '\"$;\"' ! end quote";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
     System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
@@ -56,9 +53,8 @@ public class Modules {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
   @Test
-  void moduleDoesNotAutomaticallyInheritCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduleDoesNotAutomaticallyInheritCoreSystem(@TempDir Path dir) throws Exception {
     String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
     System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
@@ -74,9 +70,8 @@ public class Modules {
     assertThrows(Exception.class, () -> runner.run(baseDir, input, output, List.of()));
   }
 
-  @ExtendWith(TempDirectory.class)
   @Test
-  void moduleProvidedWithPartiallyUnprovidedCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduleProvidedWithPartiallyUnprovidedCoreSystem(@TempDir Path dir) throws Exception {
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
     System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
     String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
@@ -104,9 +99,9 @@ public class Modules {
     assertThrows(Exception.class, () -> runner.run(baseDir, input, output, List.of()));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void moduleProvidedWithPartiallyProvidedCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduleProvidedWithPartiallyProvidedCoreSystem(@TempDir Path dir) throws Exception {
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
     System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
     String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
@@ -135,9 +130,9 @@ public class Modules {
     assertEquals("foo", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void moduleProvidedWithInheritedCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduleProvidedWithInheritedCoreSystem(@TempDir Path dir) throws Exception {
     String dep = "sink quote '\"$;\"' -> !OUT::write end quote";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
     System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
@@ -155,9 +150,9 @@ public class Modules {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void useIncludableModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void useIncludableModule(@TempDir Path dir) throws Exception {
     String dep = """
         def greeting: 'Salut';
         sink greet
@@ -182,9 +177,9 @@ public class Modules {
     assertEquals("Salut John", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void useModifiedImport(@TempDirectory.TempDir Path dir) throws Exception {
+  void useModifiedImport(@TempDir Path dir) throws Exception {
     String dep = """
         def greeting: 'Hello';
         sink greet
@@ -214,9 +209,9 @@ public class Modules {
     assertEquals("Goodbye John", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void useRenamedModifiedImport(@TempDirectory.TempDir Path dir) throws Exception {
+  void useRenamedModifiedImport(@TempDir Path dir) throws Exception {
     String dep = """
         def greeting: 'Hello';
         sink greet
@@ -268,9 +263,9 @@ public class Modules {
     assertEquals("-Hello World-", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void moduleInheritsWrappedCore(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduleInheritsWrappedCore(@TempDir Path dir) throws Exception {
     String dep = """
         def greeting: 'Salut';
         sink greet
@@ -303,9 +298,9 @@ public class Modules {
     assertEquals("-Salut John-", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void moduleInheritsConfiguredModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduleInheritsConfiguredModule(@TempDir Path dir) throws Exception {
     String dep = """
         def greeting: 'Salut';
         sink greet
@@ -337,9 +332,9 @@ public class Modules {
     assertEquals("Salut Jolly Roger", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void moduledependsOnModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduledependsOnModule(@TempDir Path dir) throws Exception {
     String dep = """
         def greeting: 'Salut';
         sink greet
@@ -372,9 +367,9 @@ public class Modules {
     assertEquals("Salut Jolly Roger", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void moduleWithoutCoreSystemUsesBuiltins(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduleWithoutCoreSystemUsesBuiltins(@TempDir Path dir) throws Exception {
     String dep = "templates gauss 1..$ -> ..=Sum&{of: :()}! end gauss";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
     System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
@@ -392,9 +387,9 @@ public class Modules {
     assertEquals("10", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void modifiedModuleWithoutCoreSystemUsesBuiltins(@TempDirectory.TempDir Path dir) throws Exception {
+  void modifiedModuleWithoutCoreSystemUsesBuiltins(@TempDir Path dir) throws Exception {
     String dep = "templates gauss 1..$ -> ..=Sum&{of: :()}! end gauss";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
     System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
@@ -412,9 +407,9 @@ public class Modules {
     assertEquals("10", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void modificationOfModuleWithoutCoreSystemUsesBuiltins(@TempDirectory.TempDir Path dir) throws Exception {
+  void modificationOfModuleWithoutCoreSystemUsesBuiltins(@TempDir Path dir) throws Exception {
     String dep = "def foo: 8;";
     Path moduleDir = Files.createDirectory(dir.resolve("modules"));
     System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
@@ -433,9 +428,9 @@ public class Modules {
     assertEquals("10", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void dataDefinitionWorksInModuleTemplates(@TempDirectory.TempDir Path dir) throws Exception {
+  void dataDefinitionWorksInModuleTemplates(@TempDir Path dir) throws Exception {
     String dep = """
         templates keyify
           [$... -> (key:$)] !
@@ -461,9 +456,9 @@ public class Modules {
     assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void dataDefinitionWorksInModuleComposer(@TempDirectory.TempDir Path dir) throws Exception {
+  void dataDefinitionWorksInModuleComposer(@TempDir Path dir) throws Exception {
     String dep = """
         composer keyify
           [<value>+]
@@ -490,9 +485,9 @@ public class Modules {
     assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void dataDefinitionWorksInModuleProcessor(@TempDirectory.TempDir Path dir) throws Exception {
+  void dataDefinitionWorksInModuleProcessor(@TempDir Path dir) throws Exception {
     String dep = """
         processor keyify
           @: [$... -> (key:$)];
@@ -521,9 +516,9 @@ public class Modules {
     assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void noStatementsOrUnusedDefinitionsRunInModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void noStatementsOrUnusedDefinitionsRunInModule(@TempDir Path dir) throws Exception {
     String dep = """
         source quote '"1"' ! end quote
         def b: 'unused' -> \\($ -> !OUT::write $!\\);
@@ -544,9 +539,9 @@ public class Modules {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void noStatementsOrUnusedDefinitionsRunInIncludableModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void noStatementsOrUnusedDefinitionsRunInIncludableModule(@TempDir Path dir) throws Exception {
     String dep = """
         source quote '"1"' ! end quote
         def b: 'unused' -> \\($ -> !OUT::write $!\\);
@@ -564,9 +559,9 @@ public class Modules {
     assertEquals("\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void inheritedModuleWithDualUsageRunsOnceInRequestedOrder(@TempDirectory.TempDir Path dir) throws Exception {
+  void inheritedModuleWithDualUsageRunsOnceInRequestedOrder(@TempDir Path dir) throws Exception {
     String dep = """
         def a: 'a' -> \\($ -> !OUT::write $!\\);
         def b: 'b' -> \\($ -> !OUT::write $!\\);
@@ -598,9 +593,9 @@ public class Modules {
     assertEquals("bapcbcppappbp", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void moduleWithDifferentDepIsSeparatelyLoaded(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduleWithDifferentDepIsSeparatelyLoaded(@TempDir Path dir) throws Exception {
     String dep = """
         def b: 'b' -> \\($ -> !OUT::write $!\\);
         """;
@@ -642,9 +637,9 @@ public class Modules {
     assertEquals("cBcbcbcpcbcpvcBcv", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void modifiedModuleInheritsAndOverridesVirtually(@TempDirectory.TempDir Path dir) throws Exception {
+  void modifiedModuleInheritsAndOverridesVirtually(@TempDir Path dir) throws Exception {
     String dep = """
         def foo: 2 -> \\($ -> !OUT::write $!\\);
         def a: 'a' -> \\($ -> !OUT::write $!\\);
@@ -671,9 +666,9 @@ public class Modules {
     assertEquals("22Abp2Abp", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void moduleModificationCanAccessOverriddenDefinition(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduleModificationCanAccessOverriddenDefinition(@TempDir Path dir) throws Exception {
     String dep = """
         def a: 'a' -> \\($ -> !OUT::write $!\\);
         """;
@@ -698,9 +693,9 @@ public class Modules {
     assertEquals("apaAp", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void noSneakyAccessToOverriddenDefinition(@TempDirectory.TempDir Path dir) throws Exception {
+  void noSneakyAccessToOverriddenDefinition(@TempDir Path dir) throws Exception {
     String dep = """
         def a: 'a' -> \\($ -> !OUT::write $!\\);
         """;
@@ -721,5 +716,32 @@ public class Modules {
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     assertThrows(Exception.class, () -> runner.run(baseDir, input, output, List.of()));
+  }
+
+  @Test
+  void dataDefinitionInModuleWorks(@TempDir Path dir) throws Exception {
+    String dep = """
+        data key <>
+        templates keyify
+          [$... -> (key:$)] !
+        end keyify
+    """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program = """
+    use 'module:dep' stand-alone
+    [1, 'a'] -> dep/keyify -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
   }
 }

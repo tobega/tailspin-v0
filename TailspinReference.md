@@ -34,7 +34,7 @@ should have been used instead. This is deliberate in order to free the mind of p
 1. [Matchers](#matchers)
    1. [Multipliers](#multipliers)
    2. [Types and matching](#type-bounds-for-matching)
-   2. [Do-nothing blocks](#do-nothing-block--guard-clause-)
+   2. [Do-nothing blocks](#do-nothing-block-guard-clause)
    3. [Conditions](#conditions)
    4. [Defined types](#defined-types)
 1. [Mutable state](#mutable-state) (see also [Processors](#processors))
@@ -178,8 +178,28 @@ NOTE: currently no automatic inference of units is done, except for adding same 
 
 The message `::raw` can be used on a measure to get the magnitude without the unit.
 
+### Symbolic value sets
+Some information is best portrayed by a set of distinct values, either one at a time or in combination.
+The symbol sets in Tailspin are similar to "enums" or "enumerations" in other languages, but the symbols do not have any order or numeric value.
+
+A set of symbols is defined in a [data declaration](#defined-types) by giving a name for the set followed by the symbol names between `#{` and `}`
+For example, to define a set of colours: `data colour #{ red, white, blue }`
+A symbolic value can then be written by giving the name of the set, `#`, and the name of the value, for example `colour#white`
+
+To check if a value belongs to a symbol set, use a [matcher](#matchers) with the name of the set followed by `#`, in our colour example that would be `<colour#>`.
+
+Any field in a [structure](#structure-literal) named as a symbol set name and ending in `#` must contain a value of that symbol set,
+so in the colour example, this could be `{ colour#: colour#red }`. This is related to the [autotyping](#autotyping) feature of Tailspin
+where field names are automatically connected to a type of the same name.
+
+Note that Tailspin does not have boolean values. You could define the set of `boolean #{true, false}` if you want, but often it is better to have
+more specific values for your use case. For example, instead of an `ìs_appliance_on` field or variable with a `true` or `false` value,
+it would usually be better to define `appliance_state #{on, off}` and use 
+_Future work_: Symbolic values can be used as indices in symbol maps containing arbitrary values connected to each symbol.
+
 ### Range literal
-A range literal produces a [stream](#streams) of numbers. They are specified by a start, an end and
+A range literal produces a [stream](#streams) of numbers (note that a stream is not a value that can be manipulated as a unit, it is several values).
+A range is specified by a start, an end and
 an optional increment, e.g. `1..10` will give the numbers 1 to 10 inclusive and `10..1:-1` does the same but backwards.
 To exclude the bounds, add a tilde between the numeric bound and the range operator `..`, so `1~..5:2` will give `3 5`,
 while `1..~5:2` will give `1 3`.
@@ -614,8 +634,10 @@ See also [type bounds](#type-bounds-for-matching), [measures](#measures) and [ta
 * Basic type matches: `<{}>` matches any [structure](#structures), `<[]>` matches any [array](#arrays), `<''>` matches any [raw or tagged](#tagged-identifiers) string value,
   `<..>` matches any [raw or tagged](#tagged-identifiers) number or [measure](#measures), while `""` matches any measure. To match empty structures, use `{VOID}`, for empty arrays, use `[](0)`.
 * Matching a [defined data type](#defined-types), is done by simply putting the name of the defined type in the matcher, e.g. `<mytype>`
-  Note that matching here creates a tag context in which raw strings or numbers will match if they could be tagged with the name of the defined type, see [tagged identifiers](#tagged-identifiers).
-  The name of an [autotyped](#autotyping) field or tag can also be used as a defined type.
+  Note that matching a defined type without a [type bound](#type-bounds-for-matching) determines if the value could be assigned to a field of that name,
+  so raw strings or numbers will match if they could be tagged with the name of the defined type, see [tagged identifiers](#tagged-identifiers), even though they remain untyped.
+  If the defined type matcher is under a type bound, it will not generally match untyped values (unless their [type bound interpretation](#untyped-strings-and-numbers-under-type-bounds) matches)
+  The name of an [autotyped](#autotyping) field or tag can also be used as a defined type. The type name of a [symbol set](#symbolic-value-sets) is the name of the set followed by `#`.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
   Note that trying to compare equality between different types is considered a programming error, see [the type bounds for matching section](#type-bounds-for-matching) for details and how to handle it.
@@ -698,9 +720,29 @@ It is advisable to use as narrow type bounds as possible, but if needed, use the
 This is how the default type bound is determined for different types of matchers:
 - Equality and range: the autotype of the expected values
 - regex match: the tag in the matcher, or raw string if none given.
-- basic type matchers `..`, `''`, `""`, `[]` and `{}` allow any type
+- basic type matchers `..`, `''`, `""`, `[]` and `{}` allow any type.
+- a matcher for a defined type acts as a type matcher when no type bound is given, or when it is a type bound (and then allows any type).
 - array match beyond basic type match (not just `[]`) has array type `[]` bound
 - structure match by default requires all matched fields to be present (or absent, if so specified). If there are no field matchers, any type is allowed (which implies `{VOID}` can function as a null value)
+- a structure field has the type bound of its defined (or autotyped) type. There is no point in giving it a broader type bound, but there maybe cases for giving it a narrower bound if the value must be a subtype 
+  at that point in the program, and it would be a programming error otherwise.
+
+#### Untyped strings and numbers under type bounds
+A value that matches the type bound will be considered to be of that type for the duration of the match,
+which has particular consequences for untyped strings and numbers.
+
+Consider the type foo which could be any string value `data foo <''>`.
+
+Comparing an untyped string with a tagged string, as in `'hello' -> \(<=foo´'hello'> $! \)` directly will be an error,
+because the default type bound for `foo´'hello'` requires the compared value to actually be a foo-value.
+
+This may sound a little confusing, because `'hello' -> \(<foo> $! \)` will match. This is because the defined type matcher
+determines if a value could be assigned as that defined type, e.g. to a foo field. But the untyped string will not become tagged until it is assigned to a tag or field.
+Note that `'hello' -> \(<´´ foo> $! \)` will not match, because the string is now interpreted in the "any type" context, not in the "foo" type context.
+
+Comparing the untyped string with the type bound foo, as in `'hello' -> \(<´foo´ =foo´'hello'> $! \)` will actually match,
+but note that the `'hello'` string will only be considered tagged during the matching, it will still remain untagged in the following program flow.
+Note that, as a convenience, you don't need to tag the matcher values with the type bound, so `'hello' -> \(<´foo´ ='hello'> $! \)` works just as well.
 
 ### Multipliers
 Composer matchers and array content matchers can have multipliers attached:
@@ -926,7 +968,7 @@ Operations on relations:
   from the left-hand relation that are not in the right-hand relation.
 * Two relations can be combined with the `join` operator. The new relation will have keys that are the union of
 the keys of both. If there are no common keys, a full cross-product will be created, otherwise the entries will first
-be grouped on equality of common keys and a cross-product will be created within each equivalence group.
+be grouped on equality of common keys and a cross-product will be created within each equivalence group. This is known as a "natural join".
 * A relation can be [projected](#projections-and-lenses) onto a subset of the keys by referencing the relation, appending an opening parenthesis,
 a list of keys for the projection within curly braces and a closing parenthesis, e.g. `$myRelation({x:})` will select all
 the x-values, and only the x-values, in the relation and return a new relation with the new tuples/structures.
@@ -1126,8 +1168,7 @@ if you need to, or that an element must not exist.
 
 One thing to note is that a key of a [key-value pair](#keyed-values), which is also the name of a field in a
 [structure](#structures), is expected to be connected to a value of the same type wherever it is used, i.e. keys form a
-[data dictionary](#data-dictionary). When you do a join on [relations](#relations), values with the same name will
-be joined together in a "natural join". If you don't specify a type in the [data dictionary](#data-dictionary),
+[data dictionary](#data-dictionary). If you don't specify a type in the [data dictionary](#data-dictionary),
 a type will automatically be assigned by [autotyping](#autotyping).
 
 Numbers in arithmetic expressions are in their bare state just untyped numbers, but they can be assigned a

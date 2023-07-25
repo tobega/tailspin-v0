@@ -1,130 +1,29 @@
 package tailspin.interpreter;
 
-import java.util.AbstractMap;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
-import tailspin.arithmetic.ArithmeticContextValue;
-import tailspin.arithmetic.ArithmeticOperation;
-import tailspin.arithmetic.ArithmeticValue;
-import tailspin.arithmetic.IntegerConstant;
-import tailspin.arithmetic.IntegerExpression;
-import tailspin.arithmetic.MeasureExpression;
-import tailspin.control.ArrayTemplates;
-import tailspin.control.Block;
-import tailspin.control.Bound;
-import tailspin.control.ChainStage;
-import tailspin.control.CollectorStage;
-import tailspin.control.ComposerDefinition;
-import tailspin.control.DataDefinition;
-import tailspin.control.Deconstructor;
-import tailspin.control.Definition;
-import tailspin.control.DeleteState;
-import tailspin.control.Expression;
-import tailspin.control.InlineTemplates;
-import tailspin.control.OperatorApplication;
-import tailspin.control.ProcessorDefinition;
-import tailspin.control.ProcessorMessage;
-import tailspin.control.RangeGenerator;
-import tailspin.control.Reference;
-import tailspin.control.SendToTemplates;
-import tailspin.control.SinkReference;
-import tailspin.control.SinkValueChain;
-import tailspin.control.SourceReference;
-import tailspin.control.StateAssignment;
-import tailspin.control.TemplatesCall;
-import tailspin.control.TemplatesDefinition;
+import tailspin.arithmetic.*;
+import tailspin.control.*;
 import tailspin.control.TemplatesDefinition.TemplatesConstructor;
-import tailspin.control.TemplatesReference;
-import tailspin.control.TransformStage;
-import tailspin.control.TypestateDefinition;
-import tailspin.control.Value;
-import tailspin.control.ValueChain;
-import tailspin.literals.ArrayLiteral;
-import tailspin.literals.ByteLiteral;
-import tailspin.literals.BytesConstant;
-import tailspin.literals.CartesianExpansion;
-import tailspin.literals.CodedCharacter;
-import tailspin.literals.KeyValueExpression;
-import tailspin.literals.RelationLiteral;
-import tailspin.literals.StringConstant;
-import tailspin.literals.StringInterpolation;
-import tailspin.literals.StringLiteral;
-import tailspin.literals.StructureLiteral;
-import tailspin.literals.TaggedValue;
-import tailspin.matchers.AlwaysFalse;
-import tailspin.matchers.AnyOf;
-import tailspin.matchers.ArrayMatch;
-import tailspin.matchers.CollectionCriterionFactory;
-import tailspin.matchers.CollectionSegmentCriterion;
-import tailspin.matchers.Condition;
-import tailspin.matchers.Equality;
-import tailspin.matchers.KeyValueMatch;
-import tailspin.matchers.MultipliedCollectionCriterionFactory;
-import tailspin.matchers.OnceOnlyCollectionCriterionFactory;
-import tailspin.matchers.OneElementMatch;
-import tailspin.matchers.RangeMatch;
-import tailspin.matchers.RegexpMatch;
-import tailspin.matchers.SequenceMatch;
-import tailspin.matchers.StereotypeMatch;
-import tailspin.matchers.StructureMatch;
-import tailspin.matchers.TypeBound;
-import tailspin.matchers.UnitMatch;
-import tailspin.matchers.ValueMatcher;
+import tailspin.literals.*;
+import tailspin.matchers.*;
 import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.parser.TailspinParser;
-import tailspin.parser.TailspinParser.ByteValueContext;
-import tailspin.parser.TailspinParser.BytesLiteralContext;
-import tailspin.parser.TailspinParser.CompositionSequenceContext;
-import tailspin.parser.TailspinParser.DefinedCompositionSequenceContext;
-import tailspin.parser.TailspinParser.DimensionReferenceContext;
-import tailspin.parser.TailspinParser.InheritModuleContext;
-import tailspin.parser.TailspinParser.ModuleIdentifierContext;
-import tailspin.parser.TailspinParser.ModuleImportContext;
-import tailspin.parser.TailspinParser.ModuleModificationContext;
-import tailspin.parser.TailspinParser.ModuleShadowingContext;
-import tailspin.parser.TailspinParser.OperandContext;
-import tailspin.parser.TailspinParser.OperatorExpressionContext;
-import tailspin.parser.TailspinParser.ProgramModificationContext;
-import tailspin.parser.TailspinParser.StateSinkContext;
-import tailspin.parser.TailspinParser.StereotypeMatchContext;
-import tailspin.parser.TailspinParser.StructuresContext;
-import tailspin.parser.TailspinParser.TermArithmeticOperationContext;
-import tailspin.parser.TailspinParser.TermContext;
-import tailspin.parser.TailspinParser.UseModuleContext;
-import tailspin.parser.TailspinParser.ValueProductionContext;
+import tailspin.parser.TailspinParser.*;
 import tailspin.parser.TailspinParserBaseVisitor;
 import tailspin.testing.Assertion;
-import tailspin.transform.Composer;
-import tailspin.transform.ExpectedParameter;
-import tailspin.transform.Lens;
-import tailspin.transform.MatchTemplate;
-import tailspin.transform.Operator;
-import tailspin.transform.Templates;
-import tailspin.transform.lens.ArrayLens;
-import tailspin.transform.lens.CollectedValue;
-import tailspin.transform.lens.DefinedLens;
-import tailspin.transform.lens.Grouping;
-import tailspin.transform.lens.KeyLens;
-import tailspin.transform.lens.LensDimension;
-import tailspin.transform.lens.MultiValueArrayLens;
-import tailspin.transform.lens.Projection;
-import tailspin.transform.lens.RangeArrayLens;
-import tailspin.transform.lens.SingleValueArrayLens;
+import tailspin.transform.*;
+import tailspin.transform.lens.*;
+import tailspin.literals.SymbolicValue;
 import tailspin.types.KeyValue;
 import tailspin.types.Membrane;
 import tailspin.types.Unit;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class RunMain extends TailspinParserBaseVisitor<Object> {
   private final Deque<DependencyCounter> dependencyCounters;
@@ -142,18 +41,22 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
         .map(this::visitInclusion).collect(Collectors.toList());
     List<Statement> statements = new ArrayList<>();
     List<TestStatement> tests = new ArrayList<>();
-    ctx.statement().forEach(s -> {
+    for (StatementContext s : ctx.statement()) {
       dependencyCounters.push(new DependencyCounter());
-      Expression statement = (Expression) visit(s);
+      Object statement = visit(s);
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
-      if (statement instanceof Test) {
-        tests.add(new TestStatement((Test) statement, requiredDefinitions));
-      } else if (statement instanceof Definition || statement instanceof DataDefinition) {
-        statements.add(new DefinitionStatement(statement, requiredDefinitions));
+      if (statement instanceof Test t) {
+        tests.add(new TestStatement(t, requiredDefinitions));
+      } else if (statement instanceof Definition d) {
+        statements.add(new DefinitionStatement(d, requiredDefinitions));
+      } else if (statement instanceof DataDeclaration dd) {
+        for (DataDefinition d : dd.getDefinitions()) {
+          statements.add(new DefinitionStatement(d, requiredDefinitions));
+        }
       } else {
-        statements.add(new TopLevelStatement(statement, requiredDefinitions));
+        statements.add(new TopLevelStatement((Expression) statement, requiredDefinitions));
       }
-    });
+    }
     return new Program(statements, tests, includedFiles, modules);
   }
 
@@ -215,7 +118,15 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.taggedValue() != null) {
       return visitTaggedValue(ctx.taggedValue());
     }
+    if (ctx.symbolicValue() != null) {
+      return visitSymbolicValue(ctx.symbolicValue());
+    }
     throw new UnsupportedOperationException(ctx.getText());
+  }
+
+  @Override
+  public Value visitSymbolicValue(SymbolicValueContext ctx) {
+    return new SymbolicValue(ctx.localIdentifier(0).getText() + "#", ctx.localIdentifier(1).getText());
   }
 
   @Override
@@ -290,6 +201,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   private Reference resolveReference(TailspinParser.ReferenceContext ctx, Reference reference) {
+    if (ctx == null) return reference;
     if (ctx.lens() != null) {
       try {
         reference = resolveLens(ctx.lens(), reference);
@@ -325,7 +237,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       } else if (dimCtx.projection() != null) {
         dimensions.add(visitProjection(dimCtx.projection()));
       } else if (dimCtx.key() != null) {
-        dimensions.add(new KeyLens(dimCtx.key().localIdentifier().getText()));
+        dimensions.add(new KeyLens(visitKey(dimCtx.key())));
       } else if (dimCtx.localIdentifier() != null) {
         dimensions.add(new DefinedLens(dimCtx.localIdentifier().getText()));
       } else if (dimCtx.grouping() != null) {
@@ -369,7 +281,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public LensDimension visitProjection(TailspinParser.ProjectionContext ctx) {
     return new Projection(Stream.concat(ctx.keyValue().stream().map(this::visitKeyValue),
         ctx.key().stream().map(kc -> {
-          String field = kc.localIdentifier().getText();
+          String field = visitKey(kc);
           return new KeyValueExpression(field, Reference.reflexive().field(field));
         })).collect(Collectors.toList()));
   }
@@ -382,7 +294,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public CollectedValue visitCollectedValue(TailspinParser.CollectedValueContext ctx) {
-    return new CollectedValue(ctx.key().localIdentifier().getText(), visitTemplatesReference(ctx.templatesReference()));
+    return new CollectedValue(visitKey(ctx.key()), visitTemplatesReference(ctx.templatesReference()));
   }
 
   @Override
@@ -420,18 +332,20 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public List<Map.Entry<String, Membrane>> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
+  public List<DataDefinition> visitLocalDataDeclaration(TailspinParser.LocalDataDeclarationContext ctx) {
     if (ctx == null) return List.of();
     implicitDataDefinitions = new ArrayList<>();
     ctx.localDataDefinition().forEach(d -> implicitDataDefinitions.add(visitLocalDataDefinition(d)));
-    List<Map.Entry<String, Membrane>> definitions = implicitDataDefinitions;
+    List<DataDefinition> definitions = implicitDataDefinitions;
     implicitDataDefinitions = null;
     return definitions;
   }
 
   @Override
-  public Map.Entry<String, Membrane> visitLocalDataDefinition(TailspinParser.LocalDataDefinitionContext ctx) {
-    return new AbstractMap.SimpleEntry<>(ctx.localIdentifier().getText(), ctx.matcher() == null ? null : visitMatcher(ctx.matcher()));
+  public DataDefinition visitLocalDataDefinition(TailspinParser.LocalDataDefinitionContext ctx) {
+    return new DataDefinition(
+        ctx.localIdentifier().getText(),
+        ctx.matcher() == null ? null : visitMatcher(ctx.matcher()));
   }
 
   @Override
@@ -468,7 +382,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   public TemplatesDefinition visitTemplatesBody(String name,
-      List<Map.Entry<String, Membrane>> localDatatypes, TailspinParser.TemplatesBodyContext ctx,
+      List<DataDefinition> localDatatypes, TailspinParser.TemplatesBodyContext ctx,
       TemplatesConstructor constructor) {
     // The match templates are conceptually in the scope of the block, otherwise we could just do this in visitBlock
     dependencyCounters.push(new DependencyCounter());
@@ -501,10 +415,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
-  public TypeBound visitTypeBound(TailspinParser.TypeBoundContext ctx) {
+  public Membrane visitTypeBound(TailspinParser.TypeBoundContext ctx) {
     if (ctx == null) return null;
-    if (ctx.typeMatch() == null) return TypeBound.any();
-    return TypeBound.of((Membrane) visit(ctx.typeMatch()));
+    if (ctx.typeMatch() == null) return Membrane.ALWAYS_TRUE;
+    return (Membrane) visit(ctx.typeMatch());
   }
 
   @Override
@@ -519,7 +433,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Condition visitCondition(TailspinParser.ConditionContext ctx) {
-    List<Map.Entry<String, Membrane>> dataDefinitions = implicitDataDefinitions;
+    List<DataDefinition> dataDefinitions = implicitDataDefinitions;
     implicitDataDefinitions = null;
     try {
       return new Condition(Value.of(visitValueChain(ctx.valueChain())), visitMatcher(ctx.matcher()));
@@ -560,16 +474,16 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public Membrane visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
     Map<String, Membrane> keyMatchers = new HashMap<>();
     for (int i = 0; i < ctx.key().size(); i++) {
-      String key = ctx.key(i).localIdentifier().getText();
+      String key = visitKey(ctx.key(i));
       TailspinParser.StructureContentMatcherContext matcherCtx = ctx.structureContentMatcher(i);
       Membrane matcher = matcherCtx.Void() == null ? visitMatcher(matcherCtx.matcher())
-          : AlwaysFalse.INSTANCE;
+          : Membrane.ALWAYS_FALSE;
       keyMatchers.put(key, matcher);
       if (implicitDataDefinitions != null) {
         if (ctx.structureContentMatcher(i).matcher().membrane().size() != 1
           || ctx.structureContentMatcher(i).matcher().membrane(0).typeMatch() == null
           || !ctx.structureContentMatcher(i).matcher().membrane(0).typeMatch().getText().equals(key)) {
-              implicitDataDefinitions.add(Map.entry(key, matcher));
+          implicitDataDefinitions.add(new DataDefinition(key, matcher));
         }
       }
     }
@@ -578,16 +492,14 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Membrane visitKeyValueMatch(TailspinParser.KeyValueMatchContext ctx) {
-    String keyMatch = ctx.key().localIdentifier().getText();
+    String keyMatch = visitKey(ctx.key());
     return new KeyValueMatch(keyMatch,
         visitMatcher(ctx.structureContentMatcher().matcher()));
   }
 
   @Override
   public Membrane visitStereotypeMatch(StereotypeMatchContext ctx) {
-    String identifier = ctx.localIdentifier() != null
-        ? ctx.localIdentifier().getText() : ctx.externalIdentifier().getText();
-    // We don't reference this as an identifier here, data definitions have a different namespace
+    String identifier = ctx.getText();
     return new StereotypeMatch(identifier);
   }
 
@@ -723,7 +635,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return parameters;
     }
     for (TailspinParser.KeyContext key : ctx.key()) {
-      String name = key.localIdentifier().getText();
+      String name = visitKey(key);
       dependencyCounters.peek().define(name);
       parameters.add(new ExpectedParameter(name));
     }
@@ -750,7 +662,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()),
         ctx.templatesBody(), new TemplatesConstructor() {
           @Override
-          public Templates create(String name, Scope definingScope, List<Map.Entry<String, Membrane>> localDatatypes, Block block,
+          public Templates create(String name, Scope definingScope, List<DataDefinition> localDatatypes, Block block,
               List<MatchTemplate> matchTemplates) {
             return new Operator(name, definingScope, localDatatypes, block, matchTemplates, new String[]{left, right});
           }
@@ -832,7 +744,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public KeyValue visitParameterValue(TailspinParser.ParameterValueContext ctx) {
-    String key = ctx.key().localIdentifier().getText();
+    String key = visitKey(ctx.key());
     if (ctx.valueChain() != null) {
       return new KeyValue(key, Value.of(visitValueChain(ctx.valueChain())));
     }
@@ -870,26 +782,36 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     return visitSource(ctx.source());
   }
 
-  private List<Map.Entry<String, Membrane>> implicitDataDefinitions;
+  private List<DataDefinition> implicitDataDefinitions;
   @Override
-  public DataDefinition visitDataDeclaration(TailspinParser.DataDeclarationContext ctx) {
+  public DataDeclaration visitDataDeclaration(TailspinParser.DataDeclarationContext ctx) {
     implicitDataDefinitions = new ArrayList<>();
     ctx.dataDefinition().forEach(d -> implicitDataDefinitions.add(visitDataDefinition(d)));
-    List<Map.Entry<String, Membrane>> definitions = implicitDataDefinitions;
+    List<DataDefinition> definitions = implicitDataDefinitions;
     implicitDataDefinitions = null;
-    return new DataDefinition(definitions);
+    return new DataDeclaration(definitions);
   }
 
   @Override
-  public Map.Entry<String, Membrane> visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
+  public DataDefinition visitDataDefinition(TailspinParser.DataDefinitionContext ctx) {
     String identifier = ctx.localIdentifier().getText();
-    AnyOf matcher = visitMatcher(ctx.matcher());
-    return Map.entry(identifier, matcher);
+    Membrane matcher;
+    if (ctx.symbolSet() != null) {
+      matcher = new DefinedSymbolSet(identifier + "#", visitSymbolSet(ctx.symbolSet()));
+    } else {
+      matcher = visitMatcher(ctx.matcher());
+    }
+    return new DataDefinition(identifier, matcher);
+  }
+
+  @Override
+  public List<String> visitSymbolSet(SymbolSetContext ctx) {
+    return ctx.localIdentifier().stream().map(LocalIdentifierContext::getText).toList();
   }
 
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
-    String identifier = ctx.key().localIdentifier().getText();
+    String identifier = visitKey(ctx.key());
     Value value = Value.of(visitValueProduction(ctx.valueProduction()));
     dependencyCounters.peek().define(identifier);
     return new Definition(identifier, value);
@@ -1205,8 +1127,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public KeyValueExpression visitKeyValue(TailspinParser.KeyValueContext ctx) {
-    String key = ctx.key().localIdentifier().getText();
+    String key = visitKey(ctx.key());
     return new KeyValueExpression(key, Value.of(visitValueProduction(ctx.valueProduction())));
+  }
+
+  @Override
+  public String visitKey(KeyContext ctx) {
+    return ctx.localIdentifier().getText() + (ctx.TemplateMatch() == null ? "" : "#");
   }
 
   @Override
@@ -1245,7 +1172,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     }
     // Parameters must be defined first so as they don't get required
     List<ExpectedParameter> expectedParameters = visitParameterDefinitions(ctx.parameterDefinitions());
-    List<Map.Entry<String, Membrane>> localDatatypes = visitLocalDataDeclaration(ctx.localDataDeclaration());
+    List<DataDefinition> localDatatypes = visitLocalDataDeclaration(ctx.localDataDeclaration());
     ComposerDefinition composerDefinition = visitComposerBody(ctx.composerBody());
     composerDefinition.expectParameters(expectedParameters);
     Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
@@ -1263,7 +1190,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     List<CompositionSpec> mainComposition = visitCompositionSequence(ctx.compositionSequence());
     Map<String, List<CompositionSpec>> definedSequences = new HashMap<>();
     for (DefinedCompositionSequenceContext definition : ctx.definedCompositionSequence()) {
-      String key = definition.key().localIdentifier().getText();
+      String key = visitKey(definition.key());
       definedSequences.put(key, visitCompositionSequence(definition.compositionSequence()));
     }
     Expression stateAssignment = ctx.stateAssignment() == null ? null : visitStateAssignment(ctx.stateAssignment());
@@ -1321,7 +1248,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       value = new SubComposerFactory.TransformComposition(value, visitTransform(ctx.transform()));
     }
     if (ctx.key() != null) {
-      String identifier = ctx.key().localIdentifier().getText();
+      String identifier = visitKey(ctx.key());
       dependencyCounters.peek().define(identifier);
       value = new SubComposerFactory.CaptureComposition(identifier, value);
     } else if (ctx.stateSink() != null){
@@ -1463,7 +1390,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public CompositionSpec visitCompositionKeyValue(TailspinParser.CompositionKeyValueContext ctx) {
     CompositionSpec key;
     if (ctx.key() != null) {
-      key = new SubComposerFactory.Constant(ctx.key().localIdentifier().getText());
+      key = new SubComposerFactory.Constant(visitKey(ctx.key()));
     } else {
       key = visitTokenMatcher(ctx.compositionKey().tokenMatcher());
     }
@@ -1495,7 +1422,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Stream<Expression> visitTestBlock(TailspinParser.TestBlockContext ctx) {
-    return Stream.concat(ctx.statement().stream().map(this::visit).map(Expression.class::cast),
+    return Stream.concat(ctx.statement().stream().map(this::visit)
+        .flatMap(s -> {
+          if (s instanceof DataDeclaration dd) return dd.getDefinitions().stream();
+          return Stream.of(s);
+        }).map(Expression.class::cast),
         ctx.assertion().stream().map(this::visitAssertion));
   }
 
@@ -1511,8 +1442,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       dependencyCounters.push(new DependencyCounter());
       Expression statement = (Expression) visit(s);
       Set<String> requiredDefinitions = dependencyCounters.pop().getRequiredDefinitions();
-      if (statement instanceof Definition) {
-        return new DefinitionStatement(statement, requiredDefinitions);
+      if (statement instanceof Definition d) {
+        return new DefinitionStatement(d, requiredDefinitions);
       } else {
         throw new UnsupportedOperationException("Only definitions are relevant in program modification");
       }

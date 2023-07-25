@@ -1,7 +1,8 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,10 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.support.io.TempDirectory;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Testing {
   @Test
@@ -323,9 +323,9 @@ public class Testing {
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void mockImportCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+  void mockImportCoreSystem(@TempDir Path dir) throws Exception {
     String dep = """
         processor MockOut
           @: [];
@@ -359,9 +359,9 @@ public class Testing {
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void mockImportCoreSystemDoesNotInherit(@TempDirectory.TempDir Path dir) throws Exception {
+  void mockImportCoreSystemDoesNotInherit(@TempDir Path dir) throws Exception {
     String dep = """
         processor MockOut
           @: [];
@@ -393,9 +393,9 @@ public class Testing {
     assertThrows(Exception.class, () -> runner.runTests(dir, input, output, List.of()));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void testUsesInclude(@TempDirectory.TempDir Path dir) throws Exception {
+  void testUsesInclude(@TempDir Path dir) throws Exception {
     String dep = """
         def greeting: 'Hello';
         templates greet
@@ -421,9 +421,9 @@ public class Testing {
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void testUsesModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void testUsesModule(@TempDir Path dir) throws Exception {
     String dep = """
         def greeting: 'Hello';
         templates greet
@@ -449,9 +449,9 @@ public class Testing {
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void testUsesModuleUsingCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+  void testUsesModuleUsingCoreSystem(@TempDir Path dir) throws Exception {
     String dep = """
         def greeting: 'Hello';
         templates greet
@@ -478,9 +478,9 @@ public class Testing {
     assertEquals("JohnPass", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void moduleUsesMockedCoreSystem(@TempDirectory.TempDir Path dir) throws Exception {
+  void moduleUsesMockedCoreSystem(@TempDir Path dir) throws Exception {
     String mockedCore = """
         processor MockOut
           @: [];
@@ -522,9 +522,9 @@ public class Testing {
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void mockShadowModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void mockShadowModule(@TempDir Path dir) throws Exception {
     String mockedCore = """
         processor MockOut
           @: [];
@@ -573,9 +573,9 @@ public class Testing {
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void shadowedDefinitionDoesNotExecuteButNonShadowedSymbolsAreProvided(@TempDirectory.TempDir Path dir) throws Exception {
+  void shadowedDefinitionDoesNotExecuteButNonShadowedSymbolsAreProvided(@TempDir Path dir) throws Exception {
     String dep = """
         def greeting: 'Good day' -> \\($! $ -> !OUT::write \\);
         def adieu: 'Goodbye';
@@ -603,9 +603,9 @@ public class Testing {
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void mockRenamedShadowModule(@TempDirectory.TempDir Path dir) throws Exception {
+  void mockRenamedShadowModule(@TempDir Path dir) throws Exception {
     String mockedCore = """
         processor MockOut
           @: [];
@@ -653,9 +653,9 @@ public class Testing {
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void mockShadowModuleDoesNotAutomaticallyGetInjectedModules(@TempDirectory.TempDir Path dir) throws Exception {
+  void mockShadowModuleDoesNotAutomaticallyGetInjectedModules(@TempDir Path dir) throws Exception {
     String mockedCore = """
         processor MockOut
           @: [];
@@ -881,9 +881,9 @@ public class Testing {
     assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
   }
 
-  @ExtendWith(TempDirectory.class)
+  
   @Test
-  void inheritedModuleWithSplitUsageRunsOnce(@TempDirectory.TempDir Path dir) throws Exception {
+  void inheritedModuleWithSplitUsageRunsOnce(@TempDir Path dir) throws Exception {
     String dep = """
         def a: 'a' -> \\($ -> !OUT::write $!\\);
         def b: 'b' -> \\($ -> !OUT::write $!\\);
