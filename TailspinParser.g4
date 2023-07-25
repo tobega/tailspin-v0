@@ -44,7 +44,7 @@ localDataDeclaration: DataDefinition localDataDefinition (Comma localDataDefinit
 
 localDataDefinition: localIdentifier matcher?;
 
-key: localIdentifier Colon;
+key: localIdentifier TemplateMatch? Colon;
 
 parameterDefinitions: And LeftBrace (key Comma?)+ RightBrace;
 

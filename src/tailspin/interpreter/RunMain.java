@@ -237,7 +237,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       } else if (dimCtx.projection() != null) {
         dimensions.add(visitProjection(dimCtx.projection()));
       } else if (dimCtx.key() != null) {
-        dimensions.add(new KeyLens(dimCtx.key().localIdentifier().getText()));
+        dimensions.add(new KeyLens(visitKey(dimCtx.key())));
       } else if (dimCtx.localIdentifier() != null) {
         dimensions.add(new DefinedLens(dimCtx.localIdentifier().getText()));
       } else if (dimCtx.grouping() != null) {
@@ -281,7 +281,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public LensDimension visitProjection(TailspinParser.ProjectionContext ctx) {
     return new Projection(Stream.concat(ctx.keyValue().stream().map(this::visitKeyValue),
         ctx.key().stream().map(kc -> {
-          String field = kc.localIdentifier().getText();
+          String field = visitKey(kc);
           return new KeyValueExpression(field, Reference.reflexive().field(field));
         })).collect(Collectors.toList()));
   }
@@ -294,7 +294,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public CollectedValue visitCollectedValue(TailspinParser.CollectedValueContext ctx) {
-    return new CollectedValue(ctx.key().localIdentifier().getText(), visitTemplatesReference(ctx.templatesReference()));
+    return new CollectedValue(visitKey(ctx.key()), visitTemplatesReference(ctx.templatesReference()));
   }
 
   @Override
@@ -474,7 +474,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public Membrane visitStructureMatch(TailspinParser.StructureMatchContext ctx) {
     Map<String, Membrane> keyMatchers = new HashMap<>();
     for (int i = 0; i < ctx.key().size(); i++) {
-      String key = ctx.key(i).localIdentifier().getText();
+      String key = visitKey(ctx.key(i));
       TailspinParser.StructureContentMatcherContext matcherCtx = ctx.structureContentMatcher(i);
       Membrane matcher = matcherCtx.Void() == null ? visitMatcher(matcherCtx.matcher())
           : Membrane.ALWAYS_FALSE;
@@ -492,7 +492,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Membrane visitKeyValueMatch(TailspinParser.KeyValueMatchContext ctx) {
-    String keyMatch = ctx.key().localIdentifier().getText();
+    String keyMatch = visitKey(ctx.key());
     return new KeyValueMatch(keyMatch,
         visitMatcher(ctx.structureContentMatcher().matcher()));
   }
@@ -635,7 +635,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       return parameters;
     }
     for (TailspinParser.KeyContext key : ctx.key()) {
-      String name = key.localIdentifier().getText();
+      String name = visitKey(key);
       dependencyCounters.peek().define(name);
       parameters.add(new ExpectedParameter(name));
     }
@@ -744,7 +744,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public KeyValue visitParameterValue(TailspinParser.ParameterValueContext ctx) {
-    String key = ctx.key().localIdentifier().getText();
+    String key = visitKey(ctx.key());
     if (ctx.valueChain() != null) {
       return new KeyValue(key, Value.of(visitValueChain(ctx.valueChain())));
     }
@@ -811,7 +811,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
-    String identifier = ctx.key().localIdentifier().getText();
+    String identifier = visitKey(ctx.key());
     Value value = Value.of(visitValueProduction(ctx.valueProduction()));
     dependencyCounters.peek().define(identifier);
     return new Definition(identifier, value);
@@ -1127,8 +1127,13 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public KeyValueExpression visitKeyValue(TailspinParser.KeyValueContext ctx) {
-    String key = ctx.key().localIdentifier().getText();
+    String key = visitKey(ctx.key());
     return new KeyValueExpression(key, Value.of(visitValueProduction(ctx.valueProduction())));
+  }
+
+  @Override
+  public String visitKey(KeyContext ctx) {
+    return ctx.localIdentifier().getText() + (ctx.TemplateMatch() == null ? "" : "#");
   }
 
   @Override
@@ -1185,7 +1190,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     List<CompositionSpec> mainComposition = visitCompositionSequence(ctx.compositionSequence());
     Map<String, List<CompositionSpec>> definedSequences = new HashMap<>();
     for (DefinedCompositionSequenceContext definition : ctx.definedCompositionSequence()) {
-      String key = definition.key().localIdentifier().getText();
+      String key = visitKey(definition.key());
       definedSequences.put(key, visitCompositionSequence(definition.compositionSequence()));
     }
     Expression stateAssignment = ctx.stateAssignment() == null ? null : visitStateAssignment(ctx.stateAssignment());
@@ -1243,7 +1248,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       value = new SubComposerFactory.TransformComposition(value, visitTransform(ctx.transform()));
     }
     if (ctx.key() != null) {
-      String identifier = ctx.key().localIdentifier().getText();
+      String identifier = visitKey(ctx.key());
       dependencyCounters.peek().define(identifier);
       value = new SubComposerFactory.CaptureComposition(identifier, value);
     } else if (ctx.stateSink() != null){
@@ -1385,7 +1390,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public CompositionSpec visitCompositionKeyValue(TailspinParser.CompositionKeyValueContext ctx) {
     CompositionSpec key;
     if (ctx.key() != null) {
-      key = new SubComposerFactory.Constant(ctx.key().localIdentifier().getText());
+      key = new SubComposerFactory.Constant(visitKey(ctx.key()));
     } else {
       key = visitTokenMatcher(ctx.compositionKey().tokenMatcher());
     }

@@ -1,17 +1,16 @@
 package tailspin.samples;
 
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
-import tailspin.TypeError;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
+import tailspin.TypeError;
 
 public class SymbolSets {
 
@@ -150,5 +149,37 @@ public class SymbolSets {
         runner.run(input, output, List.of());
 
         assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void symbolCanBeUsedInSymbolValuedField() throws IOException {
+        String program = """
+                data colour #{red, white, blue}
+                
+                { colour#: colour#white } -> !OUT::write
+                """;
+        Tailspin runner =
+                Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+        ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        runner.run(input, output, List.of());
+
+        assertEquals("{colour#: white}", output.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void symbolValuedFieldMustBeDefinedValue() throws IOException {
+        String program = """
+                data colour #{red, white, blue}
+                
+                { colour#: 'white' } -> !OUT::write
+                """;
+        Tailspin runner =
+                Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+        ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
     }
 }
