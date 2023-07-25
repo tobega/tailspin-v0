@@ -178,8 +178,28 @@ NOTE: currently no automatic inference of units is done, except for adding same 
 
 The message `::raw` can be used on a measure to get the magnitude without the unit.
 
+### Symbolic value sets
+Some information is best portrayed by a set of distinct values, either one at a time or in combination.
+The symbol sets in Tailspin are similar to "enums" or "enumerations" in other languages, but the symbols do not have any order or numeric value.
+
+A set of symbols is defined in a [data declaration](#defined-types) by giving a name for the set followed by the symbol names between `#{` and `}`
+For example, to define a set of colours: `data colour #{ red, white, blue }`
+A symbolic value can then be written by giving the name of the set, `#`, and the name of the value, for example `colour#white`
+
+To check if a value belongs to a symbol set, use a [matcher](#matchers) with the name of the set followed by `#`, in our colour example that would be `<colour#>`.
+
+Any field in a [structure](#structure-literal) named as a symbol set name and ending in `#` must contain a value of that symbol set,
+so in the colour example, this could be `{ colour#: colour#red }`. This is related to the [autotyping](#autotyping) feature of Tailspin
+where field names are automatically connected to a type of the same name.
+
+Note that Tailspin does not have boolean values. You could define the set of `boolean #{true, false}` if you want, but often it is better to have
+more specific values for your use case. For example, instead of an `ìs_appliance_on` field or variable with a `true` or `false` value,
+it would usually be better to define `appliance_state #{on, off}` and use 
+_Future work_: Symbolic values can be used as indices in symbol maps containing arbitrary values connected to each symbol.
+
 ### Range literal
-A range literal produces a [stream](#streams) of numbers. They are specified by a start, an end and
+A range literal produces a [stream](#streams) of numbers (note that a stream is not a value that can be manipulated as a unit, it is several values).
+A range is specified by a start, an end and
 an optional increment, e.g. `1..10` will give the numbers 1 to 10 inclusive and `10..1:-1` does the same but backwards.
 To exclude the bounds, add a tilde between the numeric bound and the range operator `..`, so `1~..5:2` will give `3 5`,
 while `1..~5:2` will give `1 3`.
@@ -617,7 +637,7 @@ See also [type bounds](#type-bounds-for-matching), [measures](#measures) and [ta
   Note that matching a defined type without a [type bound](#type-bounds-for-matching) determines if the value could be assigned to a field of that name,
   so raw strings or numbers will match if they could be tagged with the name of the defined type, see [tagged identifiers](#tagged-identifiers), even though they remain untyped.
   If the defined type matcher is under a type bound, it will not generally match untyped values (unless their [type bound interpretation](#untyped-strings-and-numbers-under-type-bounds) matches)
-  The name of an [autotyped](#autotyping) field or tag can also be used as a defined type.
+  The name of an [autotyped](#autotyping) field or tag can also be used as a defined type. The type name of a [symbol set](#symbolic-value-sets) is the name of the set followed by `#`.
 * Equality, starts with an equal sign `=` followed by a [source](#sources), e.g. `<='abc'>` or `<=[1, 2, 3]>`;
   matches according to standard rules of equality, with lists being ordered.
   Note that trying to compare equality between different types is considered a programming error, see [the type bounds for matching section](#type-bounds-for-matching) for details and how to handle it.
