@@ -8,12 +8,9 @@ import tailspin.Tailspin;
 import tailspin.control.Value;
 
 class IncludedFile {
-  // @Nullable
-  final String prefix;
   final Value specifier;
 
-  IncludedFile(/*@Nullable*/ String prefix, Value specifier) {
-    this.prefix = prefix;
+  IncludedFile(Value specifier) {
     this.specifier = specifier;
   }
 
@@ -26,11 +23,9 @@ class IncludedFile {
     }
   }
 
-  public SymbolLibrary open(BasicScope scope, List<SymbolLibrary> providedDependencies) {
+  public SymbolLibrary.Installer open(BasicScope scope, List<SymbolLibrary> providedDependencies) {
     String dependency = (String) specifier.getResults(null, scope);
     Path basePath = scope.basePath();
-    String dependencyPrefix =
-        prefix != null ? prefix : dependency.substring(dependency.lastIndexOf('/') + 1) + "/";
     Path depPath = basePath.resolve(dependency + ".tt");
     try {
       if (!depPath.toRealPath().startsWith(basePath.toRealPath())) {
@@ -41,8 +36,6 @@ class IncludedFile {
       throw new IllegalArgumentException("Unable to resolve " + depPath);
     }
     Module module = getProgram(depPath);
-    return new SymbolLibrary(dependencyPrefix, null,
-        module.new Installer(dependencyPrefix, basePath, providedDependencies),
-        providedDependencies);
+    return module.new Installer("", basePath, providedDependencies);
   }
 }

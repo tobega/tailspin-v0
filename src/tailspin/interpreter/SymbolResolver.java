@@ -13,7 +13,7 @@ import tailspin.interpreter.lang.Lang;
 public abstract class SymbolResolver {
 
   private final List<IncludedFile> includedFiles;
-  private List<SymbolLibrary> openedIncludedFiles;
+  private List<SymbolLibrary.Installer> openedIncludedFiles;
 
   public SymbolResolver(List<IncludedFile> includedFiles) {
     this.includedFiles = includedFiles;
@@ -49,8 +49,8 @@ public abstract class SymbolResolver {
         neededDefinitions.addAll(definedSymbols.get(def));
       }
     }
-    for (SymbolLibrary dependency : openIncludedFiles(scope, providedDependencies)) {
-      externalDefinitions = dependency.installSymbols(externalDefinitions, scope);
+    for (SymbolLibrary.Installer file : openIncludedFiles(scope, providedDependencies)) {
+      externalDefinitions = file.resolveSymbols(externalDefinitions, scope);
     }
     for (SymbolLibrary lib : providedDependencies) {
       externalDefinitions = lib.installSymbols(externalDefinitions, scope);
@@ -59,7 +59,7 @@ public abstract class SymbolResolver {
     return internalDefinitions;
   }
 
-  List<SymbolLibrary> openIncludedFiles(
+  List<SymbolLibrary.Installer> openIncludedFiles(
       BasicScope scope, List<SymbolLibrary> providedDependencies) {
     if (openedIncludedFiles == null) {
       openedIncludedFiles =

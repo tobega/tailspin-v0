@@ -63,8 +63,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   @Override
   public IncludedFile visitInclusion(TailspinParser.InclusionContext ctx) {
     Value dependency = visitStringLiteral(ctx.stringLiteral());
-    String prefix = ctx.From() == null ? null : ctx.localIdentifier().getText() + "/";
-    return new IncludedFile(prefix, dependency);
+    return new IncludedFile(dependency);
   }
 
   @Override
