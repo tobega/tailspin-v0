@@ -32,10 +32,10 @@ public class Module extends SymbolResolver {
       if (internalSymbols.isEmpty()) return neededSymbols;
       Module.this.resolveSymbols(internalSymbols, depScope, providedDependencies);
       neededSymbols.stream()
-          .filter(depScope::hasDefinition)
+          .filter(internalSymbols::contains)
           .forEach(s -> scope.defineValue(prefix + s, depScope.resolveValue(s)));
       return neededSymbols.stream()
-          .filter(s -> !depScope.hasDefinition(s))
+          .filter(s -> !internalSymbols.contains(s))
           .collect(Collectors.toSet());
     }
 
