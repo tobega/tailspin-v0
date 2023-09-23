@@ -1,7 +1,10 @@
 package tailspin.interpreter;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import tailspin.interpreter.SymbolLibrary.Installer;
 import tailspin.java.JavaClass;
 
 public class JavaSymbolLibrary implements SymbolLibrary.Installer {
@@ -15,7 +18,8 @@ public class JavaSymbolLibrary implements SymbolLibrary.Installer {
   }
 
   @Override
-  public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
+  public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope,
+      Map<Path, Installer> includedFileInstallers) {
     for (String symbol : providedSymbols) {
       try {
         Class<?> c = Class.forName(javaPackage + "." + symbol);

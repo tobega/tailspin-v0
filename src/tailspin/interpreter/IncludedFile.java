@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import tailspin.Tailspin;
 import tailspin.control.Value;
+import tailspin.interpreter.SymbolLibrary.Installer;
 
 class IncludedFile {
   final Value specifier;
@@ -23,7 +25,8 @@ class IncludedFile {
     }
   }
 
-  public SymbolLibrary.Installer open(BasicScope scope, List<SymbolLibrary> providedDependencies) {
+  public SymbolLibrary.Installer open(BasicScope scope, List<SymbolLibrary> providedDependencies,
+      Map<Path, Installer> includedFileInstallers) {
     String dependency = (String) specifier.getResults(null, scope);
     Path basePath = scope.basePath();
     Path depPath = basePath.resolve(dependency + ".tt");
@@ -35,7 +38,10 @@ class IncludedFile {
     } catch (IOException e) {
       throw new IllegalArgumentException("Unable to resolve " + depPath);
     }
-    Module module = getProgram(depPath);
-    return module.new Installer("", basePath, providedDependencies);
+    if (!includedFileInstallers.containsKey(depPath)) {
+      Module module = getProgram(depPath);
+      includedFileInstallers.put(depPath, module.new Installer("", basePath, providedDependencies));
+    }
+    return includedFileInstallers.get(depPath);
   }
 }

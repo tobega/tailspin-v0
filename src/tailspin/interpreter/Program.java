@@ -36,7 +36,7 @@ public class Program extends SymbolResolver {
         statements.stream()
             .flatMap(t -> t.getRequiredDefinitions().stream())
             .collect(Collectors.toSet());
-    resolveSymbolDependencies(requiredSymbols, scope, providedDependencies);
+    resolveSymbolDependencies(requiredSymbols, scope, providedDependencies, new HashMap<>());
   }
 
   public Module asModule() {
@@ -61,7 +61,7 @@ public class Program extends SymbolResolver {
     BasicScope scope = new BasicScope(basePath);
     List<SymbolLibrary> testModules = getMocksAndModules(testStatement.test.getInjectedModules(), coreSystemProvider, basePath);
     Module module = new Module(testStatement.test.overrideDefinitions(getDefinitions()), getIncludedFiles());
-    module.resolveSymbols(testStatement.requiredDefinitions, scope, testModules);
+    module.resolveSymbols(testStatement.requiredDefinitions, scope, testModules, new HashMap<>());
     return testStatement.test.getResults(null, scope);
   }
 

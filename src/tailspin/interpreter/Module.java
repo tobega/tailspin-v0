@@ -21,7 +21,8 @@ public class Module extends SymbolResolver {
     }
 
     @Override
-    public Set<String> resolveSymbols(Set<String> neededSymbols, BasicScope scope) {
+    public Set<String> resolveSymbols(Set<String> neededSymbols, BasicScope scope,
+        Map<Path, SymbolLibrary.Installer> includedFileInstallers) {
       // We might be shadowing a module, so don't try to register what we don't define.
       Set<String> internalSymbols = new HashSet<>();
       for (DefinitionStatement ds : definitions) {
@@ -30,7 +31,7 @@ public class Module extends SymbolResolver {
         }
       }
       if (internalSymbols.isEmpty()) return neededSymbols;
-      Module.this.resolveSymbols(internalSymbols, depScope, providedDependencies);
+      Module.this.resolveSymbols(internalSymbols, depScope, providedDependencies, includedFileInstallers);
       neededSymbols.stream()
           .filter(internalSymbols::contains)
           .forEach(s -> scope.defineValue(prefix + s, depScope.resolveValue(s)));
@@ -57,8 +58,8 @@ public class Module extends SymbolResolver {
   }
 
   void resolveSymbols(Set<String> internalSymbols, BasicScope scope,
-                      List<SymbolLibrary> providedDependencies) {
-    Set<String> localDefinitionsNeeded = resolveSymbolDependencies(internalSymbols, scope, providedDependencies);
+                      List<SymbolLibrary> providedDependencies, Map<Path, SymbolLibrary.Installer> includedFileInstallers) {
+    Set<String> localDefinitionsNeeded = resolveSymbolDependencies(internalSymbols, scope, providedDependencies, includedFileInstallers);
     getDefinitions().stream()
         .filter(d -> d.alwaysRun() || localDefinitionsNeeded.contains(d.getDefinedSymbol()))
         .forEach(d -> d.getResults(scope));
@@ -66,9 +67,10 @@ public class Module extends SymbolResolver {
 
   public void installAll(BasicScope scope) {
     resolveSymbols(
-        definitions.stream()
-            .map(DefinitionStatement::getDefinedSymbol).collect(Collectors.toSet()),
-        scope, List.of());
+        definitions.stream().map(DefinitionStatement::getDefinedSymbol).collect(Collectors.toSet()),
+        scope,
+        List.of(),
+        new HashMap<>());
   }
 
   static List<SymbolLibrary> getModules(List<ModuleProvider> injectedModules,

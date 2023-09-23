@@ -2,7 +2,9 @@ package tailspin.interpreter;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import tailspin.interpreter.SymbolLibrary.Installer;
 
 public class ModuleInheritance implements ModuleProvider {
 
@@ -18,7 +20,8 @@ public class ModuleInheritance implements ModuleProvider {
   public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, Path basePath) {
     return new SymbolLibrary(prefix, inheritedModulePrefix, new SymbolLibrary.Installer() {
       @Override
-      public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
+      public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope,
+          Map<Path, Installer> includedFileInstallers) {
         return providedSymbols;
       }
     }, inheritedModules);

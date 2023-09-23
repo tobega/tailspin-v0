@@ -1,6 +1,9 @@
 package tailspin.interpreter;
 
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,7 +12,8 @@ import tailspin.interpreter.lang.Lang;
 
 public class SymbolLibrary {
     public interface Installer {
-        Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope);
+        Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope,
+            Map<Path, Installer> includedFileInstallers);
         default void injectMocks(List<SymbolLibrary> mocks) {
             // Do nothing
         }
@@ -19,6 +23,7 @@ public class SymbolLibrary {
     private final String inheritedModulePrefix;
     final Installer depScopeInstaller;
     private final Optional<SymbolLibrary> inheritedProvider;
+    private final Map<Path, Installer> includedFiles = new HashMap<>();
 
     public SymbolLibrary(String prefix,
         String inheritedModulePrefix, Installer depScopeInstaller,
@@ -41,7 +46,7 @@ public class SymbolLibrary {
      */
     Set<String> installSymbols(Set<String> requiredSymbols, BasicScope scope) {
         Set<String> providedSymbols = getProvidedSymbols(requiredSymbols);
-        Set<String> inheritedSymbols = depScopeInstaller.resolveSymbols(providedSymbols, scope);
+        Set<String> inheritedSymbols = depScopeInstaller.resolveSymbols(providedSymbols, scope, includedFiles);
         inheritSymbols(inheritedSymbols, scope);
         return getUnprovidedSymbols(requiredSymbols);
     }
