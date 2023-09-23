@@ -811,7 +811,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Object visitDefinition(TailspinParser.DefinitionContext ctx) {
-    String identifier = visitKey(ctx.key());
+    String identifier = ctx.localIdentifier().getText();
     Value value = Value.of(visitValueProduction(ctx.valueProduction()));
     dependencyCounters.peek().define(identifier);
     return new Definition(identifier, value);
@@ -1133,7 +1133,10 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public String visitKey(KeyContext ctx) {
-    return ctx.localIdentifier().getText() + (ctx.TemplateMatch() == null ? "" : "#");
+    return (ctx.externalIdentifier() != null
+            ? ctx.externalIdentifier().getText()
+            : ctx.localIdentifier().getText())
+        + (ctx.TemplateMatch() == null ? "" : "#");
   }
 
   @Override
@@ -1247,8 +1250,8 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.transform() != null) {
       value = new SubComposerFactory.TransformComposition(value, visitTransform(ctx.transform()));
     }
-    if (ctx.key() != null) {
-      String identifier = visitKey(ctx.key());
+    if (ctx.localIdentifier() != null) {
+      String identifier = ctx.localIdentifier().getText();
       dependencyCounters.peek().define(identifier);
       value = new SubComposerFactory.CaptureComposition(identifier, value);
     } else if (ctx.stateSink() != null){

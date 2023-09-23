@@ -1315,23 +1315,6 @@ Bytes
 Relations
 * `$::count` returns the number of tuples in the relation.
 
-## The Core System module
-The Core System module is provided by default to a main program and has no prefix.
-When it is provided to another [module](#using-modules) it is referred to as `core-system/`
-The module contains the following symbols:
-
-A predefined symbol `SYS` can be used to access certain system-defined functions:
-* `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
-* `$N -> SYS::randomInt` returns a random integer value between 0 and N-1 (inclusive)
-* `'foo' -> SYS::property` returns the environment property named foo
-
-`IN` accesses user data entered in the terminal (or data from the unix standard input pipe).
-* `$IN::readline` Gets the next line from the standard input, or nothing if the standard input is closed.
-* `$IN::lines` Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).
-
-`OUT` sends data to the standard output pipe (by default the terminal)
-* `!OUT::write` writes a string representation of each of the objects in the stream. (Note the `!` prefix for a [sink](#sinks))
-
 ## Including files
 A tailspin file can include other files before any other statement by writing
 the word "include" followed by a string literal giving the search path to the file to be included, without the ".tt" file suffix,
@@ -1342,17 +1325,15 @@ as the including file or a subdirectory of it. This is to ensure that included f
 the point of view of the application and also allows untrusted modules to include files that can be considered to be
 part of that module.
 
-Included files have access to all the same [modules](#using-modules) as the including file.
+Included files can in turn include other files and the transitive closure of all included files is considered to be a unit in the sense
+that any symbol will only be evaluated once and shared between all the use sites. An included file provides (exports) the symbols it defines,
+but not the symbols it includes from other files.
 
-The symbols (defined symbols, templates, processors, etc.) defined in the package will be accessible by
-prepending the unsuffixed file name and a "/" to the symbol name, e.g. file dep.tt defines templates foo which can then
-be used as `dep/foo`. Note that the search path is ignored.
-
-If you want to use a different prefix to access the included symbols, use "from", e.g. `include pref from 'lib/dep'` will make
-the foo symbol available as `pref/foo` instead of `dep/foo`.
+Included files share the same instances of [modules](#using-modules) as the including file.
 
 *NOTE*: Files that may be included can alternatively be used as [modules](#using-modules), the difference then being that
-they do not automatically inherit the use of the modules from the main program.
+they do not automatically inherit the use of the modules from the main program, nor do they share symbols from included files,
+they get new instances of those symbols.
 
 ## Using modules
 A module is a reusable piece of code. It is often received from someone you perhaps shouldn't completely trust.
@@ -1369,30 +1350,37 @@ a third module.
 
 A module usage is declared by a `use` statement followed by a [module specification](#module-specification).
 
-The tailspin file that is used as the main program can define which modules (libraries) it wants to use. Included
-files normally just inherit the modules declared by the main file.
+The tailspin file that is used as the main program can define which modules (libraries) it wants to use
+and which modules those modules can use.
 
 Tailspin code being used as a module does not get to decide which other modules it uses, it needs to have
 dependencies injected by a [module provision](#module-provision) statement after the use statement.
 
 e.g. `use 'myModule' with ...modules... provided` 
 
+The symbols (defined symbols, templates, processors, etc.) defined in the module will be accessible by
+prepending the module prefix and a "/" to the symbol name. The module prefix is by default just the
+unsuffixed file name e.g. file dep.tt defines templates foo which can then be used as `dep/foo`.
+Note that the directory path preceding the file is ignored.
+
+If you want to use a different prefix to access the included symbols, use "from", e.g. `use pref from 'lib/dep' stand-alone` will make
+the foo symbol available as `pref/foo` instead of `dep/foo`.
+
 ### Module provision
 A module provision statement provides modules needed by another module. It starts with the word `with`,
 followed by the necessary [module specifications](#module-specification) and ends with the word `provided`.
 
+Other modules will each be provided a separate instance or copy of any provided module. "Inheriting" a module just means
+it inherits the same capabilities or configuration, but the symbols from the provided module will be separately instantiated
+and independent from other instances of the provided module. This is important from a security perspective.
+
 NOTE: When providing [the core system module](#the-core-system-module) to another module it is referred to as `core-system/`.
 
 ### Module specification
-Modules are primarily identified by a string literal search path and get assigned a prefix the same way as for [including files](#including-files), i.e.
-the last part of the path. When inheriting a module, modified or not, it is simply referred to by the assigned prefix
-as a symbol.
+Modules are primarily identified by a string literal search path and get assigned a prefix matching the unsuffixed file name
+as described in the [using modules section](#using-modules).
+When inheriting a module, modified or not, it is simply referred to by the assigned prefix as a symbol.
 It is also possible to assign another prefix than the default by using a from-statement `myPrefix from 'myPath'`
-
-Note that when you supply a string literal search path, you will get a new copy of a module, but when you
-identify a module by a symbol (its prefix), you will inherit the exact same copy. This is important in the case
-of stateful symbols like `OUT` from the [core system](#the-core-system-module) or when you want to record
-access as with [test doubles](#mocking-stubbing-faking).
 
 A plain search path is interpreted relative to the directory containing the main file and can be anywhere for modules.
 
@@ -1405,8 +1393,8 @@ Some examples of specifying modules are:
 * Loaded from a file by a string literal path specification, optionally with a specified prefix,
   e.g. `myPrefix from 'myfile' stand-alone` or just `'myfile' stand-alone`. (new copy of the 'myfile' module)
   If you need to provide modules to the module use "with .. provided" instead of "stand-alone": `'myfile' with ...... provided`
-* Inherited as-is, e.g. `myPrefix inherited`. (shared copy of the module with the prefix myPrefix)
-* Inherited renamed, e.g. `myPrefix inherited from theirPrefix`. (shared copy of the module with the prefix theirPrefix now installed as myPrefix)
+* Inherited as-is, e.g. `myPrefix inherited`. (separate instance with same configuration of the module with the prefix myPrefix)
+* Inherited renamed, e.g. `myPrefix inherited from theirPrefix`. (separate instance with same configuration of the module with the prefix theirPrefix installed as myPrefix)
 * Inherited with some definitions overridden, e.g. `shadowed myModule ...definitions... end myModule`,
   optionally renamed `myModule from shadowed theirModule ...definitions... end theirModule`.
   If the shadowing code needs some modules, provide them: `shadowed myModule with ... provided ...definitions... end myModule`
@@ -1425,7 +1413,7 @@ Each provided module that is not inherited may need its own [module provision](#
 
 If no provided modules are needed for a module that is included from a file, the word `stand-alone` is written instead of a module provision.
 
-Note that when providing a modified version of a module, if you need access to the original, simply provide it renamed, e.g.:
+Note that when providing a shadowed version of a module, if you need access to the original, simply provide it renamed, e.g.:
 ```
 use shadowed core-system/
   with
@@ -1439,6 +1427,23 @@ use shadowed core-system/
   def OUT: $ShadowOut;
 end core-system/
 ```
+
+## The Core System module
+The Core System module is provided by default to a main program and has no prefix.
+When it is provided to another [module](#using-modules) it is referred to as `core-system/`
+The module contains the following symbols:
+
+A predefined symbol `SYS` can be used to access certain system-defined functions:
+* `$SYS::nanoCount` returns a nanosecond counter that can be used to determine the time elapsed between two calls.
+* `$N -> SYS::randomInt` returns a random integer value between 0 and N-1 (inclusive)
+* `'foo' -> SYS::property` returns the environment property named foo
+
+`IN` accesses user data entered in the terminal (or data from the unix standard input pipe).
+* `$IN::readline` Gets the next line from the standard input, or nothing if the standard input is closed.
+* `$IN::lines` Once the standard input is closed (end of file, ctrl-D) it produces the stream of all lines entered, without line-end markers (return, newline).
+
+`OUT` sends data to the standard output pipe (by default the terminal)
+* `!OUT::write` writes a string representation of each of the objects in the stream. (Note the `!` prefix for a [sink](#sinks))
 
 ## Testing
 Tests can be defined in a tailspin source file by the keyword `test` followed by a [string literal](#string-literal),
@@ -1493,6 +1498,10 @@ test 'hello'
   assert $OUT::next <='Hello John'> 'Wrote greeting'
 end 'hello'
 ```
+
+Note, though, that providing a mock to a module will result in another instance of that mock, which will have to
+be explicitly exported from the shadowed code for the test to be able to access it. Normally, your tests should
+not need to reach that deep.
 
 ## Calling java code
 _NOTE:_ This is a temporary measure (for a few years) to allow using Tailspin for everything and allowing

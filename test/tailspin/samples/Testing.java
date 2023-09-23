@@ -1,8 +1,7 @@
 package tailspin.samples;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import tailspin.Tailspin;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,9 +10,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import tailspin.Tailspin;
 
 public class Testing {
   @Test
@@ -406,7 +405,7 @@ public class Testing {
     String program = """
         include 'hi'
         templates hello
-          $ -> hi/greet !
+          $ -> greet !
         end hello
         test 'hello'
           assert 'John' -> hello <='Hello John'> 'Wrote greeting'
@@ -480,7 +479,7 @@ public class Testing {
 
   
   @Test
-  void moduleUsesMockedCoreSystem(@TempDir Path dir) throws Exception {
+  void moduleUsesMockedCoreSystemDefinedInTest(@TempDir Path dir) throws Exception {
     String mockedCore = """
         processor MockOut
           @: [];
@@ -499,7 +498,12 @@ public class Testing {
         def greeting: 'Hello';
         sink greet
           '$greeting; $;' -> !OUT::write
-        end greet""";
+        end greet
+        
+        source mockedWrite
+          $OUT::next !
+        end mockedWrite
+        """;
     Path depFile = dir.resolve("hi.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
     String program = """
@@ -510,7 +514,7 @@ public class Testing {
         test 'hello'
           use core-system/ from 'mocksys' stand-alone
           'John' -> !hello
-          assert $OUT::next <='Hello John'> 'Wrote greeting'
+          assert $hi/mockedWrite <='Hello John'> 'Wrote greeting'
         end 'hello'""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -524,7 +528,7 @@ public class Testing {
 
   
   @Test
-  void mockShadowModule(@TempDir Path dir) throws Exception {
+  void mockShadowModuleMustExposeItsDependency(@TempDir Path dir) throws Exception {
     String mockedCore = """
         processor MockOut
           @: [];
@@ -559,9 +563,10 @@ public class Testing {
             sink greet
               'Hello, $;' -> !OUT::write
             end greet
+            def mockOUT: $OUT;
           end hi
           '$hi/greeting; John' -> !hello
-          assert $OUT::next <='Hello, Hello John'> 'Wrote greeting'
+          assert $hi/mockOUT::next <='Hello, Hello John'> 'Wrote greeting'
         end 'hello'""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -640,8 +645,9 @@ public class Testing {
             sink greet
               'Hello, $;' -> !OUT::write
             end greet
+            def mockedOut: $OUT;
           end hi2  '$hi/greeting; John' -> !hello
-          assert $OUT::next <='Hello, Hello John'> 'Wrote greeting'
+          assert $hi/mockedOut::next <='Hello, Hello John'> 'Wrote greeting'
         end 'hello'""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -883,7 +889,7 @@ public class Testing {
 
   
   @Test
-  void inheritedModuleWithSplitUsageRunsOnce(@TempDir Path dir) throws Exception {
+  void inheritedModuleWithSplitUsageIsReinitializedForEach(@TempDir Path dir) throws Exception {
     String dep = """
         def a: 'a' -> \\($ -> !OUT::write $!\\);
         def b: 'b' -> \\($ -> !OUT::write $!\\);
@@ -920,6 +926,6 @@ public class Testing {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.runTests(input, output, List.of());
 
-    assertEquals("aPass", output.toString(StandardCharsets.UTF_8));
+    assertEquals("aaPass", output.toString(StandardCharsets.UTF_8));
   }
 }
