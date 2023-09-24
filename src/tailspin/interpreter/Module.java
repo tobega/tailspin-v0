@@ -1,7 +1,12 @@
 package tailspin.interpreter;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,8 +46,13 @@ public class Module extends SymbolResolver {
     }
 
     @Override
+    public SymbolLibrary.Installer newInstance() {
+      return new Installer(prefix, depScope.basePath(), providedDependencies.stream().map(SymbolLibrary::newInstance).toList());
+    }
+
+    @Override
     public void injectMocks(List<SymbolLibrary> mocks) {
-      providedDependencies = mocks;
+      providedDependencies = Stream.concat(mocks.stream(), providedDependencies.stream()).toList();
     }
   }
 
@@ -78,7 +88,7 @@ public class Module extends SymbolResolver {
     List<SymbolLibrary> libs = new ArrayList<>();
     for (ModuleProvider provider : injectedModules) {
       SymbolLibrary provided = provider.installDependencies(
-          Stream.concat(libs.stream(), inheritedModules.stream()).collect(Collectors.toList()),
+          Stream.concat(libs.stream(), inheritedModules.stream()).map(SymbolLibrary::newInstance).collect(Collectors.toList()),
           basePath);
       libs.add(0, provided);
     }

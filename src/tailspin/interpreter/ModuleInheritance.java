@@ -26,6 +26,11 @@ public class ModuleInheritance implements ModuleProvider {
           Map<Path, Installer> includedFileInstallers) {
         return providedSymbols;
       }
+
+      @Override
+      public Installer newInstance() {
+        return this;
+      }
     }, inheritedModule);
   }
 }

@@ -37,6 +37,11 @@ public class CoreSystemProvider {
                     .filter(s -> !scope.hasDefinition(s))
                     .collect(Collectors.toSet());
             }
+
+            @Override
+            public Installer newInstance() {
+                return this;
+            }
         }, null);
     }
 }

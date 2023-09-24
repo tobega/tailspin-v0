@@ -65,18 +65,18 @@ public class Program extends SymbolResolver {
     return testStatement.test.getResults(null, scope);
   }
 
-  public List<SymbolLibrary> getMocksAndModules(List<ModuleProvider> providedLibraries,
+  public List<SymbolLibrary> getMocksAndModules(List<ModuleProvider> testLibs,
       SymbolLibrary coreSystemProvider, Path basePath) {
     List<SymbolLibrary> programLibs = Module.getModules(injectedModules, List.of(coreSystemProvider), basePath);
     List<SymbolLibrary> mocks = new ArrayList<>(programLibs);
-    for (ModuleProvider provider : providedLibraries) {
+    for (ModuleProvider provider : testLibs) {
       SymbolLibrary provided = provider.installDependencies(mocks, basePath);
+      provided.setShared();
       mocks.add(0, provided);
     }
     for (SymbolLibrary lib : programLibs) {
-      lib.injectMocks(mocks);
+      lib.injectMocks(mocks.subList(0, testLibs.size()));
     }
-    mocks.addAll(programLibs);
     return mocks;
   }
 }

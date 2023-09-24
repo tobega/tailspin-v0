@@ -499,10 +499,6 @@ public class Testing {
         sink greet
           '$greeting; $;' -> !OUT::write
         end greet
-        
-        source mockedWrite
-          $OUT::next !
-        end mockedWrite
         """;
     Path depFile = dir.resolve("hi.tt");
     Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
@@ -514,7 +510,7 @@ public class Testing {
         test 'hello'
           use core-system/ from 'mocksys' stand-alone
           'John' -> !hello
-          assert $hi/mockedWrite <='Hello John'> 'Wrote greeting'
+          assert $OUT::next <='Hello John'> 'Wrote greeting'
         end 'hello'""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -528,7 +524,7 @@ public class Testing {
 
   
   @Test
-  void mockShadowModuleMustExposeItsDependency(@TempDir Path dir) throws Exception {
+  void mockShadowModuleGetsUsedEverywhere(@TempDir Path dir) throws Exception {
     String mockedCore = """
         processor MockOut
           @: [];
@@ -563,10 +559,9 @@ public class Testing {
             sink greet
               'Hello, $;' -> !OUT::write
             end greet
-            def mockOUT: $OUT;
           end hi
           '$hi/greeting; John' -> !hello
-          assert $hi/mockOUT::next <='Hello, Hello John'> 'Wrote greeting'
+          assert $OUT::next <='Hello, Hello John'> 'Wrote greeting'
         end 'hello'""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -645,9 +640,8 @@ public class Testing {
             sink greet
               'Hello, $;' -> !OUT::write
             end greet
-            def mockedOut: $OUT;
           end hi2  '$hi/greeting; John' -> !hello
-          assert $hi/mockedOut::next <='Hello, Hello John'> 'Wrote greeting'
+          assert $OUT::next <='Hello, Hello John'> 'Wrote greeting'
         end 'hello'""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -889,7 +883,7 @@ public class Testing {
 
   
   @Test
-  void inheritedModuleWithSplitUsageIsReinitializedForEach(@TempDir Path dir) throws Exception {
+  void mockedModuleIsSharedAndOnlyInitiatedOnce(@TempDir Path dir) throws Exception {
     String dep = """
         def a: 'a' -> \\($ -> !OUT::write $!\\);
         def b: 'b' -> \\($ -> !OUT::write $!\\);
@@ -926,6 +920,6 @@ public class Testing {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.runTests(input, output, List.of());
 
-    assertEquals("aaPass", output.toString(StandardCharsets.UTF_8));
+    assertEquals("aPass", output.toString(StandardCharsets.UTF_8));
   }
 }

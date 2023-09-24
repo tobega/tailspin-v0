@@ -30,6 +30,11 @@ public class JavaSymbolLibrary implements SymbolLibrary.Installer {
     return Set.of();
   }
 
+  @Override
+  public Installer newInstance() {
+    return this;
+  }
+
   public static SymbolLibrary create(String javaPackage) {
     String prefix = javaPackage.substring(javaPackage.lastIndexOf(".") + 1) + "/";
     return new SymbolLibrary(prefix,

@@ -13,6 +13,7 @@ public class SymbolLibrary {
     public interface Installer {
         Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope,
             Map<Path, Installer> includedFileInstallers);
+        Installer newInstance();
         default void injectMocks(List<SymbolLibrary> mocks) {
             // Do nothing
         }
@@ -22,12 +23,22 @@ public class SymbolLibrary {
     final Installer depScopeInstaller;
     private final SymbolLibrary inheritedProvider; // nullable
     private final Map<Path, Installer> includedFiles = new HashMap<>();
+    private boolean isShared = false;
 
     public SymbolLibrary(String prefix, Installer depScopeInstaller,
         SymbolLibrary inheritedProvider) {
         this.prefix = prefix;
         this.depScopeInstaller = depScopeInstaller;
         this.inheritedProvider = inheritedProvider;
+    }
+
+    public SymbolLibrary newInstance() {
+        if (isShared) return this;
+        return new SymbolLibrary(prefix, depScopeInstaller.newInstance(), inheritedProvider == null ? null : inheritedProvider.newInstance());
+    }
+
+    public void setShared() {
+        isShared = true;
     }
 
     /** Allows to replace the provided dependencies in the installer */
@@ -55,7 +66,7 @@ public class SymbolLibrary {
             inheritedSymbols.forEach(s -> scope.defineValue(prefix + s, inheritedScope.resolveValue(inheritedProvider.prefix + s)));
         } else {
             Lang.installBuiltins(inheritedSymbols, scope);
-        };
+        }
     }
 
     private Set<String> getProvidedSymbols(Set<String> requiredSymbols) {

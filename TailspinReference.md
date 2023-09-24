@@ -1499,9 +1499,8 @@ test 'hello'
 end 'hello'
 ```
 
-Note, though, that providing a mock to a module will result in another instance of that mock, which will have to
-be explicitly exported from the shadowed code for the test to be able to access it. Normally, your tests should
-not need to reach that deep.
+Note that modules imported or defined in the test, a.k.a. mocks, will be injected into all other modules and override
+those modules dependencies. Each mock has only one instance shared everywhere, and isn't duplicated as normal modules are.
 
 ## Calling java code
 _NOTE:_ This is a temporary measure (for a few years) to allow using Tailspin for everything and allowing
