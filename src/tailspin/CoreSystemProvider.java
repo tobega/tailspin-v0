@@ -26,7 +26,7 @@ public class CoreSystemProvider {
         scope.defineValue("SYS", new SystemProcessor());
         scope.defineValue("IN", new StdinProcessor(new BufferedReader(new InputStreamReader(input))));
         scope.defineValue("OUT", new StdoutProcessor(output));
-        return new SymbolLibrary("", "", new SymbolLibrary.Installer() {
+        return new SymbolLibrary("", new SymbolLibrary.Installer() {
             @Override
             public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope into,
                 Map<Path, Installer> includedFileInstallers) {
@@ -37,6 +37,6 @@ public class CoreSystemProvider {
                     .filter(s -> !scope.hasDefinition(s))
                     .collect(Collectors.toSet());
             }
-        }, List.of());
+        }, null);
     }
 }

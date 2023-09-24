@@ -1,7 +1,6 @@
 package tailspin.interpreter;
 
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import tailspin.interpreter.SymbolLibrary.Installer;
@@ -33,7 +32,7 @@ public class JavaSymbolLibrary implements SymbolLibrary.Installer {
 
   public static SymbolLibrary create(String javaPackage) {
     String prefix = javaPackage.substring(javaPackage.lastIndexOf(".") + 1) + "/";
-    return new SymbolLibrary(prefix, null,
-        new JavaSymbolLibrary(javaPackage, prefix), List.of());
+    return new SymbolLibrary(prefix,
+        new JavaSymbolLibrary(javaPackage, prefix), null);
   }
 }

@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,19 +19,15 @@ public class SymbolLibrary {
     }
 
     final String prefix;
-    private final String inheritedModulePrefix;
     final Installer depScopeInstaller;
-    private final Optional<SymbolLibrary> inheritedProvider;
+    private final SymbolLibrary inheritedProvider; // nullable
     private final Map<Path, Installer> includedFiles = new HashMap<>();
 
-    public SymbolLibrary(String prefix,
-        String inheritedModulePrefix, Installer depScopeInstaller,
-        List<SymbolLibrary> inheritedProviders) {
+    public SymbolLibrary(String prefix, Installer depScopeInstaller,
+        SymbolLibrary inheritedProvider) {
         this.prefix = prefix;
-        this.inheritedModulePrefix = inheritedModulePrefix;
         this.depScopeInstaller = depScopeInstaller;
-        this.inheritedProvider = inheritedProviders.stream()
-            .filter(s -> s.prefix.equals(inheritedModulePrefix)).findFirst();
+        this.inheritedProvider = inheritedProvider;
     }
 
     /** Allows to replace the provided dependencies in the installer */
@@ -52,13 +47,15 @@ public class SymbolLibrary {
     }
 
     private void inheritSymbols(Set<String> inheritedSymbols, BasicScope scope) {
-        inheritedProvider.ifPresentOrElse(lib -> {
+        if (inheritedProvider != null) {
             BasicScope inheritedScope = new BasicScope(scope.basePath());
-            lib.installSymbols(
-                inheritedSymbols.stream().map(s -> inheritedModulePrefix + s).collect(Collectors.toSet()),
+            inheritedProvider.installSymbols(
+                inheritedSymbols.stream().map(s -> inheritedProvider.prefix + s).collect(Collectors.toSet()),
                 inheritedScope);
-            inheritedSymbols.forEach(s -> scope.defineValue(prefix + s, inheritedScope.resolveValue(inheritedModulePrefix + s)));
-        }, () -> Lang.installBuiltins(inheritedSymbols, scope));
+            inheritedSymbols.forEach(s -> scope.defineValue(prefix + s, inheritedScope.resolveValue(inheritedProvider.prefix + s)));
+        } else {
+            Lang.installBuiltins(inheritedSymbols, scope);
+        };
     }
 
     private Set<String> getProvidedSymbols(Set<String> requiredSymbols) {
