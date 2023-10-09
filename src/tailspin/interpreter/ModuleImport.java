@@ -54,6 +54,6 @@ class ModuleImport implements ModuleProvider {
     }
     List<SymbolLibrary> resolvedModules = Module.getModules(providedDependencies, inheritedModules, depPath.getParent());
     Module module = getProgram(depPath);
-    return new SymbolLibrary(dependencyPrefix, null, module.new Installer(dependencyPrefix, depPath.getParent(), resolvedModules), List.of());
+    return new SymbolLibrary(dependencyPrefix, module.new Installer(dependencyPrefix, depPath.getParent(), resolvedModules), null);
   }
 }

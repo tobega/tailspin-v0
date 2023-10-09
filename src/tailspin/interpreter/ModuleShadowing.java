@@ -2,6 +2,7 @@ package tailspin.interpreter;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 public class ModuleShadowing extends Module implements ModuleProvider {
   private final String prefix;
@@ -20,6 +21,7 @@ public class ModuleShadowing extends Module implements ModuleProvider {
   @Override
   public SymbolLibrary installDependencies(List<SymbolLibrary> inheritedModules, Path basePath) {
     List<SymbolLibrary> resolvedModules = getModules(providedDependencies, inheritedModules, basePath);
-    return new SymbolLibrary(prefix, inheritedModulePrefix, new Installer(prefix, basePath, resolvedModules), inheritedModules);
+    SymbolLibrary inheritedModule = inheritedModules.stream().filter(s -> Objects.equals(s.prefix, inheritedModulePrefix)).findFirst().orElse(null);
+    return new SymbolLibrary(prefix, new Installer(prefix, basePath, resolvedModules), inheritedModule);
   }
 }

@@ -36,7 +36,7 @@ public class Program extends SymbolResolver {
         statements.stream()
             .flatMap(t -> t.getRequiredDefinitions().stream())
             .collect(Collectors.toSet());
-    resolveSymbolDependencies(requiredSymbols, scope, providedDependencies);
+    resolveSymbolDependencies(requiredSymbols, scope, providedDependencies, new HashMap<>());
   }
 
   public Module asModule() {
@@ -61,22 +61,22 @@ public class Program extends SymbolResolver {
     BasicScope scope = new BasicScope(basePath);
     List<SymbolLibrary> testModules = getMocksAndModules(testStatement.test.getInjectedModules(), coreSystemProvider, basePath);
     Module module = new Module(testStatement.test.overrideDefinitions(getDefinitions()), getIncludedFiles());
-    module.resolveSymbols(testStatement.requiredDefinitions, scope, testModules);
+    module.resolveSymbols(testStatement.requiredDefinitions, scope, testModules, new HashMap<>());
     return testStatement.test.getResults(null, scope);
   }
 
-  public List<SymbolLibrary> getMocksAndModules(List<ModuleProvider> providedLibraries,
+  public List<SymbolLibrary> getMocksAndModules(List<ModuleProvider> testLibs,
       SymbolLibrary coreSystemProvider, Path basePath) {
     List<SymbolLibrary> programLibs = Module.getModules(injectedModules, List.of(coreSystemProvider), basePath);
     List<SymbolLibrary> mocks = new ArrayList<>(programLibs);
-    for (ModuleProvider provider : providedLibraries) {
+    for (ModuleProvider provider : testLibs) {
       SymbolLibrary provided = provider.installDependencies(mocks, basePath);
+      provided.setShared();
       mocks.add(0, provided);
     }
     for (SymbolLibrary lib : programLibs) {
-      lib.injectMocks(mocks);
+      lib.injectMocks(mocks.subList(0, testLibs.size()));
     }
-    mocks.addAll(programLibs);
     return mocks;
   }
 }

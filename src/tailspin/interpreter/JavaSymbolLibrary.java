@@ -1,7 +1,9 @@
 package tailspin.interpreter;
 
-import java.util.List;
+import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
+import tailspin.interpreter.SymbolLibrary.Installer;
 import tailspin.java.JavaClass;
 
 public class JavaSymbolLibrary implements SymbolLibrary.Installer {
@@ -15,7 +17,8 @@ public class JavaSymbolLibrary implements SymbolLibrary.Installer {
   }
 
   @Override
-  public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope) {
+  public Set<String> resolveSymbols(Set<String> providedSymbols, BasicScope scope,
+      Map<Path, Installer> includedFileInstallers) {
     for (String symbol : providedSymbols) {
       try {
         Class<?> c = Class.forName(javaPackage + "." + symbol);
@@ -27,9 +30,14 @@ public class JavaSymbolLibrary implements SymbolLibrary.Installer {
     return Set.of();
   }
 
+  @Override
+  public Installer newInstance() {
+    return this;
+  }
+
   public static SymbolLibrary create(String javaPackage) {
     String prefix = javaPackage.substring(javaPackage.lastIndexOf(".") + 1) + "/";
-    return new SymbolLibrary(prefix, null,
-        new JavaSymbolLibrary(javaPackage, prefix), List.of());
+    return new SymbolLibrary(prefix,
+        new JavaSymbolLibrary(javaPackage, prefix), null);
   }
 }

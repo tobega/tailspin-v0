@@ -1,5 +1,6 @@
 package tailspin.interpreter;
 
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,12 +9,13 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
+import tailspin.interpreter.SymbolLibrary.Installer;
 import tailspin.interpreter.lang.Lang;
 
 public abstract class SymbolResolver {
 
   private final List<IncludedFile> includedFiles;
-  private List<SymbolLibrary> openedIncludedFiles;
+  private List<SymbolLibrary.Installer> openedIncludedFiles;
 
   public SymbolResolver(List<IncludedFile> includedFiles) {
     this.includedFiles = includedFiles;
@@ -26,7 +28,7 @@ public abstract class SymbolResolver {
   }
 
   Set<String> resolveSymbolDependencies(
-      Set<String> symbolsToInstall, BasicScope scope, List<SymbolLibrary> providedDependencies) {
+      Set<String> symbolsToInstall, BasicScope scope, List<SymbolLibrary> providedDependencies, Map<Path, SymbolLibrary.Installer> includedFileInstallers) {
     Map<String, Set<String>> definedSymbols = new HashMap<>();
     for (DefinitionStatement s : getDefinitions()) {
       if (s.getDefinedSymbol() != null) {
@@ -49,8 +51,8 @@ public abstract class SymbolResolver {
         neededDefinitions.addAll(definedSymbols.get(def));
       }
     }
-    for (SymbolLibrary dependency : openIncludedFiles(scope, providedDependencies)) {
-      externalDefinitions = dependency.installSymbols(externalDefinitions, scope);
+    for (SymbolLibrary.Installer file : openIncludedFiles(scope, providedDependencies, includedFileInstallers)) {
+      externalDefinitions = file.resolveSymbols(externalDefinitions, scope, includedFileInstallers);
     }
     for (SymbolLibrary lib : providedDependencies) {
       externalDefinitions = lib.installSymbols(externalDefinitions, scope);
@@ -59,12 +61,12 @@ public abstract class SymbolResolver {
     return internalDefinitions;
   }
 
-  List<SymbolLibrary> openIncludedFiles(
-      BasicScope scope, List<SymbolLibrary> providedDependencies) {
+  List<SymbolLibrary.Installer> openIncludedFiles(
+      BasicScope scope, List<SymbolLibrary> providedDependencies, Map<Path, Installer> includedFileInstallers) {
     if (openedIncludedFiles == null) {
       openedIncludedFiles =
           includedFiles.stream()
-              .map(i -> i.open(scope, providedDependencies))
+              .map(i -> i.open(scope, providedDependencies, includedFileInstallers))
               .collect(Collectors.toList());
     }
     return openedIncludedFiles;

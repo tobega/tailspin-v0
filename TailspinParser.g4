@@ -4,7 +4,7 @@ options { tokenVocab = TailspinLexer; }
 
 program: useModule* inclusion* statement (statement)* EOF;
 
-inclusion: Include (localIdentifier From)? stringLiteral;
+inclusion: Include stringLiteral;
 
 statement: definition
   | valueChainToSink
@@ -16,7 +16,7 @@ statement: definition
   | dataDeclaration
 ;
 
-definition: Def key valueProduction SemiColon;
+definition: Def localIdentifier Colon valueProduction SemiColon;
 
 valueChainToSink: valueChain To sink;
 
@@ -44,7 +44,7 @@ localDataDeclaration: DataDefinition localDataDefinition (Comma localDataDefinit
 
 localDataDefinition: localIdentifier matcher?;
 
-key: localIdentifier TemplateMatch? Colon;
+key: (externalIdentifier|localIdentifier) TemplateMatch? Colon;
 
 parameterDefinitions: And LeftBrace (key Comma?)+ RightBrace;
 
@@ -67,7 +67,7 @@ sourceReference: (SourceMarker anyIdentifier? | Reflexive) reference Message? pa
 
 reference: lens? structureReference*;
 
-structureReference: FieldReference lens?;
+structureReference: FieldReference (Slash localIdentifier)? lens?;
 
 lens: LeftParen dimensionReference (SemiColon dimensionReference)*  RightParen;
 
@@ -282,7 +282,7 @@ multiplier: Plus | Star | Question
 
 compositionSkipRule: LeftParen compositionCapture+ RightParen;
 
-compositionCapture: (Def key compositionMatcher transform? SemiColon)|(compositionMatcher (transform? To stateSink)?)|stateAssignment;
+compositionCapture: (Def localIdentifier Colon compositionMatcher transform? SemiColon)|(compositionMatcher (transform? To stateSink)?)|stateAssignment;
 
 compositionKeyValue: (key|compositionKey) compositionSkipRule* compositionComponent;
 

@@ -167,26 +167,33 @@ public class DataDictionary {
   }
 
   public Membrane getDataDefinition(String identifier) {
-    if (callingDictionary != null && !isKeyDefined(identifier)) {
-      return callingDictionary.getDataDefinition(identifier);
-    }
-    if (moduleDictionary != null && !dataDefinitions.containsKey(identifier)) {
+    if (dataDefinitions.containsKey(identifier)) return dataDefinitions.get(identifier);
+    if (moduleDictionary != null && moduleDictionary.dataDefinitions.containsKey(identifier)) {
       return moduleDictionary.getDataDefinition(identifier);
     }
-    return dataDefinitions.get(identifier);
+    if (callingDictionary != null) {
+      return callingDictionary.getDataDefinition(identifier);
+    }
+    return null;
   }
 
   public Object checkDataDefinition(String key, Object data, Scope scope) {
-    if (callingDictionary != null && !isKeyDefined(key)) {
-      return callingDictionary.checkDataDefinition(key, data, scope);
-    }
-    if (moduleDictionary != null && !dataDefinitions.containsKey(key)) {
+    if (dataDefinitions.containsKey(key)) return checkLocalDefinition(key, data, scope);
+    if (moduleDictionary != null && moduleDictionary.dataDefinitions.containsKey(key)) {
       return moduleDictionary.checkDataDefinition(key, data, scope);
     }
+    if (callingDictionary != null) {
+      return callingDictionary.checkDataDefinition(key, data, scope);
+    }
+    return checkLocalDefinition(key, data, scope);
+  }
+
+  private Object checkLocalDefinition(String key, Object data, Scope scope) {
     Membrane def = dataDefinitions.get(key);
     if (def == null) {
       def = getDefaultTypeCriterion(data, this);
-      if (def == null) return data; // TODO: remove this fallback for non-autotyped values
+      if (def == null)
+        return data;
       if (data instanceof String) {
         def = new DefinedTag(key, def, scope);
       } else if (data instanceof Long) {
@@ -197,14 +204,9 @@ public class DataDictionary {
     data = def.inContext(data);
     // Do this also for values that were just autotyped. For example arrays still need to be tested.
     if (!def.matches(data, null, scope, Membrane.ALWAYS_TRUE)) {
-      throw new TypeError("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(data));
+      throw new TypeError("Tried to set " + key + " to incompatible data. Expected " + def + "\ngot " + formatErrorValue(
+          data));
     }
     return data;
-  }
-
-  private boolean isKeyDefined(String key) {
-    if (dataDefinitions.containsKey(key)) return true;
-    if (moduleDictionary != null) return moduleDictionary.isKeyDefined(key);
-    return false;
   }
 }

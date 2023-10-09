@@ -1,7 +1,12 @@
 package tailspin.interpreter;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,7 +26,8 @@ public class Module extends SymbolResolver {
     }
 
     @Override
-    public Set<String> resolveSymbols(Set<String> neededSymbols, BasicScope scope) {
+    public Set<String> resolveSymbols(Set<String> neededSymbols, BasicScope scope,
+        Map<Path, SymbolLibrary.Installer> includedFileInstallers) {
       // We might be shadowing a module, so don't try to register what we don't define.
       Set<String> internalSymbols = new HashSet<>();
       for (DefinitionStatement ds : definitions) {
@@ -30,18 +36,23 @@ public class Module extends SymbolResolver {
         }
       }
       if (internalSymbols.isEmpty()) return neededSymbols;
-      Module.this.resolveSymbols(internalSymbols, depScope, providedDependencies);
+      Module.this.resolveSymbols(internalSymbols, depScope, providedDependencies, includedFileInstallers);
       neededSymbols.stream()
-          .filter(depScope::hasDefinition)
+          .filter(internalSymbols::contains)
           .forEach(s -> scope.defineValue(prefix + s, depScope.resolveValue(s)));
       return neededSymbols.stream()
-          .filter(s -> !depScope.hasDefinition(s))
+          .filter(s -> !internalSymbols.contains(s))
           .collect(Collectors.toSet());
     }
 
     @Override
+    public SymbolLibrary.Installer newInstance() {
+      return new Installer(prefix, depScope.basePath(), providedDependencies.stream().map(SymbolLibrary::newInstance).toList());
+    }
+
+    @Override
     public void injectMocks(List<SymbolLibrary> mocks) {
-      providedDependencies = mocks;
+      providedDependencies = Stream.concat(mocks.stream(), providedDependencies.stream()).toList();
     }
   }
 
@@ -57,8 +68,8 @@ public class Module extends SymbolResolver {
   }
 
   void resolveSymbols(Set<String> internalSymbols, BasicScope scope,
-                      List<SymbolLibrary> providedDependencies) {
-    Set<String> localDefinitionsNeeded = resolveSymbolDependencies(internalSymbols, scope, providedDependencies);
+                      List<SymbolLibrary> providedDependencies, Map<Path, SymbolLibrary.Installer> includedFileInstallers) {
+    Set<String> localDefinitionsNeeded = resolveSymbolDependencies(internalSymbols, scope, providedDependencies, includedFileInstallers);
     getDefinitions().stream()
         .filter(d -> d.alwaysRun() || localDefinitionsNeeded.contains(d.getDefinedSymbol()))
         .forEach(d -> d.getResults(scope));
@@ -66,9 +77,10 @@ public class Module extends SymbolResolver {
 
   public void installAll(BasicScope scope) {
     resolveSymbols(
-        definitions.stream()
-            .map(DefinitionStatement::getDefinedSymbol).collect(Collectors.toSet()),
-        scope, List.of());
+        definitions.stream().map(DefinitionStatement::getDefinedSymbol).collect(Collectors.toSet()),
+        scope,
+        List.of(),
+        new HashMap<>());
   }
 
   static List<SymbolLibrary> getModules(List<ModuleProvider> injectedModules,
@@ -76,7 +88,7 @@ public class Module extends SymbolResolver {
     List<SymbolLibrary> libs = new ArrayList<>();
     for (ModuleProvider provider : injectedModules) {
       SymbolLibrary provided = provider.installDependencies(
-          Stream.concat(libs.stream(), inheritedModules.stream()).collect(Collectors.toList()),
+          Stream.concat(libs.stream(), inheritedModules.stream()).map(SymbolLibrary::newInstance).collect(Collectors.toList()),
           basePath);
       libs.add(0, provided);
     }

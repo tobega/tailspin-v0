@@ -42,6 +42,8 @@
 * Programs execute all statements, but when included or used as module, only the used definitions are executed.
 * Bytes values use direct variable references. Currently `[x ($a) ($b) x]` works, why not `[x $a $b x]`?
 * Operators take in the current value as well as the two operands. This is weird.
+* Should shadowed modules also have original symbols accessible by *?
+* Should it be possible to modify (not just shadow) core-system/?
 
 ### Exceptions
 Do we need them? Do we want them?
