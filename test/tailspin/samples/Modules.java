@@ -633,7 +633,7 @@ public class Modules {
     assertEquals("3 5", output.toString(StandardCharsets.UTF_8));
   }
 
-  
+
   @Test
   void moduleWithDifferentDepIsSeparatelyLoaded(@TempDir Path dir) throws Exception {
     String dep = """
@@ -677,7 +677,7 @@ public class Modules {
     assertEquals("cBcbcbcpcbcpvcBcv", output.toString(StandardCharsets.UTF_8));
   }
 
-  
+
   @Test
   void modifiedModuleInheritsAndOverridesVirtually(@TempDir Path dir) throws Exception {
     String dep = """
@@ -706,7 +706,7 @@ public class Modules {
     assertEquals("22Abp2Abp", output.toString(StandardCharsets.UTF_8));
   }
 
-  
+
   @Test
   void moduleModificationCanAccessOverriddenDefinition(@TempDir Path dir) throws Exception {
     String dep = """
@@ -733,7 +733,7 @@ public class Modules {
     assertEquals("apaAp", output.toString(StandardCharsets.UTF_8));
   }
 
-  
+
   @Test
   void noSneakyAccessToOverriddenDefinition(@TempDir Path dir) throws Exception {
     String dep = """
@@ -783,6 +783,36 @@ public class Modules {
     runner.run(baseDir, input, output, List.of());
 
     assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void dataDefinitionInModuleHasPrefixOutside(@TempDir Path dir) throws Exception {
+    String dep = """
+        data key <>
+        templates value
+          $.key!
+        end value
+        def b: {key: 8};
+    """;
+    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
+    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
+    Path depFile = moduleDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    String program =
+        """
+    use 'module:dep' stand-alone
+    {dep/key: 'a'} -> dep/value -> !OUT::write
+    $dep/b -> $.dep/key -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("ab", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
