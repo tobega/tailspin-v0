@@ -15,14 +15,15 @@ public class Structure implements Freezable<Structure>, Deconstructible {
   private final Map<String, Object> map;
   private boolean isMutable;
 
-  public Structure(Map<String, Object> map, boolean isMutable) {
+  private Structure(Map<String, Object> map, boolean isMutable) {
     if (isMutable && !(map instanceof TreeMap)) throw new AssertionError();
     this.map = map;
     this.isMutable = isMutable;
   }
 
-  public static Structure value(Map<String, Object> map) {
-    return new Structure(map, false);
+  public static Structure value(List<KeyValue> fields) {
+    return new Structure(fields.stream().collect(Collectors.toMap(KeyValue::getKey, KeyValue::getValue)),
+        false);
   }
 
   public static Structure value(ResultIterator.Flat resultIterator) {
@@ -37,7 +38,7 @@ public class Structure implements Freezable<Structure>, Deconstructible {
   public Structure project(List<KeyValueExpression> expansions, Object it, Scope scope) {
     return Structure.value(expansions.stream()
         .map(e -> e.getResults(Reference.pairedReflexive(it, this), scope))
-        .collect(Collectors.toMap(KeyValue::getKey, KeyValue::getValue)));
+        .toList());
   }
 
   public Object get(String fieldIdentifier) {

@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import tailspin.Tailspin;
+import tailspin.TypeError;
 
 class Templates {
   @Test
@@ -611,8 +613,10 @@ class Templates {
 
   @Test
   void parameter() throws Exception {
-    String program = "templates comp&{pivot:} <..$pivot> 'le' ! <> 'gt' ! end comp\n"
-        + "1..6 -> comp&{pivot: 3} -> !OUT::write";
+    String program = """
+        templates comp&{pivot:} <..$pivot> 'le' ! <> 'gt' ! end comp
+        1"m"..6"m" -> comp&{pivot: 3"m"} -> !OUT::write
+        """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -621,6 +625,23 @@ class Templates {
     runner.run(input, output, List.of());
 
     assertEquals("lelelegtgtgt", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void parameterIsDefinedInLocalScope() throws Exception {
+    String program = """
+        templates comp&{pivot:} <..$pivot> 'le' ! <> 'gt' ! end comp
+        1"m"..6"m" -> comp&{pivot: 3"m"} -> !OUT::write
+        1"g"..6"g" -> comp&{pivot: 3"g"} -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("lelelegtgtgtlelelegtgtgt", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -687,8 +708,10 @@ class Templates {
 
   @Test
   void streamedParameter() throws Exception {
-    String program = "templates comp&{pivot:} 4 -> # <..$pivot> 'le' ! <> 'gt' ! end comp\n"
-        + "1..6 -> comp&{pivot: $} -> !OUT::write";
+    String program = """
+        templates comp&{pivot:} 4"m" -> # <..$pivot> 'le' ! <> 'gt' ! end comp
+        1"m"..6"m" -> comp&{pivot: $} -> !OUT::write
+        """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -1114,5 +1137,113 @@ class Templates {
     runner.run(input, output, List.of());
 
     assertEquals("5", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void settingStateChecksType() throws IOException {
+    String program = """
+    templates foo
+      @: {x: 'apple'};
+      @.x: 3;
+      $@ !
+    end foo
+    1 -> foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void settingStateLensChecksType() throws IOException {
+    String program = """
+    templates foo
+      @: {x: 'apple'};
+      @(x:): 3;
+      $@ !
+    end foo
+    1 -> foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void settingStateAutotypes() throws IOException {
+    String program = """
+    templates foo
+      @: {x: 'apple'};
+      $@.x -> #
+      <='apple'> $!
+    end foo
+    1 -> foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void settingStateLensAutotypes() throws IOException {
+    String program = """
+    templates foo
+      @: {x: 'apple'};
+      @(x:): 'banana';
+      $@.x -> #
+      <='apple'> $!
+    end foo
+    1 -> foo -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void parameterChecksType() throws IOException {
+    String program = """
+    data x <'.*'>
+    templates foo&{x:}
+      $x !
+    end foo
+    1 -> foo&{x: 3} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void parameterAutotypes() throws IOException {
+    String program = """
+    data x <'.*'>
+    templates foo&{x:}
+      $x -> #
+      <='apple'> $!
+    end foo
+    1 -> foo&{x: 'apple'} -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 }

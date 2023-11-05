@@ -200,7 +200,7 @@ public class Testing {
   }
 
   @Test
-  void dontRequireBindingOfInternalSymbolsUsedInMatcherBlock() throws Exception {
+  void dontAutotypeInternalSymbolsUsedInMatcherBlock() throws Exception {
     String program = """
         templates outer
         def inner: 1;
@@ -221,26 +221,7 @@ public class Testing {
   }
 
   @Test
-  void dontRequireBindingOfParameters() throws Exception {
-    String program = """
-        templates outer&{param:}
-        $param !
-        end outer
-        test 'A passing test'
-        assert 2 -> outer&{param: 1} <=1> 'outer gives 1'
-        end 'A passing test'""";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.runTests(input, output, List.of());
-
-    assertEquals("Pass", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void dontRequireBindingOfLoopVariables() throws Exception {
+  void dontAutotypeLoopVariables() throws Exception {
     String program = """
         templates outer
         [$] -> \\[i]($i !\\) -> $(1) !

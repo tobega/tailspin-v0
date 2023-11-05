@@ -3,8 +3,8 @@ package tailspin.control;
 import java.util.AbstractMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import tailspin.transform.CurriedTemplates;
 import tailspin.interpreter.Scope;
+import tailspin.transform.CurriedTemplates;
 import tailspin.types.Transform;
 
 public class TemplatesReference extends Reference {

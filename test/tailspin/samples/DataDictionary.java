@@ -277,7 +277,7 @@ public class DataDictionary {
   }
 
   @Test
-  void autotypedStringTermConflict() throws IOException {
+  void autotypedStringFieldCannotTakeNumber() throws IOException {
     String program = """
     {x: 'apple'} -> !OUT::write
     {x: 3} -> !OUT::write
@@ -364,7 +364,7 @@ public class DataDictionary {
   }
 
   @Test
-  void localImplicitlyDefinedTermWrongValue() throws IOException {
+  void localOverrideImplicitlyDefinedTermWrongValue() throws IOException {
     String program = """
     data x <0..>
     templates foo
@@ -402,7 +402,7 @@ public class DataDictionary {
   }
 
   @Test
-  void localImplicitNonOverridingDefinition() throws IOException {
+  void localImplicitDefinitionInheritingExternalDefinition() throws IOException {
     String program = """
     data x <1..5>
     templates foo
@@ -512,7 +512,7 @@ public class DataDictionary {
   void localDefinedProcessorTypeDependsOnParameter() throws IOException {
     String program = """
     processor Foo&{high:}
-      data x <1..$high> local
+      data x <1..$high::raw> local
       sink bar
         when <x> do $ -> !OUT::write
       end bar
@@ -568,42 +568,6 @@ public class DataDictionary {
     runner.run(input, output, List.of());
 
     assertEquals("{x: apple}{x: 3}", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void settingStateChecksType() throws IOException {
-    String program = """
-    templates foo
-      @: {x: 'apple'};
-      @.x: 3;
-      $@ !
-    end foo
-    1 -> foo -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
-  }
-
-  @Test
-  void settingStateLensChecksType() throws IOException {
-    String program = """
-    templates foo
-      @: {x: 'apple'};
-      @(x:): 3;
-      $@ !
-    end foo
-    1 -> foo -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
   }
 
   @Test
@@ -693,7 +657,7 @@ public class DataDictionary {
   }
 
   @Test
-  void autotypedStructureWrongType() throws IOException {
+  void autotypedStructureCannotTakeString() throws IOException {
     String program = """
     {x: {fruit: 'apple'}} -> !OUT::write
     {x: 'banana'} -> !OUT::write
@@ -721,7 +685,7 @@ public class DataDictionary {
   }
 
   @Test
-  void autotypedStructureWrongMissingField() throws IOException {
+  void autotypedStructureMissingField() throws IOException {
     String program = """
     {x: {fruit: 'banana', days: 2}} -> !OUT::write
     {x: {fruit: 'apple'}} -> !OUT::write

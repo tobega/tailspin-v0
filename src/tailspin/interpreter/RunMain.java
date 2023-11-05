@@ -650,14 +650,12 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       throw new IllegalStateException(
           "Mismatched end " + ctx.localIdentifier(1).getText() + " for templates " + name);
     }
-    // Parameters must be defined first so as they don't get required
+    // Parameters and operands must be defined first so as they don't get required
     List<ExpectedParameter> expectedParameters = visitParameterDefinitions(ctx.parameterDefinitions());
     String left = ctx.localIdentifier(0).getText();
     dependencyCounters.peek().define(left);
-    expectedParameters.add(new ExpectedParameter(left));
     String right = ctx.localIdentifier(2).getText();
     dependencyCounters.peek().define(right);
-    expectedParameters.add(new ExpectedParameter(right));
     TemplatesDefinition templatesDefinition = visitTemplatesBody(name, visitLocalDataDeclaration(ctx.localDataDeclaration()),
         ctx.templatesBody(), new TemplatesConstructor() {
           @Override

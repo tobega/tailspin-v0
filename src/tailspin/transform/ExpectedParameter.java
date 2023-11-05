@@ -17,7 +17,14 @@ public class ExpectedParameter {
     for (ExpectedParameter expectedParameter : expectedParameters) {
       if (parameters.containsKey(expectedParameter.name)) {
         foundParameters++;
-        scope.defineValue(expectedParameter.name, parameters.get(expectedParameter.name));
+        if (scope.getLocalDictionary().getDataDefinition(expectedParameter.name) == null) {
+          // make the definition local
+          scope.getLocalDictionary().createDataDefinition(expectedParameter.name, null);
+        }
+        Object checkedValue = scope.getLocalDictionary()
+            .checkDataDefinition(expectedParameter.name, parameters.get(expectedParameter.name),
+                scope);
+        scope.defineValue(expectedParameter.name, checkedValue);
       } else {
         throw new IllegalArgumentException("Missing parameter " + expectedParameter.name + " to " + scopeContext);
       }

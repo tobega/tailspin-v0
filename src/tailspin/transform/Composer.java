@@ -12,6 +12,7 @@ import tailspin.matchers.composer.Memo;
 import tailspin.matchers.composer.SequenceSubComposer;
 import tailspin.matchers.composer.SubComposerFactory;
 import tailspin.types.DataDictionary;
+import tailspin.types.KeyValue;
 import tailspin.types.Structure;
 import tailspin.types.TaggedIdentifier;
 import tailspin.types.Transform;
@@ -54,7 +55,7 @@ public class Composer implements Transform {
       memo = subComposer.backtrack(s, memo);
     }
     if (!subComposer.isSatisfied()) {
-      return Structure.value(Map.of("composerFailed", s));
+      return Structure.value(List.of(new KeyValue("composerFailed", s)));
     }
     return subComposer.getValues();
   }
@@ -63,18 +64,7 @@ public class Composer implements Transform {
       DataDictionary callingDictionary) {
     TransformScope scope = new TransformScope(definingScope, scopeName, callingDictionary);
     localDatatypes.forEach(dataDef -> dataDef.getResults(null, scope));
-    int foundParameters = 0;
-    for (ExpectedParameter expectedParameter : expectedParameters) {
-      if (parameters.containsKey(expectedParameter.name)) {
-        foundParameters++;
-        scope.defineValue(expectedParameter.name, parameters.get(expectedParameter.name));
-      } else {
-        throw new IllegalArgumentException("Missing parameter " + expectedParameter.name + " to " + scope.scopeContext);
-      }
-    }
-    if (foundParameters != parameters.size()) {
-      throw new IllegalArgumentException("Too many parameters for " + scope.scopeContext + ":\n" + parameters);
-    }
+    ExpectedParameter.resolveParameters(expectedParameters, parameters, scope, scope.scopeContext);
     return scope;
   }
 

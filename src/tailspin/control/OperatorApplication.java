@@ -22,8 +22,8 @@ public class OperatorApplication implements Expression {
     if (transform == null) {
       throw new IllegalStateException("Unknown operator " + operator);
     }
-    String[] operandNames = transform.getOperandNames();
-    return transform.getResults(it, Map.of(operandNames[0], left.getResults(it, blockScope),
-        operandNames[1], right.getResults(it, blockScope)), blockScope.getLocalDictionary());
+    // Operator parameter does not get autotyped
+    return transform.getResults(new Object[] {left.getResults(it, blockScope), right.getResults(it, blockScope)},
+        Map.of(), blockScope.getLocalDictionary());
   }
 }

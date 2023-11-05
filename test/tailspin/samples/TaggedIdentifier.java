@@ -1,16 +1,17 @@
 package tailspin.samples;
 
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
-import tailspin.TypeError;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
+import tailspin.TypeError;
 
 public class TaggedIdentifier {
 
@@ -226,17 +227,18 @@ public class TaggedIdentifier {
   }
 
   @Test
-  void tagDefinedToOtherTagAutotypesAndFailsAssignmentToDifferentField() throws Exception {
+  void tagAutotypedToOtherTag() throws Exception {
     String program = """
-      data city <'.*'>, destination <city>
-      {name: 'John', destination: city´'Paris'} -> { name: $.destination } -> !OUT::write
+      {city: 'Madrid', destination: city´'Paris'} -> { city: $.destination, destination: $.city } -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+    runner.run(input, output, List.of());
+
+    assertEquals("{city: Paris, destination: Madrid}", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test

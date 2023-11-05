@@ -1,15 +1,23 @@
 package tailspin.types;
 
-import tailspin.TypeError;
-import tailspin.control.Value;
-import tailspin.interpreter.Scope;
-import tailspin.matchers.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import tailspin.TypeError;
+import tailspin.control.Value;
+import tailspin.interpreter.Scope;
+import tailspin.matchers.ArrayMatch;
+import tailspin.matchers.CollectionCriterion;
+import tailspin.matchers.CollectionCriterionFactory;
+import tailspin.matchers.CollectionSegmentCriterion;
+import tailspin.matchers.DefinedTag;
+import tailspin.matchers.MultipliedCollectionCriterion;
+import tailspin.matchers.OneElementMatch;
+import tailspin.matchers.RangeMatch;
+import tailspin.matchers.StructureMatch;
+import tailspin.matchers.UnitMatch;
 
 public class DataDictionary {
   /* @Nullable */

@@ -1,14 +1,14 @@
-package tailspin.control;
+package tailspin.transform;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import tailspin.transform.ExpectedParameter;
+import tailspin.control.Expression;
+import tailspin.control.ResultIterator;
+import tailspin.control.TemplatesDefinition;
 import tailspin.interpreter.Scope;
-import tailspin.transform.Templates;
 import tailspin.types.DataDictionary;
 import tailspin.types.TailspinArray;
 
@@ -24,8 +24,6 @@ public class ArrayTemplates implements Expression {
   @Override
   public Object getResults(Object it, Scope definingScope) {
     Templates templates = templatesDefinition.define(definingScope);
-    templates.expectParameters(loopVariables.stream().map(ExpectedParameter::new)
-        .collect(Collectors.toList()));
     return runArrayTemplate(it, templates, definingScope.getLocalDictionary());
   }
 
@@ -55,7 +53,7 @@ public class ArrayTemplates implements Expression {
           counters.put(loopVariables.get(i), dimLists[i].getTailspinIndex(dimCounters[i]));
         }
         Object itemIt = dimLists[lastIdx].getNative(dimCounters[lastIdx]);
-        ResultIterator.forEach(templates.getResults(itemIt, counters, callingDictionary), results[lastIdx]::append);
+        ResultIterator.forEach(runElement(templates, callingDictionary, counters, itemIt), results[lastIdx]::append);
       }
       int idx = lastIdx - 1;
       while (idx >= 0) {
@@ -75,5 +73,14 @@ public class ArrayTemplates implements Expression {
       }
     }
     return results[0];
+  }
+
+  private static Object runElement(Templates templates, DataDictionary callingDictionary,
+      Map<String, Object> counters, Object itemIt) {
+    TransformScope scope = templates.createTransformScope(Map.of(), callingDictionary);
+    for (Map.Entry<String, Object> counter : counters.entrySet()) {
+      scope.defineValue(counter.getKey(), counter.getValue());
+    }
+    return templates.runInScope(itemIt, scope);
   }
 }

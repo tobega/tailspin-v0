@@ -557,7 +557,7 @@ Note that a composer rule updates state also when it is called in a not-context.
 
 
 ### Operator
-An operator (or more correctly, binary operator) is a type of transform that takes two arguments, one on the left of the
+An operator (or more correctly, binary operator) is a type of transform that takes two arguments (operands), one on the left of the
 operator, the other on the right. This is a construct intended to show intent more readably than the alternative of passing in
 a current value that is a list of two items, or by using parameters.
 
@@ -837,8 +837,8 @@ the removed entity is used as a [source](#sources). E.g. if @ is `[4,5,6]` then 
 @ as `[5,6]`
 
 ## Parameters
-Defined [templates](#defined-templates) (or [composers](#composer) or [processors](#processors)) can have parameters that vary the way they execute. Parameters are defined just after the identifier
-by an ampersand-sign and a list of keys inside braces (similar to a structure literal), and are used as defined values, e.g.
+Defined [templates](#defined-templates) (or [operators](#operator), [composers](#composer), [processors](#processors) or [processor messages](#messages)) can have parameters that vary the way they execute.
+Parameters are defined just after the identifier by an ampersand-sign and a list of keys inside braces (similar to a structure literal), and are used as defined values, e.g.
 ```
 templates add&{addend:}
   $ + $addend !
@@ -852,6 +852,9 @@ but cannot be passed as input.
 To call templates with parameters, set the values after the identifier by an at-sign and a [structure literal](#structure-literal)
 where the keys in the structure must match the defined parameters, e.g. with the above definition
 `3 -> add&{addend: 4} -> !OUT::write` will print `7`.
+
+Since parameters are defined in a structure literal, they will be subject to the [typing rules](#types) and [autotyping](#autotyping).
+If the parameter name already has a type defined (or autotyped), it will use the defined type, otherwise it will define a new local type.
 
 ## Streams
 Streams occur when zero or more values are created as the _current value_. Streams are processed by
@@ -1172,7 +1175,8 @@ if you need to, or that an element must not exist.
 One thing to note is that a key of a [key-value pair](#keyed-values), which is also the name of a field in a
 [structure](#structures), is expected to be connected to a value of the same type wherever it is used, i.e. keys form a
 [data dictionary](#data-dictionary). If you don't specify a type in the [data dictionary](#data-dictionary),
-a type will automatically be assigned by [autotyping](#autotyping).
+a type will automatically be assigned by [autotyping](#autotyping). Note that [tagging](#tagged-identifiers)
+a number or string will also define the tag as a type.
 
 Numbers in arithmetic expressions are in their bare state just untyped numbers, but they can be assigned a
 [unit of measure](#measures) which then defines their type as being of that measure.

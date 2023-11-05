@@ -162,8 +162,8 @@ class Processor {
               $ -> op&{x:$@Holder} !
             end do
             end Holder
-            def addFive: 5 -> Holder&{op:add};
-            1..3 -> addFive::do -> !OUT::write""";
+            def addFive: 5"1" -> Holder&{op:add};
+            1"1"..3"1" -> addFive::do -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -171,7 +171,7 @@ class Processor {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("678", output.toString(StandardCharsets.UTF_8));
+    assertEquals("6\"1\"7\"1\"8\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -187,8 +187,8 @@ class Processor {
               $ -> op&{x:$@Holder} !
             end do
             end Holder
-            def five: 5 -> Holder;
-            1..3 -> five::do&{op:add} -> !OUT::write""";
+            def five: 5"1" -> Holder;
+            1"1"..3"1" -> five::do&{op:add} -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -196,7 +196,7 @@ class Processor {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("678", output.toString(StandardCharsets.UTF_8));
+    assertEquals("6\"1\"7\"1\"8\"1\"", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
