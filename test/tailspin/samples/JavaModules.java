@@ -28,7 +28,7 @@ public class JavaModules {
   @Test
   void useTaggedNumber() throws Exception {
     String program = "use 'java:java.lang' stand-alone\n"
-        + "{foo: -2} -> [$.foo::raw] -> lang/Math::abs -> $ + 1 -> !OUT::write";
+        + "{foo: -2} -> [$.foo] -> lang/Math::abs -> $ + 1 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -84,7 +84,7 @@ public class JavaModules {
   @Test
   void useTaggedString() throws Exception {
     String program = "use 'java:java.lang' stand-alone\n"
-        + "{foo: '255'} -> [$.foo::raw] -> lang/Long::parseLong -> $ + 1 -> !OUT::write";
+        + "{foo: '255'} -> [$.foo] -> lang/Long::parseLong -> $ + 1 -> !OUT::write";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 

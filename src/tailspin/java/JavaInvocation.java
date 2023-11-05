@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.function.Function;
 import tailspin.control.ResultIterator;
 import tailspin.types.Processor;
+import tailspin.types.TaggedIdentifier;
 import tailspin.types.TailspinArray;
 import tailspin.types.Transform;
 
@@ -115,6 +116,7 @@ class JavaInvocation implements Transform {
   }
 
   private static int getPenalty(Object param, Class<?> type) {
+    if (param instanceof TaggedIdentifier t) param = t.getValue();
     if (param instanceof JavaObject j) {
       return calculatePenalty(j, type);
     }
@@ -188,6 +190,7 @@ class JavaInvocation implements Transform {
   }
 
   private static Object toJavaType(Class<?> type, Object param) {
+    if (param instanceof TaggedIdentifier t) param = t.getValue();
     if (param instanceof JavaObject j) {
       param = j.getRealObject();
     } else if (param instanceof TailspinArray a) {
