@@ -16,7 +16,7 @@ public class StdinProcessor implements Processor {
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
-    return (it, params, callingDictionary) -> {
+    return (it, params) -> {
       if (message.equals("lines")) {
         return (ResultIterator) () -> {
           try {

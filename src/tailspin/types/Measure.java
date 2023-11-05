@@ -30,11 +30,11 @@ public class Measure implements Processor {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("hashCode")) {
-      return (it, params, callingDictionary) -> ((Number) hashCode()).longValue();
+      return (it, params) -> ((Number) hashCode()).longValue();
     } else if (message.equals("raw")) {
-      return (it, params, callingDictionary) -> value;
+      return (it, params) -> value;
     } else if (message.equals("asBytes") && unit.equals(Unit.SCALAR)) {
-      return (it, params, callingDictionary) -> BigInteger.valueOf(value).toByteArray();
+      return (it, params) -> BigInteger.valueOf(value).toByteArray();
     } else {
       throw new UnsupportedOperationException("Unknown measure message " + message);
     }

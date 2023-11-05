@@ -17,8 +17,7 @@ public class SinkReference implements Expression {
     if (transform == null) {
       throw new NullPointerException("No sink defined for " + reference);
     }
-    Object sunk = ResultIterator.resolveSideEffects(transform.getResults(it, Map.of(),
-        scope.getLocalDictionary()));
+    Object sunk = ResultIterator.resolveSideEffects(transform.getResults(it, Map.of()));
     if (sunk != null) {
       throw new IllegalStateException("Sink " + reference + " emitted values");
     }

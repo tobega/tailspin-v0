@@ -11,7 +11,6 @@ import tailspin.control.DataDefinition;
 import tailspin.control.DelayedExecution;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
-import tailspin.types.DataDictionary;
 import tailspin.types.Transform;
 
 public class Templates implements Transform {
@@ -34,15 +33,13 @@ public class Templates implements Transform {
   }
 
   @Override
-  public Object getResults(Object it, Map<String, Object> parameters,
-      DataDictionary callingDictionary) {
-    TransformScope scope = createTransformScope(parameters, callingDictionary);
+  public Object getResults(Object it, Map<String, Object> parameters) {
+    TransformScope scope = createTransformScope(parameters);
     return runInScope(it, scope);
   }
 
-  TransformScope createTransformScope(Map<String, Object> parameters,
-      DataDictionary callingDictionary) {
-    TransformScope scope = new TransformScope(definingScope, name, callingDictionary);
+  TransformScope createTransformScope(Map<String, Object> parameters) {
+    TransformScope scope = new TransformScope(definingScope, name);
     scope.setTemplates(this);
     localDatatypes.forEach(dataDef -> dataDef.getResults(null, scope));
     resolveParameters(expectedParameters, parameters, scope, name);

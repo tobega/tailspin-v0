@@ -14,6 +14,6 @@ public class InlineTemplates implements Expression {
   @Override
   public Object getResults(Object it, Scope definingScope) {
     Templates templates = templatesDefinition.define(definingScope);
-    return templates.getResults(it, Map.of(), definingScope.getLocalDictionary());
+    return templates.getResults(it, Map.of());
   }
 }

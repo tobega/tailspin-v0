@@ -432,6 +432,7 @@ public class Modules {
   @Test
   void dataDefinitionWorksInModuleTemplates(@TempDir Path dir) throws Exception {
     String dep = """
+        data key <>
         templates keyify
           [$... -> (key:$)] !
         end keyify
@@ -443,7 +444,6 @@ public class Modules {
     Path baseDir = Files.createDirectory(dir.resolve("wd"));
     String program = """
     use 'module:dep' stand-alone
-    data key <>
     [1, 'a'] -> dep/keyify -> !OUT::write
     """;
     Tailspin runner =
@@ -460,6 +460,7 @@ public class Modules {
   @Test
   void dataDefinitionWorksInModuleComposer(@TempDir Path dir) throws Exception {
     String dep = """
+        data key <>
         composer keyify
           [<value>+]
           rule value: <INT|'\\w+'> -> (key:$) (<WS>?)
@@ -472,7 +473,6 @@ public class Modules {
     Path baseDir = Files.createDirectory(dir.resolve("wd"));
     String program = """
     use 'module:dep' stand-alone
-    data key <>
     '1 a' -> dep/keyify -> !OUT::write
     """;
     Tailspin runner =
@@ -489,6 +489,7 @@ public class Modules {
   @Test
   void dataDefinitionWorksInModuleProcessor(@TempDir Path dir) throws Exception {
     String dep = """
+        data key <>
         processor keyify
           @: [$... -> (key:$)];
           source get
@@ -503,7 +504,6 @@ public class Modules {
     Path baseDir = Files.createDirectory(dir.resolve("wd"));
     String program = """
     use 'module:dep' stand-alone
-    data key <>
     [1, 'a'] -> dep/keyify -> $::get -> !OUT::write
     """;
     Tailspin runner =
