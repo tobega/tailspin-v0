@@ -15,10 +15,11 @@ public class ProcessorScope extends Scope {
   private final Map<String, Scope> typestates = new HashMap<>();
   private final DataDictionary localDictionary;
 
-  public ProcessorScope(Scope parentScope, String processorName) {
+  public ProcessorScope(Scope parentScope, String processorName,
+      DataDictionary callingDictionary) {
     this.parentScope = parentScope;
     currentTypestate = processorName;
-    localDictionary = new DataDictionary(parentScope.getLocalDictionary());
+    localDictionary = new DataDictionary(callingDictionary, parentScope.getLocalDictionary());
   }
 
   public void addTypestate(String name, Scope stateScope) {

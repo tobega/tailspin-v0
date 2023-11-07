@@ -8,7 +8,7 @@ import tailspin.types.DataDictionary;
 
 public class BasicScope extends Scope {
 
-  final DataDictionary dataDictionary = new DataDictionary(null);
+  final DataDictionary dataDictionary = new DataDictionary(null, null);
   private final Path basePath;
 
   final Map<String, Object> definitions = new HashMap<>();

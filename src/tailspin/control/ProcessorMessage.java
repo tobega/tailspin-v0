@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.KeyValue;
 import tailspin.types.Processor;
 import tailspin.types.TailspinArray;
@@ -44,38 +45,38 @@ public class ProcessorMessage extends Reference {
     if (receiver instanceof Processor) {
       return  ((Processor) receiver).resolveMessage(message, resolvedParams);
     } else if (message.equals("hashCode")) {
-      if (receiver instanceof byte[]) return (it, parameters) -> ((Number)Arrays.hashCode((byte[]) receiver)).longValue();
-      return (it, params) -> ((Number) receiver.hashCode()).longValue();
+      if (receiver instanceof byte[]) return (it, parameters, callingDictionary) -> ((Number)Arrays.hashCode((byte[]) receiver)).longValue();
+      return (it, params, callingDictionary) -> ((Number) receiver.hashCode()).longValue();
     } else if (receiver instanceof Long) {
       if (message.equals("asBytes")) {
-        return (it, params) -> BigInteger.valueOf((Long) receiver).toByteArray();
+        return (it, params, callingDictionary) -> BigInteger.valueOf((Long) receiver).toByteArray();
       } else if (message.equals("raw")) {
-        return (it, params) -> receiver;
+        return (it, params, callingDictionary) -> receiver;
       } else {
         throw new UnsupportedOperationException("Unknown number message " + message);
       }
     } else if (receiver instanceof String) {
       if (message.equals("asCodePoints")) {
-        return (it, params) -> TailspinArray.value(
+        return (it, params, callingDictionary) -> TailspinArray.value(
             ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList()), 1L);
       } if (message.equals("asUtf8Bytes")) {
-        return (it, params) -> ((String) receiver).getBytes(StandardCharsets.UTF_8);
+        return (it, params, callingDictionary) -> ((String) receiver).getBytes(StandardCharsets.UTF_8);
       } else if (message.equals("raw")) {
-        return (it, params) -> receiver;
+        return (it, params, callingDictionary) -> receiver;
       } else {
         throw new UnsupportedOperationException("Unknown string message " + message);
       }
     } else if (receiver instanceof KeyValue) {
       if (message.equals("key")) {
-        return (it, params) -> ((KeyValue) receiver).getKey();
+        return (it, params, callingDictionary) -> ((KeyValue) receiver).getKey();
       } else if (message.equals("value")) {
-        return (it, params) -> ((KeyValue) receiver).getValue();
+        return (it, params, callingDictionary) -> ((KeyValue) receiver).getValue();
       } else {
         throw new UnsupportedOperationException("Unknown keyValue message " + message);
       }
     } else if (receiver instanceof byte[]) {
       return switch (message) {
-        case "inverse" -> (it, params) -> {
+        case "inverse" -> (it, params, callingDictionary) -> {
           byte[] in = (byte[]) receiver;
           byte[] result = new byte[in.length];
           for (int i = 0; i < in.length; i++) {
@@ -83,10 +84,10 @@ public class ProcessorMessage extends Reference {
           }
           return result;
         };
-        case "length" -> (it, parameters) -> (long) ((byte[]) receiver).length;
-        case "asUtf8String" -> (it, parameters) -> new String((byte[]) receiver,
+        case "length" -> (it, parameters, callingDictionary) -> (long) ((byte[]) receiver).length;
+        case "asUtf8String" -> (it, parameters, callingDictionary) -> new String((byte[]) receiver,
             StandardCharsets.UTF_8);
-        case "asInteger" -> (it, parameters) -> new BigInteger((byte[]) receiver).longValue();
+        case "asInteger" -> (it, parameters, callingDictionary) -> new BigInteger((byte[]) receiver).longValue();
         case "shift" -> new ByteShift(receiver, resolvedParams);
         default -> throw new UnsupportedOperationException("Unknown bytes message " + message);
       };
@@ -121,7 +122,8 @@ public class ProcessorMessage extends Reference {
     }
 
     @Override
-    public Object getResults(Object it, Map<String, Object> parameters) {
+    public Object getResults(Object it, Map<String, Object> parameters,
+        DataDictionary callingDictionary) {
       long amount = (long) resolvedParams.get("left");
       if (amount == 0) return original;
       byte[] fill = (byte[]) resolvedParams.get("fill");

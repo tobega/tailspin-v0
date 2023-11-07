@@ -29,10 +29,10 @@ public class TailspinArray implements Processor, Freezable<TailspinArray>, Decon
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     return switch (message) {
-      case "hashCode" -> (it, params) -> ((Number) array.hashCode()).longValue();
-      case "length" -> (it, params) -> ((Number) array.size()).longValue();
-      case "first" -> (it, params) -> offset;
-      case "last" -> (it, params) -> {
+      case "hashCode" -> (it, params, callingDictionary) -> ((Number) array.hashCode()).longValue();
+      case "length" -> (it, params, callingDictionary) -> ((Number) array.size()).longValue();
+      case "first" -> (it, params, callingDictionary) -> offset;
+      case "last" -> (it, params, callingDictionary) -> {
         if (offset instanceof TaggedIdentifier t) {
           return new TaggedIdentifier(t.getTag(), (Long) t.getValue() + length() - 1L);
         } else if (offset instanceof Measure m) {
@@ -76,7 +76,7 @@ public class TailspinArray implements Processor, Freezable<TailspinArray>, Decon
 
   public Object getOffsetDescription() {
     if (offset instanceof Measure m) {
-      return Long.toString(m.getValue()) + m.getUnit();
+      return "" + m.getValue() + m.getUnit();
     } else if (offset instanceof TaggedIdentifier t) {
       return t.getTag() + "´" + t.getValue();
     } else {

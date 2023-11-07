@@ -18,7 +18,7 @@ public class StdoutProcessor implements Processor {
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
-    return (it, params) -> {
+    return (it, params, callingDictionary) -> {
       if (message.equals("write")) {
         try {
           output.write(StringInterpolation.appendStringValue(new StringBuilder(), it)
@@ -31,5 +31,13 @@ public class StdoutProcessor implements Processor {
       }
       return null;
     };
+  }
+
+  private String formatByteArray(byte[] it) {
+    StringBuilder builder = new StringBuilder();
+    for (byte b : it) {
+      builder.append(String.format("%02x", b));
+    }
+    return builder.toString();
   }
 }

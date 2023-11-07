@@ -21,6 +21,8 @@ import tailspin.matchers.UnitMatch;
 
 public class DataDictionary {
   /* @Nullable */
+  private final DataDictionary callingDictionary;
+  /* @Nullable */
   private final DataDictionary moduleDictionary;
 
   private static final Membrane stringMatch = new Membrane() {
@@ -123,7 +125,9 @@ public class DataDictionary {
 
   public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
-  public DataDictionary(/*@Nullable*/ DataDictionary moduleDictionary) {
+  public DataDictionary(/*@Nullable*/ DataDictionary callingDictionary,
+      DataDictionary moduleDictionary) {
+    this.callingDictionary = callingDictionary;
     this.moduleDictionary = moduleDictionary;
   }
 
@@ -172,16 +176,22 @@ public class DataDictionary {
 
   public Membrane getDataDefinition(String identifier) {
     if (dataDefinitions.containsKey(identifier)) return dataDefinitions.get(identifier);
-    if (moduleDictionary != null) {
+    if (moduleDictionary != null && moduleDictionary.dataDefinitions.containsKey(identifier)) {
       return moduleDictionary.getDataDefinition(identifier);
+    }
+    if (callingDictionary != null) {
+      return callingDictionary.getDataDefinition(identifier);
     }
     return null;
   }
 
   public Object checkDataDefinition(String key, Object data, Scope scope) {
     if (dataDefinitions.containsKey(key)) return checkLocalDefinition(key, data, scope);
-    if (moduleDictionary != null) {
+    if (moduleDictionary != null && moduleDictionary.dataDefinitions.containsKey(key)) {
       return moduleDictionary.checkDataDefinition(key, data, scope);
+    }
+    if (callingDictionary != null) {
+      return callingDictionary.checkDataDefinition(key, data, scope);
     }
     return checkLocalDefinition(key, data, scope);
   }

@@ -10,10 +10,11 @@ public class TransformScope extends NestedScope {
   private Templates templates;
   private final DataDictionary localDictionary;
 
-  public TransformScope(Scope parentScope, String scopeContext) {
+  public TransformScope(Scope parentScope, String scopeContext,
+      DataDictionary callingDictionary) {
     super(parentScope);
     this.scopeContext = scopeContext;
-    localDictionary = new DataDictionary(parentScope.getLocalDictionary());
+    localDictionary = new DataDictionary(callingDictionary, parentScope.getLocalDictionary());
   }
 
   @Override

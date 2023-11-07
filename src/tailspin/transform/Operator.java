@@ -5,6 +5,7 @@ import java.util.Map;
 import tailspin.control.Block;
 import tailspin.control.DataDefinition;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 
 public class Operator extends Templates {
 
@@ -17,9 +18,10 @@ public class Operator extends Templates {
   }
 
   @Override
-  public Object getResults(Object it, Map<String, Object> parameters) {
+  public Object getResults(Object it, Map<String, Object> parameters,
+      DataDictionary callingDictionary) {
     Object[] operands = (Object[]) it;
-    TransformScope scope = createTransformScope(parameters);
+    TransformScope scope = createTransformScope(parameters, callingDictionary);
     scope.defineValue(operandNames[0], operands[0]);
     scope.defineValue(operandNames[1], operands[1]);
     return runInScope(null, scope);

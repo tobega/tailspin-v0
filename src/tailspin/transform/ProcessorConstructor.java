@@ -13,6 +13,7 @@ import tailspin.control.ResultIterator;
 import tailspin.control.TypestateDefinition;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
+import tailspin.types.DataDictionary;
 import tailspin.types.ProcessorInstance;
 
 public class ProcessorConstructor extends Templates {
@@ -26,8 +27,9 @@ public class ProcessorConstructor extends Templates {
   }
 
   @Override
-  public Object getResults(Object it, Map<String, Object> parameters) {
-    ProcessorScope scope = new ProcessorScope(definingScope, name);
+  public Object getResults(Object it, Map<String, Object> parameters,
+      DataDictionary callingDictionary) {
+    ProcessorScope scope = new ProcessorScope(definingScope, name, callingDictionary);
     Scope constructorScope = new NestedScope(scope);
     localDatatypes.forEach(dataDef -> dataDef.getResults(null, constructorScope));
     resolveParameters(expectedParameters, parameters, constructorScope, name);

@@ -24,6 +24,6 @@ public class OperatorApplication implements Expression {
     }
     // Operator parameter does not get autotyped
     return transform.getResults(new Object[] {left.getResults(it, blockScope), right.getResults(it, blockScope)},
-        Map.of());
+        Map.of(), blockScope.getLocalDictionary());
   }
 }
