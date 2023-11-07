@@ -44,14 +44,14 @@ public class ProcessorMessage extends Reference {
   private Transform resolveMessage(Object receiver, Map<String, Object> resolvedParams) {
     if (receiver instanceof Processor) {
       return  ((Processor) receiver).resolveMessage(message, resolvedParams);
+    } else if (message.equals("raw")) {
+      return (it, params, callingDictionary) -> receiver;
     } else if (message.equals("hashCode")) {
       if (receiver instanceof byte[]) return (it, parameters, callingDictionary) -> ((Number)Arrays.hashCode((byte[]) receiver)).longValue();
       return (it, params, callingDictionary) -> ((Number) receiver.hashCode()).longValue();
     } else if (receiver instanceof Long) {
       if (message.equals("asBytes")) {
         return (it, params, callingDictionary) -> BigInteger.valueOf((Long) receiver).toByteArray();
-      } else if (message.equals("raw")) {
-        return (it, params, callingDictionary) -> receiver;
       } else {
         throw new UnsupportedOperationException("Unknown number message " + message);
       }
@@ -61,8 +61,6 @@ public class ProcessorMessage extends Reference {
             ((String) receiver).codePoints().asLongStream().boxed().collect(Collectors.toList()), 1L);
       } if (message.equals("asUtf8Bytes")) {
         return (it, params, callingDictionary) -> ((String) receiver).getBytes(StandardCharsets.UTF_8);
-      } else if (message.equals("raw")) {
-        return (it, params, callingDictionary) -> receiver;
       } else {
         throw new UnsupportedOperationException("Unknown string message " + message);
       }

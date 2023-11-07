@@ -1280,6 +1280,7 @@ You can use the `::raw` message on a tagged identifier to get the base value wit
 ## Built-in messages
 All objects
 * `$::hashCode` returns a hash code consistent with equality.
+* `$::raw` returns the value unchanged, except as documented below (and not generally on Processors)
 
 Arrays
 * `$::length` returns the length of the array's outer dimension.
@@ -1293,11 +1294,9 @@ Keyed values
 Strings
 * `$::asCodePoints` returns an array of Unicode code points corresponding to the string.
 * `$::asUtf8Bytes` returns the string encoded as utf8 [bytes](#bytes)
-* `$::raw` just passes the value through, but is useful to ensure that this is a raw value
 
 Integer
 * `$::asBytes` returns the minimal [bytes value](#bytes) that can represent the integer in twos complement notation.
-* `$::raw` just passes the value through, but is useful to ensure that this is a raw value
 
 Measure
 * `$::raw` returns the magnitude of the measure without the unit.

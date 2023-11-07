@@ -400,4 +400,18 @@ class Structures {
 
     assertEquals("{a: 1, b: 4, c: 5}", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void structureHasRawMessage() throws Exception {
+    String program =
+        "{a: 1} -> $::raw -> !OUT::write\n";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("{a: 1}", output.toString(StandardCharsets.UTF_8));
+  }
 }
