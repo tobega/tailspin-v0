@@ -125,7 +125,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public Value visitSymbolicValue(SymbolicValueContext ctx) {
-    return new SymbolicValue(ctx.localIdentifier(0).getText() + "#", ctx.localIdentifier(1).getText());
+    return new SymbolicValue(ctx.symbolSetName().getText(), ctx.localIdentifier().getText());
   }
 
   @Override

@@ -274,4 +274,78 @@ public class Includes {
 
     assertEquals("8 8", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void includeDataDefinition(@TempDir Path dir) throws Exception {
+    String dep = "data roll <1..6>";
+    Path depFile = dir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = """
+      include 'dep'
+      0 -> \\(<roll> $! \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(dir, input, output, List.of());
+
+    assertEquals("", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void dataDefinitionsAreSharedBetweenIncludedFiles(@TempDir Path dir) throws Exception {
+    String dep = """
+        data foo <{bar: <>}>
+        """;
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    Path depFile = baseDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String other = """
+        include 'dep'
+        templates isFoo <foo> $! end isFoo
+        """;
+    Path otherFile = baseDir.resolve("other.tt");
+    Files.writeString(otherFile, other, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = """
+        include 'dep'
+        include 'other'
+        {bar: 5} -> isFoo -> \\(<foo> 'yes'!\\) -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(baseDir, input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void dataDefinitionsConflicting(@TempDir Path dir) throws Exception {
+    String dep = """
+        data foo <{bar: <>}>
+        """;
+    Path baseDir = Files.createDirectory(dir.resolve("wd"));
+    Path depFile = baseDir.resolve("dep.tt");
+    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String other = """
+        data foo <''>
+        """;
+    Path otherFile = baseDir.resolve("other.tt");
+    Files.writeString(otherFile, other, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
+    String program = """
+        include 'dep'
+        include 'other'
+        1 -> !OUT::write
+        """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(Exception.class, () -> runner.run(baseDir, input, output, List.of()));
+  }
 }

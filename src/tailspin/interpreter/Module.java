@@ -35,8 +35,11 @@ public class Module extends SymbolResolver {
           internalSymbols.add(ds.getDefinedSymbol());
         }
       }
-      if (internalSymbols.isEmpty()) return neededSymbols;
+      //if (internalSymbols.isEmpty()) return neededSymbols;
       Module.this.resolveSymbols(internalSymbols, depScope, providedDependencies, includedFileInstallers);
+      // install all data definitions
+      depScope.getLocalDictionary().dataDefinitions.forEach(
+          (key, value) -> scope.getLocalDictionary().createDataDefinition(prefix + key, value));
       neededSymbols.stream()
           .filter(internalSymbols::contains)
           .forEach(s -> scope.defineValue(prefix + s, depScope.resolveValue(s)));

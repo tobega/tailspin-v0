@@ -29,6 +29,7 @@ public abstract class SymbolResolver {
 
   Set<String> resolveSymbolDependencies(
       Set<String> symbolsToInstall, BasicScope scope, List<SymbolLibrary> providedDependencies, Map<Path, SymbolLibrary.Installer> includedFileInstallers) {
+    if (symbolsToInstall.isEmpty()) return Set.of();
     Map<String, Set<String>> definedSymbols = new HashMap<>();
     for (DefinitionStatement s : getDefinitions()) {
       if (s.getDefinedSymbol() != null) {

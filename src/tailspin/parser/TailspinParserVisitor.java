@@ -257,6 +257,12 @@ public interface TailspinParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitKeyValue(TailspinParser.KeyValueContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link TailspinParser#symbolSetName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSymbolSetName(TailspinParser.SymbolSetNameContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link TailspinParser#symbolicValue}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

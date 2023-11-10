@@ -1,5 +1,6 @@
 package tailspin.matchers;
 
+import java.util.Objects;
 import tailspin.interpreter.Scope;
 import tailspin.types.Membrane;
 import tailspin.types.TaggedIdentifier;
@@ -35,6 +36,24 @@ public class DefinedTag implements Membrane {
       return new TaggedIdentifier(tag, value);
     }
     return value;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DefinedTag that = (DefinedTag) o;
+    return Objects.equals(tag, that.tag) && Objects.equals(baseType,
+        that.baseType) && Objects.equals(definingScope, that.definingScope);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(tag, baseType, definingScope);
   }
 
   @Override

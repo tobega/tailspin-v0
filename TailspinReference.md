@@ -183,6 +183,9 @@ The message `::raw` can be used on a measure to get the magnitude without the un
 Some information is best portrayed by a set of distinct values, either one at a time or in combination.
 The symbol sets in Tailspin are similar to "enums" or "enumerations" in other languages, but the symbols do not have any order or numeric value.
 
+NOTE: In Tailspin it is also possible to declare [types](#types) that take a restricted set of values,
+e.g. `data D6 <1..6>` defines that fields and [tagged values](#tagged-identifiers) named `D6` can only be in the range 1 to 6
+
 A set of symbols is defined in a [data declaration](#defined-types) by giving a name for the set followed by the symbol names between `#{` and `}`
 For example, to define a set of colours: `data colour #{ red, white, blue }`
 A symbolic value can then be written by giving the name of the set, `#`, and the name of the value, for example `colour#white`
@@ -197,6 +200,9 @@ Note that Tailspin does not have boolean values. You could define the set of `bo
 more specific values for your use case. For example, instead of an `ìs_appliance_on` field or variable with a `true` or `false` value,
 it would usually be better to define `appliance_state #{on, off}` and use an `appliance_state#` field. Besides being clearer, it is also possible to extend
 with other states when needed, for example `standby` or `decommissioned`.
+
+To use a symbol set defined in another [module](#using-modules), the name needs to be prefixed by the module identifier, e.g. `colour#red` from module `dep` is used as `dep/colour#red`.
+_WIP_: it is not yet possible to send symbolic values into (needs to lose prefix) and out of (needs to gain prefix) the module.
 
 _Future work_: Symbolic values can be used as indices in symbol maps containing arbitrary values connected to each symbol.
 

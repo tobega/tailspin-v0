@@ -109,7 +109,9 @@ structureExpansion: keyValue
 
 keyValue: key valueProduction;
 
-symbolicValue: localIdentifier TemplateMatch localIdentifier;
+symbolSetName: (externalIdentifier|localIdentifier) TemplateMatch;
+
+symbolicValue: symbolSetName localIdentifier;
 
 templates: templatesReference                        # callDefinedTransform
   | source                        # literalTemplates
@@ -292,7 +294,7 @@ localIdentifier: IDENTIFIER | keyword;
 
 stateIdentifier: STATE_IDENTIFIER;
 
-externalIdentifier: localIdentifier (Slash localIdentifier)+;
+externalIdentifier: localIdentifier Slash localIdentifier;
 
 anyIdentifier: stateIdentifier | localIdentifier | externalIdentifier;
 

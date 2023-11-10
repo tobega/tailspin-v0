@@ -3,6 +3,7 @@ package tailspin.types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import tailspin.TypeError;
@@ -169,7 +170,7 @@ public class DataDictionary {
     Membrane existingDef = dataDefinitions.get(identifier);
     if (existingDef == null) {
       dataDefinitions.put(identifier, def);
-    } else if (existingDef != def) {
+    } else if (!Objects.equals(existingDef, def)) {
       throw new IllegalStateException("Attempt to redefine " + identifier + " from " + existingDef + " to " + def);
     }
   }
