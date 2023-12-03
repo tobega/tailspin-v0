@@ -8,6 +8,7 @@ public class TransformSubComposer implements SubComposer {
   private final SubComposer subComposer;
   private final ChainStage transform;
   private final Scope scope;
+  private Object transformedValues;
 
   TransformSubComposer(SubComposer subComposer, ChainStage transform, Scope scope) {
     this.subComposer = subComposer;
@@ -28,17 +29,29 @@ public class TransformSubComposer implements SubComposer {
 
   @Override
   public Memo nibble(String s, Memo memo) {
-    return subComposer.nibble(s, memo);
+    Memo result = subComposer.nibble(s, memo);
+    if (subComposer.isSatisfied()) {
+      transformedValues = convert(subComposer.getValues());
+    } else {
+      transformedValues = null;
+    }
+    return result;
   }
 
   @Override
   public Memo backtrack(String s, Memo memo) {
-    return subComposer.backtrack(s, memo);
+    Memo result = subComposer.backtrack(s, memo);
+    if (subComposer.isSatisfied()) {
+      transformedValues = convert(subComposer.getValues());
+    } else {
+      transformedValues = null;
+    }
+    return result;
   }
 
   @Override
   public Object getValues() {
-    return convert(subComposer.getValues());
+    return transformedValues;
   }
 
   @Override
