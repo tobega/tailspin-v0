@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -1613,5 +1614,24 @@ public class MutableState {
     runner.run(input, output, List.of());
 
     assertEquals("[{foo: [[5]]}, {foo: [[fum: 1, 7]]}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void freeKeyedValue() throws IOException {
+    String program = """
+      templates key
+        @: (a: $);
+        $@ !
+      end key
+      1 -> key -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("a: 1", output.toString(StandardCharsets.UTF_8));
   }
 }
