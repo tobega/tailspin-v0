@@ -704,6 +704,7 @@ See also [type bounds](#type-bounds-for-matching), [measures](#measures) and [ta
   * At the end of the content matcher, just before `]`, the symbol `VOID` may be written to signify that no extra content is allowed.
   * (Sub)sequences of elements can be matched by enclosing conditions in parentheses, with a colon connecting
     the sequential conditions, e.g. `<[(<=3>:<=4>)]>` to match if the element 4 occurs directly after a 3 anywhere.
+    The sequential conditions may have multipliers which will be matched greedily.
     The entire subsequence may be qualified by a multiplier, e.g. `<[(<=3>:<=4>)=2]>` to match two subsequences of 3 and 4.
   * Note the possibility of using inverse matching to exclude extra content, e.g. `<~[<~=3|=5>]>`
   will test that the array only contains 3's and 5's, i.e. it is not an array that contains an element

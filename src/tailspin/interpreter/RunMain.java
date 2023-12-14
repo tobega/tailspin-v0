@@ -185,7 +185,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   private Reference getReference(TailspinParser.ReferenceContext ctx, String identifier) {
     Reference reference;
-    if (identifier.equals("")) {
+    if (identifier.isEmpty()) {
       reference = Reference.it();
     } else if (identifier.equals("§")) {
       reference = Reference.reflexive();
@@ -557,7 +557,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   @Override
   public CollectionSegmentCriterion visitSequenceMatch(TailspinParser.SequenceMatchContext ctx) {
-    return new SequenceMatch(ctx.matcher().stream().map(this::visitMatcher).collect(Collectors.toList()));
+    return new SequenceMatch(ctx.arrayContentMatcher().stream().map(this::visitArrayContentMatcher).collect(Collectors.toList()));
   }
 
   @Override

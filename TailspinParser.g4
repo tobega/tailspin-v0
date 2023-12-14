@@ -181,7 +181,7 @@ structureContentMatcher: matcher | Void;
 
 arrayContentMatcher: (matcher|sequenceMatch) multiplier?;
 
-sequenceMatch: LeftParen matcher (Colon matcher)+ RightParen;
+sequenceMatch: LeftParen arrayContentMatcher (Colon arrayContentMatcher)+ RightParen;
 
 literalMatch: Equal source;
 
