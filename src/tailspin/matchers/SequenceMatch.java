@@ -20,19 +20,19 @@ public class SequenceMatch implements CollectionSegmentCriterion {
     int consumed = 0;
     for (CollectionCriterion c : criteria) {
       int chop;
-      while (!tail.isEmpty() && (chop = c.isMetAt(tail, it, scope)) != 0) {
+      while (!tail.isEmpty() && !c.isSatisfied(it, scope) && (chop = c.isMetAt(tail, it, scope)) != 0) {
         consumed += chop;
         tail = tail.tailFromNative(chop);
       }
       if (!c.isSatisfied(it, scope)) {
         return 0;
       }
+      while (!tail.isEmpty() && (chop = c.isMetAt(tail, it, scope)) != 0 && c.isSatisfied(it, scope)) {
+        consumed += chop;
+        tail = tail.tailFromNative(chop);
+      }
     }
-    if (criteria.stream().allMatch(c -> c.isSatisfied(it, scope))) {
-      return consumed;
-    } else {
-      return 0;
-    }
+    return consumed;
   }
 
   @Override
