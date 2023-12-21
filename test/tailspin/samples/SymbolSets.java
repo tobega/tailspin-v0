@@ -159,13 +159,30 @@ public class SymbolSets {
                 { colour#: colour#white } -> !OUT::write
                 """;
         Tailspin runner =
-                Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
         ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         runner.run(input, output, List.of());
 
         assertEquals("{colour#: white}", output.toString(StandardCharsets.UTF_8));
+    }
+
+    @Test
+    void symbolValuedFieldCanBeAccessed() throws IOException {
+        String program = """
+                data colour #{red, white, blue}
+                
+                { colour#: colour#white } -> $.colour# -> !OUT::write
+                """;
+        Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+        ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        runner.run(input, output, List.of());
+
+        assertEquals("white", output.toString(StandardCharsets.UTF_8));
     }
 
     @Test

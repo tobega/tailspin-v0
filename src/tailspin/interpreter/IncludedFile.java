@@ -9,7 +9,7 @@ import tailspin.Tailspin;
 import tailspin.control.Value;
 import tailspin.interpreter.SymbolLibrary.Installer;
 
-class IncludedFile {
+public class IncludedFile {
   final Value specifier;
 
   IncludedFile(Value specifier) {

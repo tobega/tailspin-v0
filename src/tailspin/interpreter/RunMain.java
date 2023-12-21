@@ -209,7 +209,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
       }
     }
     for (TailspinParser.StructureReferenceContext sdc : ctx.structureReference()) {
-      reference = resolveFieldDereference(reference, sdc.FieldReference().getText().substring(1));
+      reference = resolveFieldDereference(reference,
+          sdc.FieldReference().getText().substring(1)
+          + (sdc.localIdentifier() == null ? "" : "/" + sdc.localIdentifier().getText())
+          + (sdc.TemplateMatch() == null ? "" : sdc.TemplateMatch().getText())
+      );
       if (sdc.lens() != null) {
         reference = resolveLens(sdc.lens(), reference);
       }

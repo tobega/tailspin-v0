@@ -890,6 +890,7 @@ public class Modules {
     String program = """
       use 'module:dep' stand-alone
       { dep/colour#: dep/colour#white } -> !OUT::write
+      { dep/colour#: dep/colour#white } -> $.dep/colour# -> !OUT::write
     """;
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
@@ -898,6 +899,6 @@ public class Modules {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(baseDir, input, output, List.of());
 
-    assertEquals("{dep/colour#: white}", output.toString(StandardCharsets.UTF_8));
+    assertEquals("{dep/colour#: white}white", output.toString(StandardCharsets.UTF_8));
   }
 }

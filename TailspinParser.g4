@@ -67,7 +67,7 @@ sourceReference: (SourceMarker anyIdentifier? | Reflexive) reference Message? pa
 
 reference: lens? structureReference*;
 
-structureReference: FieldReference (Slash localIdentifier)? lens?;
+structureReference: FieldReference (Slash localIdentifier)?  TemplateMatch? lens?;
 
 lens: LeftParen dimensionReference (SemiColon dimensionReference)*  RightParen;
 
