@@ -97,6 +97,23 @@ class Composer {
   }
 
   @Test
+  void composeBytesValue() throws IOException {
+    String program = """
+        composer bytes
+          <HEX>
+        end bytes
+        '23b46a' -> bytes -> $::inverse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("dc4b95", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void composeTaggedString() throws IOException {
     String program = """
         composer tag

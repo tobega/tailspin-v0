@@ -490,6 +490,7 @@ There are also built-in composition matchers:
   - `<INT>` which parses an integer. To parse an integer as a [tagged identifier](#tagged-identifiers), prepend the tag, e.g. `<product_id´INT>` to tag as a product_id.
     To parse an integer as a [measure](#measures) you can add a unit, e.g. `<INT "u">`, which creates a measure with unit "u". `<INT "1">` parses a scalar.
   - `<WS>` for a sequence of whitespace characters.
+  - `<HEX>` for a hexadecimal string to be parsed as a [bytes](#bytes) value
 
 A composition matcher can have a [multiplier qualifier](#multipliers) after it to determine repetitions.
 

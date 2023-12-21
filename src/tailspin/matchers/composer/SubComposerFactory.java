@@ -11,6 +11,7 @@ import tailspin.control.Expression;
 import tailspin.control.Value;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.RangeMatch;
+import tailspin.types.Bytes;
 import tailspin.types.Unit;
 
 public class SubComposerFactory {
@@ -24,6 +25,8 @@ public class SubComposerFactory {
     namedValueCreators.put("INT", Long::valueOf);
     namedPatterns.put("WS", Pattern.compile("\\s+"));
     namedValueCreators.put("WS", Function.identity());
+    namedPatterns.put("HEX", Pattern.compile(("[0-9a-fA-F]+")));
+    namedValueCreators.put("HEX", Bytes::fromString);
   }
 
   public SubComposerFactory(Map<String, List<CompositionSpec>> definedSequences) {

@@ -17,6 +17,7 @@ import tailspin.testing.Assertion;
 import tailspin.transform.*;
 import tailspin.transform.lens.*;
 import tailspin.literals.SymbolicValue;
+import tailspin.types.Bytes;
 import tailspin.types.KeyValue;
 import tailspin.types.Membrane;
 import tailspin.types.Unit;
@@ -1150,11 +1151,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public Expression visitByteValue(ByteValueContext ctx) {
     if (ctx.Bytes() != null) {
       String hex = ctx.Bytes().getText();
-      byte[] bytes = new byte[hex.length()/2];
-      for (int i = 0; i < hex.length(); i += 2) {
-        bytes[i / 2] = (byte) ((Character.digit(hex.charAt(i), 16) << 4)
-            + Character.digit(hex.charAt(i+1), 16));
-      }
+      byte[] bytes = Bytes.fromString(hex);
       return new BytesConstant(bytes);
     }
     if (ctx.LeftParen() != null) {
