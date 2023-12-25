@@ -21,7 +21,7 @@ public class ArithmeticOperation implements Value {
     Add(false, false) {
       @Override
       public long apply(long left, long right) {
-        return left + right;
+        return Math.addExact(left, right);
       }
 
       @Override
@@ -32,7 +32,7 @@ public class ArithmeticOperation implements Value {
     Subtract(false, false) {
       @Override
       public long apply(long left, long right) {
-        return left - right;
+        return Math.subtractExact(left, right);
       }
 
       @Override
@@ -43,7 +43,7 @@ public class ArithmeticOperation implements Value {
     Multiply(true, true) {
       @Override
       public long apply(long left, long right) {
-        return left * right;
+        return Math.multiplyExact(left, right);
       }
 
       @Override
