@@ -126,6 +126,6 @@ public class ArithmeticOperation implements Value {
 
   @Override
   public String toString() {
-    return left + " " + op + " " + right;
+    return "(" + left + " " + op + " " + right + ")";
   }
 }
