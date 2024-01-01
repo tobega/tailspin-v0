@@ -26,6 +26,7 @@
 - default parameters
 - Asynchronous processes: callbacks, timeouts/deadlines, cancellation
 - How should types (data declarations) migrate between scopes? Specifically how to use types from a module?
+- Vector arithmetic! Both on arrays and structures!
 
 #### Confusing
 * It is a bit difficult to create generic code handling untyped numbers. Perhaps it should be?
