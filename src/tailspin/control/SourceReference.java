@@ -21,7 +21,7 @@ public class SourceReference implements Expression {
       value = Reference.freeze(value);
     }
     if (value instanceof Transform) {
-      return ((Transform) value).getResults(null, Map.of(), scope.getLocalDictionary());
+      return ((Transform) value).getResults(null, Map.of());
     }
     return value;
   }

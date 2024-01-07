@@ -1,9 +1,5 @@
 package tailspin.transform;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import tailspin.control.DataDefinition;
 import tailspin.control.Expression;
 import tailspin.interpreter.Scope;
@@ -11,11 +7,12 @@ import tailspin.matchers.composer.CompositionSpec;
 import tailspin.matchers.composer.Memo;
 import tailspin.matchers.composer.SequenceSubComposer;
 import tailspin.matchers.composer.SubComposerFactory;
-import tailspin.types.DataDictionary;
-import tailspin.types.KeyValue;
-import tailspin.types.Structure;
-import tailspin.types.TaggedIdentifier;
-import tailspin.types.Transform;
+import tailspin.types.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class Composer implements Transform {
 
@@ -39,9 +36,8 @@ public class Composer implements Transform {
   }
 
   @Override
-  public Object getResults(Object it, Map<String, Object> parameters,
-      DataDictionary callingDictionary) {
-    TransformScope scope = createTransformScope(parameters, callingDictionary);
+  public Object getResults(Object it, Map<String, Object> parameters) {
+    TransformScope scope = createTransformScope(parameters);
     if (stateAssignment != null) {
       stateAssignment.getResults(null, scope);
     }
@@ -60,9 +56,8 @@ public class Composer implements Transform {
     return subComposer.getValues();
   }
 
-  private TransformScope createTransformScope(Map<String, Object> parameters,
-      DataDictionary callingDictionary) {
-    TransformScope scope = new TransformScope(definingScope, scopeName, callingDictionary);
+  private TransformScope createTransformScope(Map<String, Object> parameters) {
+    TransformScope scope = new TransformScope(definingScope, scopeName);
     localDatatypes.forEach(dataDef -> dataDef.getResults(null, scope));
     ExpectedParameter.resolveParameters(expectedParameters, parameters, scope, scope.scopeContext);
     return scope;

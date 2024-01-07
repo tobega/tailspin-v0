@@ -1,7 +1,8 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import tailspin.Tailspin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,9 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import tailspin.Tailspin;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class Modules {
   @Test
@@ -428,95 +429,6 @@ public class Modules {
     assertEquals("10", output.toString(StandardCharsets.UTF_8));
   }
 
-  
-  @Test
-  void dataDefinitionWorksInModuleTemplates(@TempDir Path dir) throws Exception {
-    String dep = """
-        templates keyify
-          [$... -> (key:$)] !
-        end keyify
-    """;
-    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
-    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
-    Path depFile = moduleDir.resolve("dep.tt");
-    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
-    Path baseDir = Files.createDirectory(dir.resolve("wd"));
-    String program = """
-    use 'module:dep' stand-alone
-    data key <>
-    [1, 'a'] -> dep/keyify -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(baseDir, input, output, List.of());
-
-    assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  
-  @Test
-  void dataDefinitionWorksInModuleComposer(@TempDir Path dir) throws Exception {
-    String dep = """
-        composer keyify
-          [<value>+]
-          rule value: <INT|'\\w+'> -> (key:$) (<WS>?)
-        end keyify
-    """;
-    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
-    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
-    Path depFile = moduleDir.resolve("dep.tt");
-    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
-    Path baseDir = Files.createDirectory(dir.resolve("wd"));
-    String program = """
-    use 'module:dep' stand-alone
-    data key <>
-    '1 a' -> dep/keyify -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(baseDir, input, output, List.of());
-
-    assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  
-  @Test
-  void dataDefinitionWorksInModuleProcessor(@TempDir Path dir) throws Exception {
-    String dep = """
-        processor keyify
-          @: [$... -> (key:$)];
-          source get
-            $@keyify !
-          end get
-        end keyify
-    """;
-    Path moduleDir = Files.createDirectory(dir.resolve("modules"));
-    System.setProperty("TAILSPIN_MODULES", moduleDir.toString());
-    Path depFile = moduleDir.resolve("dep.tt");
-    Files.writeString(depFile, dep, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.SYNC);
-    Path baseDir = Files.createDirectory(dir.resolve("wd"));
-    String program = """
-    use 'module:dep' stand-alone
-    data key <>
-    [1, 'a'] -> dep/keyify -> $::get -> !OUT::write
-    """;
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(baseDir, input, output, List.of());
-
-    assertEquals("[key: 1, key: a]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  
   @Test
   void noStatementsOrUnusedDefinitionsRunInModule(@TempDir Path dir) throws Exception {
     String dep = """

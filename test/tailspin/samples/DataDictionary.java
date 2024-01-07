@@ -1,16 +1,17 @@
 package tailspin.samples;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Test;
+import tailspin.Tailspin;
+import tailspin.TypeError;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import tailspin.Tailspin;
-import tailspin.TypeError;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class DataDictionary {
   @Test
@@ -283,7 +284,27 @@ public class DataDictionary {
     {x: 3} -> !OUT::write
     """;
     Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
+  void autotypingOfNonLocalAppliesInDefiningScope() throws IOException {
+    String program = """
+    templates foo
+      {x: $} -> !OUT::write
+    end foo
+    templates bar
+      {x: $} -> !OUT::write
+    end bar
+    'apple' -> foo -> !VOID
+    3 -> bar -> !VOID
+    """;
+    Tailspin runner =
+            Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
     ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();

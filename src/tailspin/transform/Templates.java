@@ -1,18 +1,18 @@
 package tailspin.transform;
 
-import static tailspin.transform.ExpectedParameter.resolveParameters;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import tailspin.control.Block;
 import tailspin.control.DataDefinition;
 import tailspin.control.DelayedExecution;
 import tailspin.interpreter.NestedScope;
 import tailspin.interpreter.Scope;
-import tailspin.types.DataDictionary;
 import tailspin.types.Transform;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import static tailspin.transform.ExpectedParameter.resolveParameters;
 
 public class Templates implements Transform {
   final String name;
@@ -34,15 +34,13 @@ public class Templates implements Transform {
   }
 
   @Override
-  public Object getResults(Object it, Map<String, Object> parameters,
-      DataDictionary callingDictionary) {
-    TransformScope scope = createTransformScope(parameters, callingDictionary);
+  public Object getResults(Object it, Map<String, Object> parameters) {
+    TransformScope scope = createTransformScope(parameters);
     return runInScope(it, scope);
   }
 
-  TransformScope createTransformScope(Map<String, Object> parameters,
-      DataDictionary callingDictionary) {
-    TransformScope scope = new TransformScope(definingScope, name, callingDictionary);
+  TransformScope createTransformScope(Map<String, Object> parameters) {
+    TransformScope scope = new TransformScope(definingScope, name);
     scope.setTemplates(this);
     localDatatypes.forEach(dataDef -> dataDef.getResults(null, scope));
     resolveParameters(expectedParameters, parameters, scope, name);

@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import tailspin.control.ResultIterator;
-import tailspin.types.DataDictionary;
 import tailspin.types.Processor;
 import tailspin.types.TaggedIdentifier;
 import tailspin.types.TailspinArray;
@@ -63,8 +62,7 @@ class JavaInvocation implements Transform {
   }
 
   @Override
-  public Object getResults(Object it, Map<String, Object> unused,
-      DataDictionary callingDictionary) {
+  public Object getResults(Object it, Map<String, Object> unused) {
     List<Object> params = it == null ? List.of() :
         ((it instanceof TailspinArray) ? toList((TailspinArray) it) : List.of(it));
     Executable[] methods = c.getMethods();

@@ -1,16 +1,12 @@
 package tailspin.transform;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import tailspin.control.Expression;
 import tailspin.control.ResultIterator;
 import tailspin.control.TemplatesDefinition;
 import tailspin.interpreter.Scope;
-import tailspin.types.DataDictionary;
 import tailspin.types.TailspinArray;
+
+import java.util.*;
 
 public class ArrayTemplates implements Expression {
   private final List<String> loopVariables;
@@ -24,11 +20,10 @@ public class ArrayTemplates implements Expression {
   @Override
   public Object getResults(Object it, Scope definingScope) {
     Templates templates = templatesDefinition.define(definingScope);
-    return runArrayTemplate(it, templates, definingScope.getLocalDictionary());
+    return runArrayTemplate(it, templates);
   }
 
-  private TailspinArray runArrayTemplate(Object oIt, Templates templates,
-      DataDictionary callingDictionary) {
+  private TailspinArray runArrayTemplate(Object oIt, Templates templates) {
     if (!(oIt instanceof TailspinArray)) {
       throw new UnsupportedOperationException("Cannot apply array templates to " + oIt.getClass());
     }
@@ -53,7 +48,7 @@ public class ArrayTemplates implements Expression {
           counters.put(loopVariables.get(i), dimLists[i].getTailspinIndex(dimCounters[i]));
         }
         Object itemIt = dimLists[lastIdx].getNative(dimCounters[lastIdx]);
-        ResultIterator.forEach(runElement(templates, callingDictionary, counters, itemIt), results[lastIdx]::append);
+        ResultIterator.forEach(runElement(templates, counters, itemIt), results[lastIdx]::append);
       }
       int idx = lastIdx - 1;
       while (idx >= 0) {
@@ -75,9 +70,9 @@ public class ArrayTemplates implements Expression {
     return results[0];
   }
 
-  private static Object runElement(Templates templates, DataDictionary callingDictionary,
+  private static Object runElement(Templates templates,
       Map<String, Object> counters, Object itemIt) {
-    TransformScope scope = templates.createTransformScope(Map.of(), callingDictionary);
+    TransformScope scope = templates.createTransformScope(Map.of());
     for (Map.Entry<String, Object> counter : counters.entrySet()) {
       scope.defineValue(counter.getKey(), counter.getValue());
     }

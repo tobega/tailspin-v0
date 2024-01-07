@@ -12,7 +12,7 @@ public class SystemProcessor implements Processor {
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
-    return (it, params, callingDictionary) -> switch (message) {
+    return (it, params) -> switch (message) {
       case "nanoCount" -> System.nanoTime();
       case "randomInt" -> Math.abs(random.nextLong() % ((Number) it).longValue());
       case "property" -> System.getenv(it.toString());

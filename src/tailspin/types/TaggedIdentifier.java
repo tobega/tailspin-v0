@@ -33,9 +33,9 @@ public class TaggedIdentifier implements Processor {
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
     if (message.equals("hashCode")) {
-      return (it, params, callingDictionary) -> ((Number) value.hashCode()).longValue();
+      return (it, params) -> ((Number) value.hashCode()).longValue();
     } else if (message.equals("raw")) {
-      return (it, params, callingDictionary) -> value;
+      return (it, params) -> value;
     } else {
       throw new UnsupportedOperationException("Unknown tagged identifier message " + message);
     }

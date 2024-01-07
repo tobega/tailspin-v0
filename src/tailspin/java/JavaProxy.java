@@ -32,7 +32,7 @@ public class JavaProxy implements InvocationHandler {
       convertedArgs = JavaTypeConverter.tailspinTypeOf(Arrays.asList(args));
     }
     Object results = processor.resolveMessage(method.getName(), Map.of())
-        .getResults(convertedArgs, Map.of(), null); // Can probably get away with null
+        .getResults(convertedArgs, Map.of()); // Can probably get away with null
     return ResultIterator.resolveSideEffects(results);
   }
 }

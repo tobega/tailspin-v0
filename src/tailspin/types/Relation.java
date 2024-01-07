@@ -96,8 +96,8 @@ public class Relation implements Processor, Deconstructible {
 
   @Override
   public Transform resolveMessage(String message, Map<String, Object> parameters) {
-    if (message.equals("raw")) return (it, params, callingDictionary) -> this;
-    if (message.equals("count")) return (it, params, callingDictionary) -> (long) contents.size();
+    if (message.equals("raw")) return (it, params) -> this;
+    if (message.equals("count")) return (it, params) -> (long) contents.size();
     throw new UnsupportedOperationException("Unknown relation message " + message);
   }
 

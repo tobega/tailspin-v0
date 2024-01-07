@@ -1,11 +1,12 @@
 package tailspin.transform;
 
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import tailspin.interpreter.Scope;
 import tailspin.types.DataDictionary;
 import tailspin.types.Transform;
+
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProcessorScope extends Scope {
 
@@ -15,11 +16,10 @@ public class ProcessorScope extends Scope {
   private final Map<String, Scope> typestates = new HashMap<>();
   private final DataDictionary localDictionary;
 
-  public ProcessorScope(Scope parentScope, String processorName,
-      DataDictionary callingDictionary) {
+  public ProcessorScope(Scope parentScope, String processorName) {
     this.parentScope = parentScope;
     currentTypestate = processorName;
-    localDictionary = new DataDictionary(callingDictionary, parentScope.getLocalDictionary());
+    localDictionary = new DataDictionary(parentScope.getLocalDictionary());
   }
 
   public void addTypestate(String name, Scope stateScope) {
