@@ -114,6 +114,30 @@ public class DataDictionary {
     }
   }
 
+  private class PendingAutotype implements Membrane {
+    private final String key;
+
+      private PendingAutotype(String key) {
+          this.key = key;
+      }
+
+      @Override
+    public boolean matches(Object toMatch, Object it, Scope scope, Membrane typeBound) {
+        if (toMatch instanceof TaggedIdentifier t && t.getTag().equals(key)) {
+          toMatch = t.getValue();
+        }
+      return checkLocalDefinition(key, toMatch, scope) != null;
+    }
+
+    @Override
+    public Object inContext(Object value) {
+      if (value instanceof TaggedIdentifier t && t.getTag().equals(key)) {
+        value = t.getValue();
+      }
+        return checkLocalDefinition(key, value, null);
+    }
+  }
+
   public final Map<String, Membrane> dataDefinitions = new HashMap<>();
 
   public DataDictionary(DataDictionary moduleDictionary) {
@@ -168,7 +192,15 @@ public class DataDictionary {
     if (moduleDictionary != null) {
       return moduleDictionary.getDataDefinition(identifier);
     }
-    return null;
+    return new PendingAutotype(identifier);
+  }
+
+  public boolean hasDataDefinition(String identifier) {
+    if (dataDefinitions.containsKey(identifier)) return true;
+    if (moduleDictionary != null) {
+      return moduleDictionary.hasDataDefinition(identifier);
+    }
+    return false;
   }
 
   public Object checkDataDefinition(String key, Object data, Scope scope) {

@@ -502,6 +502,56 @@ public class TaggedIdentifier {
   }
 
   @Test
+  void unknownTaggedStringEqualsRawStringInContext() throws Exception {
+    String program = """
+    source sneaky
+      data city local
+      {city: 'London'} !
+    end sneaky
+    $sneaky -> \\(
+      <{city: <='London'>}> 'yes'!
+      <> 'no'!
+    \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("yes", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void unknownStereotypeAutotypes() throws Exception {
+    String program = """
+    source sneaky
+      data id local
+      {id: 'abc'} !
+    end sneaky
+    source sneaky2
+      data id local
+      {id: 53} !
+    end sneaky2
+    $sneaky -> \\(
+      <{id: <='abc'>}> 'yes'!
+      <> 'no'!
+    \\) -> !OUT::write
+    $sneaky2 -> \\(
+      <{id: <=53>}> 'yes'!
+      <> 'no'!
+    \\) -> !OUT::write
+    """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    assertThrows(TypeError.class, () -> runner.run(input, output, List.of()));
+  }
+
+  @Test
   void taggedStringEqualsSelfInContext() throws Exception {
     String program = """
     def foo: {city: 'London'};

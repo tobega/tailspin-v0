@@ -17,7 +17,7 @@ public class ExpectedParameter {
     for (ExpectedParameter expectedParameter : expectedParameters) {
       if (parameters.containsKey(expectedParameter.name)) {
         foundParameters++;
-        if (scope.getLocalDictionary().getDataDefinition(expectedParameter.name) == null) {
+        if (!scope.getLocalDictionary().hasDataDefinition(expectedParameter.name)) {
           // make the definition local
           scope.getLocalDictionary().createDataDefinition(expectedParameter.name, null);
         }
