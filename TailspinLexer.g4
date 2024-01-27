@@ -37,6 +37,8 @@ DeleteMarker: '^';
 
 Reflexive: '§';
 
+TemplateMarker: '_';
+
 And: '&';
 
 Slash: '/';
@@ -200,11 +202,11 @@ mode IN_STRING;
 
 StartCharacterCode: '$#' { ctx.push('$'); } -> pushMode(DEFAULT_MODE);
 
-StartStringInterpolate: '$' { ctx.push('$'); } -> pushMode(DEFAULT_MODE);
+StartStringInterpolate: ('$' | '§') { ctx.push('$'); } -> pushMode(DEFAULT_MODE);
 
 STRING_TEXT: STRING_CHAR+;
 
-fragment STRING_CHAR: '\'\'' | '$$' | ~['$];
+fragment STRING_CHAR: '\'\'' | '$$' | '§§' | ~['$§];
 
 END_STRING: '\'' {ctx.pop() == '\''}? -> popMode;
 

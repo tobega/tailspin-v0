@@ -60,7 +60,10 @@ source: rangeLiteral
   | operatorExpression
   | taggedValue
   | symbolicValue
+  | stringTemplate
 ;
+
+stringTemplate: TemplateMarker stringLiteral;
 
 sourceReference: (SourceMarker anyIdentifier? | Reflexive) reference Message? parameterValues?
   | DeleteMarker stateIdentifier reference;
@@ -69,7 +72,7 @@ reference: lens? structureReference*;
 
 structureReference: FieldReference (Slash localIdentifier)?  TemplateMatch? lens?;
 
-lens: LeftParen dimensionReference (SemiColon dimensionReference)*  RightParen;
+lens: LeftParen dimensionReference? (SemiColon dimensionReference)*  RightParen;
 
 dimensionReference: simpleDimension|multiValueDimension|projection|key|localIdentifier|grouping;
 
@@ -127,7 +130,7 @@ templatesReference:  anyIdentifier reference Message? parameterValues?;
 
 parameterValues: And LeftBrace (parameterValue Comma?)+ RightBrace;
 
-parameterValue: key (valueChain|templatesReference|(Colon lens | Colon LeftParen RightParen));
+parameterValue: key (valueChain|templatesReference|(Colon lens));
 
 templatesBody: block matchTemplate*
   | matchTemplate+

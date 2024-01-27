@@ -620,4 +620,83 @@ class Strings {
 
     assertEquals("abcbar", output.toString(StandardCharsets.UTF_8));
   }
+
+  @Test
+  void interpolationInProjection() throws IOException {
+    String program = """
+      [{greeting: 'Hello', name: 'Anna'}] -> $({phrase: '§.greeting; §.name;'}) -> !OUT::write
+      """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[{phrase: Hello Anna}]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void interpolationTemplate() throws IOException {
+    String program = """
+      def template: _'Hello §.name;';
+      {name: 'Anna'} -> template -> !OUT::write
+      """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("Hello Anna", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void interpolationTemplateStructure() throws IOException {
+    String program = """
+      def greeting: {en: _'Hello §.name;', fr: _'Salut §.name;'};
+      {name: 'Anna'} -> greeting.fr -> !OUT::write
+      """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("Salut Anna", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void interpolationTemplateArray() throws IOException {
+    String program = """
+      def greeting: [ _'Hello §.name;', _'Salut §.name;'];
+      {name: 'Anna'} -> greeting(2) -> !OUT::write
+      """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("Salut Anna", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  void dollarIsImmediateInInterpolationTemplate() throws IOException {
+    String program = """
+      def template: 'Salut' -> _'$; §.name;';
+      {name: 'Anna'} -> template -> !OUT::write
+      """;
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("Salut Anna", output.toString(StandardCharsets.UTF_8));
+  }
 }

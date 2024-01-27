@@ -121,6 +121,9 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.symbolicValue() != null) {
       return visitSymbolicValue(ctx.symbolicValue());
     }
+    if (ctx.stringTemplate() != null) {
+      return  visitStringTemplate(ctx.stringTemplate());
+    }
     throw new UnsupportedOperationException(ctx.getText());
   }
 
@@ -186,7 +189,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
 
   private Reference getReference(TailspinParser.ReferenceContext ctx, String identifier) {
     Reference reference;
-    if (identifier.isEmpty()) {
+    if (identifier.isEmpty() || identifier.equals("$")) {
       reference = Reference.it();
     } else if (identifier.equals("§")) {
       reference = Reference.reflexive();
@@ -757,9 +760,6 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.lens() != null) {
       return new KeyValue(key, visitLens(ctx.lens()));
     }
-    if (ctx.Colon() != null) {
-      return new KeyValue(key, new Lens(List.of()));
-    }
     throw new IllegalArgumentException("Unknown parameter value " + ctx.getText());
   }
 
@@ -825,6 +825,11 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   }
 
   @Override
+  public Expression visitStringTemplate(StringTemplateContext ctx) {
+    return new StringTemplate(collectStringContent(ctx.stringLiteral()));
+  }
+
+  @Override
   public Value visitStringLiteral(TailspinParser.StringLiteralContext ctx) {
     return new StringLiteral(collectStringContent(ctx));
   }
@@ -847,8 +852,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
   public Value visitStringInterpolate(TailspinParser.StringInterpolateContext ctx) {
     if (ctx.interpolateEvaluate() != null) {
       return visitInterpolateEvaluate(ctx.interpolateEvaluate());
-    }
-    if (ctx.characterCode() != null) {
+    } else if (ctx.characterCode() != null) {
       return new CodedCharacter(visitArithmeticValue(ctx.characterCode().arithmeticValue()));
     }
     throw new UnsupportedOperationException();
@@ -860,7 +864,7 @@ public class RunMain extends TailspinParserBaseVisitor<Object> {
     if (ctx.Colon() != null) {
       interpolation = visitSource(ctx.source());
     } else {
-      String identifier = ctx.anyIdentifier() == null ? "" : visitAnyIdentifier(ctx.anyIdentifier());
+      String identifier = ctx.anyIdentifier() == null ? ctx.StartStringInterpolate().getText() : visitAnyIdentifier(ctx.anyIdentifier());
       interpolation = createSourceReference(identifier, ctx.reference(), ctx.Message(), ctx.parameterValues());
     }
     if (ctx.transform() != null) {

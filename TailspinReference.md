@@ -454,6 +454,17 @@ is new for each element.
 As with inline templates, an optional name can be attached,
 e.g. `[[1,2,3],[4,5,6]] -> \munge[i;j]($ * $i + $j !\munge)`
 
+#### String templates
+You can create templates for how to convert data into a string, for example if you need to have different language outputs.
+The syntax is to prefix a string with underscore `_`. In the string, `$` represents the current value at the site of definition,
+while the reflexive identifier `§` will be applied to the current value when the string template is used.
+```
+def format: _'I have §.qty; §.item;';
+
+{qty: 5, item: 'apples'} -> format -> !OUT::write 
+```
+will print `I have 5 apples`. Note that the templates is used by name as with regular templates.
+
 ### Composer
 A composer takes a string and composes it into other objects according to the specified pattern.
 A pattern consists of a sequence of result-constructing symbols and composition matchers. Sequences may be put in
@@ -615,8 +626,11 @@ with [relations](#relations) and relational algebra, where a "projection" is a t
 a subset of the attributes of each tuple/structure. This projection can also comprise renamings of attributes and extensions with
 calculated attributes, e.g. `$({item:, distance: §.x + §.y})` will remove all attributes except "item" from each tuple and append
 a new attribute "distance" equal to the sum of the previous x and y attributes. Note the use of the reflexive identifier `§` to refer
-to the current tuple being projected, while `$` would still refer to the current value being processed in the chain.
+to each structure being projected, while `$` would refer to the current value being processed in the chain where the lens is defined.
 These projections can also be used to transform individual [structure](#structures) values or [arrays](#arrays) of structures.
+
+NOTE: The `$` in a lens is only evaluated when the lens is used, even if it still refers to where the lens was defined.
+This can make a difference if it refers to a mutable object (a processor).
 
 Another powerful transformational projection that can be applied to relations and arrays of structures is a grouping collection.
 You first  specify the word `collect` followed by a structure where keys are paired with a reference to a

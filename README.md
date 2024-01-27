@@ -1,4 +1,15 @@
 # tailspin-v0
+
+## Status
+The next step in the evolution of Tailspin is coming up, starting work in https://github.com/tobega/tailspin-v0.5
+
+The syntax will mainly remain the same, but some things will be reworked from learnings in https://tobega.blogspot.com/2024/01/usability-in-programming-language.html
+
+The implementation will also be redone from scratch, aiming at using tree-sitter and graal-vm Truffle
+
+This repo still contains a working copy of the Tailspin evolution up until 2024-01-27.
+
+## Introduction
 Tailspin simplifies data transfer and the processing of data according to rules and conditions.
 Thanks to its declarative data structures and corresponding condition matching syntax,
 many algorithms look exactly like the specification, for example, compare the
@@ -27,14 +38,6 @@ There is also an example of integrating with java to create a [rock-paper-scisso
 
 Some of my thinking that went into tailspin is elaborated in my [perfect programming language essay](https://cygni.se/the-perfect-programming-language/)
 and in my [multidimensional plasma essay](https://cygni.se/is-your-programming-language-made-of-multidimensional-plasma/).
-
-## Status
-The syntax has been mainly determined to be sane and runnable.
-Thoughts somewhere on the roadmap are in [my notes](Notes.md)
-
-Most recent addition is relational values that can be manipulated through relational algebra. A good example is [this solution](https://github.com/tobega/aoc2020/blob/main/a21ra.tt) to the [adventofcode 2020 day 21 problem](https://adventofcode.com/2020/day/21)
-
-The next step is implementing automatic types and units (on branch data-dictionary)
 
 ## Code samples
 Small code samples can be found in the [samples folder](https://github.com/tobega/tailspin-v0/tree/master/samples).
