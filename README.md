@@ -18,7 +18,7 @@ and the [json specification](https://www.json.org/json-en.html).
 
 Tailspin has a rather different-looking syntax, tl;dr; @ is mutable state, $ is the current value, processing is by an assembly-line
 of steps separated by -> where each step creates the next current value as input to the next step, and anything inside angle brackets (<>) is a match expression.
-For a quick introduction to Tailspin, see [snippets compared to javascript](https://tobega.blogspot.com/2021/05/learning-tailspin-by-comparing-to.html) or the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html). Tailspin "functions" can return a stream of zero or more values, I've written about [how returning no value at all is quite powerful](https://tobega.blogspot.com/2021/05/the-power-of-nothing.html).
+For a quick introduction to Tailspin, see [learn Tailspin in y minutes](https://learnxinyminutes.com/docs/tailspin/) or look at [snippets compared to javascript](https://tobega.blogspot.com/2021/05/learning-tailspin-by-comparing-to.html) or the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html). Tailspin "functions" can return a stream of zero or more values, I've written about [how returning no value at all is quite powerful](https://tobega.blogspot.com/2021/05/the-power-of-nothing.html).
 I have also made an attempt to do a [Cognitive Dimensions evaluation of Tailspin](https://tobega.blogspot.com/2022/12/evaluating-tailspin-language-after.html)
 
 The inspiration for Tailspin comes mostly from XSLT, but data structures are json-like. The main idea is to let your data flow through
