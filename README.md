@@ -5,7 +5,7 @@ The next step in the evolution of Tailspin is coming up, starting work in https:
 
 The syntax will mainly remain the same, but some things will be reworked from learnings in https://tobega.blogspot.com/2024/01/usability-in-programming-language.html
 
-The implementation will also be redone from scratch, aiming at using tree-sitter and graal-vm Truffle
+The implementation will also be redone from scratch, aiming at using incremental parsing (for a language server and a REPL) and graal-vm Truffle
 
 This repo still contains a working copy of the Tailspin evolution up until 2024-01-27.
 
@@ -18,8 +18,8 @@ and the [json specification](https://www.json.org/json-en.html).
 
 Tailspin has a rather different-looking syntax, tl;dr; @ is mutable state, $ is the current value, processing is by an assembly-line
 of steps separated by -> where each step creates the next current value as input to the next step, and anything inside angle brackets (<>) is a match expression.
-For a quick introduction to Tailspin, see [learn Tailspin in y minutes](https://learnxinyminutes.com/docs/tailspin/) or look at [snippets compared to javascript](https://tobega.blogspot.com/2021/05/learning-tailspin-by-comparing-to.html) or the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html). Tailspin "functions" can return a stream of zero or more values, I've written about [how returning no value at all is quite powerful](https://tobega.blogspot.com/2021/05/the-power-of-nothing.html).
-I have also made an attempt to do a [Cognitive Dimensions evaluation of Tailspin](https://tobega.blogspot.com/2022/12/evaluating-tailspin-language-after.html)
+For a quick introduction to Tailspin, see [learn Tailspin in Y minutes](https://learnxinyminutes.com/docs/tailspin/) or look at [snippets compared to javascript](https://tobega.blogspot.com/2021/05/learning-tailspin-by-comparing-to.html) or the [introduction to tailspin programming](https://tobega.blogspot.com/2020/05/a-little-tailspin.html). Tailspin "functions" can return a stream of zero or more values, I've written about [how returning no value at all is quite powerful](https://tobega.blogspot.com/2021/05/the-power-of-nothing.html).
+I have also made an attempt to do a [Cognitive Dimensions evaluation of Tailspin](https://tobega.blogspot.com/2022/12/evaluating-tailspin-language-after.html) and an [analysis of programming language concepts](https://tobega.blogspot.com/2024/01/usability-in-programming-language.html)
 
 The inspiration for Tailspin comes mostly from XSLT, but data structures are json-like. The main idea is to let your data flow through
 a series of transforms so it should be easy to specify that flow. Transform steps can be specified as a set of templates with
@@ -30,8 +30,7 @@ Tailspin aims to let you process your data as easily and flexibly as possible, w
 without introducing lots of boilerplate. Tailspin will error if it seems you may have made a programming error.
 
 Despite the grounding in business data processing, Tailspin turns out to be fun to use and has been
-used for the [adventofcode](https://adventofcode.com/) events of [2018](https://github.com/tobega/aoc2018), [2019](https://github.com/tobega/aoc2019), [2020](https://github.com/tobega/aoc2020), [2021](https://github.com/tobega/aoc2021)
-and  [2022](https://github.com/tobega/aoc2022)
+used for the [adventofcode](https://adventofcode.com/) events of [2018](https://github.com/tobega/aoc2018), [2019](https://github.com/tobega/aoc2019), [2020](https://github.com/tobega/aoc2020), [2021](https://github.com/tobega/aoc2021), [2022](https://github.com/tobega/aoc2022) and [2023](https://github.com/tobega/aoc2023)
 
 A more advanced programming example with explanations is [TDD-ing a sudoku solver](https://tobega.blogspot.com/2020/05/creating-algorithm.html).
 There is also an example of integrating with java to create a [rock-paper-scissors REST service](https://github.com/tobega/rps-tailspin).
