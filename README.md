@@ -3,7 +3,7 @@
 ## Status
 The next step in the evolution of Tailspin is coming up, starting work in https://github.com/tobega/tailspin-v0.5
 
-The syntax will mainly remain the same, but some things will be reworked from learnings in https://tobega.blogspot.com/2024/01/usability-in-programming-language.html
+The basic structure and feel will remain the same, but syntax will be reworked from learnings in https://tobega.blogspot.com/2024/01/usability-in-programming-language.html and other ponderings
 
 The implementation will also be redone from scratch, aiming at using incremental parsing (for a language server and a REPL) and graal-vm Truffle
 
