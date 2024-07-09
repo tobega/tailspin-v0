@@ -38,6 +38,7 @@ templates follows&{left:, right:}
     $ -> \[i](($ overlap $left)... -> [$street(first..$i)..., {$street($i+1), $right}, $street($i+1~..last)...] ! \)... !
   when <[(<can-be-left>:<is-right>)]> do
     $ -> \[i](($ overlap $right)... -> [$street(first..~$i-1)..., {$street($i-1), $left}, $street($i..last)...] ! \)... !
+  when <[<is-left|is-right>]> do !VOID
   otherwise
     $street::first..~$street::last -> \(
       def i: $;
