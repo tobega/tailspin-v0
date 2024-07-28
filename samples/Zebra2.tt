@@ -15,11 +15,16 @@ end 'overlap'
 templates has&{house:}
   def street: $;
   $ -> #
+  // when one element already fits
   when <[<?(($ overlap $house) -> $::count <=2>)>]> do $ !
+  // when two different elements contain the facts required to be together
   when <[<?(($ overlap $house) -> $::count <=1>)>=2]> do !VOID
+  // when one element contains one fact together with a contradictory fact for the other property
   when <[<?(($ overlap $house) -> $::count <=1>)?(({|$|} notMatching {|$house|}) -> $::count <=1>)>]> do !VOID
+  // when one element can be augmented
   when <[<?(($ overlap $house) -> $::count <=1>)>]> do
     $ -> \[i](when <?(($ overlap $house) -> $::count <=1>)> do [$street(first..~$i)..., {$, $house}, $street($i~..last)...] ! \)... !
+  // otherwise create new solution for each possible element that can contain these facts
   otherwise $ -> \[i](({|$|} matching {|$house|})... -> [$street(first..~$i)..., {$, $house}, $street($i~..last)...] ! \)... !
 end has
 
@@ -32,13 +37,19 @@ templates follows&{left:, right:}
   local
   def street: $;
   $ -> #
+  // when the right element already follows the left
   when <[(<is-left>:<is-right>)]> do $ !
+  // when both elements exist (but implicitly not following as required)
   when <[<is-left>,<is-right>]> do !VOID
+  // when the left element is followed by one that could be augmented with the right fact
   when <[(<is-left>:<can-be-right>)]> do
     $ -> \[i](($ overlap $left)... -> [$street(first..$i)..., {$street($i+1), $right}, $street($i+1~..last)...] ! \)... !
+  // when an element that can contain the left fact is followed by an element containing the right fact
   when <[(<can-be-left>:<is-right>)]> do
     $ -> \[i](($ overlap $right)... -> [$street(first..~$i-1)..., {$street($i-1), $left}, $street($i..last)...] ! \)... !
+  // when there is an element with either fact (and implicitly cannot be made to match the requirement)
   when <[<is-left|is-right>]> do !VOID
+  // otherwise add these facts in all possible configurations
   otherwise
     $street::first..~$street::last -> \(
       def i: $;
