@@ -1283,6 +1283,25 @@ class Composer {
   }
 
   @Test
+  void leftRecurseAfterBacktrackChoice() throws IOException {
+    String program = """
+        composer recurse
+        <addition>
+        rule addition: [<addition|foo> (<'[+]'>) <INT>]
+        rule foo: <='1'|INT>
+        end recurse
+        '10+2+3' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("[[10, 2], 3]", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void leftRecurseBacktrackOne() throws IOException {
     String program = """
         composer recurse
@@ -1364,7 +1383,7 @@ class Composer {
   void leftRecursedRuleIsNotSatisfied() throws IOException {
     String program = """
         data binaryExpression <{left: <binaryExpression|"1">, op: <>, right: <binaryExpression|"1">}>
-        
+  
         composer recurse
   <addition|term>
   rule addition: {left: <addition|term> op: <'[+-]'> right: <term>}
@@ -2244,7 +2263,7 @@ class Composer {
         @: 0;
         <='.'> -> $@ (@: $@ + 1;) <='.'> -> $@ (@: $@ + 1;)
       end foo
-      
+    
       '..' -> foo -> !OUT::write
     """;
     Tailspin runner =
