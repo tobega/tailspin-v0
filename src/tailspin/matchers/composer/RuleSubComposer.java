@@ -76,6 +76,7 @@ class RuleSubComposer implements SubComposer {
 
   @Override
   public Memo backtrack(String s, Memo memo) {
+    String caughtLeftRecursion = memo.caughtLeftRecursion;
     if (name.equals(memo.caughtLeftRecursion)) {
       throw new PoppedLeftRecursionException(memo.previous);
     } else {
@@ -90,6 +91,7 @@ class RuleSubComposer implements SubComposer {
         && !name.equals(memo.namedRulesStack.remove(memo.namedRulesStack.size() - 1))) {
       throw new AssertionError("left recursion detection mismatch");
     }
+    memo.caughtLeftRecursion = caughtLeftRecursion;
     return memo;
   }
 

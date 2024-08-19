@@ -45,10 +45,8 @@ public class ChoiceSubComposer implements SubComposer {
 
   @Override
   public Memo backtrack(String s, Memo memo) {
-    String caughtLeftRecursion = memo.caughtLeftRecursion;
     SubComposer subComposer = optionComposers.get(choice);
     memo = subComposer.backtrack(s, memo);
-    memo.caughtLeftRecursion = caughtLeftRecursion;
     if (subComposer.isSatisfied()) {
       value = subComposer.getValues();
       return memo;
