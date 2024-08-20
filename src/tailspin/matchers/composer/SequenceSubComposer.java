@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import tailspin.control.ResultIterator;
+import tailspin.control.ResultIterator.QueueResult;
 import tailspin.interpreter.Scope;
 import tailspin.matchers.composer.CompositionSpec.Resolver;
 
@@ -54,9 +55,10 @@ public class SequenceSubComposer implements SubComposer {
 
   @Override
   public Object getValues() {
-    AtomicReference<Object> result = new AtomicReference<>();
+    AtomicReference<Object> result = new AtomicReference<>(new QueueResult());
     value.forEach(v -> result.set(ResultIterator.appendResultValue(result.get(), v.getValues())));
-    return result.get();
+    QueueResult collected = (QueueResult) result.get();
+    return collected.simplifiedResultIterator();
   }
 
   @Override

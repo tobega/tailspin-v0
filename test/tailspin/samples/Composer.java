@@ -1302,6 +1302,28 @@ class Composer {
   }
 
   @Test
+  void leftRecurseBug() throws IOException {
+    // The bug manifested because a ResultIterator was returned as the first result in a sequence,
+    // which then appended the rest of the sequence to that, resulting in repeating values.
+    String program = """
+        composer recurse
+        <addition>
+        rule addition: <addition|term> <'[+-]'> (<WS>?) <term> (<WS>?)
+        rule term: <INT|reference> (<WS>?)
+        rule reference: <='$$'> <='foo'>
+        end recurse
+        '$$foo - 3' -> recurse -> !OUT::write""";
+    Tailspin runner =
+        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
+
+    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    runner.run(input, output, List.of());
+
+    assertEquals("$foo-3", output.toString(StandardCharsets.UTF_8));
+  }
+
+  @Test
   void leftRecurseBacktrackOne() throws IOException {
     String program = """
         composer recurse

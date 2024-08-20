@@ -14,8 +14,7 @@ public interface ResultIterator {
 
   static void forEach(Object obj, Consumer<Object> receiver) {
     if (obj == null) return;
-    if (obj instanceof ResultIterator) {
-      ResultIterator ri = (ResultIterator) obj;
+    if (obj instanceof ResultIterator ri) {
       Object r;
       while ((r = ri.getNextResult()) != null) {
         if (r instanceof ResultIterator) {
@@ -32,10 +31,9 @@ public interface ResultIterator {
   /** Returns null, a value or a ResultIterator.Flat with no included delayed executions */
   static Object resolveSideEffects(Object obj) {
     if (obj == null) return null;
-    if (obj instanceof ResultIterator) {
+    if (obj instanceof ResultIterator ri) {
       if (obj instanceof ResultIterator.Flat) return obj;
       Object result = null;
-      ResultIterator ri = (ResultIterator) obj;
       Object r;
       while ((r = ri.getNextResult()) != null) {
         if (r instanceof ResultIterator) {
@@ -94,7 +92,7 @@ public interface ResultIterator {
     private final Queue<Object> results;
     ResultIterator nested;
 
-    QueueResult() {
+    public QueueResult() {
       results = new ArrayDeque<>();
     }
 
@@ -124,6 +122,12 @@ public interface ResultIterator {
 
     public void append(Object nextValue) {
       results.add(nextValue);
+    }
+
+    public Object simplifiedResultIterator() {
+      if (results.isEmpty()) return null;
+      if (results.size() == 1) return results.peek();
+      return this;
     }
   }
 }
