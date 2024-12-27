@@ -1269,7 +1269,7 @@ class Composer {
     String program = """
         composer recurse
         <addition>
-        rule addition: [<INT|addition|INT> (<'[+]'>) <INT>]
+        rule addition: [<INT|addition> (<'[+]'>) <INT>]
         end recurse
         '1+2+3+4' -> recurse -> !OUT::write""";
     Tailspin runner =
@@ -1447,7 +1447,7 @@ class Composer {
     String program = """
         composer recurse
           <term>
-          rule term: [<'.'|power|'.'>]
+          rule term: [<'.'|power>]
           rule power: <term> (<='^'>) <'.'>
         end recurse
         '2^3^4' -> recurse -> !OUT::write""";
