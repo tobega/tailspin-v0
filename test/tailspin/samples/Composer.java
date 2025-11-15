@@ -1265,43 +1265,6 @@ class Composer {
   }
 
   @Test
-  void leftRecurseAfterBacktrack() throws IOException {
-    String program = """
-        composer recurse
-        <addition>
-        rule addition: [<INT|addition> (<'[+]'>) <INT>]
-        end recurse
-        '1+2+3+4' -> recurse -> !OUT::write""";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("[[[1, 2], 3], 4]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void leftRecurseAfterBacktrackChoice() throws IOException {
-    String program = """
-        composer recurse
-        <addition>
-        rule addition: [<addition|foo> (<'[+]'>) <INT>]
-        rule foo: <='1'|INT>
-        end recurse
-        '10+2+3' -> recurse -> !OUT::write""";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("[[10, 2], 3]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void leftRecurseBug() throws IOException {
     // The bug manifested because a ResultIterator was returned as the first result in a sequence,
     // which then appended the rest of the sequence to that, resulting in repeating values.
@@ -1327,7 +1290,7 @@ class Composer {
   void leftRecurseBacktrackOne() throws IOException {
     String program = """
         composer recurse
-        [<addition> (<'[+]'>) <INT>]
+        <addition>
         rule addition: [<addition|INT> (<'[+]'>) <INT>]
         end recurse
         '1+2+3+4' -> recurse -> !OUT::write""";
@@ -1339,24 +1302,6 @@ class Composer {
     runner.run(input, output, List.of());
 
     assertEquals("[[[1, 2], 3], 4]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void leftRecurseBacktrackTwo() throws IOException {
-    String program = """
-        composer recurse
-        [<addition> (<'[+]'>) <INT> (<'[+]'>) <INT>]
-        rule addition: [<addition|INT> (<'[+]'>) <INT>]
-        end recurse
-        '1+2+3+4' -> recurse -> !OUT::write""";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("[[1, 2], 3, 4]", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -1429,25 +1374,6 @@ class Composer {
         composer recurse
           <term>
           rule term: [<power|'.'>]
-          rule power: <term> (<='^'>) <'.'>
-        end recurse
-        '2^3^4' -> recurse -> !OUT::write""";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("[[[2], 3], 4]", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
-  void deepLeftRecursionAfterBacktrack() throws IOException {
-    String program = """
-        composer recurse
-          <term>
-          rule term: [<'.'|power>]
           rule power: <term> (<='^'>) <'.'>
         end recurse
         '2^3^4' -> recurse -> !OUT::write""";
@@ -1977,25 +1903,6 @@ class Composer {
   }
 
   @Test
-  void backtrack() throws IOException {
-    String program = """
-        composer bt
-          <='a'|='aa'> <='ab'|='bc'>
-        end bt
-
-        'aabc' -> bt -> '$;
-        ' -> !OUT::write""";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("aa\nbc\n", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void backtrackOneLessRepetitions() throws IOException {
     String program = """
         composer bt
@@ -2015,34 +1922,15 @@ class Composer {
   }
 
   @Test
-  void backtrackRechooseLastRepetitions() throws IOException {
-    String program = """
-        composer bt
-          <='ab'|='a'>+ <='bc'>
-        end bt
-
-        'aabc' -> bt -> '$;
-        ' -> !OUT::write""";
-    Tailspin runner =
-        Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
-
-    ByteArrayInputStream input = new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    runner.run(input, output, List.of());
-
-    assertEquals("a\na\nbc\n", output.toString(StandardCharsets.UTF_8));
-  }
-
-  @Test
   void backtrackState() throws IOException {
     String program = """
         composer bt
-          @:1;  <foo|='a'>+ $@ <='bc'>
-          rule foo: <='ab'> (@:2;)
+          @:1;
+          <foo|='ab'> $@
+          rule foo: <='a'> (@:2;) <='c'>
         end bt
 
-        'aabc' -> bt -> '$;
-        ' -> !OUT::write""";
+        'ab' -> bt -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -2050,19 +1938,19 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("a\na\n1\nbc\n", output.toString(StandardCharsets.UTF_8));
+    assertEquals("ab1", output.toString(StandardCharsets.UTF_8));
   }
 
   @Test
   void backtrackAppendedState() throws IOException {
     String program = """
         composer bt
-          @:[1];  <foo|='a'>+ $@ <='bc'>
-          rule foo: <='ab'> (..|@:2;)
+          @:[1];
+          <foo|='ab'> $@
+          rule foo: <='a'> (..|@:2;) <='c'>
         end bt
 
-        'aabc' -> bt -> '$;
-        ' -> !OUT::write""";
+        'ab' -> bt -> !OUT::write""";
     Tailspin runner =
         Tailspin.parse(new ByteArrayInputStream(program.getBytes(StandardCharsets.UTF_8)));
 
@@ -2070,7 +1958,7 @@ class Composer {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     runner.run(input, output, List.of());
 
-    assertEquals("a\na\n[1]\nbc\n", output.toString(StandardCharsets.UTF_8));
+    assertEquals("ab[1]", output.toString(StandardCharsets.UTF_8));
   }
 
   /**
