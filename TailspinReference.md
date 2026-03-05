@@ -59,7 +59,7 @@ should have been used instead. This is deliberate in order to free the mind of p
 ## Basic structure
 A typical tailspin statement starts with a [source](#sources) for a value (or more correctly a [stream](#streams) of values),
 which is then sent (usually by the `->` marker) through a series of [transforms](#transforms)
-(a.k.a. a _value chain_) to a [sink](#sinks). In contexts that can produce a value, you can end with an
+(a.k.a. a _value chain_) to a [sink](#sinks). Think of it as a production line in a factory. In contexts that can produce a value, you can end with an
 exclamation point `!` to emit the resulting value into the outer calling context (this is similar to a "yield"
 in a generator in other languages, except that the processing continues right away).
 
@@ -879,10 +879,12 @@ Since parameters are defined in a structure literal, they will be subject to the
 If the parameter name already has a type defined (or autotyped), it will use the defined type, otherwise it will define a new local type.
 
 ## Streams
-Streams occur when zero or more values are created as the _current value_. Streams are processed by
-repeating each step of the chain by setting __each__ of the stream values as the _current value_ in turn.
+Most languages are designed to handle one value at a time, like a single number or a list of numbers, but in Tailspin you don't have to keep a list together as a single value, you can just let the values from it flow out in a stream. This is really just a for-each loop, but without the ceremony.
+
+Streams are processed by
+repeating each step of the chain (or production line, if you like) by setting __each__ of the stream values as the _current value_ in turn.
 If a stream has no values, nothing gets done on the following parts of the chain.
-See also the note on [side effects](#side-effects).
+See also the note on [side effects](#side-effects). Again, this isn't really strange, it is just a sequence of map operations (or, rather, flatMap, because you can produce zero or more values from each input), but without the ceremony and noise of having to write `map` at every step.
 
 Streams can be captured into an [array](#arrays) by surrounding them with an [array literal](#array-literal).
 
