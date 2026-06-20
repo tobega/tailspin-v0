@@ -42,6 +42,20 @@ public class MultiplierSubComposer implements SubComposer {
         break;
       }
     }
+    if (!isSatisfied()) {
+      memo = rewind(s, memo);
+    }
+    return memo;
+  }
+
+  private Memo rewind(String s, Memo memo) {
+    while (!values.isEmpty()) {
+      SubComposer last = values.remove(values.size() - 1);
+      do {
+        memo = last.backtrack(s, memo);
+      } while (last.isSatisfied());
+    }
+    values = null;
     return memo;
   }
 
@@ -55,7 +69,10 @@ public class MultiplierSubComposer implements SubComposer {
     memo = last.backtrack(s, memo);
     if (last.isSatisfied()) {
       values.add(last);
-      return addRepetitions(s, memo);
+    }
+    // Make sure just one less repetition is acceptable
+    if (!isSatisfied()) {
+      memo = rewind(s, memo);
     }
     return memo;
   }

@@ -81,9 +81,9 @@ public class RangeGenerator implements Expression {
     long endBound = ((Number) upperValue).longValue();
     if (!upperBound.inclusive) {
       if (increment > 0) {
-        endBound = Math.floorDiv((endBound - 1 - startBound), increment) * increment + startBound;
+        endBound -= 1;
       } else {
-        endBound = Math.floorDiv((endBound + 1 - startBound), increment) * increment + startBound;
+        endBound += 1;
       }
     }
     Long end = resolver.resolveUpperRangeLimit(endBound);

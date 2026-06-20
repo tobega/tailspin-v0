@@ -1,0 +1,39 @@
+data colour #{
+  white: {rgb: [x ffffff x]},
+  red: {rgb: [x ff0000 x]},
+  green: {rgb: [x 00ff00 x]},
+  blue: {rgb: [x 0000ff x]},
+  black: {rgb: [x 000000 x]}
+}
+
+data extra_colour #{
+  pink: 81,
+  cyan: 66
+}
+
+def foo: colour#{
+*: 0, green: 1
+};
+
+def colours: (colour|extra_colour)#{
+*: 'foo', colour#red: 'bar', extra_colour#cyan: 'qux'
+};
+
+$foo(red)
+
+{ colour#: white } vs { colour: { name: 'pink', rgb: [x ffcccc x] }
+
+def rgbValues: $colour(#{rgb:})};
+$rgbValues([#white]) -> !OUT::write
+
+$colour(colour#white) -> \(
+   <´´ colour> $ !
+   <´´ colour#> 'no' !
+\) ->$.rgb -> !OUT::write
+
+colour#white -> \(
+  <´´ colour> 'no' !
+  <´´ colour#> $ !
+\) -> \(
+  <=colour#white> $colour(#red).rgb !
+\) -> !OUT::write
